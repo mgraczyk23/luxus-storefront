@@ -1,26 +1,292 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ── Base ──────────────────────────────────────────────────────────────── */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0a0a0a;
+  color: #ededed;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Luxus Collection — Responsive Overrides ───────────────────────────── */
+/*
+ * Pages use inline styles (style={{...}}), so this stylesheet targets them
+ * with attribute selectors and !important to fold layouts at smaller viewports.
+ *
+ * Breakpoints:
+ *   Mobile : ≤ 640px
+ *   Tablet : 641–1024px
+ *   Desktop: ≥ 1025px (no override, inline styles apply)
+ */
+
+/* 1440px content-area normalisation */
+@media (min-width: 641px) {
+  [style*="max-width: 1440px"][style*="padding: 0 40px"],
+  [style*="max-width: 1440px"][style*="padding: 14px 40px"],
+  [style*="max-width: 1440px"][style*="padding: 36px 40px"],
+  [style*="max-width: 1440px"][style*="padding: 48px 40px"],
+  [style*="max-width: 1440px"][style*="padding: 52px 40px"],
+  [style*="max-width: 1440px"][style*="padding: 64px 40px"],
+  [style*="max-width: 1440px"][style*="padding: 72px 40px"],
+  [style*="max-width: 1440px"][style*="padding: 80px 40px"],
+  [style*="max-width: 1440px"][style*="padding: 96px 40px"] {
+    box-sizing: content-box !important;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── TABLET — 641 to 1024 px ─────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  [style*="padding: 0 40px"],
+  [style*="padding: 0px 40px"]                            { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 14px 40px"]                           { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 36px 40px"],
+  [style*="padding: 36px 40px 28px"]                      { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 48px 40px"]                           { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 52px 40px"],
+  [style*="padding: 52px 40px 40px"],
+  [style*="padding: 52px 40px 48px"],
+  [style*="padding: 52px 40px 52px"]                      { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 64px 40px"]                           { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 72px 40px"],
+  [style*="padding: 72px 40px 0"]                         { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 80px 40px"]                           { padding-left: 24px !important; padding-right: 24px !important; }
+  [style*="padding: 80px 0 0"]                            { padding-left: 0 !important; padding-right: 0 !important; }
+  [style*="padding: 96px 40px"]                           { padding-left: 24px !important; padding-right: 24px !important; }
+
+  [style*="grid-template-columns: repeat(4,1fr)"],
+  [style*="grid-template-columns: repeat(4, 1fr)"]        { grid-template-columns: repeat(2, 1fr) !important; }
+  [style*="grid-template-columns: repeat(3,1fr)"],
+  [style*="grid-template-columns: repeat(3, 1fr)"]        { grid-template-columns: repeat(2, 1fr) !important; gap: 32px !important; }
+  [style*="grid-template-columns: 2fr 1fr 1fr 1fr"]       { grid-template-columns: 1fr 1fr !important; gap: 40px !important; }
+  [style*="grid-template-columns: 240px 1fr"]             { grid-template-columns: 200px 1fr !important; gap: 32px !important; }
+  [style*="grid-template-columns: 1fr 1.4fr"],
+  [style*="grid-template-columns: 1fr 1.6fr"]             { grid-template-columns: 1fr !important; gap: 40px !important; }
+  [style*="grid-template-columns: 1fr 1.2fr"],
+  [style*="grid-template-columns: 1fr 1.5fr"],
+  [style*="grid-template-columns: 1.1fr 1fr"],
+  [style*="grid-template-columns: 1.2fr 1fr"]             { grid-template-columns: 1fr !important; gap: 48px !important; }
+  [style*="grid-template-columns: 1fr 360px"],
+  [style*="grid-template-columns: 1fr 380px"]             { grid-template-columns: 1fr !important; gap: 32px !important; }
+  [style*="grid-template-columns: 1.3fr 1fr"]             { grid-template-columns: 1fr !important; gap: 40px !important; }
+}
+
+/* ── MOBILE — ≤ 640 px ───────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  header > div > nav                                      { display: none !important; }
+  header .nav-link:not(svg):not(button)                   { display: none !important; }
+  header > div                                            { padding-left: 16px !important; padding-right: 16px !important; gap: 12px !important; }
+  header img[alt="Luxus Collection"]                      { height: 34px !important; }
+  header > div + div                                      { padding-left: 18px !important; padding-right: 18px !important; }
+
+  [style*="padding: 0 40px"],
+  [style*="padding: 0px 40px"]                            { padding-left: 18px !important; padding-right: 18px !important; }
+  [style*="padding: 14px 40px"]                           { padding: 14px 18px !important; }
+  [style*="padding: 36px 40px"],
+  [style*="padding: 36px 40px 28px"]                      { padding: 36px 18px 28px !important; }
+  [style*="padding: 48px 40px"]                           { padding: 48px 18px !important; }
+  [style*="padding: 52px 40px"]                           { padding: 44px 18px !important; }
+  [style*="padding: 52px 40px 40px"]                      { padding: 44px 18px 32px !important; }
+  [style*="padding: 52px 40px 48px"]                      { padding: 44px 18px 36px !important; }
+  [style*="padding: 52px 40px 52px"]                      { padding: 44px 18px !important; }
+  [style*="padding: 64px 40px"]                           { padding: 56px 18px !important; }
+  [style*="padding: 72px 40px"],
+  [style*="padding: 72px 40px 0"]                         { padding: 56px 18px 0 !important; }
+  [style*="padding: 80px 40px"]                           { padding: 56px 18px !important; }
+  [style*="padding: 96px 40px"]                           { padding: 64px 18px !important; }
+  [style*="padding: 80px 72px"]                           { padding: 48px 24px !important; }
+
+  [style*="grid-template-columns: 1fr 1fr"]               { grid-template-columns: 1fr !important; gap: 32px !important; }
+  [style*="grid-template-columns: 1fr 1.2fr"],
+  [style*="grid-template-columns: 1fr 1.4fr"],
+  [style*="grid-template-columns: 1fr 1.5fr"],
+  [style*="grid-template-columns: 1fr 1.6fr"],
+  [style*="grid-template-columns: 1.1fr 1fr"],
+  [style*="grid-template-columns: 1.2fr 1fr"],
+  [style*="grid-template-columns: 1.4fr 1fr"],
+  [style*="grid-template-columns: 1.3fr 1fr"]             { grid-template-columns: 1fr !important; gap: 32px !important; }
+  [style*="grid-template-columns: 2fr 1fr 1fr 1fr"]       { grid-template-columns: 1fr !important; gap: 28px !important; }
+  [style*="grid-template-columns: 1fr 360px"],
+  [style*="grid-template-columns: 1fr 380px"]             { grid-template-columns: 1fr !important; gap: 32px !important; }
+  [style*="grid-template-columns: 240px 1fr"]             { grid-template-columns: 1fr !important; gap: 24px !important; }
+  [style*="grid-template-columns: repeat(3"]              { grid-template-columns: 1fr !important; gap: 28px !important; }
+  [style*="grid-template-columns: repeat(4"]              { grid-template-columns: 1fr !important; gap: 18px !important; }
+
+  [style*="gap: 44px"]                                    { gap: 24px !important; flex-wrap: wrap !important; }
+  [style*="gap: 80px"]                                    { gap: 32px !important; }
+  [style*="gap: 60px"]                                    { gap: 28px !important; }
+
+  [style*="left: -44px"],
+  [style*="left: -36px"]                                  { left: 0 !important; right: 0 !important; max-width: calc(100% - 24px) !important; }
+
+  [style*="aspect-ratio: 4/5"][style*="max-height: 560px"] { max-height: 420px !important; }
+  [style*="bottom: 40px"][style*="left: -36px"]           { bottom: 18px !important; left: 14px !important; right: 14px !important; min-width: 0 !important; }
+  [style*="height: 320px"][style*="border: 1px solid"]    { height: 240px !important; }
+  [style*="width: 168px"][style*="height: 78px"]          { width: calc(50% - 6px) !important; }
+  [style*="maxHeight: 580px"],
+  [style*="max-height: 580px"]                            { max-height: 360px !important; }
+
+  div[style*="position: absolute"][style*="display: flex"] > div[style*="155deg"] { display: none !important; }
+
+  [style*="position: sticky"][style*="top: 88px"]         { position: static !important; max-height: none !important; }
+  [style*="position: sticky"][style*="top: 96px"]         { position: static !important; }
+
+  [style*="grid-template-columns: 96px 1fr auto"]         { grid-template-columns: 1fr !important; gap: 14px !important; }
+  [style*="width: 96px"][style*="height: 96px"]           { width: 100% !important; max-width: 220px !important; height: auto !important; aspect-ratio: 1 / 1 !important; }
+  [style*="grid-template-columns: 96px 1fr auto"] > div[style*="text-align: right"] { text-align: left !important; }
+
+  img                                                     { max-width: 100%; height: auto; }
+
+  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] { text-align: center !important; }
+  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > img { margin: 0 auto !important; }
+  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] p { max-width: 320px !important; margin-left: auto !important; margin-right: auto !important; }
+  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > div[style*="flex-direction: column"][style*="gap: 9px"] { align-items: center !important; }
+  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > div[style*="flex-wrap: wrap"][style*="gap: 8px"] { justify-content: center !important; }
+  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > div[style*="flex-direction: column"][style*="gap: 9px"] > span { text-align: center !important; }
+  footer [style*="border-top"] [style*="justify-content: space-between"] { flex-direction: column !important; text-align: center !important; align-items: center !important; gap: 14px !important; }
+  footer [style*="border-top"] [style*="justify-content: space-between"] > div { justify-content: center !important; flex-wrap: wrap !important; }
+}
+
+/* ── TINY MOBILE — ≤ 380 px ─────────────────────────────────────────── */
+@media (max-width: 380px) {
+  header > div                                            { padding-left: 12px !important; padding-right: 12px !important; gap: 8px !important; }
+  header img[alt="Luxus Collection"]                      { height: 28px !important; }
+  [style*="padding: 96px 40px"]                           { padding: 48px 14px !important; }
+  [style*="padding: 80px 40px"]                           { padding: 44px 14px !important; }
+  [style*="padding: 64px 40px"]                           { padding: 40px 14px !important; }
+  [style*="padding: 0 40px"]                              { padding-left: 14px !important; padding-right: 14px !important; }
+}
+
+/* ── Account Page — Order History mobile layout ─────────────────────── */
+@media (max-width: 640px) {
+  .lxs-order-head {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px 18px !important;
+    padding: 16px 18px !important;
+    position: relative !important;
+    padding-right: 38px !important;
+  }
+  .lxs-order-head .lxs-oh-chev { position: absolute !important; top: 22px !important; right: 18px !important; }
+  .lxs-order-head .lxs-oh-id     { grid-column: 1; grid-row: 1; }
+  .lxs-order-head .lxs-oh-status { grid-column: 2; grid-row: 1; }
+  .lxs-order-head .lxs-oh-date   { grid-column: 1; grid-row: 2; }
+  .lxs-order-head .lxs-oh-total  { grid-column: 2; grid-row: 2; text-align: right; }
+  .lxs-order-head > div > div:first-child { font-size: 7.5px !important; }
+  .lxs-order-meta { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .lxs-order-meta > div:last-child { align-items: flex-start !important; padding-top: 10px !important; }
+}
+
+/* ── Product Listing Page ────────────────────────────────────────────── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .lxs-listing-layout                                     { grid-template-columns: 220px 1fr !important; gap: 32px !important; }
+  .lxs-product-grid                                       { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .lxs-listing-layout                                     { grid-template-columns: 1fr !important; gap: 0 !important; padding: 24px 10px 56px !important; }
+  .lxs-filter-aside                                       { display: none !important; }
+  .lxs-mobile-filter-btn                                  { display: inline-flex !important; }
+  .lxs-product-grid                                       { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+}
+@media (max-width: 380px) {
+  .lxs-product-grid                                       { gap: 10px !important; }
+}
+
+/* ── GunBroker auction grid ──────────────────────────────────────────── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .lxs-auction-grid > div                                 { flex: 0 1 calc(50% - 9px) !important; max-width: calc(50% - 9px) !important; }
+}
+@media (max-width: 640px) {
+  .lxs-auction-grid                                       { gap: 16px !important; }
+  .lxs-auction-grid > div                                 { flex: 0 1 100% !important; max-width: 100% !important; min-width: 0 !important; }
+}
+
+/* ── Product Detail — sticky buy bar ────────────────────────────────── */
+@media (max-width: 640px) {
+  .lxs-sticky-buy                                         { padding: 8px 14px !important; }
+  .lxs-sticky-buy > div                                   { gap: 12px !important; }
+  .lxs-sticky-buy > div > div:first-child                 { gap: 0 !important; }
+  .lxs-sticky-buy > div > div:first-child > span:first-child,
+  .lxs-sticky-buy > div > div:first-child > span:last-child { display: none !important; }
+  .lxs-sticky-buy > div > div:first-child > span:nth-child(2) { font-size: 13px !important; line-height: 1.2 !important; }
+  .lxs-sticky-buy > div > div:last-child                  { gap: 10px !important; }
+  .lxs-sticky-buy > div > div:last-child > span           { font-size: 13px !important; }
+  .lxs-sticky-buy > div > div:last-child > button         { padding: 8px 14px !important; font-size: 8.5px !important; letter-spacing: 0.12em !important; }
+}
+
+/* ── Global mobile nav ───────────────────────────────────────────────── */
+/* display is NOT set in the component's inline style — CSS has full control here */
+.lxs-mnav-cluster { display: none; }
+@media (max-width: 640px) {
+  .lxs-mnav-cluster { display: flex; }
+  header > div > div:last-child { display: none !important; }
+}
+
+.lxs-mnav-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: flex-end;
+  animation: lxsMnavFade 0.2s ease;
+}
+.lxs-mnav-panel {
+  width: 86vw;
+  max-width: 360px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.45);
+  animation: lxsMnavSlide 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+@keyframes lxsMnavFade  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lxsMnavSlide { from { transform: translateX(8%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+@media (min-width: 641px) {
+  header div[style*="flex-direction: column"][style*="gap: 4px"][style*="cursor: pointer"] {
+    display: none !important;
+  }
+}
+
+/* ── Product card mobile ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .lxs-product-grid [style*="justify-content: space-between"][style*="align-items: center"] {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  .lxs-product-grid [style*="border-bottom: 1px solid"][style*="text-transform: uppercase"] {
+    padding: 8px 0 !important;
+    width: 100%;
+    text-align: left;
+    display: inline-block;
+    min-height: 32px;
+    line-height: 1.4;
+  }
+}
+
+/* ── Tap targets ─────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  button, a { -webkit-tap-highlight-color: rgba(192, 149, 48, 0.15); }
+  .lxs-mobile-filter-btn { min-height: 44px !important; padding: 11px 18px !important; }
+  [style*="border-bottom: 1px solid"][style*="text-transform: uppercase"][style*="cursor: pointer"] {
+    padding-top: 4px !important;
+    padding-bottom: 6px !important;
+  }
+  [style*="text-transform: uppercase"][style*="cursor: pointer"][style*="padding: 9px"],
+  [style*="text-transform: uppercase"][style*="cursor: pointer"][style*="padding: 8px"] {
+    padding-top: 11px !important;
+    padding-bottom: 11px !important;
+  }
 }

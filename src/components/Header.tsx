@@ -65,8 +65,8 @@ function MobileNav({ cartCount }: { cartCount: number }) {
 
   return (
     <>
-      {/* Mobile control cluster */}
-      <div className="lxs-mnav-cluster" style={{ position: "fixed", top: "17px", right: "16px", zIndex: 9998, display: "flex", gap: "8px" }}>
+      {/* Mobile control cluster — display controlled by CSS (.lxs-mnav-cluster) */}
+      <div className="lxs-mnav-cluster" style={{ position: "fixed", top: "17px", right: "16px", zIndex: 9998, gap: "8px" }}>
         {/* Search */}
         <button style={btnStyle} onClick={() => setSearchOpen(true)} aria-label="Open search"
           onMouseEnter={e => (e.currentTarget.style.borderColor = (isDark ? "#c09530" : "#7e5e10") + "88")}
