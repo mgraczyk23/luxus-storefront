@@ -147,14 +147,7 @@ a {
 
   img                                                     { max-width: 100%; height: auto; }
 
-  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] { text-align: center !important; }
-  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > img { margin: 0 auto !important; }
-  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] p { max-width: 320px !important; margin-left: auto !important; margin-right: auto !important; }
-  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > div[style*="flex-direction: column"][style*="gap: 9px"] { align-items: center !important; }
-  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > div[style*="flex-wrap: wrap"][style*="gap: 8px"] { justify-content: center !important; }
-  footer [style*="grid-template-columns: 2fr 1fr 1fr 1fr"] > div > div[style*="flex-direction: column"][style*="gap: 9px"] > span { text-align: center !important; }
-  footer [style*="border-top"] [style*="justify-content: space-between"] { flex-direction: column !important; text-align: center !important; align-items: center !important; gap: 14px !important; }
-  footer [style*="border-top"] [style*="justify-content: space-between"] > div { justify-content: center !important; flex-wrap: wrap !important; }
+  /* footer layout handled by .lxs-footer-* class rules below */
 }
 
 /* ── TINY MOBILE — ≤ 380 px ─────────────────────────────────────────── */
@@ -184,6 +177,25 @@ a {
   .lxs-order-head > div > div:first-child { font-size: 7.5px !important; }
   .lxs-order-meta { grid-template-columns: 1fr !important; gap: 14px !important; }
   .lxs-order-meta > div:last-child { align-items: flex-start !important; padding-top: 10px !important; }
+}
+
+/* ── Footer mobile ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .lxs-footer                    { padding: 48px 20px 0 !important; }
+  .lxs-footer-grid               { grid-template-columns: 1fr 1fr 1fr !important; gap: 36px 14px !important; margin-bottom: 40px !important; }
+  .lxs-footer-brand              { grid-column: 1 / -1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; text-align: center !important; }
+  .lxs-footer-brand-logo         { margin-left: auto !important; margin-right: auto !important; }
+  .lxs-footer-brand-blurb        { max-width: 280px !important; margin-left: auto !important; margin-right: auto !important; }
+  .lxs-footer-contact            { align-items: center !important; }
+  .lxs-footer-social             { justify-content: center !important; }
+  .lxs-footer-bottom             { flex-direction: column !important; align-items: center !important; text-align: center !important; gap: 14px !important; }
+  .lxs-footer-legal              { justify-content: center !important; text-align: center !important; flex-wrap: wrap !important; }
+}
+
+@media (max-width: 380px) {
+  .lxs-footer                    { padding: 40px 14px 0 !important; }
+  .lxs-footer-grid               { grid-template-columns: 1fr 1fr !important; gap: 28px 12px !important; }
+  .lxs-footer-nav-col:last-child { grid-column: 1 / -1 !important; }
 }
 
 /* ── Product Listing Page ────────────────────────────────────────────── */
