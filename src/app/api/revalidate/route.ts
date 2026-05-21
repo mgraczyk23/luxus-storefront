@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid secret" }, { status: 401 })
   }
 
-  revalidateTag("products")
+  revalidateTag("products", { expire: 0 })
   revalidatePath("/", "layout")
 
   return NextResponse.json({ revalidated: true })
