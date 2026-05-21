@@ -157,7 +157,7 @@ function ProductCard({ product, isDark, small = false }: {
             src={product.thumbnail}
             alt={product.title}
             fill
-            style={{ objectFit: "cover" }}
+            style={{ objectFit: "contain" }}
             sizes="(max-width: 640px) 50vw, 25vw"
           />
         ) : (
@@ -237,7 +237,7 @@ function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean })
     >
       <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0 }}>
         {auction.thumbnail ? (
-          <Image src={auction.thumbnail} alt={auction.title} fill style={{ objectFit: "cover" }} sizes="25vw" />
+          <Image src={auction.thumbnail} alt={auction.title} fill style={{ objectFit: "contain" }} sizes="25vw" />
         ) : (
           <ImgBox isDark={isDark} style={{ width: "100%", height: "100%" }} />
         )}
