@@ -151,19 +151,17 @@ function ProductCard({ product, isDark, small = false }: {
         display: "flex", flexDirection: "column",
       }}
     >
-      <div style={{ position: "relative", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0 }}>
         {product.thumbnail ? (
-          <div style={{ position: "relative", height: small ? "152px" : "210px", overflow: "hidden" }}>
-            <Image
-              src={product.thumbnail}
-              alt={product.title}
-              fill
-              style={{ objectFit: "cover" }}
-              sizes="(max-width: 640px) 50vw, 25vw"
-            />
-          </div>
+          <Image
+            src={product.thumbnail}
+            alt={product.title}
+            fill
+            style={{ objectFit: "cover" }}
+            sizes="(max-width: 640px) 50vw, 25vw"
+          />
         ) : (
-          <ImgBox isDark={isDark} style={{ height: small ? "152px" : "210px" }} />
+          <ImgBox isDark={isDark} style={{ width: "100%", height: "100%" }} />
         )}
         {product.details?.primary_category && (
           <div style={{
@@ -237,13 +235,11 @@ function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean })
         textDecoration: "none", color: "inherit",
       }}
     >
-      <div style={{ position: "relative", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0 }}>
         {auction.thumbnail ? (
-          <div style={{ position: "relative", height: "210px", overflow: "hidden" }}>
-            <Image src={auction.thumbnail} alt={auction.title} fill style={{ objectFit: "cover" }} sizes="25vw" />
-          </div>
+          <Image src={auction.thumbnail} alt={auction.title} fill style={{ objectFit: "cover" }} sizes="25vw" />
         ) : (
-          <ImgBox isDark={isDark} style={{ height: "210px" }} />
+          <ImgBox isDark={isDark} style={{ width: "100%", height: "100%" }} />
         )}
         <div style={{
           position: "absolute", top: "12px", left: "12px",
