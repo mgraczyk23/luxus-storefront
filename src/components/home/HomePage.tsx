@@ -176,17 +176,17 @@ function ProductCard({ product, isDark, small = false }: {
         )}
       </div>
       <div style={{ padding: small ? "14px 15px 16px" : "18px 20px 22px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>
+        <div className="lxs-card-brand" style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>
           {product.attributes?.brand}
         </div>
-        <div style={{ fontFamily: PLAYFAIR, fontSize: small ? "15px" : "19px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "5px" }}>
+        <div className="lxs-card-title" style={{ fontFamily: PLAYFAIR, fontSize: small ? "15px" : "19px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "5px" }}>
           {product.title}
         </div>
-        <div style={{ fontSize: "10.5px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.04em", marginBottom: "13px" }}>
+        <div className="lxs-card-sub" style={{ fontSize: "10.5px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.04em", marginBottom: "13px" }}>
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
         </div>
         <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }} />
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{
             fontSize: product.contact_for_pricing ? "10px" : (small ? "13px" : "15px"),
             fontWeight: product.contact_for_pricing ? 400 : 500,

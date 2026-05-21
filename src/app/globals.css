@@ -286,18 +286,15 @@ a {
 
 /* ── Product card mobile ─────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .lxs-product-grid [style*="justify-content: space-between"][style*="align-items: center"] {
+  .lxs-card-brand,
+  .lxs-card-title,
+  .lxs-card-sub        { text-align: center !important; }
+
+  .lxs-card-price-row  {
     flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 10px !important;
-  }
-  .lxs-product-grid [style*="border-bottom: 1px solid"][style*="text-transform: uppercase"] {
-    padding: 8px 0 !important;
-    width: 100%;
-    text-align: left;
-    display: inline-block;
-    min-height: 32px;
-    line-height: 1.4;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
   }
 }
 
