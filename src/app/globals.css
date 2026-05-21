@@ -19,6 +19,12 @@ a {
   text-decoration: none;
 }
 
+@keyframes lxsAuctionPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(201, 48, 48, 0.55); }
+  70%  { box-shadow: 0 0 0 7px rgba(201, 48, 48, 0);    }
+  100% { box-shadow: 0 0 0 0   rgba(201, 48, 48, 0);    }
+}
+
 /* ── Luxus Collection — Responsive Overrides ───────────────────────────── */
 /*
  * Pages use inline styles (style={{...}}), so this stylesheet targets them
