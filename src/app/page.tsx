@@ -4,6 +4,10 @@ import HomePage from "@/components/home/HomePage"
 
 export const revalidate = 60
 
+// Shared fields string — use * prefix (not +) so URLSearchParams encodes it as %2A,
+// which Medusa decodes back to * and expands the relation correctly.
+const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories"
+
 const FALLBACK_HERO = {
   label: "Featured Piece",
   title: "Nighthawk Custom Agent",
@@ -30,11 +34,7 @@ const FALLBACK_CATEGORIES = [
 
 export default async function Home() {
   const [productsRes, collectionsRes, categoriesRes] = await Promise.allSettled([
-    getProducts({
-      order: "-created_at",
-      limit: "8",
-      fields: "+variants,+variants.prices,+images,+categories",
-    }),
+    getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
   ])
@@ -43,10 +43,34 @@ export default async function Home() {
   const rawProducts = productsRes.status === "fulfilled" ? (productsRes.value.products ?? []) : []
   const products = rawProducts.map(mapMedusaProduct)
 
-  const collections = collectionsRes.status === "fulfilled"
+  // Look for a collection titled "Featured" to power the Featured Collection section.
+  // If it exists, fetch those products; otherwise fall back to newest 4.
+  const allCollections: { id: string; title?: string; name?: string }[] =
+    collectionsRes.status === "fulfilled" ? (collectionsRes.value.collections ?? []) : []
+
+  const featuredCollection = allCollections.find(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? (collectionsRes.value.collections ?? []).map((c: any) => ({ id: c.id as string, name: (c.title ?? c.name) as string }))
-    : FALLBACK_COLLECTIONS
+    (c: any) => (c.title ?? c.name ?? "").toLowerCase() === "featured"
+  )
+
+  let featuredProducts = products.slice(0, 4)
+  if (featuredCollection) {
+    const featuredRes = await getProducts({
+      "collection_id[]": featuredCollection.id,
+      limit: "4",
+      fields: PRODUCT_FIELDS,
+    }).catch(() => null)
+    if (featuredRes && featuredRes.products?.length) {
+      featuredProducts = featuredRes.products.map(mapMedusaProduct)
+    }
+  }
+
+  const collections = allCollections
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((c: any) => ({ id: c.id as string, name: (c.title ?? c.name) as string }))
+    .filter(c => c.name.toLowerCase() !== "featured")  // hide "Featured" from browse tabs
+
+  const displayCollections = collections.length > 0 ? collections : FALLBACK_COLLECTIONS
 
   const categories = categoriesRes.status === "fulfilled"
     ? (categoriesRes.value.product_categories ?? [])
@@ -55,6 +79,8 @@ export default async function Home() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((c: any) => ({ id: c.id as string, name: c.name as string }))
     : FALLBACK_CATEGORIES
+
+  const displayCategories = categories.length > 0 ? categories : FALLBACK_CATEGORIES
 
   const first = products[0]
   const heroProduct = first
@@ -69,12 +95,17 @@ export default async function Home() {
       }
     : FALLBACK_HERO
 
+  // New arrivals = most recent products not already in the featured set
+  const featuredIds = new Set(featuredProducts.map(p => p.id))
+  const newArrivals = products.filter(p => !featuredIds.has(p.id)).slice(0, 4)
+
   return (
     <HomePage
       heroProduct={heroProduct}
-      products={products}
-      collections={collections}
-      categories={categories}
+      featuredProducts={featuredProducts}
+      newArrivals={newArrivals.length > 0 ? newArrivals : products.slice(0, 4)}
+      collections={displayCollections}
+      categories={displayCategories}
     />
   )
 }

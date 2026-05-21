@@ -404,12 +404,14 @@ function ArticleCard({ article, isDark }: { article: Article; isDark: boolean })
 
 export default function HomePage({
   heroProduct,
-  products,
+  featuredProducts,
+  newArrivals,
   collections,
   categories,
 }: {
   heroProduct: HeroProduct
-  products: MappedProduct[]
+  featuredProducts: MappedProduct[]
+  newArrivals: MappedProduct[]
   collections: ShopItem[]
   categories: ShopItem[]
 }) {
@@ -418,8 +420,8 @@ export default function HomePage({
   const [email, setEmail] = useState("")
   const router = useRouter()
 
-  const featured  = products.slice(0, 4)
-  const arrivals  = products.length > 4 ? products.slice(4, 8) : products.slice(0, 4)
+  const featured = featuredProducts
+  const arrivals = newArrivals
 
   const tabItems: ShopItem[] = tab === "collections"
     ? (collections.length > 0 ? collections.slice(0, 4) : [{ id: "1", name: "1911 Series" }, { id: "2", name: "Heritage Revolvers" }, { id: "3", name: "Modern Classics" }, { id: "4", name: "Presentation Grade" }])
