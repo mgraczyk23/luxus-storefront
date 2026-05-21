@@ -344,10 +344,14 @@ a {
   grid-auto-columns: calc((100% - 3 * 14px) / 4);
 }
 
-/* Arrows hidden on mobile (swipe instead) */
-.lxs-browse-arrow { display: flex !important; }
+/* Arrows hidden on mobile (swipe instead); fades hidden on desktop (arrows serve that purpose) */
+.lxs-browse-arrow  { display: flex !important; }
+.lxs-browse-fade-r,
+.lxs-browse-fade-l { display: none; }
 @media (max-width: 640px) {
-  .lxs-browse-arrow { display: none !important; }
+  .lxs-browse-arrow  { display: none !important; }
+  .lxs-browse-fade-r,
+  .lxs-browse-fade-l { display: block; }
   /* Mobile: 2 columns visible */
   .lxs-browse-grid-col {
     grid-auto-columns: calc((100% - 14px) / 2);

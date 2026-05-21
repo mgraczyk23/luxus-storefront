@@ -411,7 +411,7 @@ function BrowseScroll({
   const t = isDark ? DARK : LIGHT
   const ref = useRef<HTMLDivElement>(null)
   const [canLeft, setCanLeft]   = useState(false)
-  const [canRight, setCanRight] = useState(false)
+  const [canRight, setCanRight] = useState(true)  // optimistic: show fade on mount
 
   useEffect(() => {
     const el = ref.current
@@ -453,6 +453,19 @@ function BrowseScroll({
         {items.map(item => renderItem(item))}
       </div>
       {canRight && <button className="lxs-browse-arrow" style={btnStyle('right')} onClick={() => doScroll(1)}  aria-label="Next">›</button>}
+      {/* Mobile-only edge fades — hint that content continues */}
+      <div className="lxs-browse-fade-r" style={{
+        position: 'absolute', right: 0, top: 0, bottom: 0, width: '52px',
+        background: `linear-gradient(to right, transparent, ${isDark ? '#141414' : '#f3f3f5'})`,
+        pointerEvents: 'none', zIndex: 2,
+        opacity: canRight ? 1 : 0, transition: 'opacity 0.35s',
+      }} />
+      <div className="lxs-browse-fade-l" style={{
+        position: 'absolute', left: 0, top: 0, bottom: 0, width: '52px',
+        background: `linear-gradient(to left, transparent, ${isDark ? '#141414' : '#f3f3f5'})`,
+        pointerEvents: 'none', zIndex: 2,
+        opacity: canLeft ? 1 : 0, transition: 'opacity 0.35s',
+      }} />
     </div>
   )
 }
