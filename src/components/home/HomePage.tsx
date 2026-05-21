@@ -320,10 +320,10 @@ function BrandTile({ brand, isDark }: { brand: typeof BRANDS[0]; isDark: boolean
   const [hov, setHov] = useState(false)
   return (
     <Link href={`/shop?by=brand&brand=${brand.slug}`}
+      className="lxs-home-brand-tile"
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        width: "168px", height: "78px",
         border: `1px solid ${hov ? t.gold + "60" : t.border}`,
         background: hov ? (isDark ? "#222222" : "#fafafa") : "transparent",
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -444,7 +444,7 @@ export default function HomePage({
         <div style={{ position: "absolute", top: "18%", bottom: "18%", left: "50%", width: "1px", background: `linear-gradient(to bottom, transparent, ${t.gold}28, transparent)` }} />
         <div style={{ position: "absolute", top: "68px", left: 0, right: 0, height: "1px", background: `linear-gradient(to right, transparent 5%, ${t.border}, transparent 95%)` }} />
 
-        <div style={{ position: "relative", zIndex: 2, maxWidth: "1440px", margin: "0 auto", padding: "80px 40px 60px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "center", width: "100%" }}>
+        <div className="lxs-home-hero-grid" style={{ position: "relative", zIndex: 2, maxWidth: "1440px", margin: "0 auto", display: "grid", alignItems: "center", width: "100%" }}>
 
           {/* Left */}
           <div>
@@ -515,7 +515,7 @@ export default function HomePage({
               </div>
             </div>
             {/* Floating product card */}
-            <div style={{
+            <div className="lxs-home-hero-card" style={{
               position: "absolute", bottom: "44px", left: "-44px",
               background: isDark ? "rgba(22,20,17,0.94)" : "rgba(255,255,255,0.96)",
               border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}`,
@@ -550,7 +550,7 @@ export default function HomePage({
       {/* FEATURED COLLECTION                                            */}
       {/* ══════════════════════════════════════════════════════════════ */}
       {featured.length > 0 && (
-        <section style={{ padding: "96px 40px" }}>
+        <section className="lxs-home-section">
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
               <SectionHead eyebrow="Handpicked Pieces" title="Featured Collection" isDark={isDark} />
@@ -560,7 +560,7 @@ export default function HomePage({
                 View All
               </Link>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "18px" }}>
+            <div className="lxs-home-product-grid" style={{ display: "grid" }}>
               {featured.map(p => <ProductCard key={p.id} product={p} isDark={isDark} />)}
             </div>
           </div>
@@ -575,7 +575,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* SHOP BY BRAND                                                  */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: "96px 40px" }}>
+      <section className="lxs-home-section">
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <SectionHead eyebrow="Manufacturers" title="Shop By Brand" isDark={isDark} center />
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "12px" }}>
@@ -587,7 +587,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* COLLECTIONS & CATEGORIES                                       */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: "96px 40px", background: isDark ? "linear-gradient(to bottom,transparent,#141414 10%,#141414 90%,transparent)" : "linear-gradient(to bottom,transparent,#f3f3f5 10%,#f3f3f5 90%,transparent)" }}>
+      <section className="lxs-home-section" style={{ background: isDark ? "linear-gradient(to bottom,transparent,#141414 10%,#141414 90%,transparent)" : "linear-gradient(to bottom,transparent,#f3f3f5 10%,#f3f3f5 90%,transparent)" }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "44px", borderBottom: `1px solid ${t.border}`, paddingBottom: "0" }}>
             <div style={{ display: "flex", gap: "0" }}>
@@ -613,7 +613,7 @@ export default function HomePage({
               View All
             </Link>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "14px" }}>
+          <div className="lxs-home-collec-grid" style={{ display: "grid" }}>
             {tabItems.map(item => (
               <CategoryTile
                 key={item.id}
@@ -630,7 +630,7 @@ export default function HomePage({
       {/* NEW ARRIVALS                                                   */}
       {/* ══════════════════════════════════════════════════════════════ */}
       {arrivals.length > 0 && (
-        <section style={{ padding: "96px 40px" }}>
+        <section className="lxs-home-section">
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
               <SectionHead eyebrow="Just Arrived" title="New Arrivals" isDark={isDark} />
@@ -640,7 +640,7 @@ export default function HomePage({
                 View All
               </Link>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "18px" }}>
+            <div className="lxs-home-product-grid" style={{ display: "grid" }}>
               {arrivals.map(p => <ProductCard key={p.id} product={p} isDark={isDark} />)}
             </div>
           </div>
@@ -650,7 +650,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* LIVE GUNBROKER AUCTIONS                                        */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: "96px 40px" }}>
+      <section className="lxs-home-section">
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
             <SectionHead eyebrow="Live at Auction" title="Currently on GunBroker" isDark={isDark} />
@@ -690,7 +690,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* FROM THE BLOG                                                  */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section style={{ padding: "96px 40px" }}>
+      <section className="lxs-home-section">
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
             <SectionHead eyebrow="Editorial" title="From The Blog" isDark={isDark} />
@@ -700,7 +700,7 @@ export default function HomePage({
               All Articles
             </Link>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "44px" }}>
+          <div className="lxs-home-article-grid" style={{ display: "grid" }}>
             {MOCK_ARTICLES.slice(0, 3).map(a => <ArticleCard key={a.id} article={a} isDark={isDark} />)}
           </div>
         </div>
@@ -709,8 +709,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* NEWSLETTER                                                     */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section style={{
-        padding: "80px 40px",
+      <section className="lxs-home-newsletter" style={{
         background: isDark ? "#0e0e0e" : "#f3f3f5",
         borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}`,
       }}>
