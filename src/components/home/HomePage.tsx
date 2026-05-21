@@ -699,7 +699,7 @@ export default function HomePage({
             </Link>
           </div>
           <div className="lxs-home-article-grid" style={{ display: "grid" }}>
-            {MOCK_ARTICLES.slice(0, 3).map(a => <ArticleCard key={a.id} article={a} isDark={isDark} />)}
+            {MOCK_ARTICLES.map(a => <ArticleCard key={a.id} article={a} isDark={isDark} />)}
           </div>
         </div>
       </section>
