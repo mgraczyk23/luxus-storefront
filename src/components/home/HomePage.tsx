@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -398,6 +398,65 @@ function ArticleCard({ article, isDark }: { article: Article; isDark: boolean })
   )
 }
 
+/* ── BrowseScroll ─────────────────────────────────────────────────────── */
+
+function BrowseScroll({
+  gridClass, items, isDark, renderItem,
+}: {
+  gridClass: string
+  items: ShopItem[]
+  isDark: boolean
+  renderItem: (item: ShopItem) => React.ReactNode
+}) {
+  const t = isDark ? DARK : LIGHT
+  const ref = useRef<HTMLDivElement>(null)
+  const [canLeft, setCanLeft]   = useState(false)
+  const [canRight, setCanRight] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const check = () => {
+      setCanLeft(el.scrollLeft > 2)
+      setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2)
+    }
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [items])
+
+  const doScroll = (dir: 1 | -1) => {
+    ref.current?.scrollBy({ left: dir * ref.current.clientWidth, behavior: 'smooth' })
+  }
+
+  const btnStyle = (side: 'left' | 'right'): React.CSSProperties => ({
+    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+    [side]: '10px', zIndex: 3,
+    background: isDark ? 'rgba(14,13,11,0.88)' : 'rgba(255,255,255,0.92)',
+    border: `1px solid ${t.gold}55`, color: t.gold,
+    width: '36px', height: '36px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    cursor: 'pointer', borderRadius: '1px',
+    fontSize: '22px', lineHeight: '1', fontFamily: 'sans-serif',
+    outline: 'none', boxShadow: isDark ? '0 4px 16px rgba(0,0,0,0.4)' : '0 4px 16px rgba(0,0,0,0.12)',
+    transition: 'background 0.2s, border-color 0.2s',
+  })
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {canLeft  && <button className="lxs-browse-arrow" style={btnStyle('left')}  onClick={() => doScroll(-1)} aria-label="Previous">‹</button>}
+      <div ref={ref} className={gridClass} onScroll={() => {
+        const el = ref.current!
+        setCanLeft(el.scrollLeft > 2)
+        setCanRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 2)
+      }}>
+        {items.map(item => renderItem(item))}
+      </div>
+      {canRight && <button className="lxs-browse-arrow" style={btnStyle('right')} onClick={() => doScroll(1)}  aria-label="Next">›</button>}
+    </div>
+  )
+}
+
 /* ── Main export ──────────────────────────────────────────────────────── */
 
 export default function HomePage({
@@ -421,9 +480,6 @@ export default function HomePage({
   const featured = featuredProducts
   const arrivals = newArrivals
 
-  const tabItems: ShopItem[] = tab === "collections"
-    ? (collections.length > 0 ? collections.slice(0, 4) : [{ id: "1", name: "1911 Series" }, { id: "2", name: "Heritage Revolvers" }, { id: "3", name: "Modern Classics" }, { id: "4", name: "Presentation Grade" }])
-    : (categories.length  > 0 ? categories.slice(0, 4)  : [{ id: "1", name: "Engraved" }, { id: "2", name: "Limited Edition" }, { id: "3", name: "Prototype" }, { id: "4", name: "Competition" }])
 
   return (
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "'Inter',sans-serif" }}>
@@ -611,16 +667,20 @@ export default function HomePage({
               View All
             </Link>
           </div>
-          <div className="lxs-home-collec-grid" style={{ display: "grid" }}>
-            {tabItems.map(item => (
+          <BrowseScroll
+            key={tab}
+            gridClass={tab === "collections" ? "lxs-browse-grid-col" : "lxs-browse-grid-cat"}
+            items={tab === "collections" ? collections : categories}
+            isDark={isDark}
+            renderItem={(item) => (
               <CategoryTile
                 key={item.id}
                 item={item}
                 isDark={isDark}
                 href={tab === "collections" ? `/shop?by=collection&id=${item.id}` : `/shop?by=category&id=${item.id}`}
               />
-            ))}
-          </div>
+            )}
+          />
         </div>
       </section>
 

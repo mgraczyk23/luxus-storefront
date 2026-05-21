@@ -33,11 +33,25 @@ const FALLBACK_CATEGORIES = [
 ]
 
 export default async function Home() {
-  const [productsRes, collectionsRes, categoriesRes] = await Promise.allSettled([
+  const [productsRes, collectionsRes, categoriesRes, catCountRes] = await Promise.allSettled([
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
+    // Fetch product→category associations to sort categories by inventory depth
+    getProducts({ limit: "500", fields: "id,*categories" }),
   ])
+
+  // Build a count map: categoryId → number of products
+  const catCountMap: Record<string, number> = {}
+  if (catCountRes.status === "fulfilled") {
+    for (const p of (catCountRes.value.products ?? [])) {
+      for (const c of (p.categories ?? [])) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const id = (c as any).id as string | undefined
+        if (id) catCountMap[id] = (catCountMap[id] ?? 0) + 1
+      }
+    }
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawProducts = productsRes.status === "fulfilled" ? (productsRes.value.products ?? []) : []
@@ -78,6 +92,9 @@ export default async function Home() {
         .filter((c: any) => !c.parent_category_id)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .map((c: any) => ({ id: c.id as string, name: c.name as string }))
+        .sort((a: { id: string }, b: { id: string }) =>
+          (catCountMap[b.id] ?? 0) - (catCountMap[a.id] ?? 0)
+        )
     : FALLBACK_CATEGORIES
 
   const displayCategories = categories.length > 0 ? categories : FALLBACK_CATEGORIES

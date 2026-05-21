@@ -316,6 +316,49 @@ a {
   }
 }
 
+/* ── Browse-by scroll grids ──────────────────────────────────────────── */
+/*
+ * The grid IS the scroll container so that grid-auto-columns percentages
+ * resolve against the visible container width, not the overflowing content.
+ */
+.lxs-browse-grid-col,
+.lxs-browse-grid-cat {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.lxs-browse-grid-col::-webkit-scrollbar,
+.lxs-browse-grid-cat::-webkit-scrollbar { display: none; }
+
+/* Collections — 1 row, 4 columns visible */
+.lxs-browse-grid-col {
+  grid-template-rows: auto;
+  grid-auto-columns: calc((100% - 3 * 14px) / 4);
+}
+/* Categories — 2 rows, 4 columns visible = 8 tiles per page */
+.lxs-browse-grid-cat {
+  grid-template-rows: auto auto;
+  grid-auto-columns: calc((100% - 3 * 14px) / 4);
+}
+
+/* Arrows hidden on mobile (swipe instead) */
+.lxs-browse-arrow { display: flex !important; }
+@media (max-width: 640px) {
+  .lxs-browse-arrow { display: none !important; }
+  /* Mobile: 2 columns visible */
+  .lxs-browse-grid-col {
+    grid-auto-columns: calc((100% - 14px) / 2);
+  }
+  /* Mobile: 3 rows × 2 cols = 6 visible, scroll for rest */
+  .lxs-browse-grid-cat {
+    grid-template-rows: auto auto auto;
+    grid-auto-columns: calc((100% - 14px) / 2);
+  }
+}
+
 /* ── Homepage layout — class-based (no inline, fully responsive) ─────── */
 .lxs-home-section      { padding: 96px 40px; }
 .lxs-home-newsletter   { padding: 80px 40px; }
