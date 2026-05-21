@@ -191,6 +191,8 @@ a {
   .lxs-footer-brand              { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; text-align: center; }
   .lxs-footer-brand-logo         { margin-left: auto; margin-right: auto; }
   .lxs-footer-brand-blurb        { max-width: 280px; margin-left: auto; margin-right: auto; }
+  .lxs-footer-nav-col            { text-align: center; }
+  .lxs-footer-nav-links          { align-items: center !important; }
   .lxs-footer-contact            { align-items: center !important; }
   .lxs-footer-social             { justify-content: center !important; }
   .lxs-footer-bottom             { flex-direction: column !important; align-items: center !important; text-align: center !important; gap: 14px !important; }
