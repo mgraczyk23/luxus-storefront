@@ -45,12 +45,14 @@ type Article = {
 /* ── Static mock data ─────────────────────────────────────────────────── */
 
 const BRANDS = [
-  { id: "1", name: "Nighthawk Custom", slug: "nighthawk-custom" },
-  { id: "2", name: "Cabot Guns",       slug: "cabot-guns"       },
-  { id: "3", name: "Korth",            slug: "korth"            },
-  { id: "4", name: "SIG Sauer",        slug: "sig-sauer"        },
-  { id: "5", name: "Colt",             slug: "colt"             },
-  { id: "6", name: "Wilson Combat",    slug: "wilson-combat"    },
+  { id: "1", name: "SIG Sauer",        slug: "sig-sauer"        },
+  { id: "2", name: "Korth",            slug: "korth"            },
+  { id: "3", name: "Colt",             slug: "colt"             },
+  { id: "4", name: "Smith & Wesson",   slug: "smith-wesson"     },
+  { id: "5", name: "Walther",          slug: "walther"          },
+  { id: "6", name: "Mauser",           slug: "mauser"           },
+  { id: "7", name: "Heckler & Koch",   slug: "heckler-koch"     },
+  { id: "8", name: "Beretta",          slug: "beretta"          },
 ]
 
 const MOCK_AUCTIONS: Auction[] = [
@@ -151,7 +153,7 @@ function ProductCard({ product, isDark, small = false }: {
     >
       <div style={{ position: "relative", flexShrink: 0 }}>
         {product.thumbnail ? (
-          <div style={{ position: "relative", height: small ? "152px" : "210px" }}>
+          <div style={{ position: "relative", height: small ? "152px" : "210px", overflow: "hidden" }}>
             <Image
               src={product.thumbnail}
               alt={product.title}
@@ -237,7 +239,7 @@ function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean })
     >
       <div style={{ position: "relative", flexShrink: 0 }}>
         {auction.thumbnail ? (
-          <div style={{ position: "relative", height: "210px" }}>
+          <div style={{ position: "relative", height: "210px", overflow: "hidden" }}>
             <Image src={auction.thumbnail} alt={auction.title} fill style={{ objectFit: "cover" }} sizes="25vw" />
           </div>
         ) : (
