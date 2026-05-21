@@ -63,11 +63,11 @@ export default function Footer() {
   }
 
   return (
-    <footer className="lxs-footer" style={{ background: isDark ? "#080808" : t.bg, padding: "72px 40px 0", fontFamily: "'Inter',sans-serif", borderTop: `1px solid ${t.border}` }}>
+    <footer className="lxs-footer" style={{ background: isDark ? "#080808" : t.bg, fontFamily: "'Inter',sans-serif", borderTop: `1px solid ${t.border}` }}>
       <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
 
         {/* Main grid: [brand 2fr] [shop 1fr] [info 1fr] [account 1fr] */}
-        <div className="lxs-footer-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "60px", marginBottom: "60px" }}>
+        <div className="lxs-footer-grid" style={{ display: "grid" }}>
 
           {/* ── Brand column ─────────────────────────────────────────── */}
           <div className="lxs-footer-brand">
