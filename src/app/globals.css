@@ -540,13 +540,17 @@ a {
 
   /* FAQ category tab bar */
   .lxs-faq-main { padding-top: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
-  .lxs-faq-sidebar { position: static !important; top: auto !important; }
+  .lxs-faq-sidebar { position: static !important; top: auto !important; overflow: hidden; }
   .lxs-faq-sidebar > div:first-child,
   .lxs-faq-sidebar > div:last-child { display: none !important; }
   .lxs-faq-cat-list {
     flex-direction: row !important;
+    flex-wrap: nowrap !important;
     gap: 0 !important;
+    width: 100%;
+    min-width: 0;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     border-bottom: 1px solid var(--lxs-border);
     padding: 0 16px;
     scrollbar-width: none;
@@ -556,6 +560,7 @@ a {
   .lxs-faq-cat-icon { display: none; }
   .lxs-faq-cat-btn {
     width: auto !important;
+    min-width: max-content;
     white-space: nowrap;
     flex-shrink: 0;
     padding: 12px 14px !important;
