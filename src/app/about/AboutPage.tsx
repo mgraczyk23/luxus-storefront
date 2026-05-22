@@ -243,6 +243,42 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* CURATION STANDARD */}
+      <section style={{ padding:"96px 40px" }}>
+        <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
+          <div className="lxs-about-curation">
+            <div>
+              <Eyebrow label="How We Select" />
+              <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(28px,3vw,44px)",fontWeight:300,color:t.text,lineHeight:1.15,marginBottom:"28px",letterSpacing:"0.01em" }}>
+                The Curation Standard
+              </h2>
+              <p style={{ fontSize:"14.5px",fontWeight:300,lineHeight:1.88,color:t.textMuted,marginBottom:"36px",letterSpacing:"0.02em" }}>
+                Not every pistol from a respected manufacturer meets our standard. Production variance, condition issues, and mismatched market positioning all factor into what we carry. Our curation process applies four criteria to every piece before it earns a listing.
+              </p>
+              <div style={{ display:"flex",flexDirection:"column" }}>
+                {[
+                  ["Manufacturer Reputation",   "We carry brands with demonstrable commitment to quality, not aspirational claims."],
+                  ["Individual Piece Condition", "New or pre-owned, every piece is graded. We describe what we see and photograph what we have."],
+                  ["Market Fit",                 "The price must reflect genuine value. We don’t inflate collector markets with artificial scarcity."],
+                  ["Provenance When Available",  "Historical or notable pieces come with documentation. We trace what can be traced."],
+                ].map(([title, body], i, arr) => (
+                  <div key={title} style={{ display:"flex",gap:"18px",padding:"20px 0",borderBottom:i<arr.length-1?`1px solid ${t.border}`:"none" }}>
+                    <div style={{ width:"6px",height:"6px",borderRadius:"50%",background:t.gold,marginTop:"7px",flexShrink:0 }}/>
+                    <div>
+                      <div style={{ fontSize:"12px",fontWeight:500,color:t.text,marginBottom:"4px",letterSpacing:"0.03em" }}>{title}</div>
+                      <div style={{ fontSize:"13px",fontWeight:300,color:t.textMuted,lineHeight:1.72,letterSpacing:"0.01em" }}>{body}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <ImgBox index={4} style={{ aspectRatio:"1/1",maxHeight:"500px",border:`1px solid ${t.border}` }}/>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* FEATURED BRANDS */}
       <section style={{ padding:"96px 40px",background:isDark?"linear-gradient(to bottom,transparent,#141414 8%,#141414 92%,transparent)":"linear-gradient(to bottom,transparent,#f3f3f5 8%,#f3f3f5 92%,transparent)" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
@@ -266,18 +302,47 @@ export default function AboutPage() {
               { name:"Colt",             origin:"USA · Hartford, CT",         description:"The original American firearm. Python, Gold Cup, Government Model, Single Action Army — Colt's heritage pieces occupy a category that no other manufacturer, American or otherwise, can genuinely claim to share." },
               { name:"Smith & Wesson",   origin:"USA · Springfield, MA",      description:"Over 170 years of American revolver and pistol heritage. The Model 29, the Performance Center series, and the classic K-frame revolvers represent the backbone of the American collecting tradition." },
               { name:"Walther",          origin:"Germany · Ulm",              description:"Precision, restraint, and nearly 140 years of German craftsmanship. From the legendary PPK and P38 to the modern PPQ and PDP, Walther's lineage spans military history and collector culture in equal measure." },
+              { name:"Ruger",            origin:"USA · Southport, CT",        description:"American ingenuity at scale. From the Mark-series rimfires to the New Model Single-Six and the Super Redhawk, Ruger pairs uncompromising mechanical reliability with a heritage of approachable craftsmanship that defines the modern American sporting arm." },
               { name:"Nighthawk Custom", origin:"USA · Berryville, AR",       description:"One pistol, one gunsmith, start to finish. Every Nighthawk 1911 is hand-fitted by a single master craftsman — a discipline that produces some of the tightest tolerances and most coveted custom-grade production pistols ever made in America." },
               { name:"Korth",            origin:"Germany · Lollar",           description:"The pinnacle of the modern collector revolver. Handcrafted in small batches with proprietary heat-treatment and tolerances measured in microns, the NXR and Sky Marshal series occupy a tier that simply has no peer in the contemporary revolver market." },
-              { name:"Cabot Guns",       origin:"USA · Cabot, PA",            description:"Investment-grade American 1911s machined from billet steel to tolerances that rival Swiss watchmaking. Every Cabot is a functional work of art that commands premium collector attention and holds its value over time." },
             ].map(brand => <BrandTile key={brand.name} {...brand} />)}
           </div>
           <div style={{ marginTop:"20px",padding:"16px 24px",border:`1px solid ${t.border}`,borderStyle:"dashed",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"12px" }}>
             <span style={{ fontSize:"13px",fontWeight:300,color:t.textMuted,letterSpacing:"0.02em",fontStyle:"italic" }}>
-              …alongside Wilson Combat, Les Baer, Ed Brown, Dan Wesson, Kimber, Springfield Armory, and more.
+              …alongside Cabot Guns, Wilson Combat, Les Baer, Ed Brown, Dan Wesson, Kimber, Springfield Armory, and more.
             </span>
             <Link href="/shop" style={{ fontSize:"9px",letterSpacing:"0.13em",textTransform:"uppercase",color:t.gold,cursor:"pointer",fontWeight:500,borderBottom:`1px solid ${t.gold}50`,paddingBottom:"1px",flexShrink:0,textDecoration:"none" }}>
               Browse All Brands
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FFL COMPLIANCE */}
+      <section style={{ padding:"96px 40px" }}>
+        <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
+          <div className="lxs-about-ffl">
+            <div>
+              <Eyebrow label="Licensing & Compliance" />
+              <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(26px,2.8vw,40px)",fontWeight:300,color:t.text,lineHeight:1.15,marginBottom:"20px" }}>
+                FFL Licensing &<br/>Legal Compliance
+              </h2>
+              <p style={{ fontSize:"14px",fontWeight:300,lineHeight:1.88,color:t.textMuted,letterSpacing:"0.02em" }}>
+                Luxus Collection holds a current Federal Firearms License and operates in full compliance with all applicable federal, state, and local laws governing the sale and transfer of firearms. Every transaction is conducted with the legal precision our customers&apos; purchases deserve.
+              </p>
+            </div>
+            <div className="lxs-about-ffl-cards">
+              {[
+                { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 1L18 5V10C18 14 14.5 17 10 19C5.5 17 2 14 2 10V5L10 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/><path d="M6.5 10L8.5 12L13.5 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"Federal Firearms License", body:"We hold FFL License #1-59-XXX-XX-XX-55688, authorizing us to engage in the business of dealing in firearms." },
+                { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10H17M3 10L7 6M3 10L7 14M17 10L13 6M17 10L13 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"State Law Compliance", body:"We screen all orders against applicable state and local laws before shipment. Buyers are responsible for understanding the laws in their jurisdiction." },
+              ].map(({ icon, heading, body }) => (
+                <div key={heading} style={{ padding:"22px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}` }}>
+                  <div style={{ color:t.gold,marginBottom:"12px" }}>{icon}</div>
+                  <div style={{ fontSize:"8.5px",letterSpacing:"0.18em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"7px",fontFamily:"var(--font-inter)" }}>{heading}</div>
+                  <p style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,lineHeight:1.75,letterSpacing:"0.01em" }}>{body}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>

@@ -435,38 +435,41 @@ a {
 /* ── Content page layouts ──────────────────────────────────────────────── */
 
 /* Contact */
-.lxs-contact-hero     { grid-template-columns: 1fr 1fr; gap: 60px; }
-.lxs-contact-channels { grid-template-columns: repeat(4, 1fr); gap: 14px; }
-.lxs-contact-form-map { grid-template-columns: 1.3fr 1fr; gap: 64px; }
-.lxs-contact-expect   { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.lxs-contact-hero     { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: flex-end; }
+.lxs-contact-channels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.lxs-contact-form-map { display: grid; grid-template-columns: 1.3fr 1fr; gap: 64px; align-items: start; }
+.lxs-contact-expect   { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 
 /* About */
-.lxs-about-hero    { grid-template-columns: 1fr 1fr; gap: 80px; }
-.lxs-about-story   { grid-template-columns: 1fr 1.2fr; gap: 100px; }
-.lxs-about-values  { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.lxs-about-mission { grid-template-columns: 1fr 1.2fr; gap: 80px; }
-.lxs-about-brands  { grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.lxs-about-cta     { grid-template-columns: 1fr 1fr; gap: 60px; }
+.lxs-about-hero       { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+.lxs-about-story      { display: grid; grid-template-columns: 1fr 1.2fr; gap: 100px; align-items: start; }
+.lxs-about-values     { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lxs-about-mission    { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
+.lxs-about-curation   { display: grid; grid-template-columns: 1.1fr 1fr; gap: 100px; align-items: center; }
+.lxs-about-ffl        { display: grid; grid-template-columns: 1fr 1.5fr; gap: 80px; align-items: start; }
+.lxs-about-ffl-cards  { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lxs-about-brands     { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.lxs-about-cta        { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
 
 /* FAQ */
-.lxs-faq-banner { grid-template-columns: 1fr 1fr; gap: 60px; }
-.lxs-faq-layout { grid-template-columns: 240px 1fr; gap: 52px; }
-.lxs-faq-cta    { grid-template-columns: 1fr 1fr; gap: 60px; }
+.lxs-faq-banner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: flex-end; }
+.lxs-faq-layout { display: grid; grid-template-columns: 240px 1fr; gap: 52px; align-items: start; }
+.lxs-faq-cta    { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
 
 /* Consignment */
-.lxs-consign-banner       { grid-template-columns: 1fr 1fr; gap: 64px; }
-.lxs-consign-form-layout  { grid-template-columns: 1fr 360px; gap: 52px; }
-.lxs-consign-firearm-row  { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.lxs-consign-banner       { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: flex-end; }
+.lxs-consign-form-layout  { display: grid; grid-template-columns: 1fr 360px; gap: 52px; align-items: start; }
+.lxs-consign-firearm-row  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
 /* Support */
-.lxs-support-banner      { grid-template-columns: 1fr 1fr; gap: 60px; }
-.lxs-support-cards       { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.lxs-support-form-layout { grid-template-columns: 1.4fr 1fr; gap: 72px; }
-.lxs-ffl-guide           { grid-template-columns: 1fr 1.6fr; gap: 72px; }
-.lxs-support-info        { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.lxs-support-banner      { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: flex-end; }
+.lxs-support-cards       { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lxs-support-form-layout { display: grid; grid-template-columns: 1.4fr 1fr; gap: 72px; align-items: start; }
+.lxs-ffl-guide           { display: grid; grid-template-columns: 1fr 1.6fr; gap: 72px; align-items: start; }
+.lxs-support-info        { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
 /* Policy (shared: shipping / privacy / terms) */
-.lxs-policy-layout { grid-template-columns: 220px 1fr; gap: 64px; }
+.lxs-policy-layout { display: grid; grid-template-columns: 220px 1fr; gap: 64px; align-items: start; }
 
 /* Form helpers */
 .lxs-form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -489,12 +492,14 @@ a {
   .lxs-contact-form-map { grid-template-columns: 1fr; gap: 40px; }
   .lxs-contact-expect   { grid-template-columns: repeat(2, 1fr); }
 
-  .lxs-about-hero    { grid-template-columns: 1fr; gap: 40px; }
-  .lxs-about-story   { grid-template-columns: 1fr; gap: 40px; }
-  .lxs-about-values  { grid-template-columns: 1fr 1fr; }
-  .lxs-about-mission { grid-template-columns: 1fr; gap: 40px; }
-  .lxs-about-brands  { grid-template-columns: repeat(2, 1fr); }
-  .lxs-about-cta     { grid-template-columns: 1fr; gap: 32px; }
+  .lxs-about-hero       { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-story      { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-values     { grid-template-columns: 1fr 1fr; }
+  .lxs-about-mission    { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-curation   { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-ffl        { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-brands     { grid-template-columns: repeat(2, 1fr); }
+  .lxs-about-cta        { grid-template-columns: 1fr; gap: 32px; }
 
   .lxs-faq-banner { grid-template-columns: 1fr; gap: 32px; }
   .lxs-faq-layout { grid-template-columns: 1fr; }
@@ -521,6 +526,7 @@ a {
 
   .lxs-about-values  { grid-template-columns: 1fr; }
   .lxs-about-brands  { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .lxs-about-ffl-cards { grid-template-columns: 1fr; }
 
   .lxs-consign-firearm-row { grid-template-columns: 1fr; }
 
