@@ -600,9 +600,10 @@ a {
 
   /* Auth — collapse to single column, kill the split background */
   .lxs-auth-bg-split { display: none !important; }
-  .lxs-auth-layout { grid-template-columns: 1fr !important; padding: 0 !important; }
+  .lxs-auth-wrapper { padding-top: 0 !important; min-height: 0 !important; }
+  .lxs-auth-layout { grid-template-columns: 1fr !important; padding: 0 !important; min-height: 0 !important; }
   .lxs-auth-layout > div:first-child { display: none !important; }
-  .lxs-auth-form-panel { padding: 48px 28px !important; }
+  .lxs-auth-form-panel { padding: 28px 28px 52px !important; justify-content: flex-start !important; }
 
   .lxs-form-row { grid-template-columns: 1fr; gap: 0; }
 }
@@ -626,7 +627,7 @@ a {
   .lxs-order-head { grid-template-columns: 1fr 1fr auto; gap: 12px; }
   .lxs-order-head > div:nth-child(3) { display: none; }
   .lxs-order-meta { grid-template-columns: 1fr 1fr; }
-  .lxs-auth-form-panel { padding: 40px 20px !important; }
+  .lxs-auth-form-panel { padding: 20px 20px 48px !important; }
   .lxs-account-tabs { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
   .lxs-account-tabs::-webkit-scrollbar { display: none; }
   .lxs-account-tabs button { white-space: nowrap; flex-shrink: 0; }

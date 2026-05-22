@@ -81,7 +81,7 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "var(--font-inter)" }}>
       <style>{`input::placeholder { color: ${t.textDim}; }`}</style>
 
-      <div style={{ paddingTop: "68px", minHeight: "calc(100vh - 68px)", position: "relative" }}>
+      <div className="lxs-auth-wrapper" style={{ paddingTop: "68px", minHeight: "calc(100vh - 68px)", position: "relative" }}>
         {/* Split background — hidden on mobile via .lxs-auth-bg-split CSS rule */}
         <div className="lxs-auth-bg-split" style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 0, display: "flex" }}>
           <div style={{ flex: 1, background: isDark ? "linear-gradient(155deg,#161616,#0c0b09)" : "linear-gradient(155deg,#f3f3f5,#e8e8eb)" }}/>
