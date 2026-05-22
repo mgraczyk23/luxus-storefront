@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* ── Theme CSS variables (lets media-query CSS reference theme tokens) ── */
-:root, [data-theme="dark"] { --lxs-gold: #c09530; --lxs-border: #2a2a2a; }
-[data-theme="light"]       { --lxs-gold: #7e5e10; --lxs-border: #e4e4e6; }
+:root, [data-theme="dark"] { --lxs-gold: #c09530; --lxs-border: #2a2a2a; --lxs-bg: #0a0a0a; }
+[data-theme="light"]       { --lxs-gold: #7e5e10; --lxs-border: #e4e4e6; --lxs-bg: #ffffff; }
 
 /* ── Base ──────────────────────────────────────────────────────────────── */
 html, body {
@@ -540,7 +540,16 @@ a {
 
   /* FAQ category tab bar */
   .lxs-faq-main { padding-top: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
-  .lxs-faq-sidebar { position: static !important; top: auto !important; overflow: hidden; }
+  .lxs-faq-sidebar { position: relative !important; top: auto !important; overflow: hidden; }
+  .lxs-faq-sidebar::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0; bottom: 1px;
+    width: 56px;
+    background: linear-gradient(to right, transparent, var(--lxs-bg) 80%);
+    pointer-events: none;
+    z-index: 1;
+  }
   .lxs-faq-sidebar > div:first-child,
   .lxs-faq-sidebar > div:last-child { display: none !important; }
   .lxs-faq-cat-list {
@@ -552,7 +561,7 @@ a {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border-bottom: 1px solid var(--lxs-border);
-    padding: 0 16px;
+    padding: 0 0 0 16px;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
