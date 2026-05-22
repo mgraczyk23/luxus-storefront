@@ -81,12 +81,12 @@ export default function ContactPage() {
   const CHANNELS = [
     { id:"phone", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 2C3 2 1 2 1 4C1 6 2 12.5 8.5 18C15 23.5 21 21.5 21 21.5S22 19.5 22 18L18 14.5C18 14.5 17 13.5 15.5 15L13.5 17C13.5 17 10.5 16.5 7.5 13.5C4.5 10.5 5 7.5 5 7.5L7 5.5C8.5 4 7.5 3 7.5 3L3 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>, label:"Call Us", heading:"(941) 253-3660", sub:"Toll-Free  (833) 486-6659\nMon – Fri  8:30am – 6pm EST\nSat  10am – 2pm EST", href:"tel:9412533660", cta:"Call now" },
     { id:"email", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1.5" y="4" width="19" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.3"/><path d="M1.5 6.5L11 13L20.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>, label:"Email Us", heading:"info@luxus-collection.com", sub:"Response within 1 business day", href:"mailto:info@luxus-collection.com", cta:"Send email" },
-    { id:"consignment", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 11H19M3 11L7 7M3 11L7 15M19 11L15 7M19 11L15 15" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>, label:"Consignment", heading:"consign@luxus-collection.com", sub:"Submit pieces for review\nResponse within 3 business days", href:"mailto:consign@luxus-collection.com", cta:"Start consignment" },
+    { id:"consignment", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 11H19M3 11L7 7M3 11L7 15M19 11L15 7M19 11L15 15" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>, label:"Sales / Consignment", heading:"sales@luxus-collection.com", sub:"Submit pieces for review\nResponse within 3 business days", href:"mailto:sales@luxus-collection.com", cta:"Sales inquiry" },
     { id:"press", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="4" width="18" height="14" rx="1" stroke="currentColor" strokeWidth="1.3"/><path d="M6 8H16M6 11H12M6 14H9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>, label:"Press & Media", heading:"press@luxus-collection.com", sub:"Media inquiries & editorial requests", href:"mailto:press@luxus-collection.com", cta:"Media inquiry" },
   ]
 
   return (
-    <div style={{ background: t.bg, color: t.text, fontFamily: "var(--font-inter)" }}>
+    <div className="lxs-contact-page" style={{ background: t.bg, color: t.text, fontFamily: "var(--font-inter)" }}>
 
       {/* HERO BANNER */}
       <div style={{ background: isDark ? "linear-gradient(to bottom,#161616,#0a0a0a)" : "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "52px 40px", position: "relative", overflow: "hidden" }}>
@@ -117,7 +117,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
+            <div className="lxs-contact-direct" style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"4px" }}>Direct Contact</div>
               {[
                 { label:"Phone",     value:"(941) 253-3660",         href:"tel:9412533660",                    note:"Mon – Fri 8:30am – 6pm EST" },

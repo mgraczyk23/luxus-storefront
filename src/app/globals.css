@@ -485,6 +485,25 @@ a {
   .lxs-about-page > section { padding-top: 40px !important; padding-bottom: 40px !important; padding-left: 16px !important; padding-right: 16px !important; }
 }
 
+/* Contact page — compact section padding on mobile (overrides inline styles) */
+@media (max-width: 768px) {
+  .lxs-contact-page > div,
+  .lxs-contact-page > section { padding-left: 20px !important; padding-right: 20px !important; }
+  .lxs-contact-page > div:first-child { padding-top: 36px !important; padding-bottom: 36px !important; }
+  .lxs-contact-page > div:not(:first-child) { padding-top: 36px !important; }
+  .lxs-contact-page > section { padding-top: 48px !important; padding-bottom: 48px !important; }
+}
+@media (max-width: 640px) {
+  .lxs-contact-page > div,
+  .lxs-contact-page > section { padding-left: 16px !important; padding-right: 16px !important; }
+  .lxs-contact-page > div:first-child { padding-top: 28px !important; padding-bottom: 28px !important; }
+  .lxs-contact-page > div:not(:first-child) { padding-top: 28px !important; }
+  .lxs-contact-page > section { padding-top: 36px !important; padding-bottom: 36px !important; }
+  /* Direct Contact rows: stack label+value above note on small screens */
+  .lxs-contact-direct a { flex-direction: column !important; align-items: flex-start !important; gap: 2px !important; }
+  .lxs-contact-direct a span:last-child { white-space: normal !important; }
+}
+
 /* ── Responsive breakpoints for content pages ────────────────────────── */
 @media (max-width: 1024px) {
   .lxs-about-story   { gap: 60px; }

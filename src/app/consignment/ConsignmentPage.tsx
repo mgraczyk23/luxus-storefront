@@ -85,9 +85,9 @@ export default function ConsignmentPage() {
 
             <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
               <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,padding:"22px 24px" }}>
-                <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,marginBottom:"8px" }}>Dedicated Consignment Email</div>
-                <a href="mailto:consign@luxus-collection.com" style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.gold,textDecoration:"none",display:"block",marginBottom:"4px" }}>
-                  consign@luxus-collection.com
+                <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,marginBottom:"8px" }}>Sales &amp; Consignment Email</div>
+                <a href="mailto:sales@luxus-collection.com" style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.gold,textDecoration:"none",display:"block",marginBottom:"4px" }}>
+                  sales@luxus-collection.com
                 </a>
                 <div style={{ fontSize:"11px",fontWeight:300,color:t.textDim }}>Response within 3 business days</div>
               </div>
