@@ -152,6 +152,8 @@ export default function InvoicePage({ orderId }: { orderId: string }) {
         @media print {
           @page { size:Letter; margin:0.4in; }
           html, body { background:#ffffff !important; }
+          header, footer.lxs-footer { display:none !important; }
+          main { padding-top:0 !important; }
           .lxs-invoice-root { background:#ffffff !important; padding:0 !important; min-height:0 !important; }
           .inv-toolbar { display:none !important; }
           .inv-sheet { box-shadow:none !important; padding:0 !important; max-width:none !important; width:100% !important; font-size:9.5px !important; line-height:1.4 !important; }
