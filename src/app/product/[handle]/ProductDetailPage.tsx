@@ -117,6 +117,8 @@ export default function ProductDetailPage({
   })
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle')
   const [copied, setCopied] = useState(false)
+  const [shareUrl, setShareUrl] = useState('')
+  useEffect(() => { setShareUrl(window.location.href) }, [])
 
   const infoPanelRef = useRef<HTMLDivElement>(null)
 
@@ -512,23 +514,73 @@ export default function ProductDetailPage({
             </div>
 
             {/* Share row */}
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <span style={{ fontSize: "8.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500 }}>Share</span>
-              <a href={`mailto:?subject=${encodeURIComponent(product.title)}&body=${encodeURIComponent(typeof window !== 'undefined' ? window.location.href : '')}`}
-                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 10px", cursor: "pointer", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px", textDecoration: "none" }}
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+              <span style={{ fontSize: "8.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginRight: "4px" }}>Share</span>
+
+              {/* Email */}
+              <a href={`mailto:?subject=${encodeURIComponent(product.title)}&body=${encodeURIComponent(shareUrl)}`} title="Share via Email" target="_blank" rel="noopener noreferrer"
+                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 9px", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px", textDecoration: "none" }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
                 <svg width="13" height="12" viewBox="0 0 13 12" fill="none"><rect x="1" y="1.5" width="11" height="9" rx="1" stroke="currentColor" strokeWidth="1" /><path d="M1 3L6.5 7L12 3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" /></svg>
               </a>
-              <button onClick={handleCopy}
-                title={copied ? "Copied!" : "Copy link"}
-                style={{ background: copied ? t.gold + "20" : "none", border: `1px solid ${copied ? t.gold + "60" : t.border}`, padding: "6px 10px", cursor: "pointer", color: copied ? t.gold : t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px" }}
+
+              {/* Facebook */}
+              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} title="Share on Facebook" target="_blank" rel="noopener noreferrer"
+                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 9px", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px", textDecoration: "none" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
+                <svg width="13" height="14" viewBox="0 0 13 14" fill="none">
+                  <rect x="1" y="1" width="11" height="12" rx="1" stroke="currentColor" strokeWidth="1"/>
+                  <path d="M7 13V8H8.5L8.75 6.5H7V5.5C7 5.22 7.22 5 7.5 5H9V3.5H7.5C6.12 3.5 5 4.62 5 6V6.5H3.75V8H5V13" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+
+              {/* X / Twitter */}
+              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(product.title)}`} title="Share on X" target="_blank" rel="noopener noreferrer"
+                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 9px", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px", textDecoration: "none" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                  <path d="M1.5 1.5L5.8 7.2L1.5 12H2.8L6.4 7.95L9.5 12H12L7.5 6L11.5 1.5H10.2L6.9 5.3L4 1.5H1.5Z" stroke="currentColor" strokeWidth="0.85" strokeLinejoin="round"/>
+                </svg>
+              </a>
+
+              {/* Pinterest */}
+              <a href={`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(shareUrl)}&media=${encodeURIComponent(product.thumbnail ?? '')}&description=${encodeURIComponent(product.title)}`} title="Save to Pinterest" target="_blank" rel="noopener noreferrer"
+                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 9px", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px", textDecoration: "none" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
+                <svg width="13" height="14" viewBox="0 0 13 14" fill="none">
+                  <circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" strokeWidth="1"/>
+                  <path d="M5 9.5C5.3 8.5 5.8 7.5 5.8 6.2C5.8 5.2 6.4 4.5 7.2 4.5C8 4.5 8.4 5.1 8.1 6C7.8 6.9 8.4 7.8 8.9 7.8C9.4 7.8 9.8 7.2 9.8 6.2" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round"/>
+                  <path d="M5.8 8.5L5.2 12" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round"/>
+                </svg>
+              </a>
+
+              {/* WhatsApp */}
+              <a href={`https://api.whatsapp.com/send?text=${encodeURIComponent(product.title + ' — ' + shareUrl)}`} title="Share on WhatsApp" target="_blank" rel="noopener noreferrer"
+                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 9px", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px", textDecoration: "none" }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1"/>
+                  <path d="M9.5 8.5C9.5 8.5 8.5 9 7 9C5.5 9 4 7.8 4 6.5C4 5.2 5 4 6.5 4C8 4 9.5 5 9.5 6.5" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round"/>
+                  <path d="M4 10L3.5 12L5.5 11.2" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+
+              {/* Copy link */}
+              <button onClick={handleCopy} title={copied ? "Copied!" : "Copy link"}
+                style={{ background: copied ? t.gold + "20" : "none", border: `1px solid ${copied ? t.gold + "60" : t.border}`, padding: "6px 9px", cursor: "pointer", color: copied ? t.gold : t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px" }}
                 onMouseEnter={e => { if (!copied) { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold } }}
                 onMouseLeave={e => { if (!copied) { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted } }}>
                 <svg width="12" height="13" viewBox="0 0 12 13" fill="none"><rect x="1" y="4" width="7" height="8" rx="1" stroke="currentColor" strokeWidth="1" /><path d="M4 4V2C4 1.44772 4.44772 1 5 1H10C10.5523 1 11 1.44772 11 2V9C11 9.55228 10.5523 10 10 10H8" stroke="currentColor" strokeWidth="1" /></svg>
               </button>
-              <button onClick={() => window.print()}
-                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 10px", cursor: "pointer", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px" }}
+
+              {/* Print */}
+              <button onClick={() => window.open(`/product/${product.handle}/print`, '_blank')} title="Print product sheet"
+                style={{ background: "none", border: `1px solid ${t.border}`, padding: "6px 9px", cursor: "pointer", color: t.textMuted, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s", borderRadius: "1px" }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
                 <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><path d="M3 4V1H11V4" stroke="currentColor" strokeWidth="1" strokeLinecap="round" /><rect x="1" y="4" width="12" height="6" rx="1" stroke="currentColor" strokeWidth="1" /><path d="M3 8H3.01M3 10V13H11V10H3Z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" /></svg>
