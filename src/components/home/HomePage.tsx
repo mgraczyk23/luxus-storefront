@@ -22,7 +22,14 @@ type HeroProduct = {
 type ShopItem = { id: string; name: string; handle?: string }
 
 function toSlug(str: string) {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  return str
+    .toLowerCase()
+    .replace(/&amp;/g, 'and')
+    .replace(/\s*&\s*/g, '-')
+    .replace(/\s+and\s+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 type Auction = {

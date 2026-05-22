@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import { notFound } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
@@ -8,8 +7,18 @@ import type { Metadata } from "next"
 const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories,*collection,+metadata"
 const PAGE_SIZE = 100
 
+// Normalise a brand name to a URL slug.
+// Treats "&" and "and" as equivalent so "Smith & Wesson" and
+// "Smith and Wesson" both produce "smith-wesson".
 function toSlug(str: string) {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  return str
+    .toLowerCase()
+    .replace(/&amp;/g, 'and')
+    .replace(/\s*&\s*/g, '-')
+    .replace(/\s+and\s+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
 }
 
 async function getAllProducts() {
@@ -62,10 +71,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   try { allProducts = await getAllProducts() } catch {}
 
   const brandName = getBrandName(slug, allProducts)
-  if (!brandName && allProducts.length > 0) notFound()
-
   const name = brandName ?? slug
-  const products = allProducts.filter(p => p.attribute_lists.brand.includes(name))
+  const products = brandName
+    ? allProducts.filter(p => p.attribute_lists.brand.includes(brandName))
+    : []
 
   return (
     <Suspense fallback={<Loading />}>
