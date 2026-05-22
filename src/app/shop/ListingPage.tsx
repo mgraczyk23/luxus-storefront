@@ -214,8 +214,8 @@ function FilterSection({ title, defaultOpen = true, children }: { title: string;
           <path d="M1 1L5 5L9 1" stroke={t.gold} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </button>
-      <div style={{ overflow: "hidden", maxHeight: open ? "500px" : "0", transition: "max-height 0.3s ease" }}>
-        <div>{children}</div>
+      <div style={{ overflow: "hidden", maxHeight: open ? "9999px" : "0", transition: "max-height 0.4s ease" }}>
+        <div style={{ maxHeight: "340px", overflowY: "auto", scrollbarWidth: "thin" }}>{children}</div>
       </div>
     </div>
   )
