@@ -475,6 +475,15 @@ a {
 /* Policy (shared: shipping / privacy / terms) */
 .lxs-policy-layout { display: grid; grid-template-columns: 220px 1fr; gap: 64px; align-items: start; }
 
+/* Cart */
+.lxs-cart-layout { display: grid; grid-template-columns: 1fr 380px; gap: 52px; align-items: start; }
+.lxs-cart-item   { display: grid; grid-template-columns: 96px 1fr auto; gap: 24px; align-items: start; }
+
+/* Account / order */
+.lxs-order-head  { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 20px; align-items: center; }
+.lxs-order-meta  { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.lxs-wishlist-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
 /* Form helpers */
 .lxs-form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .lxs-form-field:focus { border-color: rgba(182,145,78,0.6) !important; outline: none; }
@@ -584,6 +593,11 @@ a {
 
   .lxs-policy-layout { grid-template-columns: 1fr; }
 
+  .lxs-cart-layout { grid-template-columns: 1fr; gap: 32px; }
+  .lxs-wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+  .lxs-order-head { grid-template-columns: 1fr 1fr 1fr auto; }
+  .lxs-order-head > div:nth-child(4) { display: none; }
+
   .lxs-form-row { grid-template-columns: 1fr; gap: 0; }
 }
 
@@ -599,4 +613,17 @@ a {
 
   .lxs-support-cards { grid-template-columns: 1fr; }
   .lxs-support-info  { grid-template-columns: 1fr; }
+
+  .lxs-cart-item { grid-template-columns: 72px 1fr; gap: 14px; }
+  .lxs-cart-item > div:last-child { grid-column: 2; margin-top: -8px; }
+  .lxs-wishlist-grid { grid-template-columns: 1fr; }
+  .lxs-order-head { grid-template-columns: 1fr 1fr auto; gap: 12px; }
+  .lxs-order-head > div:nth-child(3) { display: none; }
+  .lxs-order-meta { grid-template-columns: 1fr 1fr; }
+  .lxs-auth-layout { grid-template-columns: 1fr !important; }
+  .lxs-auth-layout > div:first-child { display: none !important; }
+  .lxs-auth-form-panel { padding: 48px 24px !important; }
+  .lxs-account-tabs { overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .lxs-account-tabs::-webkit-scrollbar { display: none; }
+  .lxs-account-tabs button { white-space: nowrap; flex-shrink: 0; }
 }
