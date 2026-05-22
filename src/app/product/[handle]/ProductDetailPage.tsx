@@ -8,6 +8,13 @@ import type { MappedProduct } from '@/lib/medusa'
 
 const PLAYFAIR = "var(--font-playfair), serif"
 
+// Convert plain-text paragraphs (\n\n) into <p> tags.
+// If Medusa ever returns HTML (rich-text editor), passes through unchanged.
+function formatOverview(text: string): string {
+  if (/<p[\s>]/i.test(text)) return text
+  return '<p>' + text.replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>') + '</p>'
+}
+
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 
@@ -561,9 +568,11 @@ export default function ProductDetailPage({
                     <div style={{ width: "18px", height: "1px", background: t.gold }} />
                     <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>About This Piece</span>
                   </div>
-                  <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(16px,1.5vw,22px)", fontWeight: 300, color: t.text, lineHeight: 1.7, letterSpacing: "0.01em", marginBottom: "32px" }}>
-                    {product.overview}
-                  </div>
+                  <div
+                    className="lxs-pdp-overview"
+                    style={{ fontFamily: PLAYFAIR, fontSize: "clamp(16px,1.5vw,22px)", fontWeight: 300, color: t.text, lineHeight: 1.7, letterSpacing: "0.01em", marginBottom: "32px" }}
+                    dangerouslySetInnerHTML={{ __html: formatOverview(product.overview) }}
+                  />
                 </>
               )}
               {product.highlights?.length > 0 && (

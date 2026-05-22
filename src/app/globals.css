@@ -234,6 +234,13 @@ a {
 .lxs-pdp-hero > *    { min-width: 0; overflow: hidden; }
 .lxs-pdp-inquiry > * { min-width: 0; }
 
+/* Overview paragraph spacing */
+.lxs-pdp-overview p                 { margin: 0 0 1.2em; }
+.lxs-pdp-overview p:last-child      { margin-bottom: 0; }
+.lxs-pdp-overview ul,
+.lxs-pdp-overview ol                { padding-left: 1.4em; margin: 0 0 1.2em; }
+.lxs-pdp-overview li                { margin-bottom: 0.4em; }
+
 @media (max-width: 640px) {
   .lxs-pdp-form-row { grid-template-columns: 1fr !important; gap: 12px !important; }
 }
