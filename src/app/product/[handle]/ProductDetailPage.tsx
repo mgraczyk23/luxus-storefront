@@ -153,7 +153,15 @@ export default function ProductDetailPage({
 
   const images = product.images.length > 0 ? product.images : []
   const hasImages = images.length > 0
-  const specEntries = Object.entries(product.specifications ?? {})
+
+  // Build spec table: attribute-derived rows first, then any explicit metadata specs
+  const baseSpecs: Record<string, string> = {}
+  if (product.attributes?.caliber)       baseSpecs["Caliber"]       = product.attributes.caliber
+  if (product.attributes?.action)        baseSpecs["Action"]         = product.attributes.action
+  if (product.attributes?.barrel_length) baseSpecs["Barrel Length"]  = product.attributes.barrel_length
+  if (product.attributes?.model)         baseSpecs["Model"]          = product.attributes.model
+  const specEntries = Object.entries({ ...baseSpecs, ...(product.specifications ?? {}) })
+
   const hasTabs = {
     overview: !!(product.overview || (product.highlights?.length > 0)),
     specifications: specEntries.length > 0,
@@ -258,7 +266,7 @@ export default function ProductDetailPage({
             <div
               onClick={() => hasImages && setLightboxOpen(true)}
               style={{
-                position: "relative", aspectRatio: "1/1",
+                position: "relative", aspectRatio: "4/3",
                 border: `1px solid ${t.border}`,
                 cursor: hasImages ? "zoom-in" : "default",
                 overflow: "hidden", marginBottom: "12px",
@@ -325,7 +333,7 @@ export default function ProductDetailPage({
                   <div key={i} className="lxs-thumb"
                     onClick={() => setActiveImg(i)}
                     style={{
-                      flexShrink: 0, width: "72px", height: "72px", cursor: "pointer",
+                      flexShrink: 0, height: "68px", aspectRatio: "4/3", cursor: "pointer",
                       border: `1px solid ${activeImg === i ? t.gold : t.border}`,
                       overflow: "hidden", opacity: activeImg === i ? 1 : 0.55,
                       transition: "all 0.2s", position: "relative",
@@ -333,7 +341,7 @@ export default function ProductDetailPage({
                     }}
                   >
                     {src ? (
-                      <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="72px" />
+                      <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="90px" />
                     ) : (
                       <ImgBox index={i} />
                     )}
@@ -553,7 +561,7 @@ export default function ProductDetailPage({
                     <div style={{ width: "18px", height: "1px", background: t.gold }} />
                     <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>About This Piece</span>
                   </div>
-                  <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(16px,1.5vw,22px)", fontWeight: 300, color: t.text, lineHeight: 1.7, letterSpacing: "0.01em", marginBottom: "32px", maxWidth: "820px" }}>
+                  <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(16px,1.5vw,22px)", fontWeight: 300, color: t.text, lineHeight: 1.7, letterSpacing: "0.01em", marginBottom: "32px" }}>
                     {product.overview}
                   </div>
                 </>
@@ -662,7 +670,7 @@ export default function ProductDetailPage({
                     <span style={{ fontSize: "11.5px", color: t.text, fontWeight: 300 }}>{product.brand ? `${product.brand}, ` : ""}{product.title}</span>
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+                  <div className="lxs-pdp-form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
                     {[["firstName", "First Name", "John"], ["lastName", "Last Name", "Doe"]].map(([field, label, ph]) => (
                       <div key={field}>
                         <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }}>{label}</label>
@@ -672,7 +680,7 @@ export default function ProductDetailPage({
                     ))}
                   </div>
 
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
+                  <div className="lxs-pdp-form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
                     {[["email", "Email Address", "john@example.com", "email"], ["phone", "Phone Number", "(555) 000-0000", "tel"]].map(([field, label, ph, type]) => (
                       <div key={field}>
                         <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }}>{label}</label>
@@ -748,7 +756,7 @@ export default function ProductDetailPage({
       {/* ── Lightbox ─────────────────────────────────────────────────────── */}
       {lightboxOpen && (
         <div onClick={() => setLightboxOpen(false)}
-          style={{ position: "fixed", inset: 0, zIndex: 500, background: "rgba(8,7,6,0.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", padding: "40px" }}>
+          style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(8,7,6,0.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", padding: "40px 20px" }}>
           <button onClick={() => setLightboxOpen(false)}
             style={{ position: "absolute", top: "24px", right: "28px", background: "none", border: "1px solid #3a3a3a", padding: "8px 14px", cursor: "pointer", color: "#9a9a9a", display: "flex", alignItems: "center", gap: "8px", fontFamily: "'Inter',sans-serif", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 500 }}>
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg>
@@ -756,7 +764,7 @@ export default function ProductDetailPage({
           </button>
 
           <div onClick={e => e.stopPropagation()}
-            style={{ maxWidth: "min(80vw,800px)", maxHeight: "75vh", width: "100%", aspectRatio: "1/1", border: "1px solid #2a2a2a", position: "relative", background: "#161616" }}>
+            style={{ maxWidth: "min(90vw,1000px)", width: "100%", aspectRatio: "4/3", maxHeight: "80vh", border: "1px solid #2a2a2a", position: "relative", background: "#161616" }}>
             {images[activeImg] ? (
               <Image src={images[activeImg]} alt={product.title} fill style={{ objectFit: "contain" }} sizes="80vw" />
             ) : (
@@ -780,7 +788,7 @@ export default function ProductDetailPage({
             <div style={{ marginTop: "20px", display: "flex", gap: "8px" }}>
               {images.map((src, i) => (
                 <div key={i} onClick={e => { e.stopPropagation(); setActiveImg(i) }}
-                  style={{ width: "52px", height: "52px", border: `1px solid ${i === activeImg ? "#c09530" : "#2a2a2a"}`, opacity: i === activeImg ? 1 : 0.5, cursor: "pointer", transition: "all 0.2s", overflow: "hidden", position: "relative", background: "#161616" }}>
+                  style={{ height: "52px", aspectRatio: "4/3", border: `1px solid ${i === activeImg ? "#c09530" : "#2a2a2a"}`, opacity: i === activeImg ? 1 : 0.5, cursor: "pointer", transition: "all 0.2s", overflow: "hidden", position: "relative", background: "#161616" }}>
                   {src ? (
                     <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="52px" />
                   ) : (

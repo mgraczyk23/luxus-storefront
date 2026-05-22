@@ -231,8 +231,12 @@ a {
 
 /* ── Product Detail Page ─────────────────────────────────────────────── */
 /* Prevent grid items from blowing out their tracks (the classic min-width:auto bug) */
-.lxs-pdp-hero > *,
-.lxs-pdp-inquiry > * { min-width: 0; overflow: hidden; }
+.lxs-pdp-hero > *    { min-width: 0; overflow: hidden; }
+.lxs-pdp-inquiry > * { min-width: 0; }
+
+@media (max-width: 640px) {
+  .lxs-pdp-form-row { grid-template-columns: 1fr !important; gap: 12px !important; }
+}
 
 @media (max-width: 1024px) and (min-width: 641px) {
   .lxs-pdp-hero    { grid-template-columns: 1fr !important; gap: 40px !important; }
