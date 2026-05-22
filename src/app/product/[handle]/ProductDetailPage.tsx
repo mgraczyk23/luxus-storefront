@@ -252,7 +252,7 @@ export default function ProductDetailPage({
         <div className="lxs-pdp-hero" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "64px", alignItems: "start" }}>
 
           {/* LEFT: Gallery */}
-          <div className="lxs-pdp-gallery" style={{ position: "sticky", top: "88px" }}>
+          <div className="lxs-pdp-gallery" style={{ position: "sticky", top: "88px", minWidth: 0, overflow: "hidden" }}>
 
             {/* Main image */}
             <div
@@ -320,7 +320,7 @@ export default function ProductDetailPage({
 
             {/* Thumbnails */}
             {images.length > 1 && (
-              <div style={{ display: "flex", gap: "8px", flexWrap: "nowrap", overflowX: "auto" }}>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "nowrap", overflowX: "auto", width: "100%", minWidth: 0 }}>
                 {images.map((src, i) => (
                   <div key={i} className="lxs-thumb"
                     onClick={() => setActiveImg(i)}
@@ -354,7 +354,7 @@ export default function ProductDetailPage({
           </div>
 
           {/* RIGHT: Info */}
-          <div ref={infoPanelRef}>
+          <div ref={infoPanelRef} style={{ minWidth: 0 }}>
 
             {/* Brand + SKU */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>

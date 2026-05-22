@@ -230,6 +230,10 @@ a {
 }
 
 /* ── Product Detail Page ─────────────────────────────────────────────── */
+/* Prevent grid items from blowing out their tracks (the classic min-width:auto bug) */
+.lxs-pdp-hero > *,
+.lxs-pdp-inquiry > * { min-width: 0; overflow: hidden; }
+
 @media (max-width: 1024px) and (min-width: 641px) {
   .lxs-pdp-hero    { grid-template-columns: 1fr !important; gap: 40px !important; }
   .lxs-pdp-gallery { position: static !important; }
