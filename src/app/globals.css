@@ -600,8 +600,8 @@ a {
 
   /* Auth — collapse to single column, kill the split background */
   .lxs-auth-bg-split { display: none !important; }
-  .lxs-auth-wrapper { padding-top: 0 !important; min-height: 0 !important; }
-  .lxs-auth-layout { grid-template-columns: 1fr !important; padding: 0 !important; min-height: 0 !important; }
+  .lxs-auth-wrapper { padding-top: 0 !important; }
+  .lxs-auth-layout { grid-template-columns: 1fr !important; padding: 0 !important; }
   .lxs-auth-layout > div:first-child { display: none !important; }
   .lxs-auth-form-panel { padding: 28px 28px 52px !important; justify-content: flex-start !important; }
 
