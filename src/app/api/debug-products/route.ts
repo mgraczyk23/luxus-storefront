@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? "https://api.luxus-collection.com"
 const PK      = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ""
-const FIELDS   = "*variants,*variants.prices,*images,*categories,*collection,*tags,+metadata"
+const FIELDS        = "*variants,*variants.prices,*images,*categories,*collection,*tags,+metadata"
+const FIELDS_ATTRS  = "*variants,*variants.prices,*images,*categories,*collection,*tags,+metadata,*attribute_values,*attribute_values.attribute_type"
 
 // Fetches directly from Medusa with no Next.js caching — always fresh.
 async function fetchFresh(offset: number) {
@@ -47,6 +48,25 @@ export async function GET(req: NextRequest) {
     tags:       (p.tags ?? []).map((t: any) => t.value ?? t),
   }))
 
+  // Test: can we expand attribute_values in the main products query?
+  let attrFieldExpansionTest: any = null
+  try {
+    const hiltonYamId = raw.find(p => p.handle?.includes("hilton-yam"))?.id
+    if (hiltonYamId) {
+      const url = `${BACKEND}/store/products?id[]=${hiltonYamId}&fields=${encodeURIComponent(FIELDS_ATTRS)}`
+      const r = await fetch(url, { cache: "no-store", headers: { "Content-Type": "application/json", "x-publishable-api-key": PK } })
+      const d = r.ok ? await r.json() : { error: r.status }
+      const p = d?.products?.[0]
+      attrFieldExpansionTest = {
+        works: Array.isArray(p?.attribute_values),
+        attribute_values: p?.attribute_values ?? null,
+        raw_keys: p ? Object.keys(p) : null,
+      }
+    }
+  } catch (e: any) {
+    attrFieldExpansionTest = { error: e.message }
+  }
+
   // Fetch attributes for the hilton-yam product specifically (to debug multi-brand)
   const hiltonYam = raw.find(p => p.handle?.includes("hilton-yam"))
   let hiltonYamAttributes: any = null
@@ -76,7 +96,7 @@ export async function GET(req: NextRequest) {
   const uniqueBrands = [...new Set(allBrandVals)].sort()
 
   return NextResponse.json(
-    { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, hilton_yam_attributes: hiltonYamAttributes, products },
+    { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, attr_field_expansion_test: attrFieldExpansionTest, hilton_yam_attributes: hiltonYamAttributes, products },
     { headers: { "Cache-Control": "no-store" } }
   )
 }
