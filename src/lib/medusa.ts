@@ -52,13 +52,16 @@ export type MappedProduct = {
 // Returns display string (joined) and the full list for filtering.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function readAttr(val: any): { display: string | null; list: string[] } {
-  if (!val) return { display: null, list: [] }
+  if (val === null || val === undefined) return { display: null, list: [] }
   if (Array.isArray(val)) {
-    const strs = val.filter(Boolean).map(String)
+    const strs = val
+      .map(v => String(v).trim())
+      .filter(v => v && v !== "null" && v !== "undefined")
     return { display: strs.join(" / ") || null, list: strs }
   }
-  const s = String(val)
-  return { display: s || null, list: s ? [s] : [] }
+  const s = String(val).trim()
+  if (!s || s === "null" || s === "undefined") return { display: null, list: [] }
+  return { display: s, list: [s] }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
