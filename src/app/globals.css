@@ -431,3 +431,99 @@ a {
   .lxs-home-newsletter   { padding: 44px 14px; }
   .lxs-home-hero-grid    { padding: 40px 14px 32px; }
 }
+
+/* ── Content page layouts ──────────────────────────────────────────────── */
+
+/* Contact */
+.lxs-contact-hero     { grid-template-columns: 1fr 1fr; gap: 60px; }
+.lxs-contact-channels { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.lxs-contact-form-map { grid-template-columns: 1.3fr 1fr; gap: 64px; }
+.lxs-contact-expect   { grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+/* About */
+.lxs-about-hero    { grid-template-columns: 1fr 1fr; gap: 80px; }
+.lxs-about-story   { grid-template-columns: 1fr 1.2fr; gap: 100px; }
+.lxs-about-values  { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lxs-about-mission { grid-template-columns: 1fr 1.2fr; gap: 80px; }
+.lxs-about-brands  { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.lxs-about-cta     { grid-template-columns: 1fr 1fr; gap: 60px; }
+
+/* FAQ */
+.lxs-faq-banner { grid-template-columns: 1fr 1fr; gap: 60px; }
+.lxs-faq-layout { grid-template-columns: 240px 1fr; gap: 52px; }
+.lxs-faq-cta    { grid-template-columns: 1fr 1fr; gap: 60px; }
+
+/* Consignment */
+.lxs-consign-banner       { grid-template-columns: 1fr 1fr; gap: 64px; }
+.lxs-consign-form-layout  { grid-template-columns: 1fr 360px; gap: 52px; }
+.lxs-consign-firearm-row  { grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+/* Support */
+.lxs-support-banner      { grid-template-columns: 1fr 1fr; gap: 60px; }
+.lxs-support-cards       { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.lxs-support-form-layout { grid-template-columns: 1.4fr 1fr; gap: 72px; }
+.lxs-ffl-guide           { grid-template-columns: 1fr 1.6fr; gap: 72px; }
+.lxs-support-info        { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* Policy (shared: shipping / privacy / terms) */
+.lxs-policy-layout { grid-template-columns: 220px 1fr; gap: 64px; }
+
+/* Form helpers */
+.lxs-form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.lxs-form-field:focus { border-color: rgba(182,145,78,0.6) !important; outline: none; }
+
+/* ── Responsive breakpoints for content pages ────────────────────────── */
+@media (max-width: 1024px) {
+  .lxs-about-story   { gap: 60px; }
+  .lxs-about-mission { gap: 52px; }
+  .lxs-faq-layout    { grid-template-columns: 200px 1fr; gap: 36px; }
+  .lxs-consign-form-layout  { grid-template-columns: 1fr 320px; gap: 36px; }
+  .lxs-support-form-layout { gap: 48px; }
+  .lxs-ffl-guide           { gap: 48px; }
+  .lxs-policy-layout { grid-template-columns: 190px 1fr; gap: 44px; }
+}
+
+@media (max-width: 768px) {
+  .lxs-contact-hero     { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-contact-channels { grid-template-columns: repeat(2, 1fr); }
+  .lxs-contact-form-map { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-contact-expect   { grid-template-columns: repeat(2, 1fr); }
+
+  .lxs-about-hero    { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-story   { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-values  { grid-template-columns: 1fr 1fr; }
+  .lxs-about-mission { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-brands  { grid-template-columns: repeat(2, 1fr); }
+  .lxs-about-cta     { grid-template-columns: 1fr; gap: 32px; }
+
+  .lxs-faq-banner { grid-template-columns: 1fr; gap: 32px; }
+  .lxs-faq-layout { grid-template-columns: 1fr; }
+  .lxs-faq-cta    { grid-template-columns: 1fr; gap: 32px; }
+
+  .lxs-consign-banner      { grid-template-columns: 1fr; gap: 36px; }
+  .lxs-consign-form-layout { grid-template-columns: 1fr; gap: 36px; }
+  .lxs-consign-firearm-row { grid-template-columns: 1fr 1fr; }
+
+  .lxs-support-banner      { grid-template-columns: 1fr; gap: 36px; }
+  .lxs-support-cards       { grid-template-columns: 1fr 1fr; }
+  .lxs-support-form-layout { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-ffl-guide           { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-support-info        { grid-template-columns: 1fr 1fr; }
+
+  .lxs-policy-layout { grid-template-columns: 1fr; }
+
+  .lxs-form-row { grid-template-columns: 1fr; gap: 0; }
+}
+
+@media (max-width: 640px) {
+  .lxs-contact-channels { grid-template-columns: 1fr; }
+  .lxs-contact-expect   { grid-template-columns: 1fr; }
+
+  .lxs-about-values  { grid-template-columns: 1fr; }
+  .lxs-about-brands  { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+  .lxs-consign-firearm-row { grid-template-columns: 1fr; }
+
+  .lxs-support-cards { grid-template-columns: 1fr; }
+  .lxs-support-info  { grid-template-columns: 1fr; }
+}
