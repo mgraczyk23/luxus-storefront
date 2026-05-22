@@ -77,8 +77,14 @@ function readAttr(val: any): { display: string | null; list: string[] } {
         if (strs.length > 0) return { display: strs.join(" / ") || null, list: strs }
       }
     } catch {
-      // Not valid JSON — fall through and treat as plain string
+      // Not valid JSON — fall through
     }
+  }
+
+  // Comma-separated string e.g. "Heckler & Koch, 10-8 Performance"
+  if (s.includes(",")) {
+    const strs = s.split(",").map(v => v.trim()).filter(v => v && v !== "null" && v !== "undefined")
+    if (strs.length > 1) return { display: strs.join(" / ") || null, list: strs }
   }
 
   return { display: s, list: [s] }

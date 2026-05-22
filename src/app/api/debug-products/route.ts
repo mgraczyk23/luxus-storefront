@@ -47,13 +47,15 @@ export async function GET(req: NextRequest) {
     categories: (p.categories ?? []).map((c: any) => c.name),
   }))
 
-  // Unique brand values — flatten arrays and JSON array strings
+  // Unique brand values — handles real arrays, JSON arrays, and comma-separated strings
   const allBrandVals = raw.flatMap(p => {
     const v = p.metadata?.brand
     if (!v) return []
-    if (Array.isArray(v)) return v.map(String)
+    if (Array.isArray(v)) return v.map(String).map(s => s.trim()).filter(Boolean)
     const s = String(v).trim()
-    if (s.startsWith("[")) { try { const a = JSON.parse(s); if (Array.isArray(a)) return a.map(String) } catch {} }
+    if (!s) return []
+    if (s.startsWith("[")) { try { const a = JSON.parse(s); if (Array.isArray(a)) return a.map(String).map(x => x.trim()).filter(Boolean) } catch {} }
+    if (s.includes(",")) { const parts = s.split(",").map(x => x.trim()).filter(Boolean); if (parts.length > 1) return parts }
     return [s]
   })
   const uniqueBrands = [...new Set(allBrandVals)].sort()
