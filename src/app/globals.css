@@ -475,6 +475,16 @@ a {
 .lxs-form-row   { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .lxs-form-field:focus { border-color: rgba(182,145,78,0.6) !important; outline: none; }
 
+/* About page — compact section padding on mobile (overrides inline styles) */
+@media (max-width: 768px) {
+  .lxs-about-page > section { padding-top: 52px !important; padding-bottom: 52px !important; padding-left: 20px !important; padding-right: 20px !important; }
+  .lxs-about-cta-btns { flex-direction: column; }
+  .lxs-about-cta-btns > * { flex: none !important; width: 100%; }
+}
+@media (max-width: 640px) {
+  .lxs-about-page > section { padding-top: 40px !important; padding-bottom: 40px !important; padding-left: 16px !important; padding-right: 16px !important; }
+}
+
 /* ── Responsive breakpoints for content pages ────────────────────────── */
 @media (max-width: 1024px) {
   .lxs-about-story   { gap: 60px; }

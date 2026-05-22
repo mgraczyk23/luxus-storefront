@@ -65,7 +65,7 @@ export default function AboutPage() {
   const { isDark, t } = useTheme()
 
   return (
-    <div style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
+    <div className="lxs-about-page" style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
 
       {/* HERO */}
       <div style={{ position:"relative",minHeight:"72vh",display:"flex",alignItems:"center",overflow:"hidden" }}>
@@ -360,7 +360,7 @@ export default function AboutPage() {
                 Browse our current inventory, explore by brand, or reach out to our team with a specific piece in mind. Every inquiry receives a personal response.
               </p>
             </div>
-            <div style={{ display:"flex",gap:"14px",flexWrap:"wrap" }}>
+            <div className="lxs-about-cta-btns" style={{ display:"flex",gap:"14px",flexWrap:"wrap" }}>
               <Link href="/shop" style={{ flex:"1 1 160px",padding:"18px 28px",background:t.gold,textDecoration:"none",display:"flex",flexDirection:"column",gap:"4px",transition:"background 0.2s" }}
                 onMouseEnter={e=>e.currentTarget.style.background=t.goldLight} onMouseLeave={e=>e.currentTarget.style.background=t.gold}>
                 <span style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:isDark?"#0a0a0a":"#fff",fontWeight:500,opacity:0.75 }}>Explore</span>
