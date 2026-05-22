@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? "https://api.luxus-collection.com"
 const PK      = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ""
-const FIELDS   = "*variants,*variants.prices,*images,*categories,*collection,+metadata"
+const FIELDS   = "*variants,*variants.prices,*images,*categories,*collection,*tags,+metadata"
 
 // Fetches directly from Medusa with no Next.js caching — always fresh.
 async function fetchFresh(offset: number) {
@@ -38,14 +38,29 @@ export async function GET(req: NextRequest) {
 
   // Show every product with the raw metadata values
   const products = raw.map(p => ({
-    id:     p.id,
-    handle: p.handle,
-    title:  p.title,
-    status: p.status,
-    // Raw metadata — exactly what Medusa is storing
-    metadata: p.metadata ?? null,
+    id:         p.id,
+    handle:     p.handle,
+    title:      p.title,
+    status:     p.status,
+    metadata:   p.metadata ?? null,
     categories: (p.categories ?? []).map((c: any) => c.name),
+    tags:       (p.tags ?? []).map((t: any) => t.value ?? t),
   }))
+
+  // Fetch attributes for the hilton-yam product specifically (to debug multi-brand)
+  const hiltonYam = raw.find(p => p.handle?.includes("hilton-yam"))
+  let hiltonYamAttributes: any = null
+  if (hiltonYam) {
+    try {
+      const attrRes = await fetch(
+        `${BACKEND}/store/products/${hiltonYam.id}/attributes`,
+        { cache: "no-store", headers: { "Content-Type": "application/json", "x-publishable-api-key": PK } }
+      )
+      hiltonYamAttributes = attrRes.ok ? await attrRes.json() : { error: attrRes.status }
+    } catch (e: any) {
+      hiltonYamAttributes = { error: e.message }
+    }
+  }
 
   // Unique brand values — handles real arrays, JSON arrays, and comma-separated strings
   const allBrandVals = raw.flatMap(p => {
@@ -61,7 +76,7 @@ export async function GET(req: NextRequest) {
   const uniqueBrands = [...new Set(allBrandVals)].sort()
 
   return NextResponse.json(
-    { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, products },
+    { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, hilton_yam_attributes: hiltonYamAttributes, products },
     { headers: { "Cache-Control": "no-store" } }
   )
 }
