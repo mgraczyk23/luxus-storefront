@@ -67,20 +67,25 @@ export async function GET(req: NextRequest) {
     attrFieldExpansionTest = { error: e.message }
   }
 
-  // Fetch attributes for the hilton-yam product specifically (to debug multi-brand)
+  // Fetch attributes for several products to build a full attribute_type_id → name map
+  const sampleHandles = ["hilton-yam-custom-delta", "colt-ace-trial", "korth-ratzeburg-combat-4"]
+  const sampleProducts = raw.filter(p => sampleHandles.some(h => p.handle?.includes(h))).slice(0, 3)
   const hiltonYam = raw.find(p => p.handle?.includes("hilton-yam"))
-  let hiltonYamAttributes: any = null
-  if (hiltonYam) {
-    try {
-      const attrRes = await fetch(
-        `${BACKEND}/store/products/${hiltonYam.id}/attributes`,
-        { cache: "no-store", headers: { "Content-Type": "application/json", "x-publishable-api-key": PK } }
-      )
-      hiltonYamAttributes = attrRes.ok ? await attrRes.json() : { error: attrRes.status }
-    } catch (e: any) {
-      hiltonYamAttributes = { error: e.message }
-    }
-  }
+
+  const attrFetches = await Promise.all(
+    sampleProducts.map(async (p) => {
+      try {
+        const r = await fetch(
+          `${BACKEND}/store/products/${p.id}/attributes?fields=*attribute_values,*attribute_values.attribute_type`,
+          { cache: "no-store", headers: { "Content-Type": "application/json", "x-publishable-api-key": PK } }
+        )
+        return { handle: p.handle, data: r.ok ? await r.json() : { error: r.status } }
+      } catch (e: any) {
+        return { handle: p.handle, data: { error: e.message } }
+      }
+    })
+  )
+  const hiltonYamAttributes = attrFetches.find(f => f.handle?.includes("hilton-yam"))?.data ?? null
 
   // Unique brand values — handles real arrays, JSON arrays, and comma-separated strings
   const allBrandVals = raw.flatMap(p => {
@@ -96,7 +101,7 @@ export async function GET(req: NextRequest) {
   const uniqueBrands = [...new Set(allBrandVals)].sort()
 
   return NextResponse.json(
-    { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, attr_field_expansion_test: attrFieldExpansionTest, hilton_yam_attributes: hiltonYamAttributes, products },
+    { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, attr_field_expansion_test: attrFieldExpansionTest, hilton_yam_attributes: hiltonYamAttributes, sample_attributes: attrFetches, products },
     { headers: { "Cache-Control": "no-store" } }
   )
 }
