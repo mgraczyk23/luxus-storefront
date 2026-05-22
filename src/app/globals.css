@@ -525,7 +525,7 @@ a {
   .lxs-contact-expect   { grid-template-columns: 1fr; }
 
   .lxs-about-values  { grid-template-columns: 1fr; }
-  .lxs-about-brands  { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .lxs-about-brands  { grid-template-columns: 1fr; }
   .lxs-about-ffl-cards { grid-template-columns: 1fr; }
 
   .lxs-consign-firearm-row { grid-template-columns: 1fr; }
