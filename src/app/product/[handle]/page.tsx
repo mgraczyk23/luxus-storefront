@@ -7,8 +7,8 @@ import type { Metadata } from "next"
 
 export const revalidate = 60
 
-const FIELDS = "*variants,*variants.prices,*images,*categories,*collection,+metadata"
-const RELATED_FIELDS = "*variants,*variants.prices,*images,+metadata"
+const FIELDS = "*variants,*variants.prices,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type"
+const RELATED_FIELDS = "*variants,*variants.prices,*images,+metadata,*attribute_values,*attribute_values.attribute_type"
 
 export async function generateMetadata(
   { params }: { params: Promise<{ handle: string }> }

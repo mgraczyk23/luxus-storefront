@@ -48,6 +48,34 @@ export type MappedProduct = {
   }
 }
 
+// Build a map of attribute_type.slug → values[] from the attribute_values module.
+// This is the authoritative source when products are fetched with
+// *attribute_values,*attribute_values.attribute_type in the fields selector.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function buildAttrMap(p: any): Record<string, string[]> {
+  const map: Record<string, string[]> = {}
+  for (const av of (p.attribute_values ?? [])) {
+    const slug: string | undefined = av.attribute_type?.slug
+    if (!slug || av.value == null) continue
+    const val = String(av.value).trim()
+    if (!val) continue
+    if (!map[slug]) map[slug] = []
+    if (!map[slug].includes(val)) map[slug].push(val)
+  }
+  return map
+}
+
+// Prefer the attribute_values module (authoritative), fall back to metadata.
+// Tries slug as-is plus hyphen/underscore variants (e.g. "barrel-length" and "barrel_length").
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function pickAttr(attrMap: Record<string, string[]>, slug: string, metaVal: any): { display: string | null; list: string[] } {
+  const variants = [slug, slug.replace(/-/g, '_'), slug.replace(/_/g, '-')]
+  for (const s of variants) {
+    if (attrMap[s]?.length) return readAttr(attrMap[s])
+  }
+  return readAttr(metaVal)
+}
+
 // Normalise a metadata attribute value: may be stored as a plain string,
 // a JSON array string '["A","B"]', or a real string[].
 // Returns display string (joined with " / ") and the full list for filtering.
@@ -92,11 +120,13 @@ function readAttr(val: any): { display: string | null; list: string[] } {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapMedusaProduct(p: any): MappedProduct {
-  const brand        = readAttr(p.metadata?.brand)
-  const model        = readAttr(p.metadata?.model)
-  const caliber      = readAttr(p.metadata?.caliber)
-  const action       = readAttr(p.metadata?.action)
-  const barrel_length = readAttr(p.metadata?.barrel_length)
+  const attrMap = buildAttrMap(p)
+
+  const brand        = pickAttr(attrMap, "brand",         p.metadata?.brand)
+  const model        = pickAttr(attrMap, "model",         p.metadata?.model)
+  const caliber      = pickAttr(attrMap, "caliber",       p.metadata?.caliber)
+  const action       = pickAttr(attrMap, "action",        p.metadata?.action)
+  const barrel_length = pickAttr(attrMap, "barrel-length", p.metadata?.barrel_length)
 
   return {
     id:                 p.id,

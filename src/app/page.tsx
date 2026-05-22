@@ -6,7 +6,7 @@ export const revalidate = 60
 
 // Shared fields string — use * prefix (not +) so URLSearchParams encodes it as %2A,
 // which Medusa decodes back to * and expands the relation correctly.
-const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories,+metadata"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories,+metadata,*attribute_values,*attribute_values.attribute_type"
 
 const FALLBACK_HERO = {
   label: "Featured Piece",

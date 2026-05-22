@@ -4,7 +4,7 @@ import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories,*collection,+metadata"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type"
 const PAGE_SIZE = 100
 
 // Normalise a brand name to a URL slug.
