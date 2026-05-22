@@ -229,6 +229,21 @@ a {
   .lxs-product-grid                                       { gap: 10px !important; }
 }
 
+/* ── Product Detail Page ─────────────────────────────────────────────── */
+@media (max-width: 1024px) and (min-width: 641px) {
+  .lxs-pdp-hero    { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .lxs-pdp-gallery { position: static !important; }
+  .lxs-pdp-inquiry { grid-template-columns: 1fr !important; gap: 40px !important; }
+  .lxs-pdp-related { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 640px) {
+  .lxs-pdp-hero    { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .lxs-pdp-gallery { position: static !important; }
+  .lxs-pdp-inquiry { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .lxs-pdp-related { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+  .lxs-pdp-highlights { grid-template-columns: 1fr !important; }
+}
+
 /* ── GunBroker auction grid ──────────────────────────────────────────── */
 @media (max-width: 1024px) and (min-width: 641px) {
   .lxs-auction-grid > div                                 { flex: 0 1 calc(50% - 9px) !important; max-width: calc(50% - 9px) !important; }
