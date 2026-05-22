@@ -12,6 +12,25 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories,+metadata"
+const PAGE_SIZE = 100
+
+async function getAllProducts(): Promise<ReturnType<typeof mapMedusaProduct>[]> {
+  const first = await getProducts({ limit: String(PAGE_SIZE), offset: "0", fields: PRODUCT_FIELDS })
+  const total = first.count ?? 0
+  const raw = [...(first.products ?? [])]
+
+  if (total > raw.length) {
+    const extraPages = Math.ceil((total - PAGE_SIZE) / PAGE_SIZE)
+    const pages = await Promise.all(
+      Array.from({ length: extraPages }, (_, i) =>
+        getProducts({ limit: String(PAGE_SIZE), offset: String((i + 1) * PAGE_SIZE), fields: PRODUCT_FIELDS })
+      )
+    )
+    for (const page of pages) raw.push(...(page.products ?? []))
+  }
+
+  return raw.map(mapMedusaProduct)
+}
 
 function ShopLoading() {
   return (
@@ -24,8 +43,7 @@ function ShopLoading() {
 export default async function Shop() {
   let products: ReturnType<typeof mapMedusaProduct>[] = []
   try {
-    const res = await getProducts({ limit: "200", fields: PRODUCT_FIELDS })
-    products = (res.products ?? []).map(mapMedusaProduct)
+    products = await getAllProducts()
   } catch {
     // Products will be empty array — ShopPage shows empty state
   }
