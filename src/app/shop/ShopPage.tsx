@@ -32,14 +32,14 @@ type Filters = {
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 
-function getPageNums(current: number, total: number): (number | '...')[] {
-  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+function getPageNums(current: number, total: number, wing: number): (number | '...')[] {
+  if (total <= wing * 2 + 3) return Array.from({ length: total }, (_, i) => i + 1)
   const out: (number | '...')[] = [1]
-  if (current > 3) out.push('...')
-  const start = Math.max(2, current - 1)
-  const end   = Math.min(total - 1, current + 1)
-  for (let i = start; i <= end; i++) out.push(i)
-  if (current < total - 2) out.push('...')
+  const lo = Math.max(2, current - wing)
+  const hi = Math.min(total - 1, current + wing)
+  if (lo > 2) out.push('...')
+  for (let i = lo; i <= hi; i++) out.push(i)
+  if (hi < total - 1) out.push('...')
   out.push(total)
   return out
 }
@@ -101,10 +101,10 @@ function ProductCard({ product }: { product: MappedProduct }) {
             <ImgBox style={{ filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} />
           )}
 
-          {/* Primary category badge */}
+          {/* Primary category badge — bottom-left so it never overlaps the Available pill (top-right) */}
           {product.details?.primary_category && product.in_stock && (
             <div style={{
-              position: "absolute", top: "10px", left: "10px",
+              position: "absolute", bottom: "10px", left: "10px",
               background: isDark ? "rgba(11,10,9,0.82)" : "rgba(255,255,255,0.88)",
               border: `1px solid ${t.gold}50`, padding: "3px 9px",
               fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase",
@@ -393,9 +393,18 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   const [page, setPage] = useState(() => Number(searchParams.get('page') ?? 1))
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   const sortRef = useRef<HTMLDivElement>(null)
   const isFirstMount = useRef(true)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   // Sync URL when filter state changes (skip first mount to avoid redundant push)
   useEffect(() => {
@@ -753,14 +762,14 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "56px", paddingTop: "40px", borderTop: `1px solid ${t.border}` }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "28px", flexWrap: "nowrap" }}>
               <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === 1 ? t.border + "50" : t.border}`, cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
+                style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === 1 ? t.border + "50" : t.border}`, cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
                 <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
-              {getPageNums(page, totalPages).map((n, idx) =>
+              {getPageNums(page, totalPages, isMobile ? 1 : 4).map((n, idx) =>
                 n === '...' ? (
-                  <span key={`el-${idx}`} style={{ width: "28px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", color: t.textDim, flexShrink: 0 }}>…</span>
+                  <span key={`el-${idx}`} style={{ width: "24px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", color: t.textDim, flexShrink: 0 }}>…</span>
                 ) : (
                   <button key={n} onClick={() => setPage(n as number)}
                     style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? (isDark ? "#0a0a0a" : "#fff") : t.textMuted, fontSize: "11px", fontFamily: "'Inter',sans-serif", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s", borderRadius: "1px" }}>
@@ -769,7 +778,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
                 )
               )}
               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-                style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === totalPages ? t.border + "50" : t.border}`, cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
+                style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === totalPages ? t.border + "50" : t.border}`, cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
                 <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </div>
