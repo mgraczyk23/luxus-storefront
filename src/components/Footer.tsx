@@ -17,7 +17,7 @@ const FOOTER_LINKS = {
     { label: "FAQ",              href: "/faq"      },
     { label: "Support",          href: "/support"  },
     { label: "Shipping Policy",  href: "/shipping" },
-    { label: "Returns",          href: "/returns"  },
+    { label: "Returns",          href: "/shipping" },
   ],
   Account: [
     { label: "Sign In",        href: "/auth"              },
