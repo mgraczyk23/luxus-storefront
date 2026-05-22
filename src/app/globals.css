@@ -300,6 +300,7 @@ a {
     gap: 8px !important;
   }
 
+  .lxs-card-badge-cat  { top: auto !important; bottom: 10px !important; }
   .lxs-card-price      { font-size: 14px !important; letter-spacing: 0.01em !important; }
   .lxs-card-view-btn   { font-size: 12px !important; min-height: 36px !important; display: flex !important; align-items: center !important; padding: 6px 0 !important; }
 }

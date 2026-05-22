@@ -101,10 +101,10 @@ function ProductCard({ product }: { product: MappedProduct }) {
             <ImgBox style={{ filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} />
           )}
 
-          {/* Primary category badge — bottom-left so it never overlaps the Available pill (top-right) */}
+          {/* Primary category badge — top-left on desktop, bottom-left on mobile (CSS override) */}
           {product.details?.primary_category && product.in_stock && (
-            <div style={{
-              position: "absolute", bottom: "10px", left: "10px",
+            <div className="lxs-card-badge-cat" style={{
+              position: "absolute", top: "10px", left: "10px",
               background: isDark ? "rgba(11,10,9,0.82)" : "rgba(255,255,255,0.88)",
               border: `1px solid ${t.gold}50`, padding: "3px 9px",
               fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase",
