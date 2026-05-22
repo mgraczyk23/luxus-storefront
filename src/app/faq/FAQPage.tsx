@@ -198,7 +198,7 @@ export default function FAQPage() {
       </div>
 
       {/* MAIN CONTENT */}
-      <div style={{ maxWidth:"1440px",margin:"0 auto",padding:"52px 40px 96px" }}>
+      <div className="lxs-faq-main" style={{ maxWidth:"1440px",margin:"0 auto",padding:"52px 40px 96px" }}>
         {searchResults ? (
           <div style={{ maxWidth:"800px" }}>
             {searchResults.length === 0 ? (
@@ -222,13 +222,14 @@ export default function FAQPage() {
         ) : (
           <div className="lxs-faq-layout">
             {/* Sidebar */}
-            <aside style={{ position:"sticky",top:"96px" }}>
+            <aside className="lxs-faq-sidebar" style={{ position:"sticky",top:"96px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.24em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"16px" }}>Categories</div>
-              <div style={{ display:"flex",flexDirection:"column",gap:"2px" }}>
+              <div className="lxs-faq-cat-list" style={{ display:"flex",flexDirection:"column",gap:"2px" }}>
                 {FAQ_DATA.map(cat => (
                   <button key={cat.id} onClick={()=>{ setActiveCategory(cat.id); setOpenItems(new Set()) }}
+                    className={activeCategory===cat.id ? "lxs-faq-cat-btn lxs-faq-cat-active" : "lxs-faq-cat-btn"}
                     style={{ display:"flex",alignItems:"center",gap:"12px",padding:"11px 14px",background:activeCategory===cat.id?(isDark?"#161616":"#fafafa"):"transparent",border:`1px solid ${activeCategory===cat.id?t.gold+"50":"transparent"}`,cursor:"pointer",textAlign:"left",width:"100%",borderLeft:`2px solid ${activeCategory===cat.id?t.gold:"transparent"}`,transition:"all 0.2s" }}>
-                    <span style={{ color:activeCategory===cat.id?t.gold:t.textDim,flexShrink:0,transition:"color 0.2s" }}>{cat.icon}</span>
+                    <span className="lxs-faq-cat-icon" style={{ color:activeCategory===cat.id?t.gold:t.textDim,flexShrink:0,transition:"color 0.2s" }}>{cat.icon}</span>
                     <span style={{ fontSize:"11.5px",fontWeight:activeCategory===cat.id?500:300,color:activeCategory===cat.id?t.gold:t.textMuted,letterSpacing:"0.02em",transition:"color 0.2s" }}>{cat.category}</span>
                   </button>
                 ))}

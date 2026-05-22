@@ -66,10 +66,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {}
   }, [])
 
-  // Sync body background to avoid flash on theme change
+  // Sync body background and html data-theme to avoid flash on theme change
   useEffect(() => {
     document.body.style.background = isDark ? DARK.bg : LIGHT.bg
     document.body.style.color = isDark ? DARK.text : LIGHT.text
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
   }, [isDark])
 
   const setIsDark = (v: boolean) => {

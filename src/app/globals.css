@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* ── Theme CSS variables (lets media-query CSS reference theme tokens) ── */
+:root, [data-theme="dark"] { --lxs-gold: #c09530; --lxs-border: #2a2a2a; }
+[data-theme="light"]       { --lxs-gold: #7e5e10; --lxs-border: #e4e4e6; }
+
 /* ── Base ──────────────────────────────────────────────────────────────── */
 html, body {
   margin: 0;
@@ -531,8 +535,37 @@ a {
   .lxs-about-cta        { grid-template-columns: 1fr; gap: 32px; }
 
   .lxs-faq-banner { grid-template-columns: 1fr; gap: 32px; }
-  .lxs-faq-layout { grid-template-columns: 1fr; }
+  .lxs-faq-layout { grid-template-columns: 1fr; gap: 0; }
   .lxs-faq-cta    { grid-template-columns: 1fr; gap: 32px; }
+
+  /* FAQ category tab bar */
+  .lxs-faq-main { padding-top: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
+  .lxs-faq-sidebar { position: static !important; top: auto !important; }
+  .lxs-faq-sidebar > div:first-child,
+  .lxs-faq-sidebar > div:last-child { display: none !important; }
+  .lxs-faq-cat-list {
+    flex-direction: row !important;
+    gap: 0 !important;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--lxs-border);
+    padding: 0 16px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .lxs-faq-cat-list::-webkit-scrollbar { display: none; }
+  .lxs-faq-cat-icon { display: none; }
+  .lxs-faq-cat-btn {
+    width: auto !important;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 12px 14px !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+    margin-bottom: -1px;
+  }
+  .lxs-faq-cat-active { border-bottom-color: var(--lxs-gold) !important; }
+  .lxs-faq-layout > div:last-child { padding: 28px 16px 64px; }
 
   .lxs-consign-banner      { grid-template-columns: 1fr; gap: 36px; }
   .lxs-consign-form-layout { grid-template-columns: 1fr; gap: 36px; }
