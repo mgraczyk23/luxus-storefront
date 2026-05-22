@@ -19,6 +19,8 @@ export type MappedProduct = {
   thumbnail: string | null
   categories: string[]
   primary_category: string | null
+  collection_id: string | null
+  collection_handle: string | null
   short_description: string | null
   overview: string | null
   engraver: string | null
@@ -85,6 +87,8 @@ export function mapMedusaProduct(p: any): MappedProduct {
     thumbnail:          p.thumbnail ?? null,
     categories:         p.categories?.map((c: { name: string }) => c.name) ?? [],
     primary_category:   p.metadata?.primary_category ?? null,
+    collection_id:      p.collection?.id ?? null,
+    collection_handle:  p.collection?.handle ?? null,
     short_description:  p.metadata?.short_description ?? null,
     overview:           p.description ?? null,
     engraver:           p.metadata?.engraver ?? null,
