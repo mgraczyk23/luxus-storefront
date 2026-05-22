@@ -212,6 +212,9 @@ a {
 }
 
 /* ── Product Listing Page ────────────────────────────────────────────── */
+/* Hidden on desktop; shown on mobile via the media query below */
+.lxs-mobile-filter-btn { display: none; }
+
 @media (max-width: 1024px) and (min-width: 641px) {
   .lxs-listing-layout                                     { grid-template-columns: 220px 1fr !important; gap: 32px !important; }
   .lxs-product-grid                                       { grid-template-columns: repeat(2, 1fr) !important; }
@@ -296,6 +299,9 @@ a {
     justify-content: center !important;
     gap: 8px !important;
   }
+
+  .lxs-card-price      { font-size: 14px !important; letter-spacing: 0.01em !important; }
+  .lxs-card-view-btn   { font-size: 12px !important; min-height: 36px !important; display: flex !important; align-items: center !important; padding: 6px 0 !important; }
 }
 
 /* ── Tap targets ─────────────────────────────────────────────────────── */

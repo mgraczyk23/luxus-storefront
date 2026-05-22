@@ -8,7 +8,7 @@ import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
 
 const PLAYFAIR = "var(--font-playfair), serif"
-const PER_PAGE = 12
+const PER_PAGE = 18
 const PRICE_FLOOR = 0
 
 const SORT_OPTIONS = [
@@ -31,6 +31,18 @@ type Filters = {
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
+
+function getPageNums(current: number, total: number): (number | '...')[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+  const out: (number | '...')[] = [1]
+  if (current > 3) out.push('...')
+  const start = Math.max(2, current - 1)
+  const end   = Math.min(total - 1, current + 1)
+  for (let i = start; i <= end; i++) out.push(i)
+  if (current < total - 2) out.push('...')
+  out.push(total)
+  return out
+}
 
 // ── ImgBox placeholder ────────────────────────────────────────────────────────
 function ImgBox({ style = {} }: { style?: React.CSSProperties }) {
@@ -151,7 +163,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
           </div>
           <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }} />
           <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div style={{
+            <div className="lxs-card-price" style={{
               fontSize: product.contact_for_pricing ? "10px" : "15px",
               fontWeight: product.contact_for_pricing ? 400 : 500,
               color: product.contact_for_pricing ? t.gold : t.text,
@@ -159,7 +171,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
             }}>
               {product.contact_for_pricing ? "Contact Us For Pricing" : product.price !== null ? fmt(product.price) : "—"}
             </div>
-            <div style={{
+            <div className="lxs-card-view-btn" style={{
               fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500,
               color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px",
               opacity: hov ? 1 : 0.65, transition: "opacity 0.2s",
@@ -667,7 +679,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
 
             {/* Mobile filter button */}
             <button className="lxs-mobile-filter-btn" onClick={() => setDrawerOpen(true)}
-              style={{ display: "none", alignItems: "center", gap: "7px", padding: "8px 16px", background: "transparent", border: `1px solid ${t.border}`, color: t.textMuted, fontSize: "9.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, cursor: "pointer", borderRadius: "1px" }}>
+              style={{ alignItems: "center", gap: "7px", padding: "8px 16px", background: "transparent", border: `1px solid ${t.border}`, color: t.textMuted, fontSize: "9.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, cursor: "pointer", borderRadius: "1px" }}>
               <svg width="13" height="11" viewBox="0 0 13 11" fill="none"><path d="M1 1H12M3 5.5H10M5 10H8" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" /></svg>
               Filters{activePills.length > 0 ? ` (${activePills.length})` : ''}
             </button>
@@ -746,12 +758,16 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
                 style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === 1 ? t.border + "50" : t.border}`, cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
                 <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                <button key={n} onClick={() => setPage(n)}
-                  style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? (isDark ? "#0a0a0a" : "#fff") : t.textMuted, fontSize: "11px", fontFamily: "'Inter',sans-serif", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s", borderRadius: "1px" }}>
-                  {n}
-                </button>
-              ))}
+              {getPageNums(page, totalPages).map((n, idx) =>
+                n === '...' ? (
+                  <span key={`el-${idx}`} style={{ width: "28px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", color: t.textDim, flexShrink: 0 }}>…</span>
+                ) : (
+                  <button key={n} onClick={() => setPage(n as number)}
+                    style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? (isDark ? "#0a0a0a" : "#fff") : t.textMuted, fontSize: "11px", fontFamily: "'Inter',sans-serif", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s", borderRadius: "1px" }}>
+                    {n}
+                  </button>
+                )
+              )}
               <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
                 style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === totalPages ? t.border + "50" : t.border}`, cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
                 <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
