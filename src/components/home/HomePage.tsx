@@ -19,7 +19,11 @@ type HeroProduct = {
   handle: string | null
 }
 
-type ShopItem = { id: string; name: string }
+type ShopItem = { id: string; name: string; handle?: string }
+
+function toSlug(str: string) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
 
 type Auction = {
   id: number
@@ -317,7 +321,7 @@ function BrandTile({ brand, isDark }: { brand: typeof BRANDS[0]; isDark: boolean
   const t = isDark ? DARK : LIGHT
   const [hov, setHov] = useState(false)
   return (
-    <Link href={`/shop?by=brand&brand=${brand.slug}`}
+    <Link href={`/brand/${brand.slug}`}
       className="lxs-home-brand-tile"
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
@@ -673,7 +677,7 @@ export default function HomePage({
                 </div>
               ))}
             </div>
-            <Link href={tab === "collections" ? "/shop?by=collection" : "/shop?by=category"}
+            <Link href="/shop"
               style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "18px", textDecoration: "none" }}
               onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
               onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
@@ -690,7 +694,7 @@ export default function HomePage({
                 key={item.id}
                 item={item}
                 isDark={isDark}
-                href={tab === "collections" ? `/shop?by=collection&id=${item.id}` : `/shop?by=category&id=${item.id}`}
+                href={tab === "collections" ? `/collection/${item.handle ?? toSlug(item.name)}` : `/category/${item.handle ?? toSlug(item.name)}`}
               />
             )}
           />

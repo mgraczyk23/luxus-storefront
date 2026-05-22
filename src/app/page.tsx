@@ -81,7 +81,7 @@ export default async function Home() {
 
   const collections = allCollections
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((c: any) => ({ id: c.id as string, name: (c.title ?? c.name) as string }))
+    .map((c: any) => ({ id: c.id as string, name: (c.title ?? c.name) as string, handle: c.handle as string | undefined }))
     .filter(c => c.name.toLowerCase() !== "featured")  // hide "Featured" from browse tabs
 
   const displayCollections = collections.length > 0 ? collections : FALLBACK_COLLECTIONS
@@ -91,7 +91,7 @@ export default async function Home() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .filter((c: any) => !c.parent_category_id)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((c: any) => ({ id: c.id as string, name: c.name as string }))
+        .map((c: any) => ({ id: c.id as string, name: c.name as string, handle: c.handle as string | undefined }))
         .sort((a: { id: string }, b: { id: string }) =>
           (catCountMap[b.id] ?? 0) - (catCountMap[a.id] ?? 0)
         )

@@ -248,7 +248,7 @@ export default function ProductDetailPage({
           {[
             { label: "Home", href: "/" },
             { label: "Shop", href: "/shop" },
-            ...(product.brand ? [{ label: product.brand, href: `/shop?brand=${encodeURIComponent(product.brand)}` }] : []),
+            ...(product.brand ? [{ label: product.brand, href: `/brand/${product.brand.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}` }] : []),
           ].map(crumb => (
             <div key={crumb.href} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Link href={crumb.href}
