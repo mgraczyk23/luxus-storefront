@@ -357,11 +357,11 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     const maxPrice = pricedProducts.length ? Math.max(...pricedProducts.map(p => p.price!)) : 20000
     return {
       uniqueCategories:    [...new Set(products.flatMap(p => p.categories))].sort(),
-      uniqueBrands:        [...new Set(products.map(p => p.attributes.brand).filter(Boolean) as string[])].sort(),
-      uniqueModels:        [...new Set(products.map(p => p.attributes.model).filter(Boolean) as string[])].sort(),
-      uniqueCalibers:      [...new Set(products.map(p => p.attributes.caliber).filter(Boolean) as string[])].sort(),
-      uniqueActions:       [...new Set(products.map(p => p.attributes.action).filter(Boolean) as string[])].sort(),
-      uniqueBarrelLengths: [...new Set(products.map(p => p.attributes.barrel_length).filter(Boolean) as string[])].sort(),
+      uniqueBrands:        [...new Set(products.flatMap(p => p.attribute_lists.brand))].sort(),
+      uniqueModels:        [...new Set(products.flatMap(p => p.attribute_lists.model))].sort(),
+      uniqueCalibers:      [...new Set(products.flatMap(p => p.attribute_lists.caliber))].sort(),
+      uniqueActions:       [...new Set(products.flatMap(p => p.attribute_lists.action))].sort(),
+      uniqueBarrelLengths: [...new Set(products.flatMap(p => p.attribute_lists.barrel_length))].sort(),
       PRICE_MAX:           Math.ceil(maxPrice / 1000) * 1000,
     }
   }, [products])
@@ -425,13 +425,17 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   const countFor = useCallback((key: string, value: string): number => {
     return products.filter(p => {
       // Must match this dimension
-      if (key === 'categories') { if (!p.categories.includes(value)) return false }
-      else if (p.attributes[key as keyof typeof p.attributes] !== value) return false
+      if (key === 'categories') {
+        if (!p.categories.includes(value)) return false
+      } else {
+        const list = p.attribute_lists[key as keyof typeof p.attribute_lists] ?? []
+        if (!list.includes(value)) return false
+      }
       // Other active attribute filters
       const attrKeys = ['brand', 'model', 'caliber', 'action', 'barrel_length'] as const
       for (const k of attrKeys) {
         if (k === key) continue
-        if (filters[k].length && !filters[k].includes(p.attributes[k] ?? '')) return false
+        if (filters[k].length && !filters[k].some(f => p.attribute_lists[k].includes(f))) return false
       }
       // Category filter (when counting non-category dimensions)
       if (key !== 'categories' && filters.categories.length && !filters.categories.some(c => p.categories.includes(c))) return false
@@ -445,12 +449,12 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
 
   // ── Filtering ───────────────────────────────────────────────────────────────
   const filtered = useMemo(() => products.filter(p => {
-    if (filters.categories.length && !filters.categories.some(c => p.categories.includes(c))) return false
-    if (filters.brand.length         && !filters.brand.includes(p.attributes.brand ?? ''))          return false
-    if (filters.model.length         && !filters.model.includes(p.attributes.model ?? ''))          return false
-    if (filters.caliber.length       && !filters.caliber.includes(p.attributes.caliber ?? ''))      return false
-    if (filters.action.length        && !filters.action.includes(p.attributes.action ?? ''))        return false
-    if (filters.barrel_length.length && !filters.barrel_length.includes(p.attributes.barrel_length ?? '')) return false
+    if (filters.categories.length    && !filters.categories.some(c => p.categories.includes(c)))                         return false
+    if (filters.brand.length         && !filters.brand.some(f => p.attribute_lists.brand.includes(f)))                   return false
+    if (filters.model.length         && !filters.model.some(f => p.attribute_lists.model.includes(f)))                   return false
+    if (filters.caliber.length       && !filters.caliber.some(f => p.attribute_lists.caliber.includes(f)))               return false
+    if (filters.action.length        && !filters.action.some(f => p.attribute_lists.action.includes(f)))                 return false
+    if (filters.barrel_length.length && !filters.barrel_length.some(f => p.attribute_lists.barrel_length.includes(f)))  return false
     if (!p.contact_for_pricing && p.price !== null) {
       if (p.price < filters.priceMin || p.price > filters.priceMax) return false
     }
@@ -538,7 +542,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
       {uniqueModels.length > 0 && (
         <FilterSection title="Model" defaultOpen={false}>
           {uniqueModels
-            .filter(m => !filters.brand.length || products.some(p => p.attributes.model === m && filters.brand.includes(p.attributes.brand ?? '')))
+            .filter(m => !filters.brand.length || products.some(p => p.attribute_lists.model.includes(m) && filters.brand.some(b => p.attribute_lists.brand.includes(b))))
             .map(v => (
               <CheckboxItem key={v} label={v} checked={filters.model.includes(v)}
                 onChange={() => toggleFilter('model', v)} count={countFor('model', v)} />

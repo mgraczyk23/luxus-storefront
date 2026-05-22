@@ -25,6 +25,7 @@ export type MappedProduct = {
   highlights: { title: string; body: string }[]
   specifications: Record<string, string>
   in_the_box: string[]
+  // attributes: display strings (joined if multi-value, e.g. "9mm / .40 S&W")
   attributes: {
     brand: string | null
     model: string | null
@@ -32,19 +33,46 @@ export type MappedProduct = {
     action: string | null
     barrel_length: string | null
   }
+  // attribute_lists: full arrays for filter matching (always string[])
+  attribute_lists: {
+    brand: string[]
+    model: string[]
+    caliber: string[]
+    action: string[]
+    barrel_length: string[]
+  }
   details: {
     primary_category: string | null
   }
 }
 
+// Normalise a metadata attribute value: may be stored as string (legacy) or string[]
+// Returns display string (joined) and the full list for filtering.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function readAttr(val: any): { display: string | null; list: string[] } {
+  if (!val) return { display: null, list: [] }
+  if (Array.isArray(val)) {
+    const strs = val.filter(Boolean).map(String)
+    return { display: strs.join(" / ") || null, list: strs }
+  }
+  const s = String(val)
+  return { display: s || null, list: s ? [s] : [] }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapMedusaProduct(p: any): MappedProduct {
+  const brand        = readAttr(p.metadata?.brand)
+  const model        = readAttr(p.metadata?.model)
+  const caliber      = readAttr(p.metadata?.caliber)
+  const action       = readAttr(p.metadata?.action)
+  const barrel_length = readAttr(p.metadata?.barrel_length)
+
   return {
     id:                 p.id,
     handle:             p.handle,
     title:              p.title,
     subtitle:           p.subtitle ?? null,
-    brand:              p.metadata?.brand ?? null,
+    brand:              brand.display,
     sku:                p.variants?.[0]?.sku ?? null,
     price:              p.variants?.[0]?.prices?.[0]?.amount
                           ? p.variants[0].prices[0].amount / 100
@@ -64,11 +92,18 @@ export function mapMedusaProduct(p: any): MappedProduct {
     specifications:     p.metadata?.specifications ?? {},
     in_the_box:         p.metadata?.in_the_box ?? [],
     attributes: {
-      brand:         p.metadata?.brand ?? null,
-      model:         p.metadata?.model ?? null,
-      caliber:       p.metadata?.caliber ?? null,
-      action:        p.metadata?.action ?? null,
-      barrel_length: p.metadata?.barrel_length ?? null,
+      brand:         brand.display,
+      model:         model.display,
+      caliber:       caliber.display,
+      action:        action.display,
+      barrel_length: barrel_length.display,
+    },
+    attribute_lists: {
+      brand:         brand.list,
+      model:         model.list,
+      caliber:       caliber.list,
+      action:        action.list,
+      barrel_length: barrel_length.list,
     },
     details: {
       primary_category: p.metadata?.primary_category ?? null,
