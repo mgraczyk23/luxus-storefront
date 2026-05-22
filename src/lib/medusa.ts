@@ -48,19 +48,39 @@ export type MappedProduct = {
   }
 }
 
-// Normalise a metadata attribute value: may be stored as string (legacy) or string[]
-// Returns display string (joined) and the full list for filtering.
+// Normalise a metadata attribute value: may be stored as a plain string,
+// a JSON array string '["A","B"]', or a real string[].
+// Returns display string (joined with " / ") and the full list for filtering.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function readAttr(val: any): { display: string | null; list: string[] } {
   if (val === null || val === undefined) return { display: null, list: [] }
+
+  // Real array from the API
   if (Array.isArray(val)) {
     const strs = val
       .map(v => String(v).trim())
       .filter(v => v && v !== "null" && v !== "undefined")
     return { display: strs.join(" / ") || null, list: strs }
   }
+
   const s = String(val).trim()
   if (!s || s === "null" || s === "undefined") return { display: null, list: [] }
+
+  // JSON-stringified array e.g. '["Heckler & Koch","10-8 Performance"]'
+  if (s.startsWith("[")) {
+    try {
+      const parsed = JSON.parse(s)
+      if (Array.isArray(parsed)) {
+        const strs = parsed
+          .map((v: unknown) => String(v).trim())
+          .filter((v: string) => v && v !== "null" && v !== "undefined")
+        if (strs.length > 0) return { display: strs.join(" / ") || null, list: strs }
+      }
+    } catch {
+      // Not valid JSON — fall through and treat as plain string
+    }
+  }
+
   return { display: s, list: [s] }
 }
 

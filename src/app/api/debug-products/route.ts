@@ -47,10 +47,16 @@ export async function GET(req: NextRequest) {
     categories: (p.categories ?? []).map((c: any) => c.name),
   }))
 
-  // Unique brand values exactly as stored in Medusa
-  const uniqueBrands = [...new Set(
-    raw.map(p => p.metadata?.brand).filter(v => v !== null && v !== undefined)
-  )].sort()
+  // Unique brand values — flatten arrays and JSON array strings
+  const allBrandVals = raw.flatMap(p => {
+    const v = p.metadata?.brand
+    if (!v) return []
+    if (Array.isArray(v)) return v.map(String)
+    const s = String(v).trim()
+    if (s.startsWith("[")) { try { const a = JSON.parse(s); if (Array.isArray(a)) return a.map(String) } catch {} }
+    return [s]
+  })
+  const uniqueBrands = [...new Set(allBrandVals)].sort()
 
   return NextResponse.json(
     { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, products },

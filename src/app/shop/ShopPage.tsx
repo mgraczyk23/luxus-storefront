@@ -206,7 +206,7 @@ function FilterSection({ title, defaultOpen = true, children }: { title: string;
         </svg>
       </button>
       <div style={{ overflow: "hidden", maxHeight: open ? "9999px" : "0", transition: "max-height 0.4s ease" }}>
-        <div style={{ maxHeight: "340px", overflowY: "auto", scrollbarWidth: "thin" }}>{children}</div>
+        <div style={{ maxHeight: "340px", overflowY: "auto", scrollbarWidth: "thin", paddingRight: "12px" }}>{children}</div>
       </div>
     </div>
   )
