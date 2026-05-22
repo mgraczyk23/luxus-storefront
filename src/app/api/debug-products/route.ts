@@ -1,54 +1,59 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getProducts } from "@/lib/api"
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*images,*categories,*collection,+metadata"
-const PAGE_SIZE = 100
+const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? "https://api.luxus-collection.com"
+const PK      = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ""
+const FIELDS   = "*variants,*variants.prices,*images,*categories,*collection,+metadata"
 
-// Temporary debug endpoint — requires REVALIDATE_SECRET to access.
-// Returns raw brand/metadata values from Medusa to diagnose missing filter entries.
-// Remove this file once the issue is resolved.
+// Fetches directly from Medusa with no Next.js caching — always fresh.
+async function fetchFresh(offset: number) {
+  const url = `${BACKEND}/store/products?limit=100&offset=${offset}&fields=${encodeURIComponent(FIELDS)}`
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      "x-publishable-api-key": PK,
+    },
+  })
+  if (!res.ok) throw new Error(`Medusa ${res.status}: ${url}`)
+  return res.json() as Promise<{ products: any[]; count: number }>
+}
+
 export async function GET(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get("secret")
   if (!secret || secret !== process.env.REVALIDATE_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const first = await getProducts({ limit: String(PAGE_SIZE), offset: "0", fields: PRODUCT_FIELDS })
-  const total = first.count ?? 0
-  const raw = [...(first.products ?? [])]
+  const first  = await fetchFresh(0)
+  const total  = first.count ?? 0
+  const raw    = [...(first.products ?? [])]
 
   if (total > raw.length) {
-    const extra = Math.ceil((total - PAGE_SIZE) / PAGE_SIZE)
+    const extra = Math.ceil((total - 100) / 100)
     const pages = await Promise.all(
-      Array.from({ length: extra }, (_, i) =>
-        getProducts({ limit: String(PAGE_SIZE), offset: String((i + 1) * PAGE_SIZE), fields: PRODUCT_FIELDS })
-      )
+      Array.from({ length: extra }, (_, i) => fetchFresh((i + 1) * 100))
     )
     for (const page of pages) raw.push(...(page.products ?? []))
   }
 
-  const summary = raw.map(p => ({
+  // Show every product with the raw metadata values
+  const products = raw.map(p => ({
     id:     p.id,
     handle: p.handle,
     title:  p.title,
     status: p.status,
-    metadata_brand:    p.metadata?.brand    ?? null,
-    metadata_caliber:  p.metadata?.caliber  ?? null,
-    metadata_action:   p.metadata?.action   ?? null,
-    categories: (p.categories ?? []).map((c: { name: string }) => c.name),
+    // Raw metadata — exactly what Medusa is storing
+    metadata: p.metadata ?? null,
+    categories: (p.categories ?? []).map((c: any) => c.name),
   }))
 
-  // Also return unique brand values to see exactly what's in the data
+  // Unique brand values exactly as stored in Medusa
   const uniqueBrands = [...new Set(
-    raw.map(p => p.metadata?.brand).filter(Boolean)
+    raw.map(p => p.metadata?.brand).filter(v => v !== null && v !== undefined)
   )].sort()
 
-  return NextResponse.json({
-    total_returned: raw.length,
-    total_in_medusa: total,
-    unique_brands: uniqueBrands,
-    products: summary,
-  }, {
-    headers: { "Cache-Control": "no-store" },
-  })
+  return NextResponse.json(
+    { total_returned: raw.length, total_in_medusa: total, unique_brands: uniqueBrands, products },
+    { headers: { "Cache-Control": "no-store" } }
+  )
 }
