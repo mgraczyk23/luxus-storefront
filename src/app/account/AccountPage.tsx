@@ -76,7 +76,7 @@ export default function AccountPage() {
 
   return (
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "var(--font-inter)" }}>
-      <div style={{ paddingTop: "68px" }}>
+      <div>
         {/* Banner */}
         <div style={{ background: isDark ? "linear-gradient(to bottom,#161616,#0a0a0a)" : "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "40px 40px 0" }}>
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
