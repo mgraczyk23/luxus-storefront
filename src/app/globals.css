@@ -540,16 +540,7 @@ a {
 
   /* FAQ category tab bar */
   .lxs-faq-main { padding-top: 0 !important; padding-left: 0 !important; padding-right: 0 !important; }
-  .lxs-faq-sidebar { position: relative !important; top: auto !important; overflow: hidden; }
-  .lxs-faq-sidebar::after {
-    content: '';
-    position: absolute;
-    right: 0; top: 0; bottom: 1px;
-    width: 56px;
-    background: linear-gradient(to right, transparent, var(--lxs-bg) 80%);
-    pointer-events: none;
-    z-index: 1;
-  }
+  .lxs-faq-sidebar { position: static !important; top: auto !important; overflow: hidden; }
   .lxs-faq-sidebar > div:first-child,
   .lxs-faq-sidebar > div:last-child { display: none !important; }
   .lxs-faq-cat-list {
