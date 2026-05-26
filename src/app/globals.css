@@ -402,6 +402,7 @@ a {
 }
 
 /* ── Homepage layout — class-based (no inline, fully responsive) ─────── */
+.lxs-hero-intro-grid   { display: grid; grid-template-columns: 1.05fr 1fr; gap: 72px; align-items: center; }
 .lxs-home-section      { padding: 96px 40px; }
 .lxs-home-newsletter   { padding: 80px 40px; }
 .lxs-home-hero-grid    { padding: 80px 40px 60px; grid-template-columns: 1fr 1fr; gap: 80px; }
@@ -417,6 +418,10 @@ a {
   .lxs-home-product-grid { grid-template-columns: repeat(2, 1fr); }
   .lxs-home-collec-grid  { grid-template-columns: repeat(2, 1fr); }
   .lxs-home-article-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+}
+
+@media (max-width: 860px) {
+  .lxs-hero-intro-grid   { grid-template-columns: 1fr; gap: 56px; }
 }
 
 @media (max-width: 640px) {

@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme, DARK, LIGHT } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
+import HeroSection from './HeroSection'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
 
@@ -511,118 +512,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* HERO                                                           */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section style={{ position: "relative", minHeight: "100vh", display: "flex", alignItems: "center", overflow: "hidden" }}>
-        <div style={{
-          position: "absolute", inset: 0,
-          background: isDark
-            ? "radial-gradient(ellipse at 70% 50%, #181818 0%, #0c0b09 55%, #050505 100%)"
-            : "radial-gradient(ellipse at 70% 50%, #f3f3f5 0%, #f3f3f5 55%, #ebebee 100%)",
-        }} />
-        <div style={{ position: "absolute", bottom: 0, right: 0, width: "55%", height: "65%", background: `radial-gradient(ellipse at bottom right, ${t.gold}0e 0%, transparent 65%)` }} />
-        <div style={{ position: "absolute", top: "18%", bottom: "18%", left: "50%", width: "1px", background: `linear-gradient(to bottom, transparent, ${t.gold}28, transparent)` }} />
-        <div style={{ position: "absolute", top: "68px", left: 0, right: 0, height: "1px", background: `linear-gradient(to right, transparent 5%, ${t.border}, transparent 95%)` }} />
-
-        <div className="lxs-home-hero-grid" style={{ position: "relative", zIndex: 2, maxWidth: "1440px", margin: "0 auto", display: "grid", alignItems: "center", width: "100%" }}>
-
-          {/* Left */}
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "28px" }}>
-              <div style={{ width: "28px", height: "1px", background: t.gold }} />
-              <span style={{ fontSize: "8.5px", letterSpacing: "0.3em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
-                Curated Fine Firearms
-              </span>
-            </div>
-            <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(46px,5.5vw,82px)", fontWeight: 300, lineHeight: 1.04, letterSpacing: "0.005em", color: t.text, marginBottom: "30px" }}>
-              Where Craft<br />
-              Meets <em style={{ color: t.gold, fontStyle: "italic" }}>Obsession.</em>
-            </h1>
-            <p style={{ fontSize: "14px", fontWeight: 300, lineHeight: 1.85, color: t.textMuted, maxWidth: "400px", marginBottom: "44px", letterSpacing: "0.025em" }}>
-              A distinguished showcase of top-tier firearm craftsmanship — premium pieces from Nighthawk Custom, Cabot Guns, Korth, SIG Sauer, Colt, Wilson Combat, and beyond.
-            </p>
-            <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
-              <button
-                onClick={() => router.push("/shop")}
-                style={{ padding: "14px 34px", background: t.gold, color: isDark ? "#0a0a0a" : "#fff", border: "none", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: "1px", fontFamily: "'Inter',sans-serif", transition: "all 0.22s" }}
-                onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none"; }}
-              >
-                Browse Collection
-              </button>
-              <button
-                onClick={() => router.push("/shop?by=brand")}
-                style={{ padding: "14px 34px", background: "transparent", color: t.text, border: `1px solid ${t.border}`, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 500, cursor: "pointer", borderRadius: "1px", fontFamily: "'Inter',sans-serif", transition: "all 0.22s" }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "70"; e.currentTarget.style.color = t.gold; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.text; }}
-              >
-                Shop by Brand
-              </button>
-            </div>
-            <div style={{ display: "flex", gap: "44px", marginTop: "60px", paddingTop: "36px", borderTop: `1px solid ${t.border}` }}>
-              {[["450+", "Curated Pieces"], ["35+", "Premier Brands"]].map(([num, label]) => (
-                <div key={label}>
-                  <div style={{ fontFamily: PLAYFAIR, fontSize: "30px", fontWeight: 300, color: t.gold, lineHeight: 1, marginBottom: "4px" }}>{num}</div>
-                  <div style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.textMuted, fontWeight: 400 }}>{label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Right: hero image + floating product card */}
-          <div style={{ position: "relative" }}>
-            <div style={{
-              aspectRatio: "4/5", maxHeight: "580px",
-              border: `1px solid ${t.border}`,
-              background: isDark ? "linear-gradient(155deg,#222222,#0e0e0e)" : "linear-gradient(155deg,#e8e8eb,#d4d4d8)",
-              position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              {[
-                { top: "12px", left: "12px", borderTop: `1px solid ${t.gold}50`, borderLeft: `1px solid ${t.gold}50` },
-                { top: "12px", right: "12px", borderTop: `1px solid ${t.gold}50`, borderRight: `1px solid ${t.gold}50` },
-                { bottom: "12px", left: "12px", borderBottom: `1px solid ${t.gold}50`, borderLeft: `1px solid ${t.gold}50` },
-                { bottom: "12px", right: "12px", borderBottom: `1px solid ${t.gold}50`, borderRight: `1px solid ${t.gold}50` },
-              ].map((s, i) => <div key={i} style={{ position: "absolute", width: "22px", height: "22px", ...s }} />)}
-              <div style={{ position: "absolute", inset: 0, background: `radial-gradient(ellipse at 35% 45%, ${t.gold}09, transparent 55%)` }} />
-              <svg width="56" height="56" viewBox="0 0 56 56" fill="none" opacity={isDark ? 0.12 : 0.1}>
-                <rect x="3" y="3" width="50" height="50" stroke={t.gold} strokeWidth="0.7" />
-                <line x1="28" y1="3" x2="28" y2="53" stroke={t.gold} strokeWidth="0.4" />
-                <line x1="3" y1="28" x2="53" y2="28" stroke={t.gold} strokeWidth="0.4" />
-                <rect x="14" y="14" width="28" height="28" stroke={t.gold} strokeWidth="0.4" />
-              </svg>
-              <div style={{ position: "absolute", bottom: "28px", left: "28px", right: "28px", textAlign: "center" }}>
-                <div style={{ fontSize: "7.5px", letterSpacing: "0.25em", textTransform: "uppercase", color: t.textDim, fontWeight: 500 }}>Product Photography</div>
-              </div>
-            </div>
-            {/* Floating product card */}
-            <div className="lxs-home-hero-card" style={{
-              position: "absolute", bottom: "44px", left: "-44px",
-              background: isDark ? "rgba(22,20,17,0.94)" : "rgba(255,255,255,0.96)",
-              border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}`,
-              padding: "14px 18px", backdropFilter: "blur(14px)",
-              minWidth: "210px",
-              boxShadow: isDark ? "0 12px 40px rgba(0,0,0,0.5)" : "0 12px 40px rgba(0,0,0,0.1)",
-            }}>
-              <div style={{ fontSize: "7.5px", letterSpacing: "0.22em", color: t.gold, textTransform: "uppercase", fontWeight: 500, marginBottom: "5px" }}>
-                {heroProduct.label}
-              </div>
-              <div style={{ fontFamily: PLAYFAIR, fontSize: "16px", fontWeight: 400, color: t.text, marginBottom: "3px" }}>
-                {heroProduct.title}
-              </div>
-              <div style={{ fontSize: "10.5px", color: t.textMuted, fontWeight: 300, marginBottom: "7px" }}>
-                {[heroProduct.caliber, heroProduct.action].filter(Boolean).join(" · ")}
-              </div>
-              <div style={{ fontSize: "14px", color: t.gold, fontWeight: 500 }}>
-                {heroProduct.contactForPricing ? "Contact Us For Pricing" : (heroProduct.price ? fmt(heroProduct.price) : "—")}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Scroll cue */}
-        <div style={{ position: "absolute", bottom: "28px", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", opacity: 0.45 }}>
-          <div style={{ fontSize: "7px", letterSpacing: "0.22em", textTransform: "uppercase", color: t.textMuted }}>Scroll</div>
-          <div style={{ width: "1px", height: "28px", background: `linear-gradient(to bottom, ${t.gold}, transparent)` }} />
-        </div>
-      </section>
+      <HeroSection />
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* FEATURED COLLECTION                                            */}
