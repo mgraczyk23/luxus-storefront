@@ -23,7 +23,7 @@ function getActivePage(pathname: string): string {
 
 // ── Mobile Nav ─────────────────────────────────────────────────────────────
 function MobileNav({ cartCount }: { cartCount: number }) {
-  const { isDark, toggle } = useTheme()
+  const { isDark } = useTheme()
   const [open, setOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -162,13 +162,6 @@ function MobileNav({ cartCount }: { cartCount: number }) {
                   ))}
                 </div>
               ))}
-              <div style={{ padding: "22px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase", color: T.muted, fontWeight: 500 }}>Appearance</span>
-                <button onClick={toggle}
-                  style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 14px", border: `1px solid ${T.border}`, background: "transparent", color: T.gold, fontSize: "10px", letterSpacing: "0.15em", textTransform: "uppercase", fontWeight: 500, cursor: "pointer", minHeight: "44px" }}>
-                  {isDark ? "☀ Light mode" : "☾ Dark mode"}
-                </button>
-              </div>
             </div>
           </div>
         </div>
@@ -179,7 +172,7 @@ function MobileNav({ cartCount }: { cartCount: number }) {
 
 // ── Desktop Header ─────────────────────────────────────────────────────────
 export default function Header({ cartCount = 0 }: { cartCount?: number }) {
-  const { isDark, toggle, t } = useTheme()
+  const { isDark, t } = useTheme()
   const pathname = usePathname()
   const activePage = getActivePage(pathname)
 
@@ -306,31 +299,6 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
                 <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
               </svg>
             </Link>
-
-            {/* Theme toggle */}
-            <button onClick={toggle}
-              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              style={{ width: "34px", height: "34px", border: `1px solid ${t.border}`, background: "transparent", color: t.textMuted, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px", transition: "all 0.2s", padding: 0, flexShrink: 0, fontFamily: "inherit" }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
-              {isDark ? (
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <circle cx="7" cy="7" r="2.6" stroke="currentColor" strokeWidth="1.2"/>
-                  <line x1="7" y1="0.8" x2="7" y2="2.4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  <line x1="7" y1="11.6" x2="7" y2="13.2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  <line x1="0.8" y1="7" x2="2.4" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  <line x1="11.6" y1="7" x2="13.2" y2="7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  <line x1="2.6" y1="2.6" x2="3.7" y2="3.7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  <line x1="10.3" y1="10.3" x2="11.4" y2="11.4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  <line x1="2.6" y1="11.4" x2="3.7" y2="10.3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  <line x1="10.3" y1="3.7" x2="11.4" y2="2.6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M11.9 8.4C11.3 8.6 10.6 8.7 9.9 8.7C7.4 8.7 5.4 6.7 5.4 4.2C5.4 2.8 6 1.6 7 0.8C4.1 1 1.8 3.4 1.8 6.4C1.8 9.5 4.3 12 7.4 12C9.4 12 11.1 10.9 12 9.4C12 9.1 11.95 8.75 11.9 8.4Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
-                </svg>
-              )}
-            </button>
 
             {/* Account */}
             <Link href="/account" className="nav-link"

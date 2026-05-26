@@ -1,8 +1,7 @@
 @import "tailwindcss";
 
 /* ── Theme CSS variables (lets media-query CSS reference theme tokens) ── */
-:root, [data-theme="dark"] { --lxs-gold: #c09530; --lxs-border: #2a2a2a; --lxs-bg: #0a0a0a; }
-[data-theme="light"]       { --lxs-gold: #7e5e10; --lxs-border: #e4e4e6; --lxs-bg: #ffffff; }
+:root { --lxs-gold: #7e5e10; --lxs-border: #e4e4e6; --lxs-bg: #ffffff; }
 
 /* ── Base ──────────────────────────────────────────────────────────────── */
 html, body {

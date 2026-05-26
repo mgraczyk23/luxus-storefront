@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useEffect, ReactNode } from 'react'
 
 export const DARK = {
   bg:          "#0a0a0a",
@@ -50,38 +50,21 @@ type ThemeContextType = {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  isDark: true,
+  isDark: false,
   setIsDark: () => {},
   toggle: () => {},
-  t: DARK,
+  t: LIGHT,
 })
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDarkState] = useState(true)
-
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('luxus-theme')
-      setIsDarkState(stored === null ? true : stored === 'dark')
-    } catch {}
+    document.body.style.background = LIGHT.bg
+    document.body.style.color = LIGHT.text
+    document.documentElement.setAttribute('data-theme', 'light')
   }, [])
 
-  // Sync body background and html data-theme to avoid flash on theme change
-  useEffect(() => {
-    document.body.style.background = isDark ? DARK.bg : LIGHT.bg
-    document.body.style.color = isDark ? DARK.text : LIGHT.text
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light')
-  }, [isDark])
-
-  const setIsDark = (v: boolean) => {
-    setIsDarkState(v)
-    try { localStorage.setItem('luxus-theme', v ? 'dark' : 'light') } catch {}
-  }
-
-  const toggle = () => setIsDark(!isDark)
-
   return (
-    <ThemeContext.Provider value={{ isDark, setIsDark, toggle, t: isDark ? DARK : LIGHT }}>
+    <ThemeContext.Provider value={{ isDark: false, setIsDark: () => {}, toggle: () => {}, t: LIGHT }}>
       {children}
     </ThemeContext.Provider>
   )
