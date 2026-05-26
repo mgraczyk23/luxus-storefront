@@ -368,7 +368,8 @@ a {
   -ms-overflow-style: none;
 }
 .lxs-browse-grid-col::-webkit-scrollbar,
-.lxs-browse-grid-cat::-webkit-scrollbar { display: none; }
+.lxs-browse-grid-cat::-webkit-scrollbar,
+.lxs-cat-tabs::-webkit-scrollbar { display: none; }
 
 /* Collections — 1 row, 4 columns visible */
 .lxs-browse-grid-col {

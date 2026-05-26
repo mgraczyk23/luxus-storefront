@@ -65,7 +65,6 @@ const MOCK_POSTS = [
   },
 ]
 
-const CATEGORIES = ["All", "Craft & Engineering", "Collector's Guide", "Brand Spotlight", "Reviews", "History", "Buying Guide"]
 
 function formatDate(iso: string | null): string {
   if (!iso) return ""
@@ -207,6 +206,8 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
 
   const allPosts: PayloadPost[] = posts ?? (MOCK_POSTS as unknown as PayloadPost[])
 
+  const categories = ["All", ...Array.from(new Set(allPosts.map((p) => p.category).filter(Boolean))).sort()]
+
   const featured   = allPosts.find((p) => p.featured) ?? allPosts[0]
   const rest       = allPosts.filter((p) => p.id !== featured?.id)
   const filtered   = activeCategory === "All" ? rest : rest.filter((p) => p.category === activeCategory)
@@ -249,8 +250,8 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
             </div>
 
             {/* Category tabs */}
-            <div style={{ display: "flex", gap: "0", borderBottom: `1px solid ${t.border}`, overflowX: "auto" }}>
-              {CATEGORIES.map((cat) => (
+            <div className="lxs-cat-tabs" style={{ display: "flex", gap: "0", borderBottom: `1px solid ${t.border}`, overflowX: "auto", scrollbarWidth: "none" }}>
+              {categories.map((cat) => (
                 <button key={cat}
                   onClick={() => { setActiveCategory(cat); setPage(1) }}
                   style={{
