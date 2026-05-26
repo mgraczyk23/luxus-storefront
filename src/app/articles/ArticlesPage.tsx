@@ -202,7 +202,7 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
   const { t } = useTheme()
   const [activeCategory, setActiveCategory] = useState("All")
   const [page, setPage] = useState(1)
-  const PER_PAGE = 6
+  const PER_PAGE = 12
 
   const allPosts: PayloadPost[] = posts ?? (MOCK_POSTS as unknown as PayloadPost[])
 
