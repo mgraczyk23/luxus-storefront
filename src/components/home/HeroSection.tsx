@@ -190,7 +190,7 @@ export default function HeroSection({
       </div>
 
       {/* ── Brand intro ───────────────────────────────────────────────── */}
-      <div style={{ position: "relative", padding: "84px 40px 64px", background: t.bg }}>
+      <div className="lxs-hero-brand-intro" style={{ position: "relative", background: t.bg }}>
         <div style={{ maxWidth: "1320px", margin: "0 auto" }}>
 
           {/* Wordmark + rules */}
@@ -212,7 +212,7 @@ export default function HeroSection({
           </div>
 
           {/* Tagline */}
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+          <div className="lxs-hero-tagline" style={{ textAlign: "center" }}>
             <div style={{
               fontSize: "clamp(15px, 1.5vw, 22px)",
               letterSpacing: "0.22em",
