@@ -90,7 +90,7 @@ export default function AccountPage() {
                 </h1>
                 <div style={{ fontSize: "11.5px", color: t.textDim, fontWeight: 300, marginTop: "6px" }}>Member since {MOCK_USER.memberSince} · {MOCK_USER.email}</div>
               </div>
-              <button style={{ padding: "9px 20px", background: "transparent", border: `1px solid ${t.border}`, color: t.textMuted, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer", transition: "all 0.18s" }}
+              <button style={{ padding: "9px 20px", background: "transparent", border: `1px solid ${t.border}`, color: t.textMuted, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer", transition: "all 0.18s", whiteSpace: "nowrap", flexShrink: 0 }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
                 Sign Out
