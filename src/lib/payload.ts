@@ -42,19 +42,21 @@ type PayloadListResponse<T> = {
 }
 
 export async function getPosts(opts: {
-  limit?:    number
-  page?:     number
-  category?: string
-  featured?: boolean
+  limit?:      number
+  page?:       number
+  category?:   string
+  featured?:   boolean
+  noContent?:  boolean  // exclude Lexical body — use for listing pages
 } = {}): Promise<PayloadListResponse<PayloadPost>> {
   const params = new URLSearchParams()
   params.set("where[status][equals]", "published")
   params.set("sort", "-publishedAt")
   params.set("limit", String(opts.limit ?? 100))
   params.set("depth", "1")
-  if (opts.page)     params.set("page",     String(opts.page))
-  if (opts.category) params.set("where[category][equals]", opts.category)
-  if (opts.featured) params.set("where[featured][equals]", "true")
+  if (opts.page)      params.set("page",     String(opts.page))
+  if (opts.category)  params.set("where[category][equals]", opts.category)
+  if (opts.featured)  params.set("where[featured][equals]", "true")
+  if (opts.noContent) params.set("select[content]", "false")
 
   const res = await fetch(`${PAYLOAD_URL}/api/posts?${params}`, {
     next: { revalidate: 300, tags: ["posts"] },

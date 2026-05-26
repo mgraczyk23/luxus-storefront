@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   let posts = null
   try {
-    const result = await getPosts({ limit: 100 })
+    const result = await getPosts({ limit: 200, noContent: true })
     posts = result.docs
   } catch {
     // CMS unavailable — client component shows fallback

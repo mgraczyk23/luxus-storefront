@@ -5,7 +5,7 @@ import ArticlePage from "./ArticlePage"
 
 export async function generateStaticParams() {
   try {
-    const result = await getPosts({ limit: 100 })
+    const result = await getPosts({ limit: 500, noContent: true })
     return result.docs.map((p) => ({ slug: p.slug }))
   } catch {
     return []
