@@ -42,10 +42,9 @@ function StatusBadge({ code, label }: { code: string; label: string }) {
 }
 
 function ImgBox({ index = 0, style = {} }: { index?: number; style?: React.CSSProperties }) {
-  const { isDark, t } = useTheme()
-  const d = ["#171717,#222222", "#1a1a1a,#262626", "#161616,#1e1e1e"]
+  const { t } = useTheme()
   const l = ["#e8e8eb,#d4d4d8", "#e8e8eb,#d4d4d8", "#e8e8eb,#d4d4d8"]
-  const [c1, c2] = (isDark ? d : l)[index % 3].split(",")
+  const [c1, c2] = l[index % 3].split(",")
   return (
     <div style={{ background: `linear-gradient(140deg,${c1},${c2})`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0, ...style }}>
       <svg width="18" height="18" viewBox="0 0 36 36" fill="none" opacity="0.14">
@@ -67,18 +66,18 @@ const TABS = [
 ]
 
 export default function AccountPage() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [tab, setTab]             = useState("orders")
   const [expandedOrder, setExpandedOrder] = useState<string|null>(null)
   const [editMode, setEditMode]   = useState(false)
 
-  const inp: React.CSSProperties = { width: "100%", padding: "11px 14px", background: isDark ? "#0a0a0a" : "#ffffff", border: `1px solid ${t.border}`, color: t.text, fontSize: "12.5px", fontFamily: "var(--font-inter)", fontWeight: 300, letterSpacing: "0.02em", outline: "none", borderRadius: "1px" }
+  const inp: React.CSSProperties = { width: "100%", padding: "11px 14px", background: "#ffffff", border: `1px solid ${t.border}`, color: t.text, fontSize: "12.5px", fontFamily: "var(--font-inter)", fontWeight: 300, letterSpacing: "0.02em", outline: "none", borderRadius: "1px" }
 
   return (
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "var(--font-inter)" }}>
       <div>
         {/* Banner */}
-        <div style={{ background: isDark ? "linear-gradient(to bottom,#161616,#0a0a0a)" : "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "40px 40px 0" }}>
+        <div style={{ background: "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "40px 40px 0" }}>
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", paddingBottom: "28px", borderBottom: `1px solid ${t.border}` }}>
               <div>
@@ -122,7 +121,7 @@ export default function AccountPage() {
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                 {MOCK_ORDERS.map(order => (
                   <div key={order.id} style={{ border: `1px solid ${expandedOrder === order.id ? t.gold + "50" : t.border}`, transition: "border-color 0.22s" }}>
-                    <div className="lxs-order-head" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: "20px", padding: "18px 22px", alignItems: "center", cursor: "pointer", background: isDark ? "#161616" : "#fff" }}
+                    <div className="lxs-order-head" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: "20px", padding: "18px 22px", alignItems: "center", cursor: "pointer", background: "#fff" }}
                       onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
                       <div>
                         <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Order</div>
@@ -145,7 +144,7 @@ export default function AccountPage() {
                       </svg>
                     </div>
                     <div style={{ overflow: "hidden", maxHeight: expandedOrder === order.id ? "500px" : "0", transition: "max-height 0.3s ease" }}>
-                      <div style={{ padding: "20px 22px", borderTop: `1px solid ${t.border}`, background: isDark ? "#0e0e0e" : "#fafafa" }}>
+                      <div style={{ padding: "20px 22px", borderTop: `1px solid ${t.border}`, background: "#fafafa" }}>
                         {order.items.map((item, i) => (
                           <div key={i} style={{ display: "flex", gap: "14px", alignItems: "center", marginBottom: "14px" }}>
                             <ImgBox index={i} style={{ width: "56px", height: "56px", border: `1px solid ${t.border}` }}/>
@@ -260,7 +259,7 @@ export default function AccountPage() {
                         onBlur={e => e.currentTarget.style.borderColor = t.border}/>
                     </div>
                   ))}
-                  <button style={{ alignSelf: "flex-start", padding: "11px 24px", background: t.gold, border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "background 0.2s" }}
+                  <button style={{ alignSelf: "flex-start", padding: "11px 24px", background: t.gold, border: "none", color: "#fff", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "background 0.2s" }}
                     onMouseEnter={e => e.currentTarget.style.background = t.goldLight}
                     onMouseLeave={e => e.currentTarget.style.background = t.gold}>Update Password</button>
                 </div>

@@ -58,12 +58,10 @@ function getPageNums(current: number, total: number, wing: number): (number | '.
 
 // ── ImgBox placeholder ────────────────────────────────────────────────────────
 function ImgBox({ style = {} }: { style?: React.CSSProperties }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   return (
     <div style={{
-      background: isDark
-        ? "linear-gradient(140deg,#171717 0%,#1f1f1f 50%,#171717 100%)"
-        : "linear-gradient(140deg,#e8e8eb 0%,#d4d4d8 50%,#e8e8eb 100%)",
+      background: "linear-gradient(140deg,#e8e8eb 0%,#d4d4d8 50%,#e8e8eb 100%)",
       display: "flex", alignItems: "center", justifyContent: "center",
       overflow: "hidden", width: "100%", height: "100%", ...style,
     }}>
@@ -78,7 +76,7 @@ function ImgBox({ style = {} }: { style?: React.CSSProperties }) {
 
 // ── ProductCard ───────────────────────────────────────────────────────────────
 function ProductCard({ product }: { product: MappedProduct }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
 
   return (
@@ -93,14 +91,14 @@ function ProductCard({ product }: { product: MappedProduct }) {
           transition: "all 0.28s ease",
           transform: hov ? "translateY(-4px)" : "translateY(0)",
           boxShadow: hov
-            ? isDark ? `0 16px 48px rgba(0,0,0,0.55),0 0 0 1px ${t.gold}20` : `0 16px 48px rgba(0,0,0,0.1),0 0 0 1px ${t.gold}25`
-            : isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.05)",
+            ? `0 16px 48px rgba(0,0,0,0.1),0 0 0 1px ${t.gold}25`
+            : "0 2px 8px rgba(0,0,0,0.05)",
           cursor: "pointer", fontFamily: "'Inter',sans-serif",
           display: "flex", flexDirection: "column", flex: 1,
         }}
       >
         {/* Image */}
-        <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: isDark ? "#161616" : "#f0f0f0" }}>
+        <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#f0f0f0" }}>
           {product.thumbnail ? (
             <Image
               src={product.thumbnail}
@@ -116,7 +114,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
           {product.details?.primary_category && product.in_stock && (
             <div className="lxs-card-badge-cat" style={{
               position: "absolute", top: "10px", left: "10px",
-              background: isDark ? "rgba(11,10,9,0.82)" : "rgba(255,255,255,0.88)",
+              background: "rgba(255,255,255,0.88)",
               border: `1px solid ${t.gold}50`, padding: "3px 9px",
               fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase",
               fontWeight: 500, color: t.gold, backdropFilter: "blur(6px)",
@@ -132,7 +130,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
               background: "rgba(11,10,9,0.32)",
             }}>
               <div style={{
-                background: isDark ? "rgba(11,10,9,0.88)" : "rgba(255,255,255,0.92)",
+                background: "rgba(255,255,255,0.92)",
                 border: `1px solid ${t.gold}`,
                 color: t.gold, padding: "7px 22px",
                 fontSize: "10px", letterSpacing: "0.32em", textTransform: "uppercase",
@@ -147,12 +145,12 @@ function ProductCard({ product }: { product: MappedProduct }) {
             <div style={{
               position: "absolute", top: "10px", right: "10px",
               display: "flex", alignItems: "center", gap: "5px",
-              background: isDark ? "rgba(11,10,9,0.82)" : "rgba(255,255,255,0.88)",
-              border: `1px solid ${isDark ? "#4a8a4a55" : "#3a6a3a55"}`,
+              background: "rgba(255,255,255,0.88)",
+              border: `1px solid #3a6a3a55`,
               padding: "3px 9px", backdropFilter: "blur(6px)",
             }}>
-              <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: isDark ? "#5a9a5a" : "#3a6a3a" }} />
-              <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: isDark ? "#5a9a5a" : "#3a6a3a" }}>
+              <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#3a6a3a" }} />
+              <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: "#3a6a3a" }}>
                 Available
               </span>
             </div>
@@ -258,7 +256,7 @@ function PriceRange({ priceMin, priceMax, min, max, onChange }: {
   priceMin: number; priceMax: number; min: number; max: number
   onChange: (min: number, max: number) => void
 }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [localMin, setLocalMin] = useState(String(priceMin))
   const [localMax, setLocalMax] = useState(String(priceMax))
 
@@ -290,7 +288,7 @@ function PriceRange({ priceMin, priceMax, min, max, onChange }: {
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "7px 8px 7px 20px",
-    background: isDark ? "#161616" : "#fafafa",
+    background: "#fafafa",
     border: `1px solid ${t.border}`, color: t.text,
     fontSize: "11px", fontFamily: "'Inter',sans-serif", outline: "none", borderRadius: "1px",
   }
@@ -376,7 +374,7 @@ export default function ListingPage({
   hideCategoryFilter,
   basePath,
 }: Props) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -618,7 +616,7 @@ export default function ListingPage({
 
       {/* Page banner */}
       <div style={{
-        background: isDark ? "linear-gradient(to bottom, #161616, #0a0a0a)" : "linear-gradient(to bottom, #f3f3f5, #ffffff)",
+        background: "linear-gradient(to bottom, #f3f3f5, #ffffff)",
         borderBottom: `1px solid ${t.border}`,
         padding: "36px 40px 28px",
       }}>
@@ -721,10 +719,10 @@ export default function ListingPage({
               {sortOpen && (
                 <div style={{
                   position: "absolute", top: "calc(100% + 4px)", right: 0,
-                  background: isDark ? "#1c1c1c" : "#ffffff",
+                  background: "#ffffff",
                   border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`,
                   minWidth: "180px", zIndex: 50,
-                  boxShadow: isDark ? "0 16px 40px rgba(0,0,0,0.5)" : "0 16px 40px rgba(0,0,0,0.1)",
+                  boxShadow: "0 16px 40px rgba(0,0,0,0.1)",
                 }}>
                   {SORT_OPTIONS.map(opt => (
                     <div key={opt.value}
@@ -784,7 +782,7 @@ export default function ListingPage({
                   <span key={`el-${idx}`} style={{ width: "24px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", color: t.textDim, flexShrink: 0 }}>…</span>
                 ) : (
                   <button key={n} onClick={() => setPage(n as number)}
-                    style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? (isDark ? "#0a0a0a" : "#fff") : t.textMuted, fontSize: "11px", fontFamily: "'Inter',sans-serif", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s", borderRadius: "1px" }}>
+                    style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? "#fff" : t.textMuted, fontSize: "11px", fontFamily: "'Inter',sans-serif", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s", borderRadius: "1px" }}>
                     {n}
                   </button>
                 )
@@ -802,7 +800,7 @@ export default function ListingPage({
       {drawerOpen && (
         <>
           <div onClick={() => setDrawerOpen(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 9999, backdropFilter: "blur(4px)" }} />
-          <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: "300px", zIndex: 10000, background: isDark ? "#161616" : "#fff", borderRight: `1px solid ${t.border}`, overflowY: "auto", padding: "24px 24px 40px" }}>
+          <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: "300px", zIndex: 10000, background: "#fff", borderRight: `1px solid ${t.border}`, overflowY: "auto", padding: "24px 24px 40px" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
               <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Refine Results</span>
               <button onClick={() => setDrawerOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: t.textMuted, padding: "4px" }}>
@@ -810,7 +808,7 @@ export default function ListingPage({
               </button>
             </div>
             <SidebarContent />
-            <button onClick={() => setDrawerOpen(false)} style={{ width: "100%", marginTop: "24px", padding: "13px", background: t.gold, border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
+            <button onClick={() => setDrawerOpen(false)} style={{ width: "100%", marginTop: "24px", padding: "13px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
               View {filtered.length} Results
             </button>
           </div>

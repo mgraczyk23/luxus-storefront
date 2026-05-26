@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { useTheme } from '@/context/ThemeContext'
 
 const invFmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(n || 0)
@@ -28,23 +27,22 @@ const MOCK_ORDERS = [
 ]
 
 export default function InvoicePage({ orderId }: { orderId: string }) {
-  const { isDark } = useTheme()
   const order = MOCK_ORDERS.find(o => o.id === orderId) || MOCK_ORDERS[0]
-  const backdrop = isDark ? "#0a0a0a" : "#eceaea"
+  const backdrop = "#eceaea"
 
   return (
     <div className="lxs-invoice-root" style={{ background: backdrop, minHeight: "100vh", padding: "32px 16px 80px", fontFamily: "var(--font-inter)" }}>
       <style>{`
         /* ── Toolbar ── */
         .inv-toolbar { max-width:820px; margin:0 auto 18px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
-        .inv-toolbar .inv-back { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:${isDark?"#9c8e7c":"#525258"}; text-decoration:none; padding:8px 0; border-bottom:1px solid ${isDark?"#2c2924":"#c8c8cc"}; font-weight:500; }
-        .inv-toolbar .inv-back:hover { color:${isDark?"#c09530":"#7e5e10"}; }
+        .inv-toolbar .inv-back { font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:#525258; text-decoration:none; padding:8px 0; border-bottom:1px solid #c8c8cc; font-weight:500; }
+        .inv-toolbar .inv-back:hover { color:#7e5e10; }
         .inv-toolbar .inv-actions { display:flex; gap:10px; flex-wrap:wrap; }
         .inv-btn { padding:11px 22px; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; font-weight:600; font-family:var(--font-inter); border:1px solid transparent; cursor:pointer; background:none; transition:background 0.18s,border-color 0.18s,color 0.18s; min-height:44px; display:inline-flex; align-items:center; gap:8px; }
-        .inv-btn-primary { background:${isDark?"#c09530":"#7e5e10"}; color:${isDark?"#0a0a0a":"#ffffff"}; }
-        .inv-btn-primary:hover { background:${isDark?"#d4aa4a":"#9a7218"}; }
-        .inv-btn-secondary { border-color:${isDark?"#2c2924":"#c8c8cc"}; color:${isDark?"#ededed":"#1a1a1a"}; }
-        .inv-btn-secondary:hover { border-color:${isDark?"#c09530":"#7e5e10"}; color:${isDark?"#c09530":"#7e5e10"}; }
+        .inv-btn-primary { background:#7e5e10; color:#ffffff; }
+        .inv-btn-primary:hover { background:#9a7218; }
+        .inv-btn-secondary { border-color:#c8c8cc; color:#1a1a1a; }
+        .inv-btn-secondary:hover { border-color:#7e5e10; color:#7e5e10; }
 
         /* ── Paper sheet ── */
         .inv-sheet { width:100%; max-width:820px; margin:0 auto; background:#ffffff; color:#1a1a1a; padding:56px 56px 48px; box-shadow:0 30px 80px rgba(0,0,0,0.32),0 4px 16px rgba(0,0,0,0.18); line-height:1.5; font-size:11.5px; }

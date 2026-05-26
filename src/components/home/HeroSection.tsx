@@ -17,14 +17,7 @@ const DEFAULT_SLIDES: Slide[] = [
   { kicker: "American Custom",     caption: "Nighthawk Custom · Workshop bench" },
 ]
 
-const DARK_TONES: [string, string][] = [
-  ["#2a2724", "#0e0d0b"],
-  ["#1f1c19", "#080706"],
-  ["#26211a", "#0d0a07"],
-  ["#1a1a1c", "#080809"],
-  ["#231f1a", "#0b0908"],
-]
-const LIGHT_TONES: [string, string][] = [
+const SLIDE_TONES: [string, string][] = [
   ["#dcd9d4", "#b4b1aa"],
   ["#cfccc6", "#a8a59f"],
   ["#d6d0c4", "#b0a995"],
@@ -51,7 +44,7 @@ export default function HeroSection({
   featuredCaption = "Featured Piece",
   autoAdvanceMs = 6000,
 }: Props) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [heroSlide, setHeroSlide] = useState(0)
 
   useEffect(() => {
@@ -59,8 +52,6 @@ export default function HeroSection({
     const id = setInterval(() => setHeroSlide((s) => (s + 1) % slides.length), autoAdvanceMs)
     return () => clearInterval(id)
   }, [slides.length, autoAdvanceMs])
-
-  const tones = isDark ? DARK_TONES : LIGHT_TONES
 
   return (
     <section style={{ position: "relative", background: t.bg, color: t.text, fontFamily: "'Inter',sans-serif" }}>
@@ -70,11 +61,11 @@ export default function HeroSection({
         position: "relative", width: "100%",
         height: "clamp(420px, 62vh, 720px)",
         overflow: "hidden",
-        background: isDark ? "#0a0a0a" : "#e8e8eb",
+        background: "#e8e8eb",
       }}>
         {slides.map((slide, i) => {
           const active = i === heroSlide
-          const [a, b] = tones[i % tones.length]
+          const [a, b] = SLIDE_TONES[i % SLIDE_TONES.length]
           return (
             <div
               key={i}
@@ -92,8 +83,8 @@ export default function HeroSection({
                   <div style={{
                     position: "absolute", inset: 0,
                     backgroundImage:
-                      `linear-gradient(${isDark ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0.04)"} 1px, transparent 1px),` +
-                      `linear-gradient(90deg, ${isDark ? "rgba(255,255,255,0.025)" : "rgba(0,0,0,0.04)"} 1px, transparent 1px)`,
+                      `linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),` +
+                      `linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px)`,
                     backgroundSize: "48px 48px",
                     maskImage: "radial-gradient(ellipse at center, #000 30%, transparent 90%)",
                     WebkitMaskImage: "radial-gradient(ellipse at center, #000 30%, transparent 90%)",
@@ -117,9 +108,7 @@ export default function HeroSection({
               {/* Vignette */}
               <div style={{
                 position: "absolute", inset: 0,
-                background: isDark
-                  ? "linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.55) 100%)"
-                  : "linear-gradient(to bottom, rgba(255,255,255,0.0) 0%, transparent 70%, rgba(255,255,255,0.5) 100%)",
+                background: "linear-gradient(to bottom, rgba(255,255,255,0.0) 0%, transparent 70%, rgba(255,255,255,0.5) 100%)",
               }} />
             </div>
           )
@@ -143,7 +132,7 @@ export default function HeroSection({
                   borderRadius: "4px",
                   border: "none",
                   cursor: "pointer",
-                  background: active ? t.gold : (isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)"),
+                  background: active ? t.gold : "rgba(0,0,0,0.3)",
                   transition: "all 0.35s ease",
                   padding: 0,
                 }}
@@ -165,8 +154,8 @@ export default function HeroSection({
               position: "absolute", top: "50%", transform: "translateY(-50%)",
               [arr.side]: "22px",
               width: "44px", height: "44px",
-              background: isDark ? "rgba(10,10,10,0.45)" : "rgba(255,255,255,0.55)",
-              border: `1px solid ${isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"}`,
+              background: "rgba(255,255,255,0.55)",
+              border: `1px solid rgba(0,0,0,0.1)`,
               color: t.text,
               cursor: "pointer", zIndex: 3,
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -178,7 +167,7 @@ export default function HeroSection({
               e.currentTarget.style.color = t.gold
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)"
+              e.currentTarget.style.borderColor = "rgba(0,0,0,0.1)"
               e.currentTarget.style.color = t.text
             }}
           >
@@ -250,9 +239,7 @@ export default function HeroSection({
                 width: "min(100%, 460px)",
                 aspectRatio: "5/3",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                background: isDark
-                  ? "linear-gradient(135deg, rgba(192,149,48,0.06), rgba(0,0,0,0))"
-                  : "linear-gradient(135deg, rgba(126,94,16,0.06), rgba(0,0,0,0))",
+                background: "linear-gradient(135deg, rgba(126,94,16,0.06), rgba(0,0,0,0))",
               }}>
                 {featuredImageUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -261,25 +248,25 @@ export default function HeroSection({
                     alt={featuredCaption}
                     style={{
                       width: "100%", height: "100%", objectFit: "contain",
-                      filter: isDark ? "drop-shadow(0 18px 40px rgba(0,0,0,0.55))" : "drop-shadow(0 18px 40px rgba(0,0,0,0.18))",
+                      filter: "drop-shadow(0 18px 40px rgba(0,0,0,0.18))",
                     }}
                   />
                 ) : (
-                  <svg viewBox="0 0 320 180" width="100%" height="100%" style={{ filter: isDark ? "drop-shadow(0 18px 40px rgba(0,0,0,0.55))" : "drop-shadow(0 18px 40px rgba(0,0,0,0.18))" }}>
+                  <svg viewBox="0 0 320 180" width="100%" height="100%" style={{ filter: "drop-shadow(0 18px 40px rgba(0,0,0,0.18))" }}>
                     <defs>
                       <linearGradient id="luxBarrel" x1="0" x2="0" y1="0" y2="1">
                         <stop offset="0%"   stopColor={t.gold} stopOpacity="0.65" />
                         <stop offset="50%"  stopColor={t.gold} stopOpacity="0.95" />
-                        <stop offset="100%" stopColor={isDark ? "#5e4710" : "#7e5e10"} stopOpacity="0.9" />
+                        <stop offset="100%" stopColor="#7e5e10" stopOpacity="0.9" />
                       </linearGradient>
                       <linearGradient id="luxGrip" x1="0" x2="0" y1="0" y2="1">
-                        <stop offset="0%"   stopColor={isDark ? "#3a2a14" : "#5a4220"} />
-                        <stop offset="100%" stopColor={isDark ? "#1a1208" : "#2e2110"} />
+                        <stop offset="0%"   stopColor="#5a4220" />
+                        <stop offset="100%" stopColor="#2e2110" />
                       </linearGradient>
                     </defs>
                     <rect x="30" y="58" width="240" height="34" rx="3" fill="url(#luxBarrel)" />
                     <rect x="30" y="56" width="240" height="3" fill={t.gold} opacity="0.7" />
-                    <path d="M82 92 L240 92 L235 122 L200 122 L196 138 L170 138 L166 122 L150 122 L150 116 L130 116 L130 122 L98 122 Z" fill={isDark ? "#1a1a1a" : "#3a3a3a"} />
+                    <path d="M82 92 L240 92 L235 122 L200 122 L196 138 L170 138 L166 122 L150 122 L150 116 L130 116 L130 122 L98 122 Z" fill="#3a3a3a" />
                     <ellipse cx="158" cy="120" rx="14" ry="9" fill={t.bg} />
                     <path d="M82 92 L138 92 L150 168 L96 168 Z" fill="url(#luxGrip)" />
                     <g opacity="0.35" stroke={t.gold} strokeWidth="0.4">

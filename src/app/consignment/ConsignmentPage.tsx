@@ -14,7 +14,7 @@ const INQUIRY_TYPES = [
 ]
 
 export default function ConsignmentPage() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", inquiryType:INQUIRY_TYPES[0], make:"", model:"", estimatedValue:"", message:"" })
   const [formStatus, setFormStatus] = useState("idle")
 
@@ -23,7 +23,7 @@ export default function ConsignmentPage() {
 
   const inp = {
     width:"100%", padding:"11px 14px",
-    background:isDark?"#0a0a0a":"#ffffff",
+    background:"#ffffff",
     border:`1px solid ${t.border}`, color:t.text,
     fontSize:"12.5px", fontFamily:"var(--font-inter)",
     fontWeight:300, letterSpacing:"0.02em",
@@ -39,7 +39,7 @@ export default function ConsignmentPage() {
     <div style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
 
       {/* BANNER */}
-      <div style={{ background:isDark?"linear-gradient(to bottom,#161616,#0a0a0a)":"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px" }}>
+      <div style={{ background:"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ display:"flex",alignItems:"center",gap:"8px",marginBottom:"20px" }}>
             {["Home","Consignment"].map((c,i,a) => (
@@ -64,7 +64,7 @@ export default function ConsignmentPage() {
               <p style={{ fontSize:"14.5px",fontWeight:300,color:t.textMuted,lineHeight:1.85,marginBottom:"24px",maxWidth:"460px" }}>
                 Whether you&apos;re looking to consign a piece through our platform or prefer to sell a firearm outright, we&apos;d love to hear from you. Our team will respond personally within three business days.
               </p>
-              <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
                 <div style={{ fontSize:"8.5px",letterSpacing:"0.16em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>Consign or Sell — What&apos;s the Difference?</div>
                 <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
                   {[
@@ -84,20 +84,20 @@ export default function ConsignmentPage() {
             </div>
 
             <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
-              <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,padding:"22px 24px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"22px 24px" }}>
                 <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,marginBottom:"8px" }}>Sales &amp; Consignment Email</div>
                 <a href="mailto:sales@luxus-collection.com" style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.gold,textDecoration:"none",display:"block",marginBottom:"4px" }}>
                   sales@luxus-collection.com
                 </a>
                 <div style={{ fontSize:"11px",fontWeight:300,color:t.textDim }}>Response within 3 business days</div>
               </div>
-              <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,padding:"22px 24px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"22px 24px" }}>
                 <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,marginBottom:"8px" }}>Phone</div>
                 <a href="tel:9412533660" style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.text,textDecoration:"none",display:"block",marginBottom:"4px" }}>(941) 253-3660</a>
                 <a href="tel:8334866659" style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,textDecoration:"none",display:"block",marginBottom:"8px",letterSpacing:"0.02em" }}>(833) 486-6659 · Toll-Free</a>
                 <div style={{ fontSize:"11px",fontWeight:300,color:t.textDim }}>Mon – Fri 8:30am – 6pm · Sat 10am – 2pm EST</div>
               </div>
-              <div style={{ background:isDark?"#0e0e0e":"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"14px 18px" }}>
+              <div style={{ background:"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"14px 18px" }}>
                 <p style={{ fontSize:"11.5px",fontWeight:300,color:t.textMuted,lineHeight:1.72 }}>
                   Consignment rates start at <span style={{ color:t.text,fontWeight:500 }}>15%</span> on sales ≥ $1,500 and <span style={{ color:t.text,fontWeight:500 }}>20%</span> on sales below $1,500. No listing fees — you only pay if and when your piece sells.
                 </p>
@@ -121,7 +121,7 @@ export default function ConsignmentPage() {
             </div>
 
             {formStatus === "success" ? (
-              <div style={{ padding:"60px 40px",border:`1px solid ${t.border}`,background:isDark?"#161616":"#fff",textAlign:"center" }}>
+              <div style={{ padding:"60px 40px",border:`1px solid ${t.border}`,background:"#fff",textAlign:"center" }}>
                 <div style={{ width:"52px",height:"52px",border:`1px solid ${t.gold}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px" }}>
                   <svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M1 7.5L7 13.5L19 1.5" stroke={t.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
@@ -135,7 +135,7 @@ export default function ConsignmentPage() {
                 </button>
               </div>
             ) : (
-              <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
                   <div><label style={lbl}>First Name *</label><input type="text" placeholder="James" value={form.firstName} onChange={e=>set("firstName",e.target.value)} style={inp} className="lxs-form-field"/></div>
                   <div><label style={lbl}>Last Name</label><input type="text" placeholder="Whitfield" value={form.lastName} onChange={e=>set("lastName",e.target.value)} style={inp} className="lxs-form-field"/></div>
@@ -181,7 +181,7 @@ export default function ConsignmentPage() {
                   <textarea rows={5} placeholder="Tell us more — condition, provenance, what you're looking to get out of it, your timeline, any questions you have…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inp,lineHeight:1.75 }} className="lxs-form-field"/>
                 </div>
                 <button onClick={()=>{ if(!canSubmit) return; setFormStatus("submitting"); setTimeout(()=>setFormStatus("success"),1400) }} disabled={!canSubmit || formStatus==="submitting"}
-                  style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:isDark?"#0a0a0a":"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
+                  style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
                   onMouseEnter={e=>{ if(canSubmit) e.currentTarget.style.background=t.goldLight }}
                   onMouseLeave={e=>{ if(canSubmit) e.currentTarget.style.background=t.gold }}>
                   {formStatus==="submitting"?"Sending…":"Send Inquiry"}
@@ -195,7 +195,7 @@ export default function ConsignmentPage() {
 
           {/* Sidebar */}
           <div style={{ position:"sticky",top:"88px",display:"flex",flexDirection:"column",gap:"16px" }}>
-            <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,borderTop:`2px solid ${t.gold}`,padding:"24px" }}>
+            <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderTop:`2px solid ${t.gold}`,padding:"24px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"18px" }}>What Happens Next</div>
               {[
                 ["We review your inquiry","Our team looks at what you've shared and assesses current market value for comparable pieces."],
@@ -214,7 +214,7 @@ export default function ConsignmentPage() {
                 </div>
               ))}
             </div>
-            <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,padding:"20px 22px" }}>
+            <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"20px 22px" }}>
               <div style={{ display:"flex",gap:"10px",alignItems:"flex-start" }}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color:t.gold,flexShrink:0,marginTop:"2px" }}><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1"/><path d="M7 6V10" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/><circle cx="7" cy="4.5" r="0.6" fill="currentColor"/></svg>
                 <div>

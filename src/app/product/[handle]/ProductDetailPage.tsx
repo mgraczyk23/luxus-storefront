@@ -20,10 +20,9 @@ const fmt = (n: number) =>
 
 // ── ImgBox ────────────────────────────────────────────────────────────────────
 function ImgBox({ index = 0, style = {} }: { index?: number; style?: React.CSSProperties }) {
-  const { isDark, t } = useTheme()
-  const shifts = ["#171717,#1f1f1f", "#1a1a1a,#231f1a", "#161616,#222222", "#1e1e1e,#262626", "#161616,#1e1e1e"]
+  const { t } = useTheme()
   const lshifts = ["#e8e8eb,#d4d4d8", "#eaeaec,#d8d8dc", "#e6e6e9,#d6d6da", "#ebebed,#d9d9dd", "#e8e8eb,#d4d4d8"]
-  const grad = isDark ? shifts[index % shifts.length] : lshifts[index % lshifts.length]
+  const grad = lshifts[index % lshifts.length]
   const [c1, c2] = grad.split(",")
   return (
     <div style={{
@@ -42,7 +41,7 @@ function ImgBox({ index = 0, style = {} }: { index?: number; style?: React.CSSPr
 
 // ── RelatedCard ───────────────────────────────────────────────────────────────
 function RelatedCard({ product }: { product: MappedProduct }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <Link href={`/product/${product.handle}`} style={{ textDecoration: "none" }}>
@@ -55,12 +54,12 @@ function RelatedCard({ product }: { product: MappedProduct }) {
           transition: "all 0.28s ease",
           transform: hov ? "translateY(-4px)" : "translateY(0)",
           boxShadow: hov
-            ? isDark ? `0 16px 48px rgba(0,0,0,0.55)` : `0 16px 48px rgba(0,0,0,0.1)`
-            : isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.05)",
+            ? `0 16px 48px rgba(0,0,0,0.1)`
+            : "0 2px 8px rgba(0,0,0,0.05)",
           cursor: "pointer", fontFamily: "'Inter',sans-serif",
         }}
       >
-        <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: isDark ? "#161616" : "#f0f0f0" }}>
+        <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#f0f0f0" }}>
           {product.thumbnail ? (
             <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain" }}
               sizes="(max-width: 640px) 50vw, 25vw" />
@@ -68,7 +67,7 @@ function RelatedCard({ product }: { product: MappedProduct }) {
             <ImgBox index={0} />
           )}
           {product.details?.primary_category && (
-            <div style={{ position: "absolute", bottom: "10px", left: "10px", background: isDark ? "rgba(11,10,9,0.82)" : "rgba(255,255,255,0.88)", border: `1px solid ${t.gold}50`, padding: "3px 9px", fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold, backdropFilter: "blur(6px)" }}>
+            <div style={{ position: "absolute", bottom: "10px", left: "10px", background: "rgba(255,255,255,0.88)", border: `1px solid ${t.gold}50`, padding: "3px 9px", fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold, backdropFilter: "blur(6px)" }}>
               {product.details.primary_category}
             </div>
           )}
@@ -102,7 +101,7 @@ export default function ProductDetailPage({
   product: MappedProduct
   relatedProducts: MappedProduct[]
 }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
 
   const [activeImg, setActiveImg] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -188,7 +187,7 @@ export default function ProductDetailPage({
 
   const inputStyle: React.CSSProperties = {
     width: "100%", padding: "10px 12px",
-    background: isDark ? "#0a0a0a" : "#ffffff",
+    background: "#ffffff",
     border: `1px solid ${t.border}`, color: t.text,
     fontSize: "12px", fontFamily: "'Inter',sans-serif",
     fontWeight: 300, letterSpacing: "0.02em",
@@ -207,7 +206,7 @@ export default function ProductDetailPage({
       {/* ── Sticky buy bar ──────────────────────────────────────────────── */}
       <div className="lxs-sticky-buy" style={{
         position: "fixed", top: "68px", left: 0, right: 0, zIndex: 150,
-        background: isDark ? "rgba(19,17,16,0.96)" : "rgba(255,255,255,0.96)",
+        background: "rgba(255,255,255,0.96)",
         backdropFilter: "blur(20px)",
         borderBottom: `1px solid ${t.border}`,
         transform: showSticky ? "translateY(0)" : "translateY(-100%)",
@@ -234,7 +233,7 @@ export default function ProductDetailPage({
                 Contact for Pricing
               </button>
             ) : (
-              <button style={{ padding: "9px 22px", background: t.gold, border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
+              <button style={{ padding: "9px 22px", background: t.gold, border: "none", color: "#fff", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
                 Add to Cart
               </button>
             )}
@@ -243,7 +242,7 @@ export default function ProductDetailPage({
       </div>
 
       {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
-      <div style={{ paddingTop: "68px", background: isDark ? t.bgSurface : t.bgSurface, borderBottom: `1px solid ${t.border}` }}>
+      <div style={{ paddingTop: "68px", background: t.bgSurface, borderBottom: `1px solid ${t.border}` }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "14px 40px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           {[
             { label: "Home", href: "/" },
@@ -279,7 +278,7 @@ export default function ProductDetailPage({
                 border: `1px solid ${t.border}`,
                 cursor: hasImages ? "zoom-in" : "default",
                 overflow: "hidden", marginBottom: "12px",
-                background: isDark ? "#161616" : "#f0f0f0",
+                background: "#f0f0f0",
               }}
             >
               {hasImages && images[activeImg] ? (
@@ -296,13 +295,13 @@ export default function ProductDetailPage({
 
               {/* Category badge */}
               {product.primary_category && (
-                <div style={{ position: "absolute", top: "16px", left: "16px", background: isDark ? "rgba(11,10,9,0.85)" : "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}55`, padding: "4px 12px", fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold, backdropFilter: "blur(8px)" }}>
+                <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}55`, padding: "4px 12px", fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold, backdropFilter: "blur(8px)" }}>
                   {product.primary_category}
                 </div>
               )}
 
               {/* Stock badge */}
-              <div style={{ position: "absolute", top: "16px", right: "16px", background: isDark ? "rgba(11,10,9,0.85)" : "rgba(255,255,255,0.9)", border: `1px solid ${product.in_stock ? "#4a8a4a" : "#8a4a4a"}40`, padding: "4px 12px", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: "6px" }}>
+              <div style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${product.in_stock ? "#4a8a4a" : "#8a4a4a"}40`, padding: "4px 12px", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", gap: "6px" }}>
                 <div style={{ width: "5px", height: "5px", borderRadius: "50%", background: product.in_stock ? "#5a9a5a" : "#9a5a5a", flexShrink: 0 }} />
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: product.in_stock ? "#5a9a5a" : "#9a5a5a" }}>
                   {product.in_stock ? "Available" : "Unavailable"}
@@ -311,7 +310,7 @@ export default function ProductDetailPage({
 
               {/* Zoom hint */}
               {hasImages && (
-                <div style={{ position: "absolute", bottom: "14px", right: "14px", width: "32px", height: "32px", background: isDark ? "rgba(12,11,10,0.7)" : "rgba(255,255,255,0.8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
+                <div style={{ position: "absolute", bottom: "14px", right: "14px", width: "32px", height: "32px", background: "rgba(255,255,255,0.8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
                     <circle cx="5.5" cy="5.5" r="4.5" stroke={t.textMuted} strokeWidth="1" />
                     <path d="M9 9L12 12" stroke={t.textMuted} strokeWidth="1" strokeLinecap="round" />
@@ -324,11 +323,11 @@ export default function ProductDetailPage({
               {images.length > 1 && (
                 <>
                   <button onClick={e => { e.stopPropagation(); setActiveImg(i => (i - 1 + images.length) % images.length) }}
-                    style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: isDark ? "rgba(12,11,10,0.7)" : "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
+                    style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
                     <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6L6 11" stroke={t.textMuted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>
                   <button onClick={e => { e.stopPropagation(); setActiveImg(i => (i + 1) % images.length) }}
-                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: isDark ? "rgba(12,11,10,0.7)" : "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
+                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
                     <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke={t.textMuted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </button>
                 </>
@@ -346,7 +345,7 @@ export default function ProductDetailPage({
                       border: `1px solid ${activeImg === i ? t.gold : t.border}`,
                       overflow: "hidden", opacity: activeImg === i ? 1 : 0.55,
                       transition: "all 0.2s", position: "relative",
-                      background: isDark ? "#161616" : "#f0f0f0",
+                      background: "#f0f0f0",
                     }}
                   >
                     {src ? (
@@ -420,7 +419,7 @@ export default function ProductDetailPage({
 
             {/* Engraver */}
             {product.engraver && (
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", marginBottom: "24px", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}`, background: isDark ? "#161616" : "#fafafa" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", marginBottom: "24px", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}`, background: "#fafafa" }}>
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color: t.gold, flexShrink: 0 }}>
                   <path d="M9.5 1.5L12.5 4.5L4.5 12.5H1.5V9.5L9.5 1.5Z" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="M8.5 2.5L11.5 5.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" />
@@ -461,7 +460,7 @@ export default function ProductDetailPage({
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
               {product.contact_for_pricing ? (
                 <button onClick={() => setContactModalOpen(true)}
-                  style={{ padding: "15px 32px", background: t.gold, border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                  style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
                   onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
                   onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5C2 2.67 2.67 2 3.5 2H10.5C11.33 2 12 2.67 12 3.5V8.5C12 9.33 11.33 10 10.5 10H5L2 12.5V3.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /></svg>
@@ -470,7 +469,7 @@ export default function ProductDetailPage({
               ) : (
                 <>
                   <button
-                    style={{ padding: "15px 32px", background: product.in_stock ? t.gold : t.gold + "55", border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: product.in_stock ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    style={{ padding: "15px 32px", background: product.in_stock ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: product.in_stock ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
                     onMouseEnter={e => { if (product.in_stock) { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" } }}
                     onMouseLeave={e => { if (product.in_stock) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
                     <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><path d="M1 1H2.5L4 9H10.5L12.5 3.5H3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="5" cy="11.5" r="0.8" fill="currentColor" /><circle cx="10" cy="11.5" r="0.8" fill="currentColor" /></svg>
@@ -498,7 +497,7 @@ export default function ProductDetailPage({
             </div>
 
             {/* FFL Notice */}
-            <div style={{ background: isDark ? "#161616" : "#fafafa", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}40`, padding: "12px 14px", marginBottom: "20px" }}>
+            <div style={{ background: "#fafafa", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}40`, padding: "12px 14px", marginBottom: "20px" }}>
               <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
                 <svg width="13" height="14" viewBox="0 0 13 14" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}>
                   <path d="M6.5 1L12 4V7C12 10 9 12.5 6.5 13C4 12.5 1 10 1 7V4L6.5 1Z" stroke={t.textDim} strokeWidth="1" strokeLinejoin="round" />
@@ -630,7 +629,7 @@ export default function ProductDetailPage({
               {product.highlights?.length > 0 && (
                 <div className="lxs-pdp-highlights" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: "14px", marginTop: product.overview ? "0" : "0" }}>
                   {product.highlights.map(({ title, body }: { title: string; body: string }) => (
-                    <div key={title} style={{ background: isDark ? "#161616" : "#fafafa", border: `1px solid ${t.border}`, padding: "16px 18px" }}>
+                    <div key={title} style={{ background: "#fafafa", border: `1px solid ${t.border}`, padding: "16px 18px" }}>
                       <div style={{ fontSize: "8.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "6px" }}>{title}</div>
                       <div style={{ fontSize: "12px", color: t.textMuted, fontWeight: 300, lineHeight: 1.65 }}>{body}</div>
                     </div>
@@ -679,7 +678,7 @@ export default function ProductDetailPage({
       )}
 
       {/* ── Inquiry form ─────────────────────────────────────────────────── */}
-      <section style={{ margin: "80px 0 0", background: isDark ? "#0e0e0e" : "#f3f3f5", borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}` }}>
+      <section style={{ margin: "80px 0 0", background: "#f3f3f5", borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}` }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "80px 40px" }}>
           <div className="lxs-pdp-inquiry" style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: "80px", alignItems: "start" }}>
 
@@ -715,7 +714,7 @@ export default function ProductDetailPage({
             {/* Form */}
             <div>
               {formStatus === 'success' ? (
-                <div style={{ textAlign: "center", padding: "60px 40px", border: `1px solid ${t.border}`, background: isDark ? "#161616" : "#fff" }}>
+                <div style={{ textAlign: "center", padding: "60px 40px", border: `1px solid ${t.border}`, background: "#fff" }}>
                   <div style={{ width: "48px", height: "48px", border: `1px solid ${t.gold}`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
                     <svg width="18" height="14" viewBox="0 0 18 14" fill="none"><path d="M1 7L6.5 12.5L17 1.5" stroke={t.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
@@ -725,8 +724,8 @@ export default function ProductDetailPage({
                   </p>
                 </div>
               ) : (
-                <div style={{ background: isDark ? "#161616" : "#fff", border: `1px solid ${t.border}`, padding: "36px" }}>
-                  <div style={{ background: isDark ? "#0a0a0a" : "#fafafa", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}50`, padding: "10px 14px", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ background: "#fff", border: `1px solid ${t.border}`, padding: "36px" }}>
+                  <div style={{ background: "#fafafa", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}50`, padding: "10px 14px", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
                     <span style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textDim, fontWeight: 500 }}>Re:</span>
                     <span style={{ fontSize: "11.5px", color: t.text, fontWeight: 300 }}>{product.brand ? `${product.brand}, ` : ""}{product.title}</span>
                   </div>
@@ -761,7 +760,7 @@ export default function ProductDetailPage({
                   <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "24px", cursor: "pointer" }}>
                     <div onClick={() => handleFormChange("fflConsent", !form.fflConsent)}
                       style={{ width: "14px", height: "14px", flexShrink: 0, marginTop: "1px", border: `1px solid ${form.fflConsent ? t.gold : t.border}`, background: form.fflConsent ? t.gold : "transparent", transition: "all 0.18s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px" }}>
-                      {form.fflConsent && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke={isDark ? "#0a0a0a" : "#fff"} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                      {form.fflConsent && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
                     </div>
                     <span style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, lineHeight: 1.6, letterSpacing: "0.01em" }}>
                       I understand that all firearm purchases require FFL transfer through a licensed dealer in my state.
@@ -769,7 +768,7 @@ export default function ProductDetailPage({
                   </label>
 
                   <button onClick={handleSubmit} disabled={formStatus === 'submitting'}
-                    style={{ width: "100%", padding: "14px", background: formStatus === 'submitting' ? t.gold + "80" : t.gold, border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: formStatus === 'submitting' ? "wait" : "pointer", borderRadius: "1px", transition: "all 0.22s" }}
+                    style={{ width: "100%", padding: "14px", background: formStatus === 'submitting' ? t.gold + "80" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: formStatus === 'submitting' ? "wait" : "pointer", borderRadius: "1px", transition: "all 0.22s" }}
                     onMouseEnter={e => { if (formStatus !== 'submitting') e.currentTarget.style.background = t.goldLight }}
                     onMouseLeave={e => { if (formStatus !== 'submitting') e.currentTarget.style.background = t.gold }}>
                     {formStatus === 'submitting' ? "Sending…" : "Send Inquiry"}
@@ -867,7 +866,7 @@ export default function ProductDetailPage({
         <div onClick={() => { if (formStatus !== 'submitting') { setContactModalOpen(false); if (formStatus === 'success') setFormStatus('idle') } }}
           style={{ position: "fixed", inset: 0, zIndex: 10001, background: "rgba(8,7,6,0.82)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px", overflowY: "auto" }}>
           <div onClick={e => e.stopPropagation()}
-            style={{ width: "100%", maxWidth: "520px", background: isDark ? "#1a1a1a" : "#fff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, boxShadow: isDark ? "0 30px 80px rgba(0,0,0,0.6)" : "0 30px 80px rgba(0,0,0,0.18)", position: "relative", padding: "40px 44px 36px", fontFamily: "'Inter',sans-serif" }}>
+            style={{ width: "100%", maxWidth: "520px", background: "#fff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, boxShadow: "0 30px 80px rgba(0,0,0,0.18)", position: "relative", padding: "40px 44px 36px", fontFamily: "'Inter',sans-serif" }}>
             <button onClick={() => { setContactModalOpen(false); if (formStatus === 'success') setFormStatus('idle') }}
               style={{ position: "absolute", top: "16px", right: "16px", width: "32px", height: "32px", background: "none", border: `1px solid ${t.border}`, color: t.textMuted, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.18s" }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
@@ -933,7 +932,7 @@ export default function ProductDetailPage({
                   </div>
 
                   <button onClick={handleSubmit} disabled={formStatus === 'submitting' || !form.firstName || !form.email}
-                    style={{ marginTop: "8px", padding: "13px 32px", background: (!form.firstName || !form.email) ? t.gold + "55" : t.gold, border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: (!form.firstName || !form.email || formStatus === 'submitting') ? "not-allowed" : "pointer", transition: "background 0.2s" }}
+                    style={{ marginTop: "8px", padding: "13px 32px", background: (!form.firstName || !form.email) ? t.gold + "55" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: (!form.firstName || !form.email || formStatus === 'submitting') ? "not-allowed" : "pointer", transition: "background 0.2s" }}
                     onMouseEnter={e => { if (form.firstName && form.email && formStatus !== 'submitting') e.currentTarget.style.background = t.goldLight }}
                     onMouseLeave={e => { if (form.firstName && form.email && formStatus !== 'submitting') e.currentTarget.style.background = t.gold }}>
                     {formStatus === 'submitting' ? "Sending…" : "Send Inquiry"}

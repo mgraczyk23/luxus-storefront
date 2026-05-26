@@ -4,10 +4,9 @@ import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 
 function ImgBox({ style = {}, index = 0 }: { style?: React.CSSProperties; index?: number }) {
-  const { isDark, t } = useTheme()
-  const d = ["#171717,#222222","#1a1a1a,#262626","#161616,#1e1e1e","#1e1e1e,#262626","#161616,#1f1f1f"]
+  const { t } = useTheme()
   const l = ["#e8e8eb,#d4d4d8","#e8e8eb,#d4d4d8","#e8e8eb,#d4d4d8","#e8e8eb,#d4d4d8","#e8e8eb,#d4d4d8"]
-  const [c1, c2] = (isDark ? d : l)[index % 5].split(",")
+  const [c1, c2] = l[index % 5].split(",")
   return (
     <div style={{ background: `linear-gradient(140deg,${c1} 0%,${c2} 55%,${c1} 100%)`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", ...style }}>
       <svg width="32" height="32" viewBox="0 0 36 36" fill="none" opacity="0.12">
@@ -30,10 +29,10 @@ function Eyebrow({ label }: { label: string }) {
 }
 
 function ValueCard({ number, title, body }: { number: string; title: string; body: string }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   return (
     <div style={{ padding:"32px 28px",background:t.bgCard,border:`1px solid ${t.border}`,transition:"all 0.28s ease" }}
-      onMouseEnter={e=>{ e.currentTarget.style.background=t.bgCardHover; e.currentTarget.style.borderColor=t.gold+"50"; e.currentTarget.style.boxShadow=isDark?"0 12px 40px rgba(0,0,0,0.4)":"0 12px 40px rgba(0,0,0,0.08)" }}
+      onMouseEnter={e=>{ e.currentTarget.style.background=t.bgCardHover; e.currentTarget.style.borderColor=t.gold+"50"; e.currentTarget.style.boxShadow="0 12px 40px rgba(0,0,0,0.08)" }}
       onMouseLeave={e=>{ e.currentTarget.style.background=t.bgCard; e.currentTarget.style.borderColor=t.border; e.currentTarget.style.boxShadow="none" }}>
       <div style={{ fontFamily:"var(--font-playfair)",fontSize:"44px",fontWeight:300,color:t.gold,lineHeight:1,marginBottom:"18px",opacity:0.5 }}>{number}</div>
       <div style={{ fontSize:"8.5px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"10px",fontFamily:"var(--font-inter)" }}>{title}</div>
@@ -43,10 +42,10 @@ function ValueCard({ number, title, body }: { number: string; title: string; bod
 }
 
 function BrandTile({ name, origin, description }: { name: string; origin: string; description: string }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   return (
     <div style={{ padding:"24px",border:`1px solid ${t.border}`,background:"transparent",transition:"all 0.25s",cursor:"pointer" }}
-      onMouseEnter={e=>{ e.currentTarget.style.borderColor=t.gold+"55"; e.currentTarget.style.background=isDark?"#161616":"#fafafa" }}
+      onMouseEnter={e=>{ e.currentTarget.style.borderColor=t.gold+"55"; e.currentTarget.style.background="#fafafa" }}
       onMouseLeave={e=>{ e.currentTarget.style.borderColor=t.border; e.currentTarget.style.background="transparent" }}>
       <div style={{ display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"14px" }}>
         <div style={{ fontFamily:"var(--font-playfair)",fontSize:"19px",fontWeight:400,color:t.text,letterSpacing:"0.02em",transition:"color 0.22s" }}
@@ -62,14 +61,14 @@ function BrandTile({ name, origin, description }: { name: string; origin: string
 }
 
 export default function AboutPage() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
 
   return (
     <div className="lxs-about-page" style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
 
       {/* HERO */}
       <div style={{ position:"relative",minHeight:"72vh",display:"flex",alignItems:"center",overflow:"hidden" }}>
-        <div style={{ position:"absolute",inset:0,background:isDark?"radial-gradient(ellipse at 65% 50%,#181818,#0c0b09 60%,#050505 100%)":"radial-gradient(ellipse at 65% 50%,#f5edd8,#f0e8d0 60%,#ebebee 100%)" }}/>
+        <div style={{ position:"absolute",inset:0,background:"radial-gradient(ellipse at 65% 50%,#f5edd8,#f0e8d0 60%,#ebebee 100%)" }}/>
         <div style={{ position:"absolute",bottom:0,right:0,width:"50%",height:"60%",background:`radial-gradient(ellipse at bottom right,${t.gold}0d,transparent 65%)` }}/>
         <div style={{ position:"absolute",left:"50%",top:"10%",bottom:"10%",width:"1px",background:`linear-gradient(to bottom,transparent,${t.gold}28,transparent)` }}/>
 
@@ -101,7 +100,7 @@ export default function AboutPage() {
                 ))}
                 <ImgBox index={0} style={{ width:"100%",height:"100%" }}/>
               </div>
-              <div style={{ position:"absolute",bottom:"40px",left:"-36px",background:isDark?"rgba(22,20,17,0.95)":"rgba(255,255,255,0.96)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"14px 18px",backdropFilter:"blur(12px)",boxShadow:isDark?"0 12px 40px rgba(0,0,0,0.5)":"0 12px 40px rgba(0,0,0,0.1)",minWidth:"200px" }}>
+              <div style={{ position:"absolute",bottom:"40px",left:"-36px",background:"rgba(255,255,255,0.96)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"14px 18px",backdropFilter:"blur(12px)",boxShadow:"0 12px 40px rgba(0,0,0,0.1)",minWidth:"200px" }}>
                 <div style={{ fontSize:"7.5px",letterSpacing:"0.22em",color:t.gold,textTransform:"uppercase",fontWeight:500,marginBottom:"5px" }}>Federal Firearms Licensee</div>
                 <div style={{ fontFamily:"var(--font-playfair)",fontSize:"15px",fontWeight:400,color:t.text,marginBottom:"3px" }}>License #1-59-XXX-XX-XX-55688</div>
                 <div style={{ fontSize:"10.5px",color:t.textMuted,fontWeight:300 }}>Fully Licensed · Fully Compliant</div>
@@ -126,7 +125,7 @@ export default function AboutPage() {
           </p>
           <div style={{ display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"10px",maxWidth:"780px",margin:"0 auto" }}>
             {["Heckler & Koch","Smith & Wesson","Ruger","SIG Sauer","Colt","Korth","Nighthawk Custom","Cabot Guns","Wilson Combat"].map(name => (
-              <span key={name} style={{ padding:"9px 18px",border:`1px solid ${t.border}`,fontSize:"10.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.textMuted,fontWeight:500,background:isDark?"#141414":"#fafafa",transition:"all 0.22s",cursor:"default" }}
+              <span key={name} style={{ padding:"9px 18px",border:`1px solid ${t.border}`,fontSize:"10.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.textMuted,fontWeight:500,background:"#fafafa",transition:"all 0.22s",cursor:"default" }}
                 onMouseEnter={e=>{ e.currentTarget.style.color=t.gold; e.currentTarget.style.borderColor=t.gold+"50" }}
                 onMouseLeave={e=>{ e.currentTarget.style.color=t.textMuted; e.currentTarget.style.borderColor=t.border }}>
                 {name}
@@ -177,7 +176,7 @@ export default function AboutPage() {
       </section>
 
       {/* PHILOSOPHY */}
-      <section style={{ padding:"96px 40px",background:isDark?"linear-gradient(to bottom,transparent,#141414 8%,#141414 92%,transparent)":"linear-gradient(to bottom,transparent,#f3f3f5 8%,#f3f3f5 92%,transparent)" }}>
+      <section style={{ padding:"96px 40px",background:"linear-gradient(to bottom,transparent,#f3f3f5 8%,#f3f3f5 92%,transparent)" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ textAlign:"center",marginBottom:"64px" }}>
             <Eyebrow label="What We Believe" />
@@ -208,7 +207,7 @@ export default function AboutPage() {
               <p style={{ fontSize:"14px",fontWeight:300,lineHeight:1.85,color:t.textDim,letterSpacing:"0.02em" }}>
                 Each piece in our catalog is more than a tool. It is an emblem of tradition, precision, and luxury, selected to set a global standard while honoring the roots of the craft.
               </p>
-              <div style={{ marginTop:"36px",padding:"22px 26px",background:isDark?"#141414":"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}` }}>
+              <div style={{ marginTop:"36px",padding:"22px 26px",background:"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}` }}>
                 <div style={{ fontSize:"8.5px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:600,marginBottom:"8px" }}>The Through-line</div>
                 <p style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,fontStyle:"italic",color:t.text,lineHeight:1.55,letterSpacing:"0.01em" }}>
                   Luxus Collection is not just a name — it&apos;s a legacy.
@@ -280,7 +279,7 @@ export default function AboutPage() {
       </section>
 
       {/* FEATURED BRANDS */}
-      <section style={{ padding:"96px 40px",background:isDark?"linear-gradient(to bottom,transparent,#141414 8%,#141414 92%,transparent)":"linear-gradient(to bottom,transparent,#f3f3f5 8%,#f3f3f5 92%,transparent)" }}>
+      <section style={{ padding:"96px 40px",background:"linear-gradient(to bottom,transparent,#f3f3f5 8%,#f3f3f5 92%,transparent)" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ display:"flex",alignItems:"flex-end",justifyContent:"space-between",marginBottom:"52px",flexWrap:"wrap",gap:"20px" }}>
             <div>
@@ -336,7 +335,7 @@ export default function AboutPage() {
                 { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 1L18 5V10C18 14 14.5 17 10 19C5.5 17 2 14 2 10V5L10 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/><path d="M6.5 10L8.5 12L13.5 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"Federal Firearms License", body:"We hold FFL License #1-59-XXX-XX-XX-55688, authorizing us to engage in the business of dealing in firearms." },
                 { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10H17M3 10L7 6M3 10L7 14M17 10L13 6M17 10L13 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"State Law Compliance", body:"We screen all orders against applicable state and local laws before shipment. Buyers are responsible for understanding the laws in their jurisdiction." },
               ].map(({ icon, heading, body }) => (
-                <div key={heading} style={{ padding:"22px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}` }}>
+                <div key={heading} style={{ padding:"22px",background:"#fff",border:`1px solid ${t.border}` }}>
                   <div style={{ color:t.gold,marginBottom:"12px" }}>{icon}</div>
                   <div style={{ fontSize:"8.5px",letterSpacing:"0.18em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"7px",fontFamily:"var(--font-inter)" }}>{heading}</div>
                   <p style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,lineHeight:1.75,letterSpacing:"0.01em" }}>{body}</p>
@@ -348,7 +347,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section style={{ padding:"96px 40px",background:isDark?"#0e0e0e":"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}` }}>
+      <section style={{ padding:"96px 40px",background:"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}` }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div className="lxs-about-cta">
             <div>
@@ -363,8 +362,8 @@ export default function AboutPage() {
             <div className="lxs-about-cta-btns" style={{ display:"flex",gap:"14px",flexWrap:"wrap" }}>
               <Link href="/shop" style={{ flex:"1 1 160px",padding:"18px 28px",background:t.gold,textDecoration:"none",display:"flex",flexDirection:"column",gap:"4px",transition:"background 0.2s" }}
                 onMouseEnter={e=>e.currentTarget.style.background=t.goldLight} onMouseLeave={e=>e.currentTarget.style.background=t.gold}>
-                <span style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:isDark?"#0a0a0a":"#fff",fontWeight:500,opacity:0.75 }}>Explore</span>
-                <span style={{ fontFamily:"var(--font-playfair)",fontSize:"20px",fontWeight:400,color:isDark?"#0a0a0a":"#fff",lineHeight:1.2 }}>Browse Collection</span>
+                <span style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:"#fff",fontWeight:500,opacity:0.75 }}>Explore</span>
+                <span style={{ fontFamily:"var(--font-playfair)",fontSize:"20px",fontWeight:400,color:"#fff",lineHeight:1.2 }}>Browse Collection</span>
               </Link>
               <Link href="/contact" style={{ flex:"1 1 160px",padding:"18px 28px",background:"transparent",border:`1px solid ${t.border}`,textDecoration:"none",display:"flex",flexDirection:"column",gap:"4px",transition:"border-color 0.2s" }}
                 onMouseEnter={e=>e.currentTarget.style.borderColor=t.gold+"60"} onMouseLeave={e=>e.currentTarget.style.borderColor=t.border}>

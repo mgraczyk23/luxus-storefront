@@ -25,19 +25,19 @@ const SOCIALS = [
 ]
 
 function MapPlaceholder() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   return (
-    <div style={{ position: "relative", height: "100%", minHeight: "340px", background: isDark ? "linear-gradient(140deg,#161616,#222222)" : "linear-gradient(140deg,#e8e8eb,#d4d4d8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+    <div style={{ position: "relative", height: "100%", minHeight: "340px", background: "linear-gradient(140deg,#e8e8eb,#d4d4d8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
       {[20,40,60,80].map(pct => <div key={`h${pct}`} style={{ position:"absolute",left:0,right:0,top:`${pct}%`,height:"1px",background:t.gold+"12" }}/>)}
       {[20,40,60,80].map(pct => <div key={`v${pct}`} style={{ position:"absolute",top:0,bottom:0,left:`${pct}%`,width:"1px",background:t.gold+"12" }}/>)}
       <div style={{ position:"relative",display:"flex",flexDirection:"column",alignItems:"center" }}>
-        <div style={{ width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${t.gold}`,background:isDark?"#0a0a0a":"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:1 }}>
+        <div style={{ width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${t.gold}`,background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:1 }}>
           <div style={{ width:"6px",height:"6px",borderRadius:"50%",background:t.gold }}/>
         </div>
         <div style={{ width:"1px",height:"18px",background:`linear-gradient(to bottom,${t.gold},transparent)` }}/>
         <div style={{ position:"absolute",top:"-6px",left:"-6px",width:"34px",height:"34px",borderRadius:"50%",border:`1px solid ${t.gold}40` }}/>
       </div>
-      <div style={{ position:"absolute",bottom:"20px",left:"20px",background:isDark?"rgba(12,11,10,0.85)":"rgba(255,255,255,0.92)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"10px 14px",backdropFilter:"blur(8px)" }}>
+      <div style={{ position:"absolute",bottom:"20px",left:"20px",background:"rgba(255,255,255,0.92)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"10px 14px",backdropFilter:"blur(8px)" }}>
         <div style={{ fontSize:"7.5px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"3px" }}>Headquarters</div>
         <div style={{ fontSize:"12px",fontWeight:300,color:t.text,lineHeight:1.5 }}>
           Luxus Collection, LLC<br/>
@@ -50,7 +50,7 @@ function MapPlaceholder() {
 }
 
 export default function ContactPage() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", company:"", topic: TOPICS[0], message:"", newsletter: false })
   const [formStatus, setFormStatus] = useState("idle")
   const [activeChannel, setActiveChannel] = useState<string|null>(null)
@@ -66,7 +66,7 @@ export default function ContactPage() {
 
   const inputStyle = {
     width: "100%", padding: "11px 14px",
-    background: isDark ? "#0a0a0a" : "#ffffff",
+    background: "#ffffff",
     border: `1px solid ${t.border}`, color: t.text,
     fontSize: "12.5px", fontFamily: "var(--font-inter)",
     fontWeight: 300, letterSpacing: "0.02em", outline: "none",
@@ -89,7 +89,7 @@ export default function ContactPage() {
     <div className="lxs-contact-page" style={{ background: t.bg, color: t.text, fontFamily: "var(--font-inter)" }}>
 
       {/* HERO BANNER */}
-      <div style={{ background: isDark ? "linear-gradient(to bottom,#161616,#0a0a0a)" : "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "52px 40px", position: "relative", overflow: "hidden" }}>
+      <div style={{ background: "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "52px 40px", position: "relative", overflow: "hidden" }}>
         <div style={{ position:"absolute",bottom:0,right:0,width:"40%",height:"100%",background:`radial-gradient(ellipse at right,${t.gold}08,transparent 70%)`,pointerEvents:"none" }}/>
         <div style={{ maxWidth: "1440px", margin: "0 auto", position: "relative" }}>
           <div style={{ display:"flex",alignItems:"center",gap:"8px",marginBottom:"24px" }}>
@@ -126,7 +126,7 @@ export default function ContactPage() {
                 { label:"Support",   value:"support@luxus-collection.com", href:"mailto:support@luxus-collection.com", note:"For order & after-sale help" },
               ].map(({ label, value, href, note }) => (
                 <a key={label} href={href}
-                  style={{ display:"flex",alignItems:"baseline",justifyContent:"space-between",padding:"12px 16px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,textDecoration:"none",transition:"border-color 0.2s",gap:"16px" }}
+                  style={{ display:"flex",alignItems:"baseline",justifyContent:"space-between",padding:"12px 16px",background:"#fff",border:`1px solid ${t.border}`,textDecoration:"none",transition:"border-color 0.2s",gap:"16px" }}
                   onMouseEnter={e=>e.currentTarget.style.borderColor=t.gold+"60"} onMouseLeave={e=>e.currentTarget.style.borderColor=t.border}>
                   <div>
                     <span style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,display:"block",marginBottom:"4px" }}>{label}</span>
@@ -148,7 +148,7 @@ export default function ContactPage() {
             return (
               <a key={ch.id} href={ch.href}
                 onMouseEnter={() => setActiveChannel(ch.id)} onMouseLeave={() => setActiveChannel(null)}
-                style={{ padding:"24px",background:hov?(isDark?"#161616":"#fafafa"):t.bgCard,border:`1px solid ${hov?t.gold+"55":t.border}`,textDecoration:"none",display:"flex",flexDirection:"column",gap:"14px",transition:"all 0.25s",boxShadow:hov?(isDark?"0 12px 40px rgba(0,0,0,0.4)":"0 12px 40px rgba(0,0,0,0.07)"):"none" }}>
+                style={{ padding:"24px",background:hov?"#fafafa":t.bgCard,border:`1px solid ${hov?t.gold+"55":t.border}`,textDecoration:"none",display:"flex",flexDirection:"column",gap:"14px",transition:"all 0.25s",boxShadow:hov?"0 12px 40px rgba(0,0,0,0.07)":"none" }}>
                 <div style={{ color:t.gold }}>{ch.icon}</div>
                 <div>
                   <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,marginBottom:"5px" }}>{ch.label}</div>
@@ -180,7 +180,7 @@ export default function ContactPage() {
             </div>
 
             {formStatus === "success" ? (
-              <div style={{ padding:"60px 40px",border:`1px solid ${t.border}`,background:isDark?"#161616":"#fff",textAlign:"center" }}>
+              <div style={{ padding:"60px 40px",border:`1px solid ${t.border}`,background:"#fff",textAlign:"center" }}>
                 <div style={{ width:"52px",height:"52px",border:`1px solid ${t.gold}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px" }}>
                   <svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M1 7.5L7 13.5L19 1.5" stroke={t.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
@@ -194,7 +194,7 @@ export default function ContactPage() {
                 </button>
               </div>
             ) : (
-              <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
                   {[["firstName","First Name *","James"],["lastName","Last Name","Whitfield"]].map(([k,l,p]) => (
                     <div key={k}>
@@ -229,14 +229,14 @@ export default function ContactPage() {
                 <label style={{ display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"24px",cursor:"pointer" }}>
                   <div onClick={() => set("newsletter",!form.newsletter)}
                     style={{ width:"14px",height:"14px",flexShrink:0,marginTop:"1px",border:`1px solid ${form.newsletter?t.gold:t.border}`,background:form.newsletter?t.gold:"transparent",transition:"all 0.18s",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"1px" }}>
-                    {form.newsletter&&<svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke={isDark?"#0a0a0a":"#fff"} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    {form.newsletter&&<svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                   </div>
                   <span style={{ fontSize:"11px",color:t.textMuted,fontWeight:300,lineHeight:1.65,letterSpacing:"0.01em" }}>
                     Sign me up for The Collector&apos;s Circle — new acquisitions, editorial features, and exclusive access.
                   </span>
                 </label>
                 <button onClick={handleSubmit} disabled={!canSubmit || formStatus==="submitting"}
-                  style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:isDark?"#0a0a0a":"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
+                  style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
                   onMouseEnter={e=>{ if(canSubmit) (e.currentTarget as HTMLButtonElement).style.background=t.goldLight }}
                   onMouseLeave={e=>{ if(canSubmit) (e.currentTarget as HTMLButtonElement).style.background=t.gold }}>
                   {formStatus==="submitting"?"Sending…":"Send Message"}
@@ -256,7 +256,7 @@ export default function ContactPage() {
               </div>
               <MapPlaceholder />
             </div>
-            <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
+            <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>Business Hours</div>
               {[["Monday – Friday","8:30 AM – 6:00 PM EST"],["Saturday","10:00 AM – 2:00 PM EST"],["Sunday","Closed"]].map(([day,hours]) => (
                 <div key={day} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:"8px",marginBottom:"8px",borderBottom:`1px solid ${t.border}` }}>
@@ -273,7 +273,7 @@ export default function ContactPage() {
                 {SOCIALS.map(({ label, href, icon }) => (
                   <a key={label} href={href} target="_blank" rel="noopener noreferrer" title={label}
                     style={{ width:"36px",height:"36px",border:`1px solid ${t.border}`,display:"flex",alignItems:"center",justifyContent:"center",color:t.textMuted,textDecoration:"none",transition:"all 0.18s" }}
-                    onMouseEnter={e=>{ e.currentTarget.style.borderColor=t.gold+"60"; e.currentTarget.style.color=t.gold; e.currentTarget.style.background=isDark?"#161616":"#fafafa" }}
+                    onMouseEnter={e=>{ e.currentTarget.style.borderColor=t.gold+"60"; e.currentTarget.style.color=t.gold; e.currentTarget.style.background="#fafafa" }}
                     onMouseLeave={e=>{ e.currentTarget.style.borderColor=t.border; e.currentTarget.style.color=t.textMuted; e.currentTarget.style.background="transparent" }}>
                     {icon}
                   </a>
@@ -285,7 +285,7 @@ export default function ContactPage() {
       </div>
 
       {/* WHAT TO EXPECT */}
-      <section style={{ padding:"80px 40px",margin:"64px 0 0",background:isDark?"#0e0e0e":"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}` }}>
+      <section style={{ padding:"80px 40px",margin:"64px 0 0",background:"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}` }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ textAlign:"center",marginBottom:"48px" }}>
             <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px",justifyContent:"center" }}>
@@ -304,7 +304,7 @@ export default function ContactPage() {
               { n:"03", title:"No Hard Sell",            body:"Our team is here to inform and assist, not to close. If the right piece isn't in our collection, we'll say so." },
               { n:"04", title:"Follow-Through",          body:"If we say we'll follow up, we follow up. Complex inquiries don't fall through the cracks." },
             ].map(({ n, title, body }) => (
-              <div key={n} style={{ padding:"26px 22px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}` }}>
+              <div key={n} style={{ padding:"26px 22px",background:"#fff",border:`1px solid ${t.border}` }}>
                 <div style={{ fontFamily:"var(--font-playfair)",fontSize:"36px",fontWeight:300,color:t.gold,lineHeight:1,marginBottom:"14px",opacity:0.45 }}>{n}</div>
                 <div style={{ fontSize:"8.5px",letterSpacing:"0.18em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"8px" }}>{title}</div>
                 <p style={{ fontSize:"12.5px",fontWeight:300,color:t.textMuted,lineHeight:1.78,letterSpacing:"0.01em" }}>{body}</p>

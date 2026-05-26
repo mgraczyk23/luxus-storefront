@@ -61,7 +61,7 @@ const POLICIES = {
 export type PolicyType = keyof typeof POLICIES
 
 export default function PolicyPage({ policy }: { policy: PolicyType }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [activeSection, setActiveSection] = useState<number | null>(null)
   const doc = POLICIES[policy]
 
@@ -90,7 +90,7 @@ export default function PolicyPage({ policy }: { policy: PolicyType }) {
     <div style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
 
       {/* BANNER */}
-      <div style={{ background:isDark?"linear-gradient(to bottom,#161616,#0a0a0a)":"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px 40px" }}>
+      <div style={{ background:"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px 40px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ display:"flex",alignItems:"center",gap:"8px",marginBottom:"20px" }}>
             {["Home","Legal",doc.title].map((c,i,a) => (
@@ -111,7 +111,7 @@ export default function PolicyPage({ policy }: { policy: PolicyType }) {
           <div style={{ display:"flex",gap:"12px",marginTop:"24px",flexWrap:"wrap" }}>
             {RELATED.map(([key,label,href]) => (
               <Link key={key} href={href}
-                style={{ padding:"7px 16px",border:`1px solid ${key===policy?t.gold+"60":t.border}`,background:key===policy?(isDark?"#1c1c1c":"#f3f3f5"):"transparent",fontSize:"9px",letterSpacing:"0.12em",textTransform:"uppercase",color:key===policy?t.gold:t.textMuted,textDecoration:"none",fontWeight:500,transition:"all 0.18s" }}
+                style={{ padding:"7px 16px",border:`1px solid ${key===policy?t.gold+"60":t.border}`,background:key===policy?"#f3f3f5":"transparent",fontSize:"9px",letterSpacing:"0.12em",textTransform:"uppercase",color:key===policy?t.gold:t.textMuted,textDecoration:"none",fontWeight:500,transition:"all 0.18s" }}
                 onMouseEnter={e=>{ if(key!==policy){e.currentTarget.style.color=t.gold;e.currentTarget.style.borderColor=t.gold+"50"} }}
                 onMouseLeave={e=>{ if(key!==policy){e.currentTarget.style.color=t.textMuted;e.currentTarget.style.borderColor=t.border} }}>
                 {label}
@@ -155,7 +155,7 @@ export default function PolicyPage({ policy }: { policy: PolicyType }) {
                 </p>
               </div>
             ))}
-            <div style={{ marginTop:"52px",padding:"24px 28px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40` }}>
+            <div style={{ marginTop:"52px",padding:"24px 28px",background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40` }}>
               <div style={{ fontSize:"8.5px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"10px" }}>Questions about this policy?</div>
               <p style={{ fontSize:"13px",fontWeight:300,color:t.textMuted,lineHeight:1.75,marginBottom:"12px" }}>We&apos;re happy to clarify anything. Reach out directly:</p>
               <div style={{ display:"flex",gap:"24px",flexWrap:"wrap" }}>

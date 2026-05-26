@@ -13,10 +13,9 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 
 function ImgBox({ index = 0, style = {} }: { index?: number; style?: React.CSSProperties }) {
-  const { isDark, t } = useTheme()
-  const d = ["#171717,#222222", "#1a1a1a,#262626", "#161616,#1e1e1e"]
+  const { t } = useTheme()
   const l = ["#e8e8eb,#d4d4d8", "#e8e8eb,#d4d4d8", "#e8e8eb,#d4d4d8"]
-  const [c1, c2] = (isDark ? d : l)[index % 3].split(",")
+  const [c1, c2] = l[index % 3].split(",")
   return (
     <div style={{ background: `linear-gradient(140deg,${c1},${c2})`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0, ...style }}>
       <svg width="20" height="20" viewBox="0 0 36 36" fill="none" opacity="0.15">
@@ -29,7 +28,7 @@ function ImgBox({ index = 0, style = {} }: { index?: number; style?: React.CSSPr
 }
 
 function CartItem({ item, onRemove, index }: { item: typeof INITIAL_CART[0]; onRemove: (id: number) => void; index: number }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [removing, setRemoving] = useState(false)
   const [confirmRemove, setConfirmRemove] = useState(false)
 
@@ -76,7 +75,7 @@ function CartItem({ item, onRemove, index }: { item: typeof INITIAL_CART[0]; onR
 }
 
 function OrderSummary({ cart, onCheckout }: { cart: typeof INITIAL_CART; onCheckout: () => void }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [promoCode, setPromoCode] = useState("")
   const [promoStatus, setPromoStatus] = useState<"idle"|"applied"|"invalid">("idle")
   const [discount, setDiscount] = useState(0)
@@ -96,7 +95,7 @@ function OrderSummary({ cart, onCheckout }: { cart: typeof INITIAL_CART; onCheck
   }
 
   return (
-    <div style={{ position: "sticky", top: "96px", background: isDark ? "#161616" : "#fff", border: `1px solid ${t.border}`, padding: "28px" }}>
+    <div style={{ position: "sticky", top: "96px", background: "#fff", border: `1px solid ${t.border}`, padding: "28px" }}>
       <div style={{ fontSize: "8.5px", letterSpacing: "0.22em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
         <div style={{ width: "14px", height: "1px", background: t.gold }}/>
         Order Summary
@@ -149,9 +148,9 @@ function OrderSummary({ cart, onCheckout }: { cart: typeof INITIAL_CART; onCheck
         <div style={{ display: "flex", marginBottom: "16px" }}>
           <input type="text" placeholder="Enter code" value={promoCode} onChange={e => setPromoCode(e.target.value.toUpperCase())}
             onKeyDown={e => e.key === "Enter" && applyPromo()}
-            style={{ flex: 1, padding: "9px 12px", background: isDark ? "#0a0a0a" : "#ffffff", border: `1px solid ${promoStatus === "invalid" ? "#b05040" : promoStatus === "applied" ? "#5a9a5a" : t.border}`, borderRight: "none", color: t.text, fontSize: "12px", fontFamily: "var(--font-inter)", outline: "none", letterSpacing: "0.06em", textTransform: "uppercase" }}/>
+            style={{ flex: 1, padding: "9px 12px", background: "#ffffff", border: `1px solid ${promoStatus === "invalid" ? "#b05040" : promoStatus === "applied" ? "#5a9a5a" : t.border}`, borderRight: "none", color: t.text, fontSize: "12px", fontFamily: "var(--font-inter)", outline: "none", letterSpacing: "0.06em", textTransform: "uppercase" }}/>
           <button onClick={applyPromo}
-            style={{ padding: "9px 16px", background: t.gold, color: isDark ? "#0a0a0a" : "#fff", border: "none", fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer" }}>
+            style={{ padding: "9px 16px", background: t.gold, color: "#fff", border: "none", fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer" }}>
             Apply
           </button>
         </div>
@@ -159,7 +158,7 @@ function OrderSummary({ cart, onCheckout }: { cart: typeof INITIAL_CART; onCheck
       {promoStatus === "invalid" && <div style={{ fontSize: "10.5px", color: "#b05040", marginBottom: "10px", fontWeight: 300 }}>Code not recognised, please check and try again.</div>}
 
       <button onClick={onCheckout}
-        style={{ width: "100%", padding: "15px", background: t.gold, border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "background 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+        style={{ width: "100%", padding: "15px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "background 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
         onMouseEnter={e => e.currentTarget.style.background = t.goldLight}
         onMouseLeave={e => e.currentTarget.style.background = t.gold}>
         Proceed to Checkout
@@ -183,7 +182,7 @@ function OrderSummary({ cart, onCheckout }: { cart: typeof INITIAL_CART; onCheck
 }
 
 export default function CartPage() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [cart, setCart] = useState(INITIAL_CART)
 
   const removeItem = (id: number) => setCart(c => c.filter(i => i.id !== id))
@@ -192,7 +191,7 @@ export default function CartPage() {
     <div style={{ background: t.bg, color: t.text, fontFamily: "var(--font-inter)" }}>
 
       {/* Banner */}
-      <div style={{ background: isDark ? "linear-gradient(to bottom,#161616,#0a0a0a)" : "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "36px 40px 28px" }}>
+      <div style={{ background: "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "36px 40px 28px" }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
             {["Home", "Shop", "Cart"].map((c, i, a) => (
@@ -226,7 +225,7 @@ export default function CartPage() {
             </div>
             <div style={{ fontFamily: "var(--font-playfair)", fontSize: "32px", fontWeight: 300, color: t.text, marginBottom: "12px" }}>Your cart is empty</div>
             <p style={{ fontSize: "13.5px", fontWeight: 300, color: t.textMuted, marginBottom: "32px", lineHeight: 1.7 }}>Browse our collection to find your next piece.</p>
-            <Link href="/shop" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "13px 32px", background: t.gold, color: isDark ? "#0a0a0a" : "#fff", textDecoration: "none", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>
+            <Link href="/shop" style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "13px 32px", background: t.gold, color: "#fff", textDecoration: "none", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600 }}>
               Browse Collection
               <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4H9M6 1L9 4L6 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </Link>
@@ -235,7 +234,7 @@ export default function CartPage() {
           <div className="lxs-cart-layout">
             <div>
               {/* FFL notice */}
-              <div style={{ display: "flex", gap: "14px", alignItems: "flex-start", padding: "16px 18px", background: isDark ? "#161616" : "#fff", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}40`, marginBottom: "8px" }}>
+              <div style={{ display: "flex", gap: "14px", alignItems: "flex-start", padding: "16px 18px", background: "#fff", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}40`, marginBottom: "8px" }}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: t.gold, flexShrink: 0, marginTop: "1px" }}><path d="M8 1L14.5 4.5V8.5C14.5 12 11.5 14.5 8 15.5C4.5 14.5 1.5 12 1.5 8.5V4.5L8 1Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round"/><path d="M5.5 8L7 9.5L10.5 6" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 <div>
                   <div style={{ fontSize: "8.5px", letterSpacing: "0.15em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "3px" }}>FFL Transfer Required</div>
@@ -269,7 +268,7 @@ export default function CartPage() {
               {/* Saved for later */}
               <div style={{ marginTop: "52px", paddingTop: "32px", borderTop: `1px solid ${t.border}` }}>
                 <div style={{ fontSize: "8.5px", letterSpacing: "0.22em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "16px" }}>Saved for Later</div>
-                <div style={{ padding: "24px", background: isDark ? "#161616" : "#fafafa", border: `1px solid ${t.border}`, borderStyle: "dashed", textAlign: "center" }}>
+                <div style={{ padding: "24px", background: "#fafafa", border: `1px solid ${t.border}`, borderStyle: "dashed", textAlign: "center" }}>
                   <p style={{ fontSize: "12.5px", fontWeight: 300, color: t.textDim, lineHeight: 1.65 }}>
                     Items you save for later will appear here.{" "}
                     <Link href="/shop" style={{ color: t.gold, textDecoration: "none" }}>Browse the collection →</Link>

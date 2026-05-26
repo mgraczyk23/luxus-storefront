@@ -37,7 +37,7 @@ const STRENGTH_LABEL = ["", "Weak", "Fair", "Good", "Strong", "Excellent"]
 const STRENGTH_COLOR = ["", "#b05040", "#c08030", "#8a9030", "#4a8a4a", "#3a7a6a"]
 
 export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "signin" | "register" }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [tab, setTab] = useState<"signin"|"register">(defaultTab)
 
   const [siEmail, setSiEmail]         = useState("")
@@ -84,7 +84,7 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
       <div className="lxs-auth-wrapper" style={{ paddingTop: "68px", minHeight: "calc(100vh - 68px)", position: "relative" }}>
         {/* Split background — hidden on mobile via .lxs-auth-bg-split CSS rule */}
         <div className="lxs-auth-bg-split" style={{ position: "absolute", top: 0, bottom: 0, left: 0, right: 0, zIndex: 0, display: "flex" }}>
-          <div style={{ flex: 1, background: isDark ? "linear-gradient(155deg,#161616,#0c0b09)" : "linear-gradient(155deg,#f3f3f5,#e8e8eb)" }}/>
+          <div style={{ flex: 1, background: "linear-gradient(155deg,#f3f3f5,#e8e8eb)" }}/>
           <div style={{ flex: 1, background: t.bg }}/>
         </div>
 
@@ -165,7 +165,7 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
                     <span style={{ fontSize: "12px", fontWeight: 300, color: t.textMuted }}>Keep me signed in</span>
                   </label>
                   <button onClick={handleSignIn} disabled={!siEmail || !siPassword}
-                    style={{ width: "100%", padding: "14px", background: siEmail && siPassword ? t.gold : t.gold + "55", border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: siEmail && siPassword ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s" }}
+                    style={{ width: "100%", padding: "14px", background: siEmail && siPassword ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: siEmail && siPassword ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s" }}
                     onMouseEnter={e => { if (siEmail && siPassword) e.currentTarget.style.background = t.goldLight }}
                     onMouseLeave={e => { if (siEmail && siPassword) e.currentTarget.style.background = t.gold }}>
                     {siStatus === "loading" ? "Signing In…" : "Sign In"}
@@ -219,14 +219,14 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
                   </div>
                   <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "24px", cursor: "pointer" }} onClick={() => setRegConsent(!regConsent)}>
                     <div style={{ width: "14px", height: "14px", border: `1px solid ${regConsent ? t.gold : t.border}`, background: regConsent ? t.gold : "transparent", transition: "all 0.18s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px", flexShrink: 0, marginTop: "1px" }}>
-                      {regConsent && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke={isDark ? "#0a0a0a" : "#fff"} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                      {regConsent && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                     </div>
                     <span style={{ fontSize: "11px", fontWeight: 300, color: t.textMuted, lineHeight: 1.65 }}>
                       I agree to the <Link href="/terms" style={{ color: t.gold, textDecoration: "none" }}>Terms &amp; Conditions</Link> and <Link href="/privacy" style={{ color: t.gold, textDecoration: "none" }}>Privacy Policy</Link>
                     </span>
                   </label>
                   <button onClick={handleRegister} disabled={!canRegister}
-                    style={{ width: "100%", padding: "14px", background: canRegister ? t.gold : t.gold + "55", border: "none", color: isDark ? "#0a0a0a" : "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s" }}
+                    style={{ width: "100%", padding: "14px", background: canRegister ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s" }}
                     onMouseEnter={e => e.currentTarget.style.background = t.goldLight}
                     onMouseLeave={e => e.currentTarget.style.background = t.gold}>
                     {regStatus === "loading" ? "Creating Account…" : "Create Account"}

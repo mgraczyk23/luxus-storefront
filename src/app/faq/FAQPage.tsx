@@ -79,7 +79,7 @@ const FAQ_DATA = [
 ]
 
 function AccordionItem({ item, isOpen, onToggle, highlight = "" }: { item: { id: string; q: string; a: string }; isOpen: boolean; onToggle: () => void; highlight?: string }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
 
   const hl = (text: string) => {
     if (!highlight.trim()) return <>{text}</>
@@ -89,7 +89,7 @@ function AccordionItem({ item, isOpen, onToggle, highlight = "" }: { item: { id:
   }
 
   return (
-    <div style={{ borderBottom:`1px solid ${t.border}`,background:isOpen?(isDark?"#161616":"#fafafa"):"transparent",transition:"background 0.25s" }}>
+    <div style={{ borderBottom:`1px solid ${t.border}`,background:isOpen?"#fafafa":"transparent",transition:"background 0.25s" }}>
       <button onClick={onToggle}
         style={{ width:"100%",display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:"20px",padding:"20px 24px",background:"none",border:"none",cursor:"pointer",textAlign:"left" }}>
         <span style={{ fontFamily:"var(--font-playfair)",fontSize:"18px",fontWeight:isOpen?400:300,color:isOpen?t.gold:t.text,lineHeight:1.35,letterSpacing:"0.01em",transition:"color 0.22s",flex:1 }}>
@@ -114,7 +114,7 @@ function AccordionItem({ item, isOpen, onToggle, highlight = "" }: { item: { id:
 }
 
 export default function FAQPage() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [search, setSearch] = useState("")
   const [activeCategory, setActiveCategory] = useState("ordering")
   const [openItems, setOpenItems] = useState<Set<string>>(new Set())
@@ -146,7 +146,7 @@ export default function FAQPage() {
     <div style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
 
       {/* BANNER */}
-      <div style={{ background:isDark?"linear-gradient(to bottom,#161616,#0a0a0a)":"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px 48px" }}>
+      <div style={{ background:"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px 48px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ display:"flex",alignItems:"center",gap:"8px",marginBottom:"20px" }}>
             {["Home","FAQ"].map((crumb,i,arr) => (
@@ -178,7 +178,7 @@ export default function FAQPage() {
                   <path d="M11 11L14 14" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
                 </svg>
                 <input ref={searchRef} type="text" placeholder="Search questions…" value={search} onChange={e=>setSearch(e.target.value)}
-                  style={{ width:"100%",padding:"15px 48px 15px 44px",background:isDark?"#0a0a0a":"#fff",border:`1px solid ${search?t.gold+"60":t.border}`,color:t.text,fontSize:"14px",outline:"none",fontFamily:"var(--font-inter)",fontWeight:300,letterSpacing:"0.02em",transition:"border-color 0.2s" }}/>
+                  style={{ width:"100%",padding:"15px 48px 15px 44px",background:"#fff",border:`1px solid ${search?t.gold+"60":t.border}`,color:t.text,fontSize:"14px",outline:"none",fontFamily:"var(--font-inter)",fontWeight:300,letterSpacing:"0.02em",transition:"border-color 0.2s" }}/>
                 {search && (
                   <button onClick={()=>setSearch("")} style={{ position:"absolute",right:"16px",top:"50%",transform:"translateY(-50%)",background:"none",border:"none",cursor:"pointer",color:t.textDim,padding:"4px" }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M1 1L11 11M11 1L1 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
@@ -228,13 +228,13 @@ export default function FAQPage() {
                 {FAQ_DATA.map(cat => (
                   <button key={cat.id} onClick={()=>{ setActiveCategory(cat.id); setOpenItems(new Set()) }}
                     className={activeCategory===cat.id ? "lxs-faq-cat-btn lxs-faq-cat-active" : "lxs-faq-cat-btn"}
-                    style={{ display:"flex",alignItems:"center",gap:"12px",padding:"11px 14px",background:activeCategory===cat.id?(isDark?"#161616":"#fafafa"):"transparent",border:`1px solid ${activeCategory===cat.id?t.gold+"50":"transparent"}`,cursor:"pointer",textAlign:"left",width:"100%",borderLeft:`2px solid ${activeCategory===cat.id?t.gold:"transparent"}`,transition:"all 0.2s" }}>
+                    style={{ display:"flex",alignItems:"center",gap:"12px",padding:"11px 14px",background:activeCategory===cat.id?"#fafafa":"transparent",border:`1px solid ${activeCategory===cat.id?t.gold+"50":"transparent"}`,cursor:"pointer",textAlign:"left",width:"100%",borderLeft:`2px solid ${activeCategory===cat.id?t.gold:"transparent"}`,transition:"all 0.2s" }}>
                     <span className="lxs-faq-cat-icon" style={{ color:activeCategory===cat.id?t.gold:t.textDim,flexShrink:0,transition:"color 0.2s" }}>{cat.icon}</span>
                     <span style={{ fontSize:"11.5px",fontWeight:activeCategory===cat.id?500:300,color:activeCategory===cat.id?t.gold:t.textMuted,letterSpacing:"0.02em",transition:"color 0.2s" }}>{cat.category}</span>
                   </button>
                 ))}
               </div>
-              <div style={{ marginTop:"36px",padding:"20px",background:isDark?"#161616":"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40` }}>
+              <div style={{ marginTop:"36px",padding:"20px",background:"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40` }}>
                 <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"8px" }}>Still have questions?</div>
                 <p style={{ fontSize:"11.5px",fontWeight:300,color:t.textMuted,lineHeight:1.65,marginBottom:"14px" }}>Our team typically responds within one business day.</p>
                 <Link href="/support" style={{ display:"flex",alignItems:"center",gap:"6px",fontSize:"9px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.gold,fontWeight:500,textDecoration:"none",borderBottom:`1px solid ${t.gold}50`,paddingBottom:"1px",width:"fit-content" }}>
@@ -307,7 +307,7 @@ export default function FAQPage() {
       </div>
 
       {/* SUPPORT CTA */}
-      <section style={{ background:isDark?"#0e0e0e":"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}`,padding:"64px 40px" }}>
+      <section style={{ background:"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}`,padding:"64px 40px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div className="lxs-faq-cta">
             <div>
@@ -328,7 +328,7 @@ export default function FAQPage() {
                 { label:"Toll-Free", value:"(833) 486-6659", sub:"Mon – Fri, 8:30am – 6pm EST", href:"tel:8334866659" },
               ].map(item => (
                 <a key={item.href} href={item.href}
-                  style={{ flex:1,minWidth:"160px",padding:"20px 24px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,textDecoration:"none",display:"flex",flexDirection:"column",gap:"8px",transition:"border-color 0.2s" }}
+                  style={{ flex:1,minWidth:"160px",padding:"20px 24px",background:"#fff",border:`1px solid ${t.border}`,textDecoration:"none",display:"flex",flexDirection:"column",gap:"8px",transition:"border-color 0.2s" }}
                   onMouseEnter={e=>e.currentTarget.style.borderColor=t.gold+"60"} onMouseLeave={e=>e.currentTarget.style.borderColor=t.border}>
                   <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ color:t.gold }}><path d="M3 2C3 2 1.5 2 1.5 3.5C1.5 5 2.25 9.25 6.25 13.25C10.25 17.25 14.5 17 16 17C17.5 17 17.5 15.5 17.5 15.5L15 11.5C15 11.5 14.25 10.75 13.5 11.5L11.5 13C11.5 13 9.5 12.5 7 10C4.5 7.5 5 5.5 5 5.5L7 3.5C7.75 2.75 7 2 7 2L3 2Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/></svg>
                   <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500 }}>{item.label}</div>
@@ -339,10 +339,10 @@ export default function FAQPage() {
               <Link href="/support"
                 style={{ flex:1,minWidth:"160px",padding:"20px 24px",background:t.gold,border:`1px solid ${t.gold}`,textDecoration:"none",display:"flex",flexDirection:"column",gap:"8px",transition:"background 0.2s" }}
                 onMouseEnter={e=>e.currentTarget.style.background=t.goldLight} onMouseLeave={e=>e.currentTarget.style.background=t.gold}>
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ color:isDark?"#0a0a0a":"#fff" }}><rect x="1.5" y="3" width="15" height="12" rx="1" stroke="currentColor" strokeWidth="1.2"/><path d="M1.5 5L9 10.5L16.5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
-                <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:isDark?"#0a0a0a":"#fff",fontWeight:500,opacity:0.75 }}>Email Support</div>
-                <div style={{ fontSize:"15px",fontFamily:"var(--font-playfair)",fontWeight:400,color:isDark?"#0a0a0a":"#fff" }}>Send a Message</div>
-                <div style={{ fontSize:"10px",color:isDark?"#0a0a0a":"#fff",fontWeight:300,opacity:0.7 }}>Response within 1 business day</div>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" style={{ color:"#fff" }}><rect x="1.5" y="3" width="15" height="12" rx="1" stroke="currentColor" strokeWidth="1.2"/><path d="M1.5 5L9 10.5L16.5 5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+                <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:"#fff",fontWeight:500,opacity:0.75 }}>Email Support</div>
+                <div style={{ fontSize:"15px",fontFamily:"var(--font-playfair)",fontWeight:400,color:"#fff" }}>Send a Message</div>
+                <div style={{ fontSize:"10px",color:"#fff",fontWeight:300,opacity:0.7 }}>Response within 1 business day</div>
               </Link>
             </div>
           </div>

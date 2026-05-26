@@ -20,20 +20,20 @@ function ContactCard({ icon, label, value, sub, href, cta, accent = false }: {
   icon: React.ReactNode; label: string; value: string; sub: string;
   href?: string; cta?: string; accent?: boolean
 }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   const El = href ? "a" : "div"
   return (
     <El href={href} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}
-      style={{ display:"flex",flexDirection:"column",gap:"12px",padding:"28px 28px 24px",background:accent?t.gold:(hov?t.bgCardHover:t.bgCard),border:`1px solid ${accent?t.gold:(hov?t.gold+"50":t.border)}`,transition:"all 0.25s",cursor:href?"pointer":"default",textDecoration:"none",boxShadow:hov&&!accent?(isDark?"0 12px 40px rgba(0,0,0,0.4)":"0 12px 40px rgba(0,0,0,0.08)"):"none" }}>
-      <div style={{ color:accent?(isDark?"#0a0a0a":"#fff"):t.gold }}>{icon}</div>
+      style={{ display:"flex",flexDirection:"column",gap:"12px",padding:"28px 28px 24px",background:accent?t.gold:(hov?t.bgCardHover:t.bgCard),border:`1px solid ${accent?t.gold:(hov?t.gold+"50":t.border)}`,transition:"all 0.25s",cursor:href?"pointer":"default",textDecoration:"none",boxShadow:hov&&!accent?"0 12px 40px rgba(0,0,0,0.08)":"none" }}>
+      <div style={{ color:accent?"#fff":t.gold }}>{icon}</div>
       <div>
-        <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",fontWeight:500,color:accent?(isDark?"#0a0a0a":"#fff"):t.textDim,marginBottom:"6px",opacity:accent?0.75:1 }}>{label}</div>
-        <div style={{ fontFamily:"var(--font-playfair)",fontSize:"22px",fontWeight:400,color:accent?(isDark?"#0a0a0a":"#fff"):t.text,lineHeight:1.2,marginBottom:"4px" }}>{value}</div>
-        <div style={{ fontSize:"11px",fontWeight:300,color:accent?(isDark?"#0a0a0a":"#fff"):t.textMuted,letterSpacing:"0.03em",opacity:accent?0.75:1 }}>{sub}</div>
+        <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",fontWeight:500,color:accent?"#fff":t.textDim,marginBottom:"6px",opacity:accent?0.75:1 }}>{label}</div>
+        <div style={{ fontFamily:"var(--font-playfair)",fontSize:"22px",fontWeight:400,color:accent?"#fff":t.text,lineHeight:1.2,marginBottom:"4px" }}>{value}</div>
+        <div style={{ fontSize:"11px",fontWeight:300,color:accent?"#fff":t.textMuted,letterSpacing:"0.03em",opacity:accent?0.75:1 }}>{sub}</div>
       </div>
       {cta && (
-        <div style={{ display:"flex",alignItems:"center",gap:"6px",fontSize:"9px",letterSpacing:"0.14em",textTransform:"uppercase",fontWeight:500,color:accent?(isDark?"#0a0a0a":"#fff"):t.gold,marginTop:"auto",paddingTop:"8px",borderTop:`1px solid ${accent?(isDark?"rgba(0,0,0,0.15)":"rgba(255,255,255,0.2)"):t.border}` }}>
+        <div style={{ display:"flex",alignItems:"center",gap:"6px",fontSize:"9px",letterSpacing:"0.14em",textTransform:"uppercase",fontWeight:500,color:accent?"#fff":t.gold,marginTop:"auto",paddingTop:"8px",borderTop:`1px solid ${accent?"rgba(255,255,255,0.2)":t.border}` }}>
           {cta}
           <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4H9M6 1L9 4L6 7" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
@@ -43,7 +43,7 @@ function ContactCard({ icon, label, value, sub, href, cta, accent = false }: {
 }
 
 export default function SupportPage() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", orderNumber:"", topic:TOPICS[0], message:"", fflConsent:false })
   const [formStatus, setFormStatus] = useState("idle")
 
@@ -52,7 +52,7 @@ export default function SupportPage() {
 
   const inputStyle = {
     width:"100%", padding:"11px 14px",
-    background:isDark?"#0a0a0a":"#ffffff",
+    background:"#ffffff",
     border:`1px solid ${t.border}`, color:t.text,
     fontSize:"12.5px", fontFamily:"var(--font-inter)",
     fontWeight:300, letterSpacing:"0.02em", outline:"none",
@@ -68,7 +68,7 @@ export default function SupportPage() {
     <div style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
 
       {/* BANNER */}
-      <div style={{ background:isDark?"linear-gradient(to bottom,#161616,#0a0a0a)":"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px" }}>
+      <div style={{ background:"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ display:"flex",alignItems:"center",gap:"8px",marginBottom:"20px" }}>
             {["Home","Support"].map((crumb,i,arr) => (
@@ -91,7 +91,7 @@ export default function SupportPage() {
                 Whether you have a question about an order, an FFL transfer, or a specific piece in our collection, we respond to every inquiry personally.
               </p>
             </div>
-            <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}50`,padding:"24px 28px" }}>
+            <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}50`,padding:"24px 28px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"16px" }}>Business Hours</div>
               <div style={{ display:"flex",flexDirection:"column",gap:"8px" }}>
                 {[["Monday – Friday","8:30 AM – 6:00 PM EST"],["Saturday","10:00 AM – 2:00 PM EST"],["Sunday","Closed"]].map(([day,hours]) => (
@@ -135,7 +135,7 @@ export default function SupportPage() {
             </div>
 
             {formStatus === "success" ? (
-              <div style={{ padding:"60px 40px",border:`1px solid ${t.border}`,background:isDark?"#161616":"#fff",textAlign:"center" }}>
+              <div style={{ padding:"60px 40px",border:`1px solid ${t.border}`,background:"#fff",textAlign:"center" }}>
                 <div style={{ width:"52px",height:"52px",border:`1px solid ${t.gold}`,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px" }}>
                   <svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M1 7.5L7 13.5L19 1.5" stroke={t.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </div>
@@ -149,7 +149,7 @@ export default function SupportPage() {
                 </button>
               </div>
             ) : (
-              <div style={{ background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
                   {[["firstName","First Name","James"],["lastName","Last Name","Whitfield"]].map(([field,label,ph]) => (
                     <div key={field}>
@@ -186,14 +186,14 @@ export default function SupportPage() {
                 <label style={{ display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"24px",cursor:"pointer" }}>
                   <div onClick={()=>set("fflConsent",!form.fflConsent)}
                     style={{ width:"14px",height:"14px",flexShrink:0,marginTop:"1px",border:`1px solid ${form.fflConsent?t.gold:t.border}`,background:form.fflConsent?t.gold:"transparent",transition:"all 0.18s",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"1px" }}>
-                    {form.fflConsent&&<svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke={isDark?"#0a0a0a":"#fff"} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                    {form.fflConsent&&<svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
                   </div>
                   <span style={{ fontSize:"11px",color:t.textMuted,fontWeight:300,lineHeight:1.65,letterSpacing:"0.01em" }}>
                     I understand that all firearm purchases require FFL transfer through a licensed dealer in my state of residence.
                   </span>
                 </label>
                 <button onClick={()=>{ if(!canSubmit||formStatus==="submitting") return; setFormStatus("submitting"); setTimeout(()=>setFormStatus("success"),1400) }} disabled={!canSubmit||formStatus==="submitting"}
-                  style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:isDark?"#0a0a0a":"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
+                  style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
                   onMouseEnter={e=>{ if(canSubmit) e.currentTarget.style.background=t.goldLight }}
                   onMouseLeave={e=>{ if(canSubmit) e.currentTarget.style.background=t.gold }}>
                   {formStatus==="submitting"?"Sending…":"Send Message"}
@@ -220,7 +220,7 @@ export default function SupportPage() {
                   { label:"Find an FFL Dealer", sub:"Locate a licensed dealer near you via the ATF directory", href:"https://www.atf.gov/firearms/listing-federal-firearms-licensees", external:true, icon:<svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 1.5C5.5 1.5 3 4 3 7.2C3 11 9 16.5 9 16.5C9 16.5 15 11 15 7.2C15 4 12.5 1.5 9 1.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/><circle cx="9" cy="7" r="2" stroke="currentColor" strokeWidth="1.2"/></svg> },
                 ].map(link => (
                   <a key={link.label} href={link.href} target={link.external?"_blank":undefined} rel={link.external?"noopener noreferrer":undefined}
-                    style={{ display:"flex",alignItems:"center",gap:"14px",padding:"14px 16px",background:isDark?"#161616":"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,textDecoration:"none",transition:"all 0.2s" }}
+                    style={{ display:"flex",alignItems:"center",gap:"14px",padding:"14px 16px",background:"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,textDecoration:"none",transition:"all 0.2s" }}
                     onMouseEnter={e=>{ e.currentTarget.style.borderColor=t.gold+"50"; e.currentTarget.style.borderLeftColor=t.gold; e.currentTarget.style.transform="translateX(2px)" }}
                     onMouseLeave={e=>{ e.currentTarget.style.borderColor=t.border; e.currentTarget.style.borderLeftColor=t.gold+"40"; e.currentTarget.style.transform="translateX(0)" }}>
                     <div style={{ width:"38px",height:"38px",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",border:`1px solid ${t.gold}35`,color:t.gold }}>{link.icon}</div>
@@ -241,7 +241,7 @@ export default function SupportPage() {
       </div>
 
       {/* FFL GUIDE */}
-      <section style={{ margin:"80px 0 0",background:isDark?"#0e0e0e":"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}`,padding:"72px 40px" }}>
+      <section style={{ margin:"80px 0 0",background:"#f3f3f5",borderTop:`1px solid ${t.border}`,borderBottom:`1px solid ${t.border}`,padding:"72px 40px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div className="lxs-ffl-guide">
             <div>
@@ -253,7 +253,7 @@ export default function SupportPage() {
               <p style={{ fontSize:"13.5px",fontWeight:300,color:t.textMuted,lineHeight:1.85,marginBottom:"24px" }}>
                 Purchasing a firearm online is straightforward once you understand the FFL transfer requirement. Federal law mandates that all interstate firearm sales route through a licensed dealer near you.
               </p>
-              <div style={{ padding:"16px 18px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40` }}>
+              <div style={{ padding:"16px 18px",background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40` }}>
                 <div style={{ fontSize:"8px",letterSpacing:"0.18em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"6px" }}>Transfer Fee Note</div>
                 <p style={{ fontSize:"11.5px",fontWeight:300,color:t.textMuted,lineHeight:1.65 }}>
                   Your FFL dealer charges a transfer fee directly to you — typically $25–$75. This is separate from your Luxus Collection purchase and is paid to your local dealer at pickup.
@@ -291,7 +291,7 @@ export default function SupportPage() {
             { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="1" stroke="currentColor" strokeWidth="1.2"/><path d="M2 8.5L10 13.5L18 8.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/><path d="M7 5V4C7 2.89543 7.89543 2 9 2H11C12.1046 2 13 2.89543 13 4V5" stroke="currentColor" strokeWidth="1.2"/></svg>, heading:"Discreet Packaging", body:"All shipments are packaged discreetly with no external markings indicating firearm content. Packaging is professional, secure, and fully insured for the declared value." },
             { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8.5" stroke="currentColor" strokeWidth="1.2"/><path d="M10 6V11L13 13" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"Response Commitment", body:"Every inquiry receives a personal response — not an automated reply. We aim to respond within one business day and are available by phone Monday through Saturday." },
           ].map(({ icon, heading, body }) => (
-            <div key={heading} style={{ padding:"26px 24px",background:isDark?"#161616":"#fff",border:`1px solid ${t.border}` }}>
+            <div key={heading} style={{ padding:"26px 24px",background:"#fff",border:`1px solid ${t.border}` }}>
               <div style={{ color:t.gold,marginBottom:"14px" }}>{icon}</div>
               <div style={{ fontSize:"8.5px",letterSpacing:"0.18em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"8px" }}>{heading}</div>
               <p style={{ fontSize:"12.5px",fontWeight:300,color:t.textMuted,lineHeight:1.78,letterSpacing:"0.01em" }}>{body}</p>

@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useTheme, DARK, LIGHT } from '@/context/ThemeContext'
+import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
 import HeroSection from './HeroSection'
 
@@ -95,13 +95,11 @@ const PLAYFAIR = "var(--font-playfair), serif"
 
 /* ── ImgBox placeholder ───────────────────────────────────────────────── */
 
-function ImgBox({ isDark, style = {} }: { isDark: boolean; style?: React.CSSProperties }) {
-  const t = isDark ? DARK : LIGHT
+function ImgBox({ style = {} }: { style?: React.CSSProperties }) {
+  const { t } = useTheme()
   return (
     <div style={{
-      background: isDark
-        ? "linear-gradient(140deg,#171717 0%,#1f1f1f 50%,#171717 100%)"
-        : "linear-gradient(140deg,#e8e8eb 0%,#d4d4d8 50%,#e8e8eb 100%)",
+      background: "linear-gradient(140deg,#e8e8eb 0%,#d4d4d8 50%,#e8e8eb 100%)",
       display: "flex", alignItems: "center", justifyContent: "center",
       overflow: "hidden", ...style,
     }}>
@@ -116,10 +114,10 @@ function ImgBox({ isDark, style = {} }: { isDark: boolean; style?: React.CSSProp
 
 /* ── SectionHead ──────────────────────────────────────────────────────── */
 
-function SectionHead({ eyebrow, title, isDark, center = false }: {
-  eyebrow: string; title: string; isDark: boolean; center?: boolean
+function SectionHead({ eyebrow, title, center = false }: {
+  eyebrow: string; title: string; center?: boolean
 }) {
-  const t = isDark ? DARK : LIGHT
+  const { t } = useTheme()
   return (
     <div style={{ marginBottom: "44px", textAlign: center ? "center" : "left" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: center ? "center" : "flex-start", marginBottom: "10px" }}>
@@ -137,10 +135,10 @@ function SectionHead({ eyebrow, title, isDark, center = false }: {
 
 /* ── ProductCard ──────────────────────────────────────────────────────── */
 
-function ProductCard({ product, isDark, small = false }: {
-  product: MappedProduct; isDark: boolean; small?: boolean
+function ProductCard({ product, small = false }: {
+  product: MappedProduct; small?: boolean
 }) {
-  const t = isDark ? DARK : LIGHT
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   const router = useRouter()
 
@@ -156,8 +154,8 @@ function ProductCard({ product, isDark, small = false }: {
         transition: "all 0.28s ease",
         transform: hov ? "translateY(-4px)" : "translateY(0)",
         boxShadow: hov
-          ? isDark ? `0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px ${t.gold}25` : `0 16px 48px rgba(0,0,0,0.1), 0 0 0 1px ${t.gold}30`
-          : isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.05)",
+          ? `0 16px 48px rgba(0,0,0,0.1), 0 0 0 1px ${t.gold}30`
+          : "0 2px 8px rgba(0,0,0,0.05)",
         cursor: "pointer", position: "relative",
         fontFamily: "'Inter',sans-serif",
         display: "flex", flexDirection: "column",
@@ -173,12 +171,12 @@ function ProductCard({ product, isDark, small = false }: {
             sizes="(max-width: 640px) 50vw, 25vw"
           />
         ) : (
-          <ImgBox isDark={isDark} style={{ width: "100%", height: "100%" }} />
+          <ImgBox style={{ width: "100%", height: "100%" }} />
         )}
         {product.details?.primary_category && (
           <div style={{
             position: "absolute", top: "10px", left: "10px",
-            background: isDark ? "rgba(11,10,9,0.82)" : "rgba(255,255,255,0.88)",
+            background: "rgba(255,255,255,0.88)",
             border: `1px solid ${t.gold}50`, padding: "3px 9px",
             fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase",
             fontWeight: 500, color: t.gold, backdropFilter: "blur(6px)",
@@ -222,8 +220,8 @@ function ProductCard({ product, isDark, small = false }: {
 
 /* ── AuctionCard ──────────────────────────────────────────────────────── */
 
-function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean }) {
-  const t = isDark ? DARK : LIGHT
+function AuctionCard({ auction }: { auction: Auction }) {
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <a
@@ -239,8 +237,8 @@ function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean })
         transition: "all 0.28s ease",
         transform: hov ? "translateY(-4px)" : "translateY(0)",
         boxShadow: hov
-          ? isDark ? `0 16px 48px rgba(0,0,0,0.55), 0 0 0 1px ${t.gold}25` : `0 16px 48px rgba(0,0,0,0.1), 0 0 0 1px ${t.gold}30`
-          : isDark ? "0 2px 8px rgba(0,0,0,0.3)" : "0 2px 8px rgba(0,0,0,0.05)",
+          ? `0 16px 48px rgba(0,0,0,0.1), 0 0 0 1px ${t.gold}30`
+          : "0 2px 8px rgba(0,0,0,0.05)",
         cursor: "pointer", position: "relative",
         fontFamily: "'Inter',sans-serif",
         display: "flex", flexDirection: "column",
@@ -251,12 +249,12 @@ function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean })
         {auction.thumbnail ? (
           <Image src={auction.thumbnail} alt={auction.title} fill style={{ objectFit: "contain" }} sizes="25vw" />
         ) : (
-          <ImgBox isDark={isDark} style={{ width: "100%", height: "100%" }} />
+          <ImgBox style={{ width: "100%", height: "100%" }} />
         )}
         <div style={{
           position: "absolute", top: "12px", left: "12px",
           display: "flex", alignItems: "center", gap: "6px",
-          background: isDark ? "rgba(11,10,9,0.85)" : "rgba(255,255,255,0.92)",
+          background: "rgba(255,255,255,0.92)",
           border: `1px solid ${t.gold}55`, padding: "4px 10px", backdropFilter: "blur(6px)",
         }}>
           <span style={{
@@ -269,7 +267,7 @@ function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean })
         </div>
         <div style={{
           position: "absolute", top: "12px", right: "12px",
-          background: isDark ? "rgba(11,10,9,0.85)" : "rgba(255,255,255,0.92)",
+          background: "rgba(255,255,255,0.92)",
           border: `1px solid ${t.border}`, padding: "4px 10px", backdropFilter: "blur(6px)",
           fontSize: "8.5px", letterSpacing: "0.16em", textTransform: "uppercase",
           fontWeight: 500, color: t.text,
@@ -325,8 +323,8 @@ function AuctionCard({ auction, isDark }: { auction: Auction; isDark: boolean })
 
 /* ── BrandTile ────────────────────────────────────────────────────────── */
 
-function BrandTile({ brand, isDark }: { brand: typeof BRANDS[0]; isDark: boolean }) {
-  const t = isDark ? DARK : LIGHT
+function BrandTile({ brand }: { brand: typeof BRANDS[0] }) {
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <Link href={`/brand/${brand.slug}`}
@@ -335,7 +333,7 @@ function BrandTile({ brand, isDark }: { brand: typeof BRANDS[0]; isDark: boolean
       onMouseLeave={() => setHov(false)}
       style={{
         border: `1px solid ${hov ? t.gold + "60" : t.border}`,
-        background: hov ? (isDark ? "#222222" : "#fafafa") : "transparent",
+        background: hov ? "#fafafa" : "transparent",
         display: "flex", alignItems: "center", justifyContent: "center",
         cursor: "pointer", transition: "all 0.24s", borderRadius: "1px",
         textDecoration: "none",
@@ -350,8 +348,8 @@ function BrandTile({ brand, isDark }: { brand: typeof BRANDS[0]; isDark: boolean
 
 /* ── CategoryTile ─────────────────────────────────────────────────────── */
 
-function CategoryTile({ item, isDark, href }: { item: ShopItem; isDark: boolean; href: string }) {
-  const t = isDark ? DARK : LIGHT
+function CategoryTile({ item, href }: { item: ShopItem; href: string }) {
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <Link href={href}
@@ -363,10 +361,10 @@ function CategoryTile({ item, isDark, href }: { item: ShopItem; isDark: boolean;
         transition: "border-color 0.24s", textDecoration: "none", display: "block",
       }}
     >
-      <ImgBox isDark={isDark} style={{ height: "130px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
+      <ImgBox style={{ height: "130px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0, padding: "8px 14px 12px",
-        background: isDark ? "linear-gradient(to top,rgba(12,11,10,0.95),rgba(12,11,10,0.4))" : "linear-gradient(to top,rgba(255,255,255,0.97),rgba(255,255,255,0.5))",
+        background: "linear-gradient(to top,rgba(255,255,255,0.97),rgba(255,255,255,0.5))",
       }}>
         <div style={{ fontFamily: PLAYFAIR, fontSize: "15px", fontWeight: 400, color: t.text, letterSpacing: "0.02em" }}>
           {item.name}
@@ -379,8 +377,8 @@ function CategoryTile({ item, isDark, href }: { item: ShopItem; isDark: boolean;
 
 /* ── ArticleCard ──────────────────────────────────────────────────────── */
 
-function ArticleCard({ article, isDark }: { article: Article; isDark: boolean }) {
-  const t = isDark ? DARK : LIGHT
+function ArticleCard({ article }: { article: Article }) {
+  const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <Link href={`/article/${article.slug}`}
@@ -389,7 +387,7 @@ function ArticleCard({ article, isDark }: { article: Article; isDark: boolean })
       style={{ cursor: "pointer", textDecoration: "none", display: "block" }}
     >
       <div style={{ position: "relative", marginBottom: "18px", overflow: "hidden", borderRadius: "1px", border: `1px solid ${t.border}` }}>
-        <ImgBox isDark={isDark} style={{ height: "200px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
+        <ImgBox style={{ height: "200px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
       </div>
       <div style={{ fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "8px" }}>
         {article.category}
@@ -413,14 +411,13 @@ function ArticleCard({ article, isDark }: { article: Article; isDark: boolean })
 /* ── BrowseScroll ─────────────────────────────────────────────────────── */
 
 function BrowseScroll({
-  gridClass, items, isDark, renderItem,
+  gridClass, items, renderItem,
 }: {
   gridClass: string
   items: ShopItem[]
-  isDark: boolean
   renderItem: (item: ShopItem) => React.ReactNode
 }) {
-  const t = isDark ? DARK : LIGHT
+  const { t } = useTheme()
   const ref = useRef<HTMLDivElement>(null)
   const [canLeft, setCanLeft]   = useState(false)
   const [canRight, setCanRight] = useState(true)  // optimistic: show fade on mount
@@ -444,13 +441,13 @@ function BrowseScroll({
   const btnStyle = (side: 'left' | 'right'): React.CSSProperties => ({
     position: 'absolute', top: '50%', transform: 'translateY(-50%)',
     [side]: '10px', zIndex: 3,
-    background: isDark ? 'rgba(14,13,11,0.88)' : 'rgba(255,255,255,0.92)',
+    background: 'rgba(255,255,255,0.92)',
     border: `1px solid ${t.gold}55`, color: t.gold,
     width: '36px', height: '36px',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     cursor: 'pointer', borderRadius: '1px',
     fontSize: '22px', lineHeight: '1', fontFamily: 'sans-serif',
-    outline: 'none', boxShadow: isDark ? '0 4px 16px rgba(0,0,0,0.4)' : '0 4px 16px rgba(0,0,0,0.12)',
+    outline: 'none', boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
     transition: 'background 0.2s, border-color 0.2s',
   })
 
@@ -468,13 +465,13 @@ function BrowseScroll({
       {/* Mobile-only edge fades — hint that content continues */}
       <div className="lxs-browse-fade-r" style={{
         position: 'absolute', right: 0, top: 0, bottom: 0, width: '52px',
-        background: `linear-gradient(to right, transparent, ${isDark ? '#141414' : '#f3f3f5'})`,
+        background: `linear-gradient(to right, transparent, #f3f3f5)`,
         pointerEvents: 'none', zIndex: 2,
         opacity: canRight ? 1 : 0, transition: 'opacity 0.35s',
       }} />
       <div className="lxs-browse-fade-l" style={{
         position: 'absolute', left: 0, top: 0, bottom: 0, width: '52px',
-        background: `linear-gradient(to left, transparent, ${isDark ? '#141414' : '#f3f3f5'})`,
+        background: `linear-gradient(to left, transparent, #f3f3f5)`,
         pointerEvents: 'none', zIndex: 2,
         opacity: canLeft ? 1 : 0, transition: 'opacity 0.35s',
       }} />
@@ -497,7 +494,7 @@ export default function HomePage({
   collections: ShopItem[]
   categories: ShopItem[]
 }) {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
   const [tab, setTab] = useState<"collections" | "categories">("collections")
   const [email, setEmail] = useState("")
   const router = useRouter()
@@ -521,7 +518,7 @@ export default function HomePage({
         <section className="lxs-home-section">
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-              <SectionHead eyebrow="Handpicked Pieces" title="Featured Collection" isDark={isDark} />
+              <SectionHead eyebrow="Handpicked Pieces" title="Featured Collection" />
               <Link href="/shop" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
                 onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
                 onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
@@ -529,7 +526,7 @@ export default function HomePage({
               </Link>
             </div>
             <div className="lxs-home-product-grid" style={{ display: "grid" }}>
-              {featured.map(p => <ProductCard key={p.id} product={p} isDark={isDark} />)}
+              {featured.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           </div>
         </section>
@@ -545,9 +542,9 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       <section className="lxs-home-section">
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
-          <SectionHead eyebrow="Manufacturers" title="Shop By Brand" isDark={isDark} center />
+          <SectionHead eyebrow="Manufacturers" title="Shop By Brand" center />
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "12px" }}>
-            {BRANDS.map(b => <BrandTile key={b.id} brand={b} isDark={isDark} />)}
+            {BRANDS.map(b => <BrandTile key={b.id} brand={b} />)}
           </div>
         </div>
       </section>
@@ -555,7 +552,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* COLLECTIONS & CATEGORIES                                       */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section className="lxs-home-section" style={{ background: isDark ? "linear-gradient(to bottom,transparent,#141414 10%,#141414 90%,transparent)" : "linear-gradient(to bottom,transparent,#f3f3f5 10%,#f3f3f5 90%,transparent)" }}>
+      <section className="lxs-home-section" style={{ background: "linear-gradient(to bottom,transparent,#f3f3f5 10%,#f3f3f5 90%,transparent)" }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "44px", borderBottom: `1px solid ${t.border}`, paddingBottom: "0" }}>
             <div style={{ display: "flex", gap: "0" }}>
@@ -585,12 +582,10 @@ export default function HomePage({
             key={tab}
             gridClass={tab === "collections" ? "lxs-browse-grid-col" : "lxs-browse-grid-cat"}
             items={tab === "collections" ? collections : categories}
-            isDark={isDark}
             renderItem={(item) => (
               <CategoryTile
                 key={item.id}
                 item={item}
-                isDark={isDark}
                 href={tab === "collections" ? `/collection/${item.handle ?? toSlug(item.name)}` : `/category/${item.handle ?? toSlug(item.name)}`}
               />
             )}
@@ -605,7 +600,7 @@ export default function HomePage({
         <section className="lxs-home-section">
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-              <SectionHead eyebrow="Just Arrived" title="New Arrivals" isDark={isDark} />
+              <SectionHead eyebrow="Just Arrived" title="New Arrivals" />
               <Link href="/shop?order=newest" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
                 onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
                 onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
@@ -613,7 +608,7 @@ export default function HomePage({
               </Link>
             </div>
             <div className="lxs-home-product-grid" style={{ display: "grid" }}>
-              {arrivals.map(p => <ProductCard key={p.id} product={p} isDark={isDark} />)}
+              {arrivals.map(p => <ProductCard key={p.id} product={p} />)}
             </div>
           </div>
         </section>
@@ -625,7 +620,7 @@ export default function HomePage({
       <section className="lxs-home-section">
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
-            <SectionHead eyebrow="Live at Auction" title="Currently on GunBroker" isDark={isDark} />
+            <SectionHead eyebrow="Live at Auction" title="Currently on GunBroker" />
             <a
               href="https://www.gunbroker.com/All/search?Sort=13&Keywords=Luxus%20Collection"
               target="_blank"
@@ -645,7 +640,7 @@ export default function HomePage({
           <div className="lxs-auction-grid" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "18px" }}>
             {MOCK_AUCTIONS.map(a => (
               <div key={a.id} style={{ flex: "0 1 calc(25% - 13.5px)", minWidth: "240px", maxWidth: "calc(25% - 13.5px)", display: "grid" }}>
-                <AuctionCard auction={a} isDark={isDark} />
+                <AuctionCard auction={a} />
               </div>
             ))}
           </div>
@@ -665,7 +660,7 @@ export default function HomePage({
       <section className="lxs-home-section">
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-            <SectionHead eyebrow="Editorial" title="From The Blog" isDark={isDark} />
+            <SectionHead eyebrow="Editorial" title="From The Blog" />
             <Link href="/articles" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
               onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
               onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
@@ -673,7 +668,7 @@ export default function HomePage({
             </Link>
           </div>
           <div className="lxs-home-article-grid" style={{ display: "grid" }}>
-            {MOCK_ARTICLES.map(a => <ArticleCard key={a.id} article={a} isDark={isDark} />)}
+            {MOCK_ARTICLES.map(a => <ArticleCard key={a.id} article={a} />)}
           </div>
         </div>
       </section>
@@ -682,7 +677,7 @@ export default function HomePage({
       {/* NEWSLETTER                                                     */}
       {/* ══════════════════════════════════════════════════════════════ */}
       <section className="lxs-home-newsletter" style={{
-        background: isDark ? "#0e0e0e" : "#f3f3f5",
+        background: "#f3f3f5",
         borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}`,
       }}>
         <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
@@ -705,11 +700,11 @@ export default function HomePage({
               onChange={e => setEmail(e.target.value)}
               placeholder="Your email address"
               required
-              style={{ flex: 1, padding: "12px 18px", background: isDark ? "#0a0a0a" : "#fff", border: `1px solid ${t.border}`, borderRight: "none", color: t.text, fontSize: "12px", outline: "none", fontFamily: "'Inter',sans-serif", letterSpacing: "0.03em" }}
+              style={{ flex: 1, padding: "12px 18px", background: "#fff", border: `1px solid ${t.border}`, borderRight: "none", color: t.text, fontSize: "12px", outline: "none", fontFamily: "'Inter',sans-serif", letterSpacing: "0.03em" }}
             />
             <button
               type="submit"
-              style={{ padding: "12px 22px", background: t.gold, color: isDark ? "#0a0a0a" : "#fff", border: "none", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
+              style={{ padding: "12px 22px", background: t.gold, color: "#fff", border: "none", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
               onMouseEnter={e => (e.currentTarget.style.background = t.goldLight)}
               onMouseLeave={e => (e.currentTarget.style.background = t.gold)}
             >

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useTheme, DARK, LIGHT } from '@/context/ThemeContext'
+import { useTheme } from '@/context/ThemeContext'
 
 const FOOTER_LINKS = {
   Shop: [
@@ -55,15 +55,15 @@ const SOCIAL = [
 ]
 
 export default function Footer() {
-  const { isDark, t } = useTheme()
+  const { t } = useTheme()
 
   const linkStyle: React.CSSProperties = {
-    fontSize: "11.5px", fontWeight: 300, color: isDark ? "#525258" : t.textMuted,
+    fontSize: "11.5px", fontWeight: 300, color: t.textMuted,
     letterSpacing: "0.02em", transition: "color 0.15s", textDecoration: "none", display: "block",
   }
 
   return (
-    <footer className="lxs-footer" style={{ background: isDark ? "#080808" : t.bg, fontFamily: "'Inter',sans-serif", borderTop: `1px solid ${t.border}` }}>
+    <footer className="lxs-footer" style={{ background: t.bg, fontFamily: "'Inter',sans-serif", borderTop: `1px solid ${t.border}` }}>
       <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
 
         {/* Main grid: [brand 2fr] [shop 1fr] [info 1fr] [account 1fr] */}
@@ -73,7 +73,7 @@ export default function Footer() {
           <div className="lxs-footer-brand">
             <div className="lxs-footer-brand-logo" style={{ marginBottom: "20px" }}>
               <Image src="/logo.webp" alt="Luxus Collection" width={224} height={56}
-                style={{ height: "56px", width: "auto", display: "block", filter: isDark ? "none" : "brightness(0.68) saturate(1.1)" }}/>
+                style={{ height: "56px", width: "auto", display: "block", filter: "brightness(0.68) saturate(1.1)" }}/>
             </div>
             <p className="lxs-footer-brand-blurb" style={{ fontSize: "12px", fontWeight: 300, lineHeight: 1.85, color: "#525258", maxWidth: "260px", margin: 0 }}>
               A boutique destination for the serious collector, curating the world&apos;s finest production and custom pistols since 2026.
@@ -88,7 +88,7 @@ export default function Footer() {
               ].map(({ href, icon, label }) => (
                 <a key={label} href={href}
                   style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", color: "#525258", fontSize: "12px", fontWeight: 300, letterSpacing: "0.02em", transition: "color 0.18s" }}
-                  onMouseEnter={e => (e.currentTarget.style.color = isDark ? DARK.gold : LIGHT.gold)}
+                  onMouseEnter={e => (e.currentTarget.style.color = t.gold)}
                   onMouseLeave={e => (e.currentTarget.style.color = "#525258")}>
                   {icon === 'phone' ? (
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style={{ flexShrink: 0, opacity: 0.6 }}>
@@ -109,9 +109,9 @@ export default function Footer() {
             <div className="lxs-footer-social" style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "22px" }}>
               {SOCIAL.map(({ label, href, icon }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer" title={label}
-                  style={{ width: "32px", height: "32px", border: `1px solid ${isDark ? "#242424" : t.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: isDark ? "#8a8a90" : t.gold, textDecoration: "none", transition: "all 0.18s", flexShrink: 0 }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = (isDark ? DARK.gold : LIGHT.gold) + "55"; e.currentTarget.style.color = isDark ? DARK.gold : LIGHT.gold }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = isDark ? "#242424" : t.border; e.currentTarget.style.color = isDark ? "#8a8a90" : t.gold }}>
+                  style={{ width: "32px", height: "32px", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: t.gold, textDecoration: "none", transition: "all 0.18s", flexShrink: 0 }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "55"; e.currentTarget.style.color = t.gold }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.gold }}>
                   {icon}
                 </a>
               ))}
@@ -121,14 +121,14 @@ export default function Footer() {
           {/* ── Nav columns ──────────────────────────────────────────── */}
           {(Object.entries(FOOTER_LINKS) as [string, { label: string; href: string }[]][]).map(([heading, links]) => (
             <div key={heading} className="lxs-footer-nav-col">
-              <div style={{ fontSize: "7.5px", letterSpacing: "0.25em", textTransform: "uppercase", fontWeight: 500, color: isDark ? DARK.gold : LIGHT.gold, marginBottom: "18px" }}>
+              <div style={{ fontSize: "7.5px", letterSpacing: "0.25em", textTransform: "uppercase", fontWeight: 500, color: t.gold, marginBottom: "18px" }}>
                 {heading}
               </div>
               <div className="lxs-footer-nav-links" style={{ display: "flex", flexDirection: "column", gap: "9px" }}>
                 {links.map(({ label, href }) => (
                   <Link key={label} href={href} style={linkStyle}
-                    onMouseEnter={e => (e.currentTarget.style.color = isDark ? DARK.gold : LIGHT.gold)}
-                    onMouseLeave={e => (e.currentTarget.style.color = isDark ? "#525258" : t.textMuted)}>
+                    onMouseEnter={e => (e.currentTarget.style.color = t.gold)}
+                    onMouseLeave={e => (e.currentTarget.style.color = t.textMuted)}>
                     {label}
                   </Link>
                 ))}
@@ -138,24 +138,24 @@ export default function Footer() {
         </div>
 
         {/* ── Bottom bar ───────────────────────────────────────────────── */}
-        <div className="lxs-footer-bottom" style={{ borderTop: `1px solid ${isDark ? "#1a1a1a" : t.border}`, padding: "22px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
-          <span style={{ fontSize: "9.5px", color: isDark ? "#8a8a90" : t.textMuted, letterSpacing: "0.04em" }}>
+        <div className="lxs-footer-bottom" style={{ borderTop: `1px solid ${t.border}`, padding: "22px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+          <span style={{ fontSize: "9.5px", color: t.textMuted, letterSpacing: "0.04em" }}>
             © 2026 Luxus Collection LLC · luxus-collection.com · All Rights Reserved
           </span>
           <div className="lxs-footer-legal" style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
             <Link href="/privacy"
-              style={{ fontSize: "9.5px", color: isDark ? "#8a8a90" : t.gold, letterSpacing: "0.06em", transition: "color 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.color = isDark ? DARK.gold : LIGHT.gold)}
-              onMouseLeave={e => (e.currentTarget.style.color = isDark ? "#8a8a90" : t.gold)}>
+              style={{ fontSize: "9.5px", color: t.gold, letterSpacing: "0.06em", transition: "color 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
+              onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
               Privacy Policy
             </Link>
             <Link href="/terms"
-              style={{ fontSize: "9.5px", color: isDark ? "#8a8a90" : t.gold, letterSpacing: "0.06em", transition: "color 0.15s" }}
-              onMouseEnter={e => (e.currentTarget.style.color = isDark ? DARK.gold : LIGHT.gold)}
-              onMouseLeave={e => (e.currentTarget.style.color = isDark ? "#8a8a90" : t.gold)}>
+              style={{ fontSize: "9.5px", color: t.gold, letterSpacing: "0.06em", transition: "color 0.15s" }}
+              onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
+              onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
               Terms &amp; Conditions
             </Link>
-            <span style={{ fontSize: "9.5px", color: isDark ? "#8a8a90" : t.textMuted, letterSpacing: "0.025em", lineHeight: 1.6 }}>
+            <span style={{ fontSize: "9.5px", color: t.textMuted, letterSpacing: "0.025em", lineHeight: 1.6 }}>
               All transactions conducted in full compliance with federal, state, and local firearms laws. FFL transfers required. Licensed Federal Firearms Dealer · License #1-59-XXX-XX-XX-55688.
             </span>
           </div>
