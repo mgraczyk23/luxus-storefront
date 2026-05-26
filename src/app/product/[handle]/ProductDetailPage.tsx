@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
+import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 
 const PLAYFAIR = "var(--font-playfair), serif"
 
@@ -109,6 +110,7 @@ export default function ProductDetailPage({
   const [activeTab, setActiveTab] = useState<'overview' | 'specifications' | 'in the box'>('overview')
   const [wishlisted, setWishlisted] = useState(false)
   const [contactModalOpen, setContactModalOpen] = useState(false)
+  const [offerModalOpen, setOfferModalOpen] = useState(false)
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     message: `I'm interested in the ${product.title} and would like more information.`,
@@ -459,13 +461,22 @@ export default function ProductDetailPage({
             {/* CTA buttons */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
               {product.contact_for_pricing ? (
-                <button onClick={() => setContactModalOpen(true)}
-                  style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
-                  onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
-                  onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5C2 2.67 2.67 2 3.5 2H10.5C11.33 2 12 2.67 12 3.5V8.5C12 9.33 11.33 10 10.5 10H5L2 12.5V3.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /></svg>
-                  Contact Us For Pricing
-                </button>
+                <>
+                  <button onClick={() => setContactModalOpen(true)}
+                    style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
+                    onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5C2 2.67 2.67 2 3.5 2H10.5C11.33 2 12 2.67 12 3.5V8.5C12 9.33 11.33 10 10.5 10H5L2 12.5V3.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /></svg>
+                    Contact Us For Pricing
+                  </button>
+                  <button onClick={() => setOfferModalOpen(true)}
+                    style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = t.gold + "10"; e.currentTarget.style.transform = "translateY(-1px)" }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "none" }}>
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L8.1 4.7L12 5.2L9.25 7.9L10 12L6.5 10.1L3 12L3.75 7.9L1 5.2L4.9 4.7L6.5 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" /></svg>
+                    Make an Offer
+                  </button>
+                </>
               ) : (
                 <>
                   <button
@@ -474,6 +485,13 @@ export default function ProductDetailPage({
                     onMouseLeave={e => { if (product.in_stock) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
                     <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><path d="M1 1H2.5L4 9H10.5L12.5 3.5H3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="5" cy="11.5" r="0.8" fill="currentColor" /><circle cx="10" cy="11.5" r="0.8" fill="currentColor" /></svg>
                     {product.in_stock ? "Add to Cart" : "Unavailable"}
+                  </button>
+                  <button onClick={() => setOfferModalOpen(true)}
+                    style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = t.gold + "10"; e.currentTarget.style.transform = "translateY(-1px)" }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "none" }}>
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L8.1 4.7L12 5.2L9.25 7.9L10 12L6.5 10.1L3 12L3.75 7.9L1 5.2L4.9 4.7L6.5 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" /></svg>
+                    Make an Offer
                   </button>
                   <button onClick={() => setContactModalOpen(true)}
                     style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.border}`, color: t.text, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s" }}
@@ -945,6 +963,18 @@ export default function ProductDetailPage({
             )}
           </div>
         </div>
+      )}
+
+      {/* ── Make an Offer modal ─────────────────────────────────────────── */}
+      {offerModalOpen && (
+        <MakeAnOfferModal
+          productId={product.id}
+          productTitle={product.title}
+          productHandle={product.handle}
+          listedPrice={product.price}
+          contactForPricing={product.contact_for_pricing}
+          onClose={() => setOfferModalOpen(false)}
+        />
       )}
     </div>
   )
