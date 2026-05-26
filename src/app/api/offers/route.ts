@@ -12,7 +12,6 @@ export type OfferPayload = {
   message:        string | null
 }
 
-// Basic validation
 function validate(body: unknown): body is OfferPayload {
   if (!body || typeof body !== 'object') return false
   const b = body as Record<string, unknown>
@@ -38,22 +37,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing or invalid required fields' }, { status: 422 })
   }
 
-  // TODO: persist offer to Medusa custom offers module once built
-  // const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_URL ?? 'http://localhost:9000'
-  // await fetch(`${medusaUrl}/store/offers`, { method: 'POST', body: JSON.stringify(body), ... })
+  const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
+  const pubKey    = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
 
-  // TODO: send admin notification email via Resend once wired
+  const medusaRes = await fetch(`${medusaUrl}/store/offers`, {
+    method:  'POST',
+    headers: {
+      'Content-Type':           'application/json',
+      'x-publishable-api-key':  pubKey,
+    },
+    body: JSON.stringify(body),
+  })
 
-  // Temporary: log to server console so offers are visible in Vercel logs
-  console.log('[offer]', JSON.stringify({
-    product:  body.product_title,
-    handle:   body.product_handle,
-    name:     `${body.first_name} ${body.last_name ?? ''}`.trim(),
-    email:    body.email,
-    amount:   body.offer_amount,
-    message:  body.message,
-    received: new Date().toISOString(),
-  }))
+  if (!medusaRes.ok) {
+    const err = await medusaRes.json().catch(() => ({}))
+    console.error('[offer] Medusa error', medusaRes.status, err)
+    return NextResponse.json(
+      { error: (err as any).error ?? 'Failed to submit offer' },
+      { status: medusaRes.status }
+    )
+  }
 
-  return NextResponse.json({ success: true }, { status: 201 })
+  const data = await medusaRes.json()
+  return NextResponse.json({ success: true, offer: data.offer }, { status: 201 })
 }
