@@ -38,7 +38,8 @@ function MobileNav({ cartCount }: { cartCount: number }) {
   const T = { bg: "#ffffff", surface: "#fafafa", text: "#1a1a1a", muted: "#525258", dim: "#707076", border: "#e4e4e6", gold: "#7e5e10" }
 
   const NAV = [
-    { section: "Shop",      items: [["/", "Home"], ["/shop", "Shop All"], ["/shop/brands", "Shop by Brand"], ["/shop/collections", "Shop by Collection"], ["/shop/categories", "Shop by Category"], ["/cart", "Cart"]] as [string, string][] },
+    { section: "Shop",      items: [["/", "Home"], ["/shop", "Shop All"], ["/cart", "Cart"]] as [string, string][] },
+    { section: "Shop By",   items: [["/shop/brands", "Brands"], ["/shop/collections", "Collections"], ["/shop/categories", "Categories"]] as [string, string][] },
     { section: "Editorial", items: [["/articles", "Articles"]] as [string, string][] },
     { section: "Account",   items: [["/account", "My Account"], ["/auth", "Sign In / Register"]] as [string, string][] },
     { section: "Company",   items: [["/about", "About"], ["/contact", "Contact"], ["/consignment", "Consignment"]] as [string, string][] },
