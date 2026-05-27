@@ -3,67 +3,14 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
+import type { PolicyData } from '@/lib/payload'
 
-const POLICIES = {
-  shipping: {
-    title: "Shipping & Returns",
-    eyebrow: "Policies",
-    lastUpdated: "May 1, 2026",
-    sections: [
-      { heading:"Shipping Overview", body:"All firearms sold by Luxus Collection ship to a licensed Federal Firearms Licensee (FFL) dealer of your choosing. We do not ship firearms directly to customers. This is a federal legal requirement that applies to all interstate firearm sales. You must provide your FFL dealer's information at checkout before an order can be processed." },
-      { heading:"Processing Time", body:"In-stock orders are processed within 2–3 business days of confirmed payment. Custom-order and consignment pieces have individual lead times confirmed at the time of order. Orders placed using bank wire transfer do not ship until funds are confirmed received, which typically takes 3–5 business days from the time of transfer." },
-      { heading:"Shipping Method & Carriers", body:"All firearms ship via FedEx or UPS, fully insured for the declared purchase value, with adult signature required upon delivery to the FFL dealer. We do not ship via USPS. You will receive a tracking number by email when your label is created. Luxus Collection is not responsible for carrier delays once a package has been accepted by the carrier." },
-      { heading:"Shipping Rates", body:"Shipping on all firearm purchases is complimentary. We absorb the full cost of insured, signature-required carrier shipping to your FFL dealer on every order regardless of purchase amount." },
-      { heading:"FFL Dealer Transfer Fees", body:"Transfer fees are charged by your FFL dealer, not by Luxus Collection, and are paid directly to your dealer at the time of pickup. These fees typically range from $25 to $75 and vary by dealer. Luxus Collection has no control over and receives no portion of transfer fees." },
-      { heading:"State Restrictions", body:"Certain firearms cannot be legally transferred in certain states due to magazine capacity restrictions, feature bans, assault weapon statutes, or handgun roster requirements. We make every effort to notify customers of restrictions before processing payment. It is ultimately the buyer's responsibility to understand the laws in their state and to ensure the firearm can be legally received by their FFL dealer." },
-      { heading:"Return Policy", body:"New, unfired firearms may be returned within 10 days of FFL transfer for a full refund minus a 5% restocking fee, provided the firearm is in its original, unaltered condition with all original packaging and accessories included. Firearms that have been fired are considered used and cannot be returned regardless of round count." },
-      { heading:"Return Process", body:"All returns require a Return Authorization (RA) number issued by Luxus Collection before any firearm is shipped back. Contact us at info@luxus-collection.com or (941) 253-3660 within the return window to request an RA number. Returns shipped without an RA number will be refused. All return shipments must route through a licensed FFL dealer on the sender's end to our FFL — the same process as the original transfer." },
-      { heading:"Damaged or Defective Firearms", body:"Inspect the outer packaging carefully before accepting transfer from your FFL dealer. If the outer packaging shows obvious damage, refuse the shipment and contact us immediately. If a defect is discovered after transfer, contact us within 48 hours with photographic documentation. We will arrange return shipping at our expense and provide either a full replacement or a full refund at our discretion. Manufacturing defects are also covered by the manufacturer's warranty." },
-      { heading:"Pre-Owned Firearms", body:"Pre-owned firearms are sold as-is in the condition described in the listing. We make every effort to accurately represent condition, but buyers are responsible for understanding that pre-owned firearms are not new. Pre-owned firearms are not eligible for return unless a material misrepresentation in the listing can be demonstrated." },
-    ],
-  },
-  privacy: {
-    title: "Privacy Policy",
-    eyebrow: "Legal",
-    lastUpdated: "May 1, 2026",
-    sections: [
-      { heading:"Overview", body:"Luxus Collection LLC ('Luxus Collection,' 'we,' 'us,' or 'our') is committed to protecting your privacy. This Privacy Policy describes how we collect, use, disclose, and protect information about you when you visit our website, create an account, or make a purchase. By using our site, you agree to the practices described in this Policy." },
-      { heading:"Information We Collect", body:"We collect information you provide directly: name, email address, phone number, billing and shipping address, FFL dealer information, and payment information when you make a purchase or create an account. We also collect information automatically when you use our site, including IP address, browser type, device identifiers, pages visited, and referring URLs. We use standard cookies and similar tracking technologies for functionality and analytics." },
-      { heading:"How We Use Your Information", body:"We use your information to process orders and coordinate FFL transfers, communicate about your orders, respond to inquiries, send transactional emails, and, with your consent, send marketing communications. We use automatically collected information to improve our site and understand how it is used. We do not sell your personal information to third parties." },
-      { heading:"Information Sharing", body:"We share your information with service providers who help us operate our business, including our e-commerce platform, payment processors, shipping carriers, and email service providers, under confidentiality agreements. We may also share information as required by law, to comply with legal process, or to protect the rights, property, or safety of Luxus Collection, our customers, or others. Because firearm transactions are regulated, certain transaction records may be subject to review by federal, state, or local law enforcement agencies." },
-      { heading:"FFL and Transaction Records", body:"Firearm purchases are regulated transactions. Your name, address, and identification information are recorded on ATF Form 4473 by your FFL dealer and are subject to federal records retention requirements. These records are maintained by your FFL dealer, not by Luxus Collection, and are subject to ATF regulations and applicable law." },
-      { heading:"Data Retention", body:"We retain your account information for as long as your account is active and for a reasonable period afterward. Order records are retained as required by applicable law. You may request deletion of your personal information by contacting us, subject to legal retention requirements." },
-      { heading:"Security", body:"We implement industry-standard security measures including SSL/TLS encryption, secure payment processing, and access controls to protect your information. No method of internet transmission or electronic storage is 100% secure. We cannot guarantee absolute security but are committed to protecting your information using reasonable measures." },
-      { heading:"Your Rights", body:"Depending on your state of residence, you may have rights to access, correct, or delete your personal information, or to opt out of certain uses. To exercise these rights, contact us at info@luxus-collection.com. We will respond within 30 days. California residents have additional rights under the California Consumer Privacy Act (CCPA)." },
-      { heading:"Changes to This Policy", body:"We may update this Privacy Policy from time to time. We will notify registered users of material changes by email. The 'Last Updated' date at the top of this page reflects the most recent revision." },
-      { heading:"Contact", body:"Questions about this Privacy Policy? Contact us at info@luxus-collection.com or (941) 253-3660." },
-    ],
-  },
-  terms: {
-    title: "Terms & Conditions",
-    eyebrow: "Legal",
-    lastUpdated: "May 1, 2026",
-    sections: [
-      { heading:"Acceptance of Terms", body:"By accessing or using the Luxus Collection website (luxus-collection.com) or purchasing from us, you agree to be bound by these Terms & Conditions. If you do not agree to these terms, do not use our site or services. We reserve the right to modify these terms at any time. Continued use of our site after changes are posted constitutes acceptance of the revised terms." },
-      { heading:"Eligibility", body:"You must be at least 21 years of age to purchase handguns through our site. You must be legally permitted under federal, state, and local law to purchase and receive the firearm(s) you are ordering. By completing a purchase, you represent and warrant that you meet all eligibility requirements. Providing false information in connection with a firearm purchase is a federal felony." },
-      { heading:"Product Listings", body:"We make every effort to accurately represent our products, including descriptions, photographs, specifications, and pricing. We reserve the right to correct errors, update pricing, or discontinue products at any time without notice. All sales are subject to product availability at the time of order processing. In the event a listed item becomes unavailable after purchase, we will notify you promptly and offer a full refund." },
-      { heading:"Pricing and Payment", body:"All prices are listed in U.S. dollars. Prices are subject to change without notice. We reserve the right to cancel any order in the event of a pricing error. Sales tax is collected in states where we have nexus, in compliance with applicable law. Payment must be received in full before any firearm is shipped. We accept Visa, Mastercard, American Express, Discover, and bank wire transfer." },
-      { heading:"FFL Transfer Requirement", body:"All firearm purchases are shipped to a licensed Federal Firearms Licensee (FFL) dealer designated by the buyer. The buyer is responsible for providing accurate FFL dealer information at checkout. Luxus Collection is not responsible for delays, fees, or complications arising from the buyer's FFL dealer. The buyer is solely responsible for understanding and complying with all applicable state and local laws governing the receipt and possession of the purchased firearm." },
-      { heading:"Prohibited Transfers", body:"Luxus Collection does not engage in straw purchases (purchasing a firearm for someone who is legally prohibited from purchasing one). We will refuse any order we reasonably believe constitutes a straw purchase or other prohibited transfer. We reserve the right to cancel any order for any reason without liability." },
-      { heading:"Intellectual Property", body:"All content on this site, including text, photographs, graphics, logos, and design, is the property of Luxus Collection LLC or its content suppliers and is protected by U.S. and international copyright law. You may not reproduce, distribute, or create derivative works from our content without prior written consent." },
-      { heading:"Limitation of Liability", body:"To the maximum extent permitted by law, Luxus Collection's liability for any claim arising from a purchase or use of our site is limited to the amount paid for the specific product giving rise to the claim. We are not liable for indirect, incidental, special, consequential, or punitive damages. Some states do not allow limitations on implied warranties or exclusions of certain damages, so these limitations may not apply to you." },
-      { heading:"Governing Law", body:"These Terms & Conditions are governed by the laws of the State of Florida, without regard to conflict of law provisions. Any dispute arising from these terms or your use of our site shall be resolved exclusively in the state or federal courts located in Manatee County, Florida. You consent to the personal jurisdiction of such courts." },
-      { heading:"Contact", body:"Questions about these Terms? Contact us at info@luxus-collection.com or (941) 253-3660." },
-    ],
-  },
-} as const
+export type PolicySlug = 'shipping' | 'privacy' | 'terms'
 
-export type PolicyType = keyof typeof POLICIES
-
-export default function PolicyPage({ policy }: { policy: PolicyType }) {
+export default function PolicyPage({ policy, data }: { policy: PolicySlug; data: PolicyData }) {
   const { t } = useTheme()
   const [activeSection, setActiveSection] = useState<number | null>(null)
-  const doc = POLICIES[policy]
+  const doc = data
 
   useEffect(() => {
     const fn = () => {
@@ -80,7 +27,7 @@ export default function PolicyPage({ policy }: { policy: PolicyType }) {
     return () => window.removeEventListener("scroll", fn)
   }, [doc])
 
-  const RELATED: [PolicyType, string, string][] = [
+  const RELATED: [PolicySlug, string, string][] = [
     ["shipping","Shipping & Returns","/shipping"],
     ["privacy","Privacy Policy","/privacy"],
     ["terms","Terms & Conditions","/terms"],
