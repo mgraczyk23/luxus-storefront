@@ -1,5 +1,6 @@
 import { getProducts, getCollections, getCategories } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
+import { getPosts, imageUrl } from "@/lib/payload"
 import HomePage from "@/components/home/HomePage"
 
 export const revalidate = 60
@@ -33,12 +34,13 @@ const FALLBACK_CATEGORIES = [
 ]
 
 export default async function Home() {
-  const [productsRes, collectionsRes, categoriesRes, catCountRes] = await Promise.allSettled([
+  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes] = await Promise.allSettled([
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
     // Fetch product→category associations to sort categories by inventory depth
     getProducts({ limit: "500", fields: "id,*categories" }),
+    getPosts({ limit: 6, noContent: true }),
   ])
 
   // Build a count map: categoryId → number of products
@@ -116,6 +118,20 @@ export default async function Home() {
   const featuredIds = new Set(featuredProducts.map(p => p.id))
   const newArrivals = products.filter(p => !featuredIds.has(p.id)).slice(0, 4)
 
+  const articles = articlesRes.status === "fulfilled"
+    ? articlesRes.value.docs.map(p => ({
+        id:       p.id,
+        title:    p.title,
+        slug:     p.slug,
+        category: p.category,
+        excerpt:  p.excerpt,
+        date:     p.publishedAt
+          ? new Date(p.publishedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+          : "",
+        img: imageUrl(p.featuredImage),
+      }))
+    : []
+
   return (
     <HomePage
       heroProduct={heroProduct}
@@ -123,6 +139,7 @@ export default async function Home() {
       newArrivals={newArrivals.length > 0 ? newArrivals : products.slice(0, 4)}
       collections={displayCollections}
       categories={displayCategories}
+      articles={articles}
     />
   )
 }

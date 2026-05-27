@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
 import HeroSection from './HeroSection'
+import ArticleNewsletter from '@/app/article/[slug]/ArticleNewsletter'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
 
@@ -52,6 +53,7 @@ type Article = {
   excerpt: string
   date: string
   slug: string
+  img?: string | null
 }
 
 /* ── Static mock data ─────────────────────────────────────────────────── */
@@ -386,8 +388,11 @@ function ArticleCard({ article }: { article: Article }) {
       onMouseLeave={() => setHov(false)}
       style={{ cursor: "pointer", textDecoration: "none", display: "block" }}
     >
-      <div style={{ position: "relative", marginBottom: "18px", overflow: "hidden", borderRadius: "1px", border: `1px solid ${t.border}` }}>
-        <ImgBox style={{ height: "200px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
+      <div style={{ position: "relative", marginBottom: "18px", overflow: "hidden", borderRadius: "1px", border: `1px solid ${t.border}`, height: "200px" }}>
+        {article.img
+          ? <Image src={article.img} alt={article.title} fill sizes="(max-width:768px) 100vw, 33vw" style={{ objectFit: "cover", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
+          : <ImgBox style={{ height: "200px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
+        }
       </div>
       <div style={{ fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "8px" }}>
         {article.category}
@@ -487,16 +492,17 @@ export default function HomePage({
   newArrivals,
   collections,
   categories,
+  articles = [],
 }: {
   heroProduct: HeroProduct
   featuredProducts: MappedProduct[]
   newArrivals: MappedProduct[]
   collections: ShopItem[]
   categories: ShopItem[]
+  articles?: Article[]
 }) {
   const { t } = useTheme()
   const [tab, setTab] = useState<"collections" | "categories">("collections")
-  const [email, setEmail] = useState("")
   const router = useRouter()
 
   const featured = featuredProducts
@@ -668,7 +674,7 @@ export default function HomePage({
             </Link>
           </div>
           <div className="lxs-home-article-grid" style={{ display: "grid" }}>
-            {MOCK_ARTICLES.map(a => <ArticleCard key={a.id} article={a} />)}
+            {articles.map(a => <ArticleCard key={a.id} article={a} />)}
           </div>
         </div>
       </section>
@@ -676,41 +682,9 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* NEWSLETTER                                                     */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section className="lxs-home-newsletter" style={{
-        background: "#f3f3f5",
-        borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}`,
-      }}>
-        <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
-          <div style={{ fontSize: "8px", letterSpacing: "0.28em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "14px" }}>
-            The Inner Circle
-          </div>
-          <div style={{ fontFamily: PLAYFAIR, fontSize: "34px", fontWeight: 300, color: t.text, lineHeight: 1.15, marginBottom: "14px" }}>
-            The Collector&apos;s<br />Newsletter
-          </div>
-          <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.8, marginBottom: "30px" }}>
-            New acquisitions, exclusive access, editorial features, and curated insights — delivered to the discerning few.
-          </p>
-          <form
-            onSubmit={e => { e.preventDefault(); setEmail("") }}
-            style={{ display: "flex", maxWidth: "420px", margin: "0 auto" }}
-          >
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="Your email address"
-              required
-              style={{ flex: 1, padding: "12px 18px", background: "#fff", border: `1px solid ${t.border}`, borderRight: "none", color: t.text, fontSize: "12px", outline: "none", fontFamily: "'Inter',sans-serif", letterSpacing: "0.03em" }}
-            />
-            <button
-              type="submit"
-              style={{ padding: "12px 22px", background: t.gold, color: "#fff", border: "none", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
-              onMouseEnter={e => (e.currentTarget.style.background = t.goldLight)}
-              onMouseLeave={e => (e.currentTarget.style.background = t.gold)}
-            >
-              Subscribe
-            </button>
-          </form>
+      <section className="lxs-home-newsletter" style={{ borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}` }}>
+        <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
+          <ArticleNewsletter source="homepage" />
         </div>
       </section>
 
