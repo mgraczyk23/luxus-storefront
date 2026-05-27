@@ -118,7 +118,7 @@ export default function ShopByDirectory({
     : (type === 'category' ? 'categories' : type === 'collection' ? 'collections' : 'brands')
 
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '52px 40px 80px' }}>
+    <div className="lxs-shop-by-page" style={{ maxWidth: '1440px', margin: '0 auto' }}>
       {/* Breadcrumb */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: '8px',
