@@ -186,9 +186,13 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
   const { t } = useTheme()
   const [activeToc, setActiveToc] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
+  const [showFixedToc, setShowFixedToc] = useState(false)
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768)
+    const check = () => {
+      setIsMobile(window.innerWidth < 768)
+      setShowFixedToc(window.innerWidth >= 1280)
+    }
     check()
     window.addEventListener("resize", check)
     return () => window.removeEventListener("resize", check)
@@ -286,12 +290,30 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
         </div>
       </div>
 
-      {/* ── Body + sidebar ── */}
-      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: isMobile ? "0 16px" : "0 40px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 280px", gap: isMobile ? "0" : "72px", alignItems: "start", paddingTop: isMobile ? "32px" : "48px" }}>
+      {/* ── Fixed floating ToC — only on wide screens, out of document flow ── */}
+      {showFixedToc && toc.length > 0 && (
+        <div style={{ position: "fixed", top: "120px", right: "32px", width: "220px", zIndex: 80 }}>
+          <div style={{ fontSize: "8px", letterSpacing: "0.24em", textTransform: "uppercase", color: t.gold, fontWeight: 500, fontFamily: "var(--font-inter)", marginBottom: "14px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <div style={{ width: "14px", height: "1px", background: t.gold }}/>
+            In This Article
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+            {toc.map((item) => (
+              <button key={item.id}
+                onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: "7px 12px", fontFamily: "var(--font-inter)", fontSize: "11px", fontWeight: 300, color: activeToc === item.id ? t.gold : t.textMuted, letterSpacing: "0.02em", lineHeight: 1.5, borderLeft: `2px solid ${activeToc === item.id ? t.gold : t.border}`, transition: "all 0.2s" }}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
-          {/* Article body */}
-          <article style={{ maxWidth: "720px" }}>
+      {/* ── Body — full reading width, no sidebar column ── */}
+      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: isMobile ? "0 16px" : "0 40px" }}>
+        <div style={{ maxWidth: "760px", margin: "0 auto", paddingTop: isMobile ? "32px" : "48px" }}>
+
+          <article>
             {body.map((node, i) => (
               <LexicalBlock key={i} node={node} />
             ))}
@@ -333,44 +355,6 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
               </Link>
             </div>
           </article>
-
-          {/* Sticky sidebar — hidden on mobile */}
-          <aside style={{ position: "sticky", top: "100px", display: isMobile ? "none" : "flex", flexDirection: "column", gap: "36px" }}>
-
-            {/* Table of contents */}
-            {toc.length > 0 && (
-              <div>
-                <div style={{ fontSize: "8px", letterSpacing: "0.24em", textTransform: "uppercase", color: t.gold, fontWeight: 500, fontFamily: "var(--font-inter)", marginBottom: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ width: "14px", height: "1px", background: t.gold }}/>
-                  In This Article
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  {toc.map((item) => (
-                    <button key={item.id}
-                      onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: "smooth", block: "start" })}
-                      style={{ background: "none", border: "none", cursor: "pointer", textAlign: "left", padding: "8px 12px", fontFamily: "var(--font-inter)", fontSize: "11.5px", fontWeight: 300, color: activeToc === item.id ? t.gold : t.textMuted, letterSpacing: "0.02em", lineHeight: 1.5, borderLeft: `2px solid ${activeToc === item.id ? t.gold : t.border}`, transition: "all 0.2s" }}>
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {toc.length > 0 && <div style={{ height: "1px", background: `linear-gradient(to right,${t.border},transparent)` }}/>}
-
-            {/* Newsletter CTA */}
-            <div style={{ background: t.bgSurface, border: `1px solid ${t.border}`, padding: "20px" }}>
-              <div style={{ fontSize: "8px", letterSpacing: "0.22em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "8px", fontFamily: "var(--font-inter)" }}>The Collector's Circle</div>
-              <p style={{ fontSize: "11.5px", fontWeight: 300, color: t.textMuted, lineHeight: 1.7, marginBottom: "14px", fontFamily: "var(--font-inter)" }}>
-                New articles and acquisitions, delivered to the discerning few.
-              </p>
-              <div style={{ display: "flex", gap: "0" }}>
-                <input type="email" placeholder="Your email"
-                  style={{ flex: 1, padding: "9px 12px", background: t.bg, border: `1px solid ${t.border}`, borderRight: "none", color: t.text, fontSize: "11px", outline: "none", fontFamily: "var(--font-inter)", minWidth: 0 }}/>
-                <button style={{ padding: "9px 14px", background: t.gold, color: "#fff", border: "none", fontSize: "9px", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>Join</button>
-              </div>
-            </div>
-          </aside>
         </div>
       </div>
 
