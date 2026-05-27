@@ -122,6 +122,78 @@ export async function createComment(data: {
   return { ok: true }
 }
 
+/* ── Site Settings ───────────────────────────────────────────────────────── */
+
+export type SiteSettings = {
+  contact: {
+    phone:         string
+    phoneTollFree: string
+    emailInfo:     string
+    emailSupport:  string
+    emailSales:    string
+    emailPress:    string
+  }
+  address: {
+    line1: string
+    city:  string
+    state: string
+    zip:   string
+  }
+  hours: {
+    weekdayOpen:   string
+    weekdayClose:  string
+    saturdayOpen:  string
+    saturdayClose: string
+    timezone:      string
+    sundayClosed:  boolean
+  }
+  social: {
+    facebook?:  string
+    instagram?: string
+    linkedin?:  string
+    twitter?:   string
+    youtube?:   string
+    pinterest?: string
+  }
+  announcement: {
+    enabled:  boolean
+    message?: string
+    link?:    string
+  }
+}
+
+const SETTINGS_FALLBACK: SiteSettings = {
+  contact: {
+    phone:         '(941) 253-3660',
+    phoneTollFree: '(833) 486-6659',
+    emailInfo:     'info@luxus-collection.com',
+    emailSupport:  'support@luxus-collection.com',
+    emailSales:    'sales@luxus-collection.com',
+    emailPress:    'press@luxus-collection.com',
+  },
+  address: { line1: '1199 N Beneva Rd', city: 'Sarasota', state: 'FL', zip: '34232' },
+  hours: {
+    weekdayOpen: '8:30 AM', weekdayClose: '6:00 PM',
+    saturdayOpen: '10:00 AM', saturdayClose: '2:00 PM',
+    timezone: 'EST', sundayClosed: true,
+  },
+  social: {},
+  announcement: { enabled: false },
+}
+
+export async function getSiteSettings(): Promise<SiteSettings> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/site-settings`, {
+      next: { revalidate: 300, tags: ['site-settings'] },
+    })
+    if (!res.ok) return SETTINGS_FALLBACK
+    const data = await res.json()
+    return { ...SETTINGS_FALLBACK, ...data }
+  } catch {
+    return SETTINGS_FALLBACK
+  }
+}
+
 export function imageUrl(img: PayloadImage | null | undefined): string | null {
   if (!img) return null
   if (img.url.startsWith("http")) return img.url

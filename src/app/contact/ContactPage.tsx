@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
+import type { SiteSettings } from '@/lib/payload'
 
 const TOPICS = [
   "Select a topic…",
@@ -15,16 +16,7 @@ const TOPICS = [
   "Other",
 ]
 
-const SOCIALS = [
-  { label: "Facebook",   href: "https://facebook.com",   icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-  { label: "Instagram",  href: "https://instagram.com",  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg> },
-  { label: "LinkedIn",   href: "https://linkedin.com",   icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 8C17.5913 8 19.1174 8.63214 20.2426 9.75736C21.3679 10.8826 22 12.4087 22 14V21H18V14C18 13.4696 17.7893 12.9609 17.4142 12.5858C17.0391 12.2107 16.5304 12 16 12C15.4696 12 14.9609 12.2107 14.5858 12.5858C14.2107 12.9609 14 13.4696 14 14V21H10V14C10 12.4087 10.6321 10.8826 11.7574 9.75736C12.8826 8.63214 14.4087 8 16 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="2" y="9" width="4" height="12" stroke="currentColor" strokeWidth="1.5"/><circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="1.5"/></svg> },
-  { label: "X / Twitter",href: "https://x.com",          icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 4L20 20M20 4L4 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
-  { label: "YouTube",    href: "https://youtube.com",    icon: <svg width="14" height="10" viewBox="0 0 24 17" fill="none"><path d="M22.5 2.5C22.5 2.5 22.2 0.7 21.4-0.1C20.4-1.2 19.3-1.2 18.8-1.3C15.7-1.5 11-1.5 11-1.5C11-1.5 6.3-1.5 3.2-1.3C2.7-1.2 1.6-1.2 0.6-0.1C-0.2 0.7-0.5 2.5-0.5 2.5S-0.8 4.6-0.8 6.7V8.7C-0.8 10.8-0.5 12.9-0.5 12.9C-0.5 12.9-0.2 14.7 0.6 15.5C1.6 16.6 2.9 16.6 3.5 16.7C5.6 16.9 11 17 11 17C11 17 15.7 17 18.8 16.8C19.3 16.7 20.4 16.7 21.4 15.6C22.2 14.8 22.5 13 22.5 13C22.5 13 22.8 10.9 22.8 8.8V6.8C22.8 4.6 22.5 2.5 22.5 2.5ZM8.7 11.8V4.8L15.5 8.3L8.7 11.8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
-  { label: "Pinterest",  href: "https://pinterest.com",  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12C2 16.236 4.636 19.854 8.356 21.312C8.268 20.55 8.188 19.373 8.388 18.532C8.568 17.774 9.532 13.69 9.532 13.69C9.532 13.69 9.248 13.124 9.248 12.282C9.248 10.956 10.024 9.966 10.988 9.966C11.804 9.966 12.196 10.574 12.196 11.306C12.196 12.124 11.676 13.344 11.408 14.474C11.184 15.418 11.876 16.186 12.808 16.186C14.496 16.186 15.796 14.394 15.796 11.82C15.796 9.544 14.148 7.952 11.816 7.952C9.124 7.952 7.546 9.974 7.546 12.064C7.546 12.882 7.858 13.758 8.248 14.236C8.328 14.332 8.34 14.416 8.316 14.514C8.248 14.8 8.08 15.458 8.048 15.594C8.008 15.77 7.908 15.808 7.724 15.72C6.548 15.158 5.808 13.41 5.808 12.022C5.808 9.044 7.988 6.306 12.048 6.306C15.332 6.306 17.876 8.642 17.876 11.778C17.876 15.056 15.82 17.686 12.988 17.686C12.028 17.686 11.124 17.188 10.812 16.598L10.26 18.696C10.06 19.462 9.524 20.424 9.172 21C10.088 21.28 11.028 21.43 12 21.43C17.523 21.43 22 16.953 22 11.43C22 5.907 17.523 2 12 2Z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg> },
-]
-
-function MapPlaceholder() {
+function MapPlaceholder({ address }: { address: SiteSettings['address'] }) {
   const { t } = useTheme()
   return (
     <div style={{ position: "relative", height: "100%", minHeight: "340px", background: "linear-gradient(140deg,#e8e8eb,#d4d4d8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
@@ -41,16 +33,27 @@ function MapPlaceholder() {
         <div style={{ fontSize:"7.5px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"3px" }}>Headquarters</div>
         <div style={{ fontSize:"12px",fontWeight:300,color:t.text,lineHeight:1.5 }}>
           Luxus Collection, LLC<br/>
-          1199 N Beneva Rd<br/>
-          Sarasota, FL 34232
+          {address.line1}<br/>
+          {address.city}, {address.state} {address.zip}
         </div>
       </div>
     </div>
   )
 }
 
-export default function ContactPage() {
+export default function ContactPage({ settings }: { settings: SiteSettings }) {
   const { t } = useTheme()
+  const { contact, address, hours, social } = settings
+
+  const SOCIALS = [
+    { label: "Facebook",    href: social.facebook,   icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 2H15C13.6739 2 12.4021 2.52678 11.4645 3.46447C10.5268 4.40215 10 5.67392 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73478 14.1054 6.48043 14.2929 6.29289C14.4804 6.10536 14.7348 6 15 6H18V2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+    { label: "Instagram",   href: social.instagram,  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" strokeWidth="1.5"/><circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg> },
+    { label: "LinkedIn",    href: social.linkedin,   icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 8C17.5913 8 19.1174 8.63214 20.2426 9.75736C21.3679 10.8826 22 12.4087 22 14V21H18V14C18 13.4696 17.7893 12.9609 17.4142 12.5858C17.0391 12.2107 16.5304 12 16 12C15.4696 12 14.9609 12.2107 14.5858 12.5858C14.2107 12.9609 14 13.4696 14 14V21H10V14C10 12.4087 10.6321 10.8826 11.7574 9.75736C12.8826 8.63214 14.4087 8 16 8Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><rect x="2" y="9" width="4" height="12" stroke="currentColor" strokeWidth="1.5"/><circle cx="4" cy="4" r="2" stroke="currentColor" strokeWidth="1.5"/></svg> },
+    { label: "X / Twitter", href: social.twitter,    icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M4 4L20 20M20 4L4 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg> },
+    { label: "YouTube",     href: social.youtube,    icon: <svg width="14" height="10" viewBox="0 0 24 17" fill="none"><path d="M22.5 2.5C22.5 2.5 22.2 0.7 21.4-0.1C20.4-1.2 19.3-1.2 18.8-1.3C15.7-1.5 11-1.5 11-1.5C11-1.5 6.3-1.5 3.2-1.3C2.7-1.2 1.6-1.2 0.6-0.1C-0.2 0.7-0.5 2.5-0.5 2.5S-0.8 4.6-0.8 6.7V8.7C-0.8 10.8-0.5 12.9-0.5 12.9C-0.5 12.9-0.2 14.7 0.6 15.5C1.6 16.6 2.9 16.6 3.5 16.7C5.6 16.9 11 17 11 17C11 17 15.7 17 18.8 16.8C19.3 16.7 20.4 16.7 21.4 15.6C22.2 14.8 22.5 13 22.5 13C22.5 13 22.8 10.9 22.8 8.8V6.8C22.8 4.6 22.5 2.5 22.5 2.5ZM8.7 11.8V4.8L15.5 8.3L8.7 11.8Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg> },
+    { label: "Pinterest",   href: social.pinterest,  icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12C2 16.236 4.636 19.854 8.356 21.312C8.268 20.55 8.188 19.373 8.388 18.532C8.568 17.774 9.532 13.69 9.532 13.69C9.532 13.69 9.248 13.124 9.248 12.282C9.248 10.956 10.024 9.966 10.988 9.966C11.804 9.966 12.196 10.574 12.196 11.306C12.196 12.124 11.676 13.344 11.408 14.474C11.184 15.418 11.876 16.186 12.808 16.186C14.496 16.186 15.796 14.394 15.796 11.82C15.796 9.544 14.148 7.952 11.816 7.952C9.124 7.952 7.546 9.974 7.546 12.064C7.546 12.882 7.858 13.758 8.248 14.236C8.328 14.332 8.34 14.416 8.316 14.514C8.248 14.8 8.08 15.458 8.048 15.594C8.008 15.77 7.908 15.808 7.724 15.72C6.548 15.158 5.808 13.41 5.808 12.022C5.808 9.044 7.988 6.306 12.048 6.306C15.332 6.306 17.876 8.642 17.876 11.778C17.876 15.056 15.82 17.686 12.988 17.686C12.028 17.686 11.124 17.188 10.812 16.598L10.26 18.696C10.06 19.462 9.524 20.424 9.172 21C10.088 21.28 11.028 21.43 12 21.43C17.523 21.43 22 16.953 22 11.43C22 5.907 17.523 2 12 2Z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/></svg> },
+  ].filter(s => s.href)
+
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", company:"", topic: TOPICS[0], message:"", newsletter: false })
   const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
   const [activeChannel, setActiveChannel] = useState<string|null>(null)
@@ -102,10 +105,10 @@ export default function ContactPage() {
   }
 
   const CHANNELS = [
-    { id:"phone", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 2C3 2 1 2 1 4C1 6 2 12.5 8.5 18C15 23.5 21 21.5 21 21.5S22 19.5 22 18L18 14.5C18 14.5 17 13.5 15.5 15L13.5 17C13.5 17 10.5 16.5 7.5 13.5C4.5 10.5 5 7.5 5 7.5L7 5.5C8.5 4 7.5 3 7.5 3L3 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>, label:"Call Us", heading:"(941) 253-3660", sub:"Toll-Free  (833) 486-6659\nMon – Fri  8:30am – 6pm EST\nSat  10am – 2pm EST", href:"tel:9412533660", cta:"Call now" },
-    { id:"email", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1.5" y="4" width="19" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.3"/><path d="M1.5 6.5L11 13L20.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>, label:"Email Us", heading:"info@luxus-collection.com", sub:"Response within 1 business day", href:"mailto:info@luxus-collection.com", cta:"Send email" },
-    { id:"consignment", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 11H19M3 11L7 7M3 11L7 15M19 11L15 7M19 11L15 15" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>, label:"Sales / Consignment", heading:"sales@luxus-collection.com", sub:"Submit pieces for review\nResponse within 3 business days", href:"mailto:sales@luxus-collection.com", cta:"Sales inquiry" },
-    { id:"press", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="4" width="18" height="14" rx="1" stroke="currentColor" strokeWidth="1.3"/><path d="M6 8H16M6 11H12M6 14H9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>, label:"Press & Media", heading:"press@luxus-collection.com", sub:"Media inquiries & editorial requests", href:"mailto:press@luxus-collection.com", cta:"Media inquiry" },
+    { id:"phone", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 2C3 2 1 2 1 4C1 6 2 12.5 8.5 18C15 23.5 21 21.5 21 21.5S22 19.5 22 18L18 14.5C18 14.5 17 13.5 15.5 15L13.5 17C13.5 17 10.5 16.5 7.5 13.5C4.5 10.5 5 7.5 5 7.5L7 5.5C8.5 4 7.5 3 7.5 3L3 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>, label:"Call Us", heading:contact.phone, sub:`Toll-Free  ${contact.phoneTollFree}\nMon – Fri  ${hours.weekdayOpen} – ${hours.weekdayClose} ${hours.timezone}\nSat  ${hours.saturdayOpen} – ${hours.saturdayClose} ${hours.timezone}`, href:`tel:${contact.phone.replace(/\D/g,'')}`, cta:"Call now" },
+    { id:"email", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1.5" y="4" width="19" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.3"/><path d="M1.5 6.5L11 13L20.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>, label:"Email Us", heading:contact.emailInfo, sub:"Response within 1 business day", href:`mailto:${contact.emailInfo}`, cta:"Send email" },
+    { id:"consignment", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3 11H19M3 11L7 7M3 11L7 15M19 11L15 7M19 11L15 15" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>, label:"Sales / Consignment", heading:contact.emailSales, sub:"Submit pieces for review\nResponse within 3 business days", href:`mailto:${contact.emailSales}`, cta:"Sales inquiry" },
+    { id:"press", icon:<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="2" y="4" width="18" height="14" rx="1" stroke="currentColor" strokeWidth="1.3"/><path d="M6 8H16M6 11H12M6 14H9" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>, label:"Press & Media", heading:contact.emailPress, sub:"Media inquiries & editorial requests", href:`mailto:${contact.emailPress}`, cta:"Media inquiry" },
   ]
 
   return (
@@ -143,10 +146,10 @@ export default function ContactPage() {
             <div className="lxs-contact-direct" style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"4px" }}>Direct Contact</div>
               {[
-                { label:"Phone",     value:"(941) 253-3660",         href:"tel:9412533660",                    note:"Mon – Fri 8:30am – 6pm EST" },
-                { label:"Toll-Free", value:"(833) 486-6659",         href:"tel:8334866659",                    note:"Nationwide" },
-                { label:"Email",     value:"info@luxus-collection.com", href:"mailto:info@luxus-collection.com", note:"Response within 1 business day" },
-                { label:"Support",   value:"support@luxus-collection.com", href:"mailto:support@luxus-collection.com", note:"For order & after-sale help" },
+                { label:"Phone",     value:contact.phone,         href:`tel:${contact.phone.replace(/\D/g,'')}`,         note:`Mon – Fri ${hours.weekdayOpen} – ${hours.weekdayClose} ${hours.timezone}` },
+                { label:"Toll-Free", value:contact.phoneTollFree, href:`tel:${contact.phoneTollFree.replace(/\D/g,'')}`, note:"Nationwide" },
+                { label:"Email",     value:contact.emailInfo,     href:`mailto:${contact.emailInfo}`,                    note:"Response within 1 business day" },
+                { label:"Support",   value:contact.emailSupport,  href:`mailto:${contact.emailSupport}`,                 note:"For order & after-sale help" },
               ].map(({ label, value, href, note }) => (
                 <a key={label} href={href}
                   style={{ display:"flex",alignItems:"baseline",justifyContent:"space-between",padding:"12px 16px",background:"#fff",border:`1px solid ${t.border}`,textDecoration:"none",transition:"border-color 0.2s",gap:"16px" }}
@@ -282,14 +285,18 @@ export default function ContactPage() {
               <div style={{ fontSize:"8px",letterSpacing:"0.24em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px" }}>
                 <div style={{ width:"14px",height:"1px",background:t.gold }}/>Location
               </div>
-              <MapPlaceholder />
+              <MapPlaceholder address={address} />
             </div>
             <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>Business Hours</div>
-              {[["Monday – Friday","8:30 AM – 6:00 PM EST"],["Saturday","10:00 AM – 2:00 PM EST"],["Sunday","Closed"]].map(([day,hours]) => (
+              {([
+                ["Monday – Friday", `${hours.weekdayOpen} – ${hours.weekdayClose} ${hours.timezone}`],
+                ["Saturday", `${hours.saturdayOpen} – ${hours.saturdayClose} ${hours.timezone}`],
+                ["Sunday", hours.sundayClosed ? "Closed" : `${hours.saturdayOpen} – ${hours.saturdayClose} ${hours.timezone}`],
+              ] as [string, string][]).map(([day, hrs]) => (
                 <div key={day} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:"8px",marginBottom:"8px",borderBottom:`1px solid ${t.border}` }}>
                   <span style={{ fontSize:"11.5px",fontWeight:300,color:t.textMuted,letterSpacing:"0.02em" }}>{day}</span>
-                  <span style={{ fontSize:"11.5px",fontWeight:hours==="Closed"?300:400,color:hours==="Closed"?t.textDim:t.text,letterSpacing:"0.02em" }}>{hours}</span>
+                  <span style={{ fontSize:"11.5px",fontWeight:hrs==="Closed"?300:400,color:hrs==="Closed"?t.textDim:t.text,letterSpacing:"0.02em" }}>{hrs}</span>
                 </div>
               ))}
             </div>

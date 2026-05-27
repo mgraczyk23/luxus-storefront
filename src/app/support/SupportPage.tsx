@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
+import type { SiteSettings } from '@/lib/payload'
 
 const TOPICS = [
   "Select a topic…",
@@ -42,8 +43,9 @@ function ContactCard({ icon, label, value, sub, href, cta, accent = false }: {
   )
 }
 
-export default function SupportPage() {
+export default function SupportPage({ settings }: { settings: SiteSettings }) {
   const { t } = useTheme()
+  const { contact, hours } = settings
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", orderNumber:"", topic:TOPICS[0], message:"", fflConsent:false })
   const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
 
@@ -114,10 +116,14 @@ export default function SupportPage() {
             <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}50`,padding:"24px 28px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"16px" }}>Business Hours</div>
               <div style={{ display:"flex",flexDirection:"column",gap:"8px" }}>
-                {[["Monday – Friday","8:30 AM – 6:00 PM EST"],["Saturday","10:00 AM – 2:00 PM EST"],["Sunday","Closed"]].map(([day,hours]) => (
+                {([
+                  ["Monday – Friday", `${hours.weekdayOpen} – ${hours.weekdayClose} ${hours.timezone}`],
+                  ["Saturday", `${hours.saturdayOpen} – ${hours.saturdayClose} ${hours.timezone}`],
+                  ["Sunday", hours.sundayClosed ? "Closed" : `${hours.saturdayOpen} – ${hours.saturdayClose} ${hours.timezone}`],
+                ] as [string, string][]).map(([day, hrs]) => (
                   <div key={day} style={{ display:"flex",justifyContent:"space-between",alignItems:"center",paddingBottom:"8px",borderBottom:`1px solid ${t.border}` }}>
                     <span style={{ fontSize:"11.5px",fontWeight:300,color:t.textMuted,letterSpacing:"0.02em" }}>{day}</span>
-                    <span style={{ fontSize:"11.5px",fontWeight:400,color:hours==="Closed"?t.textDim:t.text,letterSpacing:"0.02em" }}>{hours}</span>
+                    <span style={{ fontSize:"11.5px",fontWeight:400,color:hrs==="Closed"?t.textDim:t.text,letterSpacing:"0.02em" }}>{hrs}</span>
                   </div>
                 ))}
               </div>
@@ -135,8 +141,8 @@ export default function SupportPage() {
       {/* CONTACT CARDS */}
       <div style={{ maxWidth:"1440px",margin:"0 auto",padding:"52px 40px 0" }}>
         <div className="lxs-support-cards">
-          <ContactCard icon={<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3.5 2C3.5 2 1.5 2 1.5 4C1.5 6 2.5 12 8 17.5C13.5 23 19.5 21.5 21.5 21.5C23.5 21.5 23.5 19.5 23.5 19.5L20.5 15C20.5 15 19.5 14 18.5 15L16 17C16 17 13.5 16.5 10.5 13.5C7.5 10.5 8 8 8 8L10.5 5.5C11.5 4.5 10.5 3.5 10.5 3.5L3.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>} label="Call Us Directly" value="(941) 253-3660" sub="Toll-Free (833) 486-6659 · Mon – Fri 8:30am – 6pm EST" href="tel:9412533660" cta="Call now"/>
-          <ContactCard accent icon={<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1.5" y="4" width="19" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.3"/><path d="M1.5 6.5L11 13L20.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>} label="Email Support" value="support@luxus-collection.com" sub="Response within 1 business day" href="mailto:support@luxus-collection.com" cta="Send an email"/>
+          <ContactCard icon={<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M3.5 2C3.5 2 1.5 2 1.5 4C1.5 6 2.5 12 8 17.5C13.5 23 19.5 21.5 21.5 21.5C23.5 21.5 23.5 19.5 23.5 19.5L20.5 15C20.5 15 19.5 14 18.5 15L16 17C16 17 13.5 16.5 10.5 13.5C7.5 10.5 8 8 8 8L10.5 5.5C11.5 4.5 10.5 3.5 10.5 3.5L3.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/></svg>} label="Call Us Directly" value={contact.phone} sub={`Toll-Free ${contact.phoneTollFree} · Mon – Fri ${hours.weekdayOpen} – ${hours.weekdayClose} ${hours.timezone}`} href={`tel:${contact.phone.replace(/\D/g,'')}`} cta="Call now"/>
+          <ContactCard accent icon={<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1.5" y="4" width="19" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.3"/><path d="M1.5 6.5L11 13L20.5 6.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/></svg>} label="Email Support" value={contact.emailSupport} sub="Response within 1 business day" href={`mailto:${contact.emailSupport}`} cta="Send an email"/>
           <ContactCard icon={<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M2 2H20V16H13L8 20V16H2V2Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/><path d="M7 8H15M7 11H12" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>} label="Send a Message" value="Use the Form Below" sub="Include your order number for fastest service" cta="Scroll to form"/>
         </div>
       </div>
@@ -220,7 +226,7 @@ export default function SupportPage() {
                 </button>
                 {formStatus === "error" && (
                   <p style={{ fontSize:"11px",color:"#c0392b",textAlign:"center",marginTop:"8px",fontFamily:"var(--font-inter)" }}>
-                    Something went wrong — please try again or email support@luxus-collection.com directly.
+                    Something went wrong — please try again or email {contact.emailSupport} directly.
                   </p>
                 )}
                 <p style={{ fontSize:"10px",color:t.textDim,textAlign:"center",marginTop:"12px",letterSpacing:"0.03em",fontWeight:300 }}>

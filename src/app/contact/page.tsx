@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { getSiteSettings } from "@/lib/payload"
 import ContactPage from "./ContactPage"
 
 export const metadata: Metadata = {
@@ -6,6 +7,7 @@ export const metadata: Metadata = {
   description: "Reach out to the Luxus Collection team — product inquiries, consignment, press, and more. Personal response guaranteed.",
 }
 
-export default function Page() {
-  return <ContactPage />
+export default async function Page() {
+  const settings = await getSiteSettings()
+  return <ContactPage settings={settings} />
 }

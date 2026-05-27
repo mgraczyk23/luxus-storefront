@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import { getSiteSettings } from "@/lib/payload"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,7 +33,8 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getSiteSettings()
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body>
@@ -41,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main style={{ paddingTop: "68px" }}>
             {children}
           </main>
-          <Footer />
+          <Footer settings={settings} />
         </ThemeProvider>
       </body>
     </html>
