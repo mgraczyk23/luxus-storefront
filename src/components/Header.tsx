@@ -63,7 +63,7 @@ function MobileNav({ cartCount }: { cartCount: number }) {
   return (
     <>
       {/* Mobile control cluster — display controlled by CSS (.lxs-mnav-cluster) */}
-      <div className="lxs-mnav-cluster" style={{ position: "fixed", top: "17px", right: "16px", zIndex: 9998, gap: "8px" }}>
+      <div className="lxs-mnav-cluster" style={{ position: "fixed", top: "calc(var(--ann-h, 0px) + 17px)", right: "16px", zIndex: 9998, gap: "8px" }}>
         {/* Search */}
         <button style={btnStyle} onClick={() => setSearchOpen(true)} aria-label="Open search"
           onMouseEnter={e => (e.currentTarget.style.borderColor = "#7e5e10" + "88")}
@@ -199,7 +199,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
   return (
     <>
       <header style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 200, height: "68px",
+        position: "fixed", top: "var(--ann-h, 0px)", left: 0, right: 0, zIndex: 200, height: "68px",
         background: scrolled ? "rgba(255,255,255,0.94)" : t.bg,
         backdropFilter: scrolled ? "blur(20px) saturate(1.2)" : "none",
         borderBottom: `1px solid ${scrolled ? t.border : "transparent"}`,

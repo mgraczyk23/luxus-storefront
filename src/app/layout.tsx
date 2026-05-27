@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
+import AnnouncementBar from "@/components/AnnouncementBar"
 import { getSiteSettings } from "@/lib/payload"
 
 const inter = Inter({
@@ -35,12 +36,19 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSiteSettings()
+  const ann = settings.announcement
+  const annActive = ann.enabled && !!ann.message
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html
+      lang="en"
+      className={`${inter.variable} ${playfair.variable}`}
+      style={annActive ? { '--ann-h': '36px' } as React.CSSProperties : {}}
+    >
       <body>
         <ThemeProvider>
+          {annActive && <AnnouncementBar message={ann.message!} link={ann.link} />}
           <Header />
-          <main style={{ paddingTop: "68px" }}>
+          <main style={{ paddingTop: "calc(68px + var(--ann-h, 0px))" }}>
             {children}
           </main>
           <Footer settings={settings} />
