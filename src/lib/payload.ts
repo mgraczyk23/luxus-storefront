@@ -9,6 +9,12 @@ export type PayloadImage = {
   filename: string
 }
 
+export function imageUrl(img: PayloadImage | null | undefined): string | null {
+  if (!img) return null
+  if (img.url.startsWith("http")) return img.url
+  return `${PAYLOAD_URL}${img.url}`
+}
+
 export type PayloadPost = {
   id:            string
   title:         string
@@ -210,6 +216,40 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   }
 }
 
+/* ── Shop Tile Images ────────────────────────────────────────────────────── */
+
+export type ShopTileImageMap = Record<string, string> // handle → absolute image URL
+
+export async function getShopTileImages(): Promise<{
+  collections: ShopTileImageMap
+  categories:  ShopTileImageMap
+}> {
+  const empty = { collections: {}, categories: {} }
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/shop-tile-images?depth=1`, {
+      next: { revalidate: 300, tags: ['shop-tile-images'] },
+    })
+    if (!res.ok) return empty
+    const data = await res.json()
+
+    const toMap = (rows: any[]): ShopTileImageMap => {
+      const map: ShopTileImageMap = {}
+      for (const row of rows ?? []) {
+        const url = imageUrl(row.image)
+        if (row.handle && url) map[row.handle] = url
+      }
+      return map
+    }
+
+    return {
+      collections: toMap(data.collections),
+      categories:  toMap(data.categories),
+    }
+  } catch {
+    return empty
+  }
+}
+
 /* ── Hero Slides ─────────────────────────────────────────────────────────── */
 
 export type HeroSlide = {
@@ -310,12 +350,6 @@ export async function getAboutPageImages(): Promise<AboutPageImages> {
   } catch {
     return empty
   }
-}
-
-export function imageUrl(img: PayloadImage | null | undefined): string | null {
-  if (!img) return null
-  if (img.url.startsWith("http")) return img.url
-  return `${PAYLOAD_URL}${img.url}`
 }
 
 // Lexical rich-text → React-renderable node tree

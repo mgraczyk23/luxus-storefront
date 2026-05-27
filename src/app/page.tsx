@@ -1,6 +1,6 @@
 import { getProducts, getCollections, getCategories } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getPosts, getHeroSlides, imageUrl } from "@/lib/payload"
+import { getPosts, getHeroSlides, getShopTileImages, imageUrl } from "@/lib/payload"
 import HomePage from "@/components/home/HomePage"
 
 export const revalidate = 60
@@ -34,7 +34,7 @@ const FALLBACK_CATEGORIES = [
 ]
 
 export default async function Home() {
-  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes, heroSlidesRes] = await Promise.allSettled([
+  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes, heroSlidesRes, tileImagesRes] = await Promise.allSettled([
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
@@ -42,6 +42,7 @@ export default async function Home() {
     getProducts({ limit: "500", fields: "id,*categories" }),
     getPosts({ limit: 6, noContent: true }),
     getHeroSlides(),
+    getShopTileImages(),
   ])
 
   // Build a count map: categoryId → number of products
@@ -84,7 +85,12 @@ export default async function Home() {
 
   const collections = allCollections
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((c: any) => ({ id: c.id as string, name: (c.title ?? c.name) as string, handle: c.handle as string | undefined }))
+    .map((c: any) => ({
+      id: c.id as string,
+      name: (c.title ?? c.name) as string,
+      handle: c.handle as string | undefined,
+      imageUrl: c.handle ? (tileImages.collections[c.handle as string] ?? undefined) : undefined,
+    }))
     .filter(c => c.name.toLowerCase() !== "featured")  // hide "Featured" from browse tabs
 
   const displayCollections = collections.length > 0 ? collections : FALLBACK_COLLECTIONS
@@ -94,7 +100,12 @@ export default async function Home() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .filter((c: any) => !c.parent_category_id)
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((c: any) => ({ id: c.id as string, name: c.name as string, handle: c.handle as string | undefined }))
+        .map((c: any) => ({
+          id: c.id as string,
+          name: c.name as string,
+          handle: c.handle as string | undefined,
+          imageUrl: c.handle ? (tileImages.categories[c.handle as string] ?? undefined) : undefined,
+        }))
         .sort((a: { id: string }, b: { id: string }) =>
           (catCountMap[b.id] ?? 0) - (catCountMap[a.id] ?? 0)
         )
@@ -134,6 +145,7 @@ export default async function Home() {
     : []
 
   const heroSlides = heroSlidesRes.status === "fulfilled" ? heroSlidesRes.value : []
+  const tileImages = tileImagesRes.status === "fulfilled" ? tileImagesRes.value : { collections: {}, categories: {} }
 
   return (
     <HomePage

@@ -21,7 +21,7 @@ type HeroProduct = {
   handle: string | null
 }
 
-type ShopItem = { id: string; name: string; handle?: string }
+type ShopItem = { id: string; name: string; handle?: string; imageUrl?: string }
 
 function toSlug(str: string) {
   return str
@@ -363,12 +363,19 @@ function CategoryTile({ item, href }: { item: ShopItem; href: string }) {
         transition: "border-color 0.24s", textDecoration: "none", display: "block",
       }}
     >
-      <ImgBox style={{ height: "130px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
+      <div style={{ position: "relative", height: "130px", overflow: "hidden" }}>
+        {item.imageUrl
+          ? <Image src={item.imageUrl} alt={item.name} fill style={{ objectFit: "cover", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} sizes="(max-width:640px) 50vw, 20vw" />
+          : <ImgBox style={{ height: "130px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
+        }
+      </div>
       <div style={{
         position: "absolute", bottom: 0, left: 0, right: 0, padding: "8px 14px 12px",
-        background: "linear-gradient(to top,rgba(255,255,255,0.97),rgba(255,255,255,0.5))",
+        background: item.imageUrl
+          ? "linear-gradient(to top,rgba(0,0,0,0.55),transparent)"
+          : "linear-gradient(to top,rgba(255,255,255,0.97),rgba(255,255,255,0.5))",
       }}>
-        <div style={{ fontFamily: PLAYFAIR, fontSize: "15px", fontWeight: 400, color: t.text, letterSpacing: "0.02em" }}>
+        <div style={{ fontFamily: PLAYFAIR, fontSize: "15px", fontWeight: 400, color: item.imageUrl ? "#fff" : t.text, letterSpacing: "0.02em" }}>
           {item.name}
         </div>
       </div>
