@@ -647,3 +647,14 @@ a {
   .lxs-account-tabs::-webkit-scrollbar { display: none; }
   .lxs-account-tabs button { white-space: nowrap; flex-shrink: 0; }
 }
+
+/* ── Shop By Directory ───────────────────────────────────────────────────── */
+.lxs-shop-by-grid { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 1024px) {
+  .lxs-shop-by-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .lxs-shop-by-grid { grid-template-columns: repeat(2, 1fr); gap: 14px !important; }
+}
