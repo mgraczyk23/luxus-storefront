@@ -227,21 +227,19 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "var(--font-inter)" }}>
       <ProgressBar />
 
-      {/* ── Hero image ── */}
-      <div style={{ paddingTop: "68px" }}>
-        <div style={{ position: "relative", height: "55vh", minHeight: "380px", maxHeight: "600px", overflow: "hidden" }}>
+      {/* ── Hero image — full bleed from top, header floats above ── */}
+      <div style={{ position: "relative", height: "55vh", minHeight: "380px", maxHeight: "600px", overflow: "hidden" }}>
           {heroUrl ? (
             <Image src={heroUrl} alt={post.featuredImage?.alt ?? post.title} fill style={{ objectFit: "cover" }} priority />
           ) : (
             <ImgBox style={{ width: "100%", height: "100%" }} index={0} />
           )}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(255,255,255,0.05) 0%,rgba(255,255,255,0.75) 100%)" }}/>
-          <div style={{ position: "absolute", top: "28px", left: isMobile ? "16px" : "40px" }}>
+          <div style={{ position: "absolute", top: "84px", left: isMobile ? "16px" : "40px" }}>
             <div style={{ background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}50`, padding: "5px 14px", backdropFilter: "blur(8px)", display: "inline-block" }}>
               <span style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, fontFamily: "var(--font-inter)" }}>{post.category}</span>
             </div>
           </div>
-        </div>
       </div>
 
       {/* ── Article header ── */}
