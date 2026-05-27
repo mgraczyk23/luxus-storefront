@@ -1,6 +1,6 @@
 import { getProducts, getCollections, getCategories } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getPosts, imageUrl } from "@/lib/payload"
+import { getPosts, getHeroSlides, imageUrl } from "@/lib/payload"
 import HomePage from "@/components/home/HomePage"
 
 export const revalidate = 60
@@ -34,13 +34,14 @@ const FALLBACK_CATEGORIES = [
 ]
 
 export default async function Home() {
-  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes] = await Promise.allSettled([
+  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes, heroSlidesRes] = await Promise.allSettled([
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
     // Fetch product→category associations to sort categories by inventory depth
     getProducts({ limit: "500", fields: "id,*categories" }),
     getPosts({ limit: 6, noContent: true }),
+    getHeroSlides(),
   ])
 
   // Build a count map: categoryId → number of products
@@ -132,9 +133,12 @@ export default async function Home() {
       }))
     : []
 
+  const heroSlides = heroSlidesRes.status === "fulfilled" ? heroSlidesRes.value : []
+
   return (
     <HomePage
       heroProduct={heroProduct}
+      heroSlides={heroSlides}
       featuredProducts={featuredProducts}
       newArrivals={newArrivals.length > 0 ? newArrivals : products.slice(0, 4)}
       collections={displayCollections}

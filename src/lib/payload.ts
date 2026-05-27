@@ -210,6 +210,108 @@ export async function getSiteSettings(): Promise<SiteSettings> {
   }
 }
 
+/* ── Hero Slides ─────────────────────────────────────────────────────────── */
+
+export type HeroSlide = {
+  kicker:   string
+  caption:  string
+  imageUrl?: string
+}
+
+export async function getHeroSlides(): Promise<HeroSlide[]> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/hero-slides?depth=1`, {
+      next: { revalidate: 300, tags: ['hero-slides'] },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    const slides: any[] = data?.slides ?? []
+    return slides
+      .filter((s: any) => s.enabled !== false)
+      .map((s: any) => ({
+        kicker:   s.kicker   ?? '',
+        caption:  s.caption  ?? '',
+        imageUrl: imageUrl(s.image) ?? undefined,
+      }))
+  } catch {
+    return []
+  }
+}
+
+/* ── Brands ──────────────────────────────────────────────────────────────── */
+
+export type PayloadBrand = {
+  id:          string
+  name:        string
+  slug:        string
+  origin:      string | null
+  description: string | null
+  logo:        PayloadImage | null
+  featured:    boolean
+  sortOrder:   number
+}
+
+export async function getBrands(opts: { featuredOnly?: boolean } = {}): Promise<PayloadBrand[]> {
+  try {
+    const params = new URLSearchParams()
+    params.set('limit', '100')
+    params.set('depth', '1')
+    params.set('sort', 'sortOrder')
+    if (opts.featuredOnly) params.set('where[featured][equals]', 'true')
+
+    const res = await fetch(`${PAYLOAD_URL}/api/brands?${params}`, {
+      next: { revalidate: 300, tags: ['brands'] },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return (data.docs ?? []).map((b: any) => ({
+      id:          b.id,
+      name:        b.name,
+      slug:        b.slug,
+      origin:      b.origin      ?? null,
+      description: b.description ?? null,
+      logo:        b.logo        ?? null,
+      featured:    b.featured    ?? false,
+      sortOrder:   b.sortOrder   ?? 0,
+    }))
+  } catch {
+    return []
+  }
+}
+
+/* ── About Page Images ───────────────────────────────────────────────────── */
+
+export type AboutPageImages = {
+  heroImage:       PayloadImage | null
+  storyImageMain:  PayloadImage | null
+  storyImageLeft:  PayloadImage | null
+  storyImageRight: PayloadImage | null
+  valuesImage:     PayloadImage | null
+}
+
+export async function getAboutPageImages(): Promise<AboutPageImages> {
+  const empty: AboutPageImages = {
+    heroImage: null, storyImageMain: null,
+    storyImageLeft: null, storyImageRight: null, valuesImage: null,
+  }
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/about-page?depth=1`, {
+      next: { revalidate: 300, tags: ['about-page'] },
+    })
+    if (!res.ok) return empty
+    const d = await res.json()
+    return {
+      heroImage:       d.heroImage       ?? null,
+      storyImageMain:  d.storyImageMain  ?? null,
+      storyImageLeft:  d.storyImageLeft  ?? null,
+      storyImageRight: d.storyImageRight ?? null,
+      valuesImage:     d.valuesImage     ?? null,
+    }
+  } catch {
+    return empty
+  }
+}
+
 export function imageUrl(img: PayloadImage | null | undefined): string | null {
   if (!img) return null
   if (img.url.startsWith("http")) return img.url

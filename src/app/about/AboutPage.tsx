@@ -1,7 +1,10 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
+import { imageUrl } from '@/lib/payload'
+import type { AboutPageImages, PayloadBrand } from '@/lib/payload'
 
 function ImgBox({ style = {}, index = 0 }: { style?: React.CSSProperties; index?: number }) {
   const { t } = useTheme()
@@ -41,26 +44,40 @@ function ValueCard({ number, title, body }: { number: string; title: string; bod
   )
 }
 
-function BrandTile({ name, origin, description }: { name: string; origin: string; description: string }) {
+function BrandTile({ name, origin, description, logo, slug }: { name: string; origin: string; description: string; logo: import('@/lib/payload').PayloadImage | null; slug: string }) {
   const { t } = useTheme()
+  const logoSrc = imageUrl(logo)
   return (
-    <div style={{ padding:"24px",border:`1px solid ${t.border}`,background:"transparent",transition:"all 0.25s",cursor:"pointer" }}
-      onMouseEnter={e=>{ e.currentTarget.style.borderColor=t.gold+"55"; e.currentTarget.style.background="#fafafa" }}
-      onMouseLeave={e=>{ e.currentTarget.style.borderColor=t.border; e.currentTarget.style.background="transparent" }}>
-      <div style={{ display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"14px" }}>
-        <div style={{ fontFamily:"var(--font-playfair)",fontSize:"19px",fontWeight:400,color:t.text,letterSpacing:"0.02em",transition:"color 0.22s" }}
-          onMouseEnter={e=>e.currentTarget.style.color=t.gold} onMouseLeave={e=>e.currentTarget.style.color=t.text}>
-          {name}
+    <Link href={`/brand/${slug}`} style={{ textDecoration:"none" }}>
+      <div style={{ padding:"24px",border:`1px solid ${t.border}`,background:"transparent",transition:"all 0.25s",cursor:"pointer",height:"100%" }}
+        onMouseEnter={e=>{ e.currentTarget.style.borderColor=t.gold+"55"; e.currentTarget.style.background="#fafafa" }}
+        onMouseLeave={e=>{ e.currentTarget.style.borderColor=t.border; e.currentTarget.style.background="transparent" }}>
+        {logoSrc && (
+          <div style={{ height:"40px",marginBottom:"16px",display:"flex",alignItems:"center" }}>
+            <Image src={logoSrc} alt={`${name} logo`} width={120} height={40} style={{ objectFit:"contain",objectPosition:"left",maxHeight:"40px",width:"auto" }} />
+          </div>
+        )}
+        <div style={{ display:"flex",alignItems:"flex-start",justifyContent:"space-between",marginBottom:"14px" }}>
+          <div style={{ fontFamily:"var(--font-playfair)",fontSize:"19px",fontWeight:400,color:t.text,letterSpacing:"0.02em",transition:"color 0.22s" }}
+            onMouseEnter={e=>e.currentTarget.style.color=t.gold} onMouseLeave={e=>e.currentTarget.style.color=t.text}>
+            {name}
+          </div>
+          <span style={{ fontSize:"8.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.textDim,fontWeight:400,flexShrink:0,marginLeft:"12px",marginTop:"4px" }}>{origin}</span>
         </div>
-        <span style={{ fontSize:"8.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.textDim,fontWeight:400,flexShrink:0,marginLeft:"12px",marginTop:"4px" }}>{origin}</span>
+        <div style={{ width:"20px",height:"1px",background:t.gold+"50",marginBottom:"12px" }}/>
+        <p style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,lineHeight:1.75,letterSpacing:"0.01em" }}>{description}</p>
       </div>
-      <div style={{ width:"20px",height:"1px",background:t.gold+"50",marginBottom:"12px" }}/>
-      <p style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,lineHeight:1.75,letterSpacing:"0.01em" }}>{description}</p>
-    </div>
+    </Link>
   )
 }
 
-export default function AboutPage() {
+export default function AboutPage({
+  images = { heroImage: null, storyImageMain: null, storyImageLeft: null, storyImageRight: null, valuesImage: null },
+  brands = [],
+}: {
+  images?: AboutPageImages
+  brands?: PayloadBrand[]
+}) {
   const { t } = useTheme()
 
   return (
@@ -98,7 +115,10 @@ export default function AboutPage() {
                 {[{top:"14px",left:"14px",borderTop:`1px solid ${t.gold}50`,borderLeft:`1px solid ${t.gold}50`},{top:"14px",right:"14px",borderTop:`1px solid ${t.gold}50`,borderRight:`1px solid ${t.gold}50`},{bottom:"14px",left:"14px",borderBottom:`1px solid ${t.gold}50`,borderLeft:`1px solid ${t.gold}50`},{bottom:"14px",right:"14px",borderBottom:`1px solid ${t.gold}50`,borderRight:`1px solid ${t.gold}50`}].map((s,i) => (
                   <div key={i} style={{ position:"absolute",width:"22px",height:"22px",...s,zIndex:1 }}/>
                 ))}
-                <ImgBox index={0} style={{ width:"100%",height:"100%" }}/>
+                {images.heroImage
+                  ? <Image src={imageUrl(images.heroImage)!} alt={images.heroImage.alt || "Luxus Collection showroom"} fill style={{ objectFit:"cover" }} sizes="(max-width:768px) 100vw, 50vw" />
+                  : <ImgBox index={0} style={{ width:"100%",height:"100%" }}/>
+                }
               </div>
               <div style={{ position:"absolute",bottom:"40px",left:"-36px",background:"rgba(255,255,255,0.96)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"14px 18px",backdropFilter:"blur(12px)",boxShadow:"0 12px 40px rgba(0,0,0,0.1)",minWidth:"200px" }}>
                 <div style={{ fontSize:"7.5px",letterSpacing:"0.22em",color:t.gold,textTransform:"uppercase",fontWeight:500,marginBottom:"5px" }}>Federal Firearms Licensee</div>
@@ -140,10 +160,25 @@ export default function AboutPage() {
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div className="lxs-about-story">
             <div style={{ position:"sticky",top:"96px",display:"flex",flexDirection:"column",gap:"14px" }}>
-              <ImgBox index={1} style={{ height:"320px",border:`1px solid ${t.border}` }}/>
+              <div style={{ position:"relative",height:"320px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+                {images.storyImageMain
+                  ? <Image src={imageUrl(images.storyImageMain)!} alt={images.storyImageMain.alt || "Our story"} fill style={{ objectFit:"cover" }} sizes="(max-width:768px) 100vw, 40vw" />
+                  : <ImgBox index={1} style={{ width:"100%",height:"100%" }}/>
+                }
+              </div>
               <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px" }}>
-                <ImgBox index={2} style={{ height:"180px",border:`1px solid ${t.border}` }}/>
-                <ImgBox index={3} style={{ height:"180px",border:`1px solid ${t.border}` }}/>
+                <div style={{ position:"relative",height:"180px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+                  {images.storyImageLeft
+                    ? <Image src={imageUrl(images.storyImageLeft)!} alt={images.storyImageLeft.alt || ""} fill style={{ objectFit:"cover" }} sizes="20vw" />
+                    : <ImgBox index={2} style={{ width:"100%",height:"100%" }}/>
+                  }
+                </div>
+                <div style={{ position:"relative",height:"180px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+                  {images.storyImageRight
+                    ? <Image src={imageUrl(images.storyImageRight)!} alt={images.storyImageRight.alt || ""} fill style={{ objectFit:"cover" }} sizes="20vw" />
+                    : <ImgBox index={3} style={{ width:"100%",height:"100%" }}/>
+                  }
+                </div>
               </div>
             </div>
             <div>
@@ -271,8 +306,11 @@ export default function AboutPage() {
                 ))}
               </div>
             </div>
-            <div>
-              <ImgBox index={4} style={{ aspectRatio:"1/1",maxHeight:"500px",border:`1px solid ${t.border}` }}/>
+            <div style={{ position:"relative",aspectRatio:"1/1",maxHeight:"500px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+              {images.valuesImage
+                ? <Image src={imageUrl(images.valuesImage)!} alt={images.valuesImage.alt || "Curation standards"} fill style={{ objectFit:"cover" }} sizes="(max-width:768px) 100vw, 40vw" />
+                : <ImgBox index={4} style={{ width:"100%",height:"100%" }}/>
+              }
             </div>
           </div>
         </div>
@@ -294,17 +332,23 @@ export default function AboutPage() {
             </Link>
           </div>
           <div className="lxs-about-brands">
-            {[
-              { name:"Korriphila",       origin:"Germany · Heidelberg",       description:"Among the rarest and most exclusive pistol makers in the world. Edgar Budischowsky's HSP-701 represents the absolute pinnacle of German semi-automatic engineering, hand-built in quantities so limited that a waiting list is simply part of ownership." },
-              { name:"SIG Sauer",        origin:"Germany / Switzerland / USA", description:"From the original Swiss P210 to the modern P226 Legion and P320 AXG, SIG's collector and duty-grade production line represents the enduring best of European precision manufacture." },
-              { name:"Heckler & Koch",   origin:"Germany · Oberndorf",        description:"Relentless German engineering applied to every pistol they produce. The P7, HK45, Mark 23, and USP series occupy a singular position — iconic design married to mechanical excellence that has never been fully replicated." },
-              { name:"Colt",             origin:"USA · Hartford, CT",         description:"The original American firearm. Python, Gold Cup, Government Model, Single Action Army — Colt's heritage pieces occupy a category that no other manufacturer, American or otherwise, can genuinely claim to share." },
-              { name:"Smith & Wesson",   origin:"USA · Springfield, MA",      description:"Over 170 years of American revolver and pistol heritage. The Model 29, the Performance Center series, and the classic K-frame revolvers represent the backbone of the American collecting tradition." },
-              { name:"Walther",          origin:"Germany · Ulm",              description:"Precision, restraint, and nearly 140 years of German craftsmanship. From the legendary PPK and P38 to the modern PPQ and PDP, Walther's lineage spans military history and collector culture in equal measure." },
-              { name:"Ruger",            origin:"USA · Southport, CT",        description:"American ingenuity at scale. From the Mark-series rimfires to the New Model Single-Six and the Super Redhawk, Ruger pairs uncompromising mechanical reliability with a heritage of approachable craftsmanship that defines the modern American sporting arm." },
-              { name:"Nighthawk Custom", origin:"USA · Berryville, AR",       description:"One pistol, one gunsmith, start to finish. Every Nighthawk 1911 is hand-fitted by a single master craftsman — a discipline that produces some of the tightest tolerances and most coveted custom-grade production pistols ever made in America." },
-              { name:"Korth",            origin:"Germany · Lollar",           description:"The pinnacle of the modern collector revolver. Handcrafted in small batches with proprietary heat-treatment and tolerances measured in microns, the NXR and Sky Marshal series occupy a tier that simply has no peer in the contemporary revolver market." },
-            ].map(brand => <BrandTile key={brand.name} {...brand} />)}
+            {(brands.length > 0 ? brands.map(b => ({
+              name: b.name,
+              origin: b.origin ?? "",
+              description: b.description ?? "",
+              logo: b.logo,
+              slug: b.slug,
+            })) : [
+              { name:"Korriphila",       origin:"Germany · Heidelberg",       description:"Among the rarest and most exclusive pistol makers in the world. Edgar Budischowsky's HSP-701 represents the absolute pinnacle of German semi-automatic engineering, hand-built in quantities so limited that a waiting list is simply part of ownership.",        logo:null, slug:"korriphila" },
+              { name:"SIG Sauer",        origin:"Germany / Switzerland / USA", description:"From the original Swiss P210 to the modern P226 Legion and P320 AXG, SIG's collector and duty-grade production line represents the enduring best of European precision manufacture.",                                                                              logo:null, slug:"sig-sauer" },
+              { name:"Heckler & Koch",   origin:"Germany · Oberndorf",        description:"Relentless German engineering applied to every pistol they produce. The P7, HK45, Mark 23, and USP series occupy a singular position — iconic design married to mechanical excellence that has never been fully replicated.",                                          logo:null, slug:"heckler-and-koch" },
+              { name:"Colt",             origin:"USA · Hartford, CT",         description:"The original American firearm. Python, Gold Cup, Government Model, Single Action Army — Colt's heritage pieces occupy a category that no other manufacturer, American or otherwise, can genuinely claim to share.",                                                    logo:null, slug:"colt" },
+              { name:"Smith & Wesson",   origin:"USA · Springfield, MA",      description:"Over 170 years of American revolver and pistol heritage. The Model 29, the Performance Center series, and the classic K-frame revolvers represent the backbone of the American collecting tradition.",                                                                  logo:null, slug:"smith-and-wesson" },
+              { name:"Walther",          origin:"Germany · Ulm",              description:"Precision, restraint, and nearly 140 years of German craftsmanship. From the legendary PPK and P38 to the modern PPQ and PDP, Walther's lineage spans military history and collector culture in equal measure.",                                                        logo:null, slug:"walther" },
+              { name:"Ruger",            origin:"USA · Southport, CT",        description:"American ingenuity at scale. From the Mark-series rimfires to the New Model Single-Six and the Super Redhawk, Ruger pairs uncompromising mechanical reliability with a heritage of approachable craftsmanship that defines the modern American sporting arm.",           logo:null, slug:"ruger" },
+              { name:"Nighthawk Custom", origin:"USA · Berryville, AR",       description:"One pistol, one gunsmith, start to finish. Every Nighthawk 1911 is hand-fitted by a single master craftsman — a discipline that produces some of the tightest tolerances and most coveted custom-grade production pistols ever made in America.",                       logo:null, slug:"nighthawk-custom" },
+              { name:"Korth",            origin:"Germany · Lollar",           description:"The pinnacle of the modern collector revolver. Handcrafted in small batches with proprietary heat-treatment and tolerances measured in microns, the NXR and Sky Marshal series occupy a tier that simply has no peer in the contemporary revolver market.",              logo:null, slug:"korth" },
+            ]).map(brand => <BrandTile key={brand.name} name={brand.name} origin={brand.origin} description={brand.description} logo={brand.logo} slug={brand.slug} />)}
           </div>
           <div style={{ marginTop:"20px",padding:"16px 24px",border:`1px solid ${t.border}`,borderStyle:"dashed",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"12px" }}>
             <span style={{ fontSize:"13px",fontWeight:300,color:t.textMuted,letterSpacing:"0.02em",fontStyle:"italic" }}>

@@ -1,7 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
-const ALLOWED_TAGS = new Set(['site-settings', 'posts', 'comments', 'subscribers', 'products'])
+const ALLOWED_TAGS = new Set(['site-settings', 'posts', 'comments', 'subscribers', 'products', 'hero-slides', 'about-page', 'brands'])
 
 function checkSecret(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get("secret")

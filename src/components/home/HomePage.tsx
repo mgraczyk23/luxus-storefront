@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
+import type { HeroSlide } from '@/lib/payload'
 import HeroSection from './HeroSection'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
@@ -487,6 +488,7 @@ function BrowseScroll({
 
 export default function HomePage({
   heroProduct,
+  heroSlides = [],
   featuredProducts,
   newArrivals,
   collections,
@@ -494,6 +496,7 @@ export default function HomePage({
   articles = [],
 }: {
   heroProduct: HeroProduct
+  heroSlides?: HeroSlide[]
   featuredProducts: MappedProduct[]
   newArrivals: MappedProduct[]
   collections: ShopItem[]
@@ -543,7 +546,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* HERO                                                           */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <HeroSection />
+      <HeroSection slides={heroSlides.length > 0 ? heroSlides : undefined} />
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* FEATURED COLLECTION                                            */}
