@@ -32,7 +32,13 @@ export default async function Page({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const post = await getPost(slug)
+  const [post, allPosts] = await Promise.all([
+    getPost(slug),
+    getPosts({ limit: 100, noContent: true }).catch(() => ({ docs: [] })),
+  ])
   if (!post) notFound()
-  return <ArticlePage post={post} />
+  const related = allPosts.docs
+    .filter((p) => p.slug !== slug && p.status === "published")
+    .slice(0, 3)
+  return <ArticlePage post={post} related={related} />
 }

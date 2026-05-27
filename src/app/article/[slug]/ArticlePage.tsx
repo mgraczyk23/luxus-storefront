@@ -182,7 +182,7 @@ function RelatedCard({ post, compact = false }: { post: PayloadPost; compact?: b
 }
 
 /* ── Main export ─────────────────────────────────────────────────────────── */
-export default function ArticlePage({ post }: { post: PayloadPost }) {
+export default function ArticlePage({ post, related = [] }: { post: PayloadPost; related?: PayloadPost[] }) {
   const { t } = useTheme()
   const [activeToc, setActiveToc] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -369,25 +369,32 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
         </div>
       </div>
 
-      {/* ── Back to articles footer ── */}
-      <section style={{ maxWidth: "1440px", margin: isMobile ? "48px auto 0" : "80px auto 0", padding: isMobile ? "0 16px 64px" : "0 40px 96px" }}>
-        <div style={{ borderTop: `1px solid ${t.border}`, paddingTop: "52px" }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "40px" }}>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }}/>
-                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Continue Reading</span>
+      {/* ── Continue Reading ── */}
+      {related.length > 0 && (
+        <section style={{ maxWidth: "1440px", margin: isMobile ? "48px auto 0" : "80px auto 0", padding: isMobile ? "0 16px 64px" : "0 40px 96px" }}>
+          <div style={{ borderTop: `1px solid ${t.border}`, paddingTop: "52px" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "40px" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+                  <div style={{ width: "18px", height: "1px", background: t.gold }}/>
+                  <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Continue Reading</span>
+                </div>
+                <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,2.5vw,34px)", fontWeight: 300, color: t.text, lineHeight: 1.1 }}>
+                  From The Blog
+                </h2>
               </div>
-              <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,2.5vw,34px)", fontWeight: 300, color: t.text, lineHeight: 1.1 }}>
-                From The Blog
-              </h2>
+              <Link href="/articles" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, flexShrink: 0, textDecoration: "none" }}>
+                All Articles
+              </Link>
             </div>
-            <Link href="/articles" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, flexShrink: 0, textDecoration: "none" }}>
-              All Articles
-            </Link>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : `repeat(${related.length}, 1fr)`, gap: isMobile ? "32px" : "40px" }}>
+              {related.map((p) => (
+                <RelatedCard key={p.id} post={p} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   )
 }
