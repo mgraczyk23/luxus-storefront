@@ -35,9 +35,10 @@ function DirectoryCard({ item, isBrand }: { item: DirectoryItem; isBrand: boolea
           el.style.boxShadow = ''
         }}
       >
-        {/* Image area */}
+        {/* Image area — square so it scales correctly at all breakpoints */}
         <div style={{
-          height: '180px',
+          aspectRatio: '1 / 1',
+          width: '100%',
           position: 'relative',
           overflow: 'hidden',
           background: isBrand ? '#f8f7f4' : '#1a1a1a',

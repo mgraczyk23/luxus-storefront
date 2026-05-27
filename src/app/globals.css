@@ -650,6 +650,7 @@ a {
 
 /* ── Shop By Directory ───────────────────────────────────────────────────── */
 .lxs-shop-by-grid { grid-template-columns: repeat(4, 1fr); }
+.lxs-shop-by-grid > * { min-width: 0; }
 
 @media (max-width: 1024px) {
   .lxs-shop-by-grid { grid-template-columns: repeat(3, 1fr); }
