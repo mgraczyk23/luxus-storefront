@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
 import HeroSection from './HeroSection'
-import ArticleNewsletter from '@/app/article/[slug]/ArticleNewsletter'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
 
@@ -503,7 +502,36 @@ export default function HomePage({
 }) {
   const { t } = useTheme()
   const [tab, setTab] = useState<"collections" | "categories">("collections")
+  const [email, setEmail] = useState("")
+  const [nlStatus, setNlStatus] = useState<"idle" | "submitting" | "success" | "duplicate" | "error">("idle")
   const router = useRouter()
+
+  const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL ?? "https://api.luxus-collection.com/cms"
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email.trim()) return
+    setNlStatus("submitting")
+    try {
+      const res = await fetch(`${PAYLOAD_URL}/api/subscribers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim(), source: "homepage" }),
+      })
+      if (res.status === 400) {
+        const json = await res.json().catch(() => ({}))
+        const msg = (json?.errors?.[0]?.message ?? "").toLowerCase()
+        if (msg.includes("already subscribed") || msg.includes("unique")) {
+          setNlStatus("duplicate"); return
+        }
+      }
+      if (!res.ok) throw new Error()
+      setEmail("")
+      setNlStatus("success")
+    } catch {
+      setNlStatus("error")
+    }
+  }
 
   const featured = featuredProducts
   const arrivals = newArrivals
@@ -682,9 +710,62 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* NEWSLETTER                                                     */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section className="lxs-home-newsletter" style={{ borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}` }}>
-        <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
-          <ArticleNewsletter source="homepage" />
+      <section className="lxs-home-newsletter" style={{
+        background: "#f3f3f5",
+        borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}`,
+      }}>
+        <div style={{ maxWidth: "560px", margin: "0 auto", textAlign: "center" }}>
+          <div style={{ fontSize: "8px", letterSpacing: "0.28em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "14px" }}>
+            The Inner Circle
+          </div>
+          <div style={{ fontFamily: PLAYFAIR, fontSize: "34px", fontWeight: 300, color: t.text, lineHeight: 1.15, marginBottom: "14px" }}>
+            The Collector&apos;s<br />Newsletter
+          </div>
+          <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.8, marginBottom: "30px" }}>
+            New acquisitions, exclusive access, editorial features, and curated insights — delivered to the discerning few.
+          </p>
+
+          {nlStatus === "success" ? (
+            <div style={{ padding: "16px 20px", border: `1px solid ${t.border}`, background: t.bg, maxWidth: "420px", margin: "0 auto" }}>
+              <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px", fontFamily: "var(--font-inter)" }}>You&apos;re in</div>
+              <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, fontFamily: "var(--font-inter)", margin: 0, lineHeight: 1.7 }}>
+                Thank you — you&apos;ll hear from us every Friday.
+              </p>
+            </div>
+          ) : nlStatus === "duplicate" ? (
+            <div style={{ padding: "16px 20px", border: `1px solid ${t.border}`, background: t.bg, maxWidth: "420px", margin: "0 auto" }}>
+              <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, fontFamily: "var(--font-inter)", margin: 0, lineHeight: 1.7 }}>
+                That email is already subscribed — you&apos;re all set.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleNewsletterSubmit} style={{ display: "flex", maxWidth: "420px", margin: "0 auto", flexDirection: "column", gap: "8px" }}>
+              <div style={{ display: "flex" }}>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="Your email address"
+                  required
+                  style={{ flex: 1, padding: "12px 18px", background: "#fff", border: `1px solid ${t.border}`, borderRight: "none", color: t.text, fontSize: "12px", outline: "none", fontFamily: "var(--font-inter)", letterSpacing: "0.03em" }}
+                />
+                <button
+                  type="submit"
+                  disabled={nlStatus === "submitting"}
+                  style={{ padding: "12px 22px", background: nlStatus === "submitting" ? t.bgSurface : t.gold, color: nlStatus === "submitting" ? t.textDim : "#fff", border: `1px solid ${nlStatus === "submitting" ? t.border : t.gold}`, fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: nlStatus === "submitting" ? "default" : "pointer", whiteSpace: "nowrap", transition: "all 0.2s" }}
+                  onMouseEnter={e => { if (nlStatus !== "submitting") e.currentTarget.style.background = t.goldLight }}
+                  onMouseLeave={e => { if (nlStatus !== "submitting") e.currentTarget.style.background = t.gold }}
+                >
+                  {nlStatus === "submitting" ? "…" : "Subscribe"}
+                </button>
+              </div>
+              {nlStatus === "error" && (
+                <p style={{ fontSize: "11px", color: "#c0392b", fontFamily: "var(--font-inter)", margin: 0 }}>
+                  Something went wrong — please try again.
+                </p>
+              )}
+            </form>
+          )}
         </div>
       </section>
 
