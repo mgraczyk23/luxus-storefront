@@ -83,6 +83,8 @@ export default async function Home() {
     }
   }
 
+  const tileImages = tileImagesRes.status === "fulfilled" ? tileImagesRes.value : { collections: {}, categories: {} }
+
   const collections = allCollections
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .map((c: any) => ({
@@ -145,7 +147,6 @@ export default async function Home() {
     : []
 
   const heroSlides = heroSlidesRes.status === "fulfilled" ? heroSlidesRes.value : []
-  const tileImages = tileImagesRes.status === "fulfilled" ? tileImagesRes.value : { collections: {}, categories: {} }
 
   return (
     <HomePage
