@@ -80,6 +80,48 @@ export async function getPost(slug: string): Promise<PayloadPost | null> {
   return data.docs[0] ?? null
 }
 
+export type PayloadComment = {
+  id:          string
+  authorName:  string
+  body:        string
+  createdAt:   string
+}
+
+export async function getComments(postId: string): Promise<PayloadComment[]> {
+  const params = new URLSearchParams()
+  params.set("where[post][equals]", postId)
+  params.set("where[status][equals]", "approved")
+  params.set("sort", "createdAt")
+  params.set("depth", "0")
+  params.set("limit", "200")
+
+  const res = await fetch(`${PAYLOAD_URL}/api/comments?${params}`, {
+    next: { revalidate: 60, tags: [`comments-${postId}`] },
+  })
+  if (!res.ok) return []
+  const data: PayloadListResponse<PayloadComment> = await res.json()
+  return data.docs ?? []
+}
+
+export async function createComment(data: {
+  post: string
+  authorName: string
+  authorEmail: string
+  body: string
+}): Promise<{ ok: boolean; message?: string }> {
+  const res = await fetch(`${PAYLOAD_URL}/api/comments`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+    cache: "no-store",
+  })
+  if (!res.ok) {
+    const json = await res.json().catch(() => ({}))
+    return { ok: false, message: json?.errors?.[0]?.message ?? "Failed to submit." }
+  }
+  return { ok: true }
+}
+
 export function imageUrl(img: PayloadImage | null | undefined): string | null {
   if (!img) return null
   if (img.url.startsWith("http")) return img.url

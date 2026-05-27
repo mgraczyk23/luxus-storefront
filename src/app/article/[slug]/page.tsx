@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getPosts, getPost } from "@/lib/payload"
+import { getPosts, getPost, getComments } from "@/lib/payload"
 import ArticlePage from "./ArticlePage"
 
 export async function generateStaticParams() {
@@ -40,5 +40,6 @@ export default async function Page({
   const related = allPosts.docs
     .filter((p) => p.slug !== slug && p.status === "published")
     .slice(0, 3)
-  return <ArticlePage post={post} related={related} />
+  const comments = await getComments(post.id).catch(() => [])
+  return <ArticlePage post={post} related={related} comments={comments} />
 }

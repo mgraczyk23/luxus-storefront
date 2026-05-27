@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
-import type { PayloadPost } from '@/lib/payload'
+import type { PayloadPost, PayloadComment } from '@/lib/payload'
 import { parseLexical, imageUrl } from '@/lib/payload'
 import type { LexNode, LexInline } from '@/lib/payload'
+import CommentsSection from './CommentsSection'
 
 /* ── Reading progress bar ────────────────────────────────────────────────── */
 function ProgressBar() {
@@ -182,7 +183,7 @@ function RelatedCard({ post, compact = false }: { post: PayloadPost; compact?: b
 }
 
 /* ── Main export ─────────────────────────────────────────────────────────── */
-export default function ArticlePage({ post, related = [] }: { post: PayloadPost; related?: PayloadPost[] }) {
+export default function ArticlePage({ post, related = [], comments = [] }: { post: PayloadPost; related?: PayloadPost[]; comments?: PayloadComment[] }) {
   const { t } = useTheme()
   const [activeToc, setActiveToc] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -357,6 +358,9 @@ export default function ArticlePage({ post, related = [] }: { post: PayloadPost;
                 </div>
               </div>
             )}
+
+            {/* Comments */}
+            <CommentsSection postId={post.id} initialComments={comments} />
 
             {/* Back to articles */}
             <div style={{ marginTop: "48px", paddingTop: "32px", borderTop: `1px solid ${t.border}` }}>
