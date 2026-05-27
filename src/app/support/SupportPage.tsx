@@ -45,10 +45,30 @@ function ContactCard({ icon, label, value, sub, href, cta, accent = false }: {
 export default function SupportPage() {
   const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", orderNumber:"", topic:TOPICS[0], message:"", fflConsent:false })
-  const [formStatus, setFormStatus] = useState("idle")
+  const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
 
   const set = (k: string, v: string | boolean) => setForm(p => ({ ...p, [k]: v }))
   const canSubmit = form.firstName && form.email && form.topic !== TOPICS[0]
+
+  const handleSubmit = async () => {
+    if (!canSubmit || formStatus === "submitting") return
+    setFormStatus("submitting")
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mailbox: 'support',
+          subject: `Support Request: ${form.topic} — ${form.firstName} ${form.lastName}`,
+          ...form,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      setFormStatus("success")
+    } catch {
+      setFormStatus("error")
+    }
+  }
 
   const inputStyle = {
     width:"100%", padding:"11px 14px",
@@ -192,12 +212,17 @@ export default function SupportPage() {
                     I understand that all firearm purchases require FFL transfer through a licensed dealer in my state of residence.
                   </span>
                 </label>
-                <button onClick={()=>{ if(!canSubmit||formStatus==="submitting") return; setFormStatus("submitting"); setTimeout(()=>setFormStatus("success"),1400) }} disabled={!canSubmit||formStatus==="submitting"}
+                <button onClick={handleSubmit} disabled={!canSubmit||formStatus==="submitting"}
                   style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
                   onMouseEnter={e=>{ if(canSubmit) e.currentTarget.style.background=t.goldLight }}
                   onMouseLeave={e=>{ if(canSubmit) e.currentTarget.style.background=t.gold }}>
                   {formStatus==="submitting"?"Sending…":"Send Message"}
                 </button>
+                {formStatus === "error" && (
+                  <p style={{ fontSize:"11px",color:"#c0392b",textAlign:"center",marginTop:"8px",fontFamily:"var(--font-inter)" }}>
+                    Something went wrong — please try again or email support@luxus-collection.com directly.
+                  </p>
+                )}
                 <p style={{ fontSize:"10px",color:t.textDim,textAlign:"center",marginTop:"12px",letterSpacing:"0.03em",fontWeight:300 }}>
                   Fields marked <span style={{ color:t.gold }}>*</span> are required · We respond within 1 business day
                 </p>

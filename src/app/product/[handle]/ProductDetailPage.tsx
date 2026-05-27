@@ -116,7 +116,8 @@ export default function ProductDetailPage({
     message: `I'm interested in the ${product.title} and would like more information.`,
     fflConsent: false,
   })
-  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success'>('idle')
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [contactModalContext, setContactModalContext] = useState<'question' | 'pricing'>('question')
   const [copied, setCopied] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
   useEffect(() => { setShareUrl(window.location.href) }, [])
@@ -148,10 +149,29 @@ export default function ProductDetailPage({
   const handleFormChange = (field: string, value: string | boolean) =>
     setForm(prev => ({ ...prev, [field]: value }))
 
-  const handleSubmit = () => {
-    if (!form.firstName || !form.email) return
+  const handleSubmit = async () => {
+    if (!form.firstName || !form.email || formStatus === 'submitting') return
     setFormStatus('submitting')
-    setTimeout(() => setFormStatus('success'), 1400)
+    const isPricing = contactModalContext === 'pricing'
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mailbox: 'sales',
+          subject: isPricing
+            ? `Pricing Inquiry: ${product.title}`
+            : `Product Question: ${product.title}`,
+          product: `${product.brand ? product.brand + ' — ' : ''}${product.title}`,
+          ...form,
+          fflConsent: form.fflConsent ? 'Yes' : undefined,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      setFormStatus('success')
+    } catch {
+      setFormStatus('error')
+    }
   }
 
   const handleCopy = () => {
@@ -230,7 +250,7 @@ export default function ProductDetailPage({
               {product.contact_for_pricing ? "Contact For Pricing" : product.price !== null ? fmt(product.price) : ""}
             </span>
             {product.contact_for_pricing ? (
-              <button onClick={() => setContactModalOpen(true)}
+              <button onClick={() => { setContactModalContext('pricing'); setContactModalOpen(true) }}
                 style={{ padding: "9px 22px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
                 Contact for Pricing
               </button>
@@ -462,7 +482,7 @@ export default function ProductDetailPage({
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
               {product.contact_for_pricing ? (
                 <>
-                  <button onClick={() => setContactModalOpen(true)}
+                  <button onClick={() => { setContactModalContext('pricing'); setContactModalOpen(true) }}
                     style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
                     onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
                     onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
@@ -493,7 +513,7 @@ export default function ProductDetailPage({
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L8.1 4.7L12 5.2L9.25 7.9L10 12L6.5 10.1L3 12L3.75 7.9L1 5.2L4.9 4.7L6.5 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" /></svg>
                     Make an Offer
                   </button>
-                  <button onClick={() => setContactModalOpen(true)}
+                  <button onClick={() => { setContactModalContext('question'); setContactModalOpen(true) }}
                     style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.border}`, color: t.text, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s" }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "70"; e.currentTarget.style.color = t.gold }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.text }}>
@@ -785,12 +805,17 @@ export default function ProductDetailPage({
                     </span>
                   </label>
 
-                  <button onClick={handleSubmit} disabled={formStatus === 'submitting'}
+                  <button onClick={() => { setContactModalContext('question'); handleSubmit() }} disabled={formStatus === 'submitting'}
                     style={{ width: "100%", padding: "14px", background: formStatus === 'submitting' ? t.gold + "80" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: formStatus === 'submitting' ? "wait" : "pointer", borderRadius: "1px", transition: "all 0.22s" }}
                     onMouseEnter={e => { if (formStatus !== 'submitting') e.currentTarget.style.background = t.goldLight }}
                     onMouseLeave={e => { if (formStatus !== 'submitting') e.currentTarget.style.background = t.gold }}>
                     {formStatus === 'submitting' ? "Sending…" : "Send Inquiry"}
                   </button>
+                  {formStatus === 'error' && (
+                    <p style={{ fontSize: "11px", color: "#c0392b", textAlign: "center", marginTop: "8px", fontFamily: "'Inter',sans-serif" }}>
+                      Something went wrong — please try again or email sales@luxus-collection.com.
+                    </p>
+                  )}
                   <p style={{ fontSize: "9.5px", color: t.textDim, textAlign: "center", marginTop: "12px", letterSpacing: "0.03em", fontWeight: 300 }}>
                     We typically respond within one business day.
                   </p>
@@ -955,6 +980,11 @@ export default function ProductDetailPage({
                     onMouseLeave={e => { if (form.firstName && form.email && formStatus !== 'submitting') e.currentTarget.style.background = t.gold }}>
                     {formStatus === 'submitting' ? "Sending…" : "Send Inquiry"}
                   </button>
+                  {formStatus === 'error' && (
+                    <p style={{ fontSize: "11px", color: "#c0392b", textAlign: "center", marginTop: "8px", fontFamily: "'Inter',sans-serif" }}>
+                      Something went wrong — please try again or email sales@luxus-collection.com.
+                    </p>
+                  )}
                   <p style={{ fontSize: "10.5px", fontWeight: 300, color: t.textDim, textAlign: "center", marginTop: "8px" }}>
                     We typically respond within one business day. <span style={{ color: t.gold }}>*</span> required
                   </p>

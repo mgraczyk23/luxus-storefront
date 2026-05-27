@@ -16,10 +16,30 @@ const INQUIRY_TYPES = [
 export default function ConsignmentPage() {
   const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", inquiryType:INQUIRY_TYPES[0], make:"", model:"", estimatedValue:"", message:"" })
-  const [formStatus, setFormStatus] = useState("idle")
+  const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }))
   const canSubmit = form.firstName && form.email && form.inquiryType !== INQUIRY_TYPES[0]
+
+  const handleSubmit = async () => {
+    if (!canSubmit || formStatus === "submitting") return
+    setFormStatus("submitting")
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mailbox: 'sales',
+          subject: `Consignment Inquiry: ${form.inquiryType} — ${form.firstName} ${form.lastName}`,
+          ...form,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      setFormStatus("success")
+    } catch {
+      setFormStatus("error")
+    }
+  }
 
   const inp = {
     width:"100%", padding:"11px 14px",
@@ -180,12 +200,17 @@ export default function ConsignmentPage() {
                   <label style={lbl}>Message <span style={{ fontWeight:300,textTransform:"none",letterSpacing:"0.04em",opacity:0.65 }}>(optional)</span></label>
                   <textarea rows={5} placeholder="Tell us more — condition, provenance, what you're looking to get out of it, your timeline, any questions you have…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inp,lineHeight:1.75 }} className="lxs-form-field"/>
                 </div>
-                <button onClick={()=>{ if(!canSubmit) return; setFormStatus("submitting"); setTimeout(()=>setFormStatus("success"),1400) }} disabled={!canSubmit || formStatus==="submitting"}
+                <button onClick={handleSubmit} disabled={!canSubmit || formStatus==="submitting"}
                   style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}
                   onMouseEnter={e=>{ if(canSubmit) e.currentTarget.style.background=t.goldLight }}
                   onMouseLeave={e=>{ if(canSubmit) e.currentTarget.style.background=t.gold }}>
                   {formStatus==="submitting"?"Sending…":"Send Inquiry"}
                 </button>
+                {formStatus === "error" && (
+                  <p style={{ fontSize:"11px",color:"#c0392b",textAlign:"center",marginTop:"8px",fontFamily:"var(--font-inter)" }}>
+                    Something went wrong — please try again or email sales@luxus-collection.com directly.
+                  </p>
+                )}
                 <p style={{ fontSize:"10px",color:t.textDim,textAlign:"center",marginTop:"12px",letterSpacing:"0.03em",fontWeight:300 }}>
                   Fields marked * are required · We respond within 3 business days
                 </p>

@@ -52,16 +52,39 @@ function MapPlaceholder() {
 export default function ContactPage() {
   const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", company:"", topic: TOPICS[0], message:"", newsletter: false })
-  const [formStatus, setFormStatus] = useState("idle")
+  const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
   const [activeChannel, setActiveChannel] = useState<string|null>(null)
 
   const set = (k: string, v: string | boolean) => setForm(p => ({ ...p, [k]: v }))
   const canSubmit = form.firstName && form.email && form.topic !== TOPICS[0]
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSubmit) return
     setFormStatus("submitting")
-    setTimeout(() => setFormStatus("success"), 1400)
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mailbox: 'info',
+          subject: `Contact Form: ${form.topic} — ${form.firstName} ${form.lastName}`,
+          ...form,
+          newsletter: undefined,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      if (form.newsletter) {
+        const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'https://api.luxus-collection.com/cms'
+        await fetch(`${PAYLOAD_URL}/api/subscribers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: form.email, name: `${form.firstName} ${form.lastName}`.trim(), source: 'contact-form' }),
+        }).catch(() => {})
+      }
+      setFormStatus("success")
+    } catch {
+      setFormStatus("error")
+    }
   }
 
   const inputStyle = {
@@ -241,6 +264,11 @@ export default function ContactPage() {
                   onMouseLeave={e=>{ if(canSubmit) (e.currentTarget as HTMLButtonElement).style.background=t.gold }}>
                   {formStatus==="submitting"?"Sending…":"Send Message"}
                 </button>
+                {formStatus === "error" && (
+                  <p style={{ fontSize:"11px",color:"#c0392b",textAlign:"center",marginTop:"8px",fontFamily:"var(--font-inter)" }}>
+                    Something went wrong — please try again or email us directly.
+                  </p>
+                )}
                 <p style={{ fontSize:"10px",color:t.textDim,textAlign:"center",marginTop:"12px",letterSpacing:"0.03em",fontWeight:300 }}>
                   Fields marked <span style={{ color:t.gold }}>*</span> are required · We respond within 1 business day
                 </p>
