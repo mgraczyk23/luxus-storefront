@@ -185,6 +185,14 @@ function RelatedCard({ post, compact = false }: { post: PayloadPost; compact?: b
 export default function ArticlePage({ post }: { post: PayloadPost }) {
   const { t } = useTheme()
   const [activeToc, setActiveToc] = useState<string | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
 
   const body = parseLexical(post.content)
 
@@ -228,7 +236,7 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
             <ImgBox style={{ width: "100%", height: "100%" }} index={0} />
           )}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom,rgba(255,255,255,0.05) 0%,rgba(255,255,255,0.75) 100%)" }}/>
-          <div style={{ position: "absolute", top: "28px", left: "40px" }}>
+          <div style={{ position: "absolute", top: "28px", left: isMobile ? "16px" : "40px" }}>
             <div style={{ background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}50`, padding: "5px 14px", backdropFilter: "blur(8px)", display: "inline-block" }}>
               <span style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, fontFamily: "var(--font-inter)" }}>{post.category}</span>
             </div>
@@ -237,8 +245,8 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
       </div>
 
       {/* ── Article header ── */}
-      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "0 40px" }}>
-        <div style={{ maxWidth: "760px", margin: "0 auto", padding: "52px 0 0" }}>
+      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: isMobile ? "0 16px" : "0 40px" }}>
+        <div style={{ maxWidth: "760px", margin: "0 auto", padding: isMobile ? "32px 0 0" : "52px 0 0" }}>
           {/* Breadcrumb */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "28px" }}>
             {[{ label: "Home", href: "/" }, { label: "Articles", href: "/articles" }, { label: post.category, href: null }].map((crumb, i) => (
@@ -281,8 +289,8 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
       </div>
 
       {/* ── Body + sidebar ── */}
-      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "0 40px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: "72px", alignItems: "start", paddingTop: "48px" }}>
+      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: isMobile ? "0 16px" : "0 40px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 280px", gap: isMobile ? "0" : "72px", alignItems: "start", paddingTop: isMobile ? "32px" : "48px" }}>
 
           {/* Article body */}
           <article style={{ maxWidth: "720px" }}>
@@ -328,8 +336,8 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
             </div>
           </article>
 
-          {/* Sticky sidebar */}
-          <aside style={{ position: "sticky", top: "100px", display: "flex", flexDirection: "column", gap: "36px" }}>
+          {/* Sticky sidebar — hidden on mobile */}
+          <aside style={{ position: "sticky", top: "100px", display: isMobile ? "none" : "flex", flexDirection: "column", gap: "36px" }}>
 
             {/* Table of contents */}
             {toc.length > 0 && (
@@ -369,7 +377,7 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
       </div>
 
       {/* ── Back to articles footer ── */}
-      <section style={{ maxWidth: "1440px", margin: "80px auto 0", padding: "0 40px 96px" }}>
+      <section style={{ maxWidth: "1440px", margin: isMobile ? "48px auto 0" : "80px auto 0", padding: isMobile ? "0 16px 64px" : "0 40px 96px" }}>
         <div style={{ borderTop: `1px solid ${t.border}`, paddingTop: "52px" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "40px" }}>
             <div>
