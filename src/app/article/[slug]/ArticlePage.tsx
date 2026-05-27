@@ -8,6 +8,7 @@ import type { PayloadPost, PayloadComment } from '@/lib/payload'
 import { parseLexical, imageUrl } from '@/lib/payload'
 import type { LexNode, LexInline } from '@/lib/payload'
 import CommentsSection from './CommentsSection'
+import ArticleNewsletter from './ArticleNewsletter'
 
 /* ── Reading progress bar ────────────────────────────────────────────────── */
 function ProgressBar() {
@@ -361,6 +362,9 @@ export default function ArticlePage({ post, related = [], comments = [] }: { pos
 
             {/* Comments */}
             <CommentsSection postId={post.id} initialComments={comments} />
+
+            {/* Newsletter */}
+            <ArticleNewsletter source={post.slug} />
 
             {/* Back to articles */}
             <div style={{ marginTop: "48px", paddingTop: "32px", borderTop: `1px solid ${t.border}` }}>
