@@ -11,8 +11,10 @@ export type PayloadImage = {
 
 export function imageUrl(img: PayloadImage | null | undefined): string | null {
   if (!img) return null
-  if (img.url.startsWith("http")) return img.url
-  return `${PAYLOAD_URL}${img.url}`
+  // Always serve through the Payload proxy — the S3 bucket requires a public-read
+  // bucket policy before direct S3 URLs work. Proxy serves from S3 server-side
+  // and works unconditionally. Switch to `return img.url` once the policy is set.
+  return `${PAYLOAD_URL}/api/media/file/${encodeURIComponent(img.filename)}`
 }
 
 export type PayloadPost = {
