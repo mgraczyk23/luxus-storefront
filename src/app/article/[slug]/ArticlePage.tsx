@@ -187,6 +187,7 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
   const [activeToc, setActiveToc] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showFixedToc, setShowFixedToc] = useState(false)
+  const [pastHero, setPastHero] = useState(false)
 
   useEffect(() => {
     const check = () => {
@@ -196,6 +197,16 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
     check()
     window.addEventListener("resize", check)
     return () => window.removeEventListener("resize", check)
+  }, [])
+
+  useEffect(() => {
+    const onScroll = () => {
+      const hero = document.getElementById("article-hero")
+      if (!hero) return
+      setPastHero(hero.getBoundingClientRect().bottom < 80)
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
   const body = parseLexical(post.content)
@@ -232,7 +243,7 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
       <ProgressBar />
 
       {/* ── Hero image — full bleed from top, header floats above ── */}
-      <div style={{ position: "relative", height: "55vh", minHeight: "380px", maxHeight: "600px", overflow: "hidden" }}>
+      <div id="article-hero" style={{ position: "relative", height: "55vh", minHeight: "380px", maxHeight: "600px", overflow: "hidden" }}>
           {heroUrl ? (
             <Image src={heroUrl} alt={post.featuredImage?.alt ?? post.title} fill style={{ objectFit: "cover" }} priority />
           ) : (
@@ -290,8 +301,8 @@ export default function ArticlePage({ post }: { post: PayloadPost }) {
         </div>
       </div>
 
-      {/* ── Fixed floating ToC — only on wide screens, out of document flow ── */}
-      {showFixedToc && toc.length > 0 && (
+      {/* ── Fixed floating ToC — only on wide screens, only after hero scrolled past ── */}
+      {showFixedToc && toc.length > 0 && pastHero && (
         <div style={{ position: "fixed", top: "120px", right: "32px", width: "220px", zIndex: 80 }}>
           <div style={{ fontSize: "8px", letterSpacing: "0.24em", textTransform: "uppercase", color: t.gold, fontWeight: 500, fontFamily: "var(--font-inter)", marginBottom: "14px", display: "flex", alignItems: "center", gap: "10px" }}>
             <div style={{ width: "14px", height: "1px", background: t.gold }}/>
