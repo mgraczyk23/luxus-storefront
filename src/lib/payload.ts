@@ -155,6 +155,15 @@ export type SiteSettings = {
     youtube?:   string
     pinterest?: string
   }
+  banking: {
+    bankName?:      string
+    accountName?:   string
+    routingNumber?: string
+    accountNumber?: string
+    swiftCode?:     string
+    location?:      string
+    memo?:          string
+  }
   announcement: {
     enabled:  boolean
     message?: string
@@ -178,6 +187,13 @@ const SETTINGS_FALLBACK: SiteSettings = {
     timezone: 'EST', sundayClosed: true,
   },
   social: {},
+  banking: {
+    bankName:      'Truist Bank',
+    accountName:   'Luxus Capital, LLC',
+    routingNumber: '263191387',
+    accountNumber: '1100009085694',
+    location:      'Sarasota, FL',
+  },
   announcement: { enabled: false },
 }
 

@@ -1,13 +1,12 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { getProduct, getProducts } from "@/lib/api"
+import { getProduct, getProducts, getProductDetails } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ProductDetailPage from "./ProductDetailPage"
 import type { Metadata } from "next"
 
 export const revalidate = 60
 
-const FIELDS = "*variants,*variants.prices,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type"
 const RELATED_FIELDS = "*variants,*variants.prices,*images,+metadata,*attribute_values,*attribute_values.attribute_type"
 
 export async function generateMetadata(
@@ -19,9 +18,11 @@ export async function generateMetadata(
     const p = res.products?.[0]
     if (!p) return {}
     const mapped = mapMedusaProduct(p)
+    const detailRes = await getProductDetails(p.id).catch(() => null)
+    const detail = detailRes?.product_detail
     return {
-      title: mapped.title,
-      description: mapped.short_description ?? mapped.overview?.slice(0, 160) ?? undefined,
+      title: detail?.seo_meta_title || mapped.title,
+      description: detail?.seo_meta_description || mapped.short_description || mapped.overview?.slice(0, 160) || undefined,
       openGraph: mapped.thumbnail ? { images: [mapped.thumbnail] } : undefined,
     }
   } catch {
@@ -40,15 +41,22 @@ export default async function ProductPage(
 
   const product = mapMedusaProduct(raw)
 
-  // Fetch related products: same brand, exclude self, take up to 4
-  let relatedProducts: ReturnType<typeof mapMedusaProduct>[] = []
-  try {
-    const relRes = await getProducts({ limit: "20", fields: RELATED_FIELDS })
-    relatedProducts = (relRes.products ?? [])
-      .map(mapMedusaProduct)
-      .filter(p => p.id !== product.id && p.attributes.brand === product.attributes.brand)
-      .slice(0, 4)
-  } catch { /* leave empty */ }
+  // Fetch product details (SEO fields + extra module data) and related products in parallel
+  const [detailRes, relRes] = await Promise.all([
+    getProductDetails(raw.id).catch(() => null),
+    getProducts({ limit: "20", fields: RELATED_FIELDS }).catch(() => null),
+  ])
+
+  const detail = detailRes?.product_detail
+  if (detail) {
+    product.seo_meta_title       = detail.seo_meta_title ?? null
+    product.seo_meta_description = detail.seo_meta_description ?? null
+  }
+
+  const relatedProducts = (relRes?.products ?? [])
+    .map(mapMedusaProduct)
+    .filter(p => p.id !== product.id && p.attributes.brand === product.attributes.brand)
+    .slice(0, 4)
 
   return (
     <Suspense>

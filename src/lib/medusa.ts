@@ -46,6 +46,8 @@ export type MappedProduct = {
   details: {
     primary_category: string | null
   }
+  seo_meta_title: string | null
+  seo_meta_description: string | null
 }
 
 // Build a map of attribute_type.slug → values[] from the attribute_values module.
@@ -171,5 +173,7 @@ export function mapMedusaProduct(p: any): MappedProduct {
     details: {
       primary_category: p.metadata?.primary_category ?? null,
     },
+    seo_meta_title:       null,
+    seo_meta_description: null,
   }
 }
