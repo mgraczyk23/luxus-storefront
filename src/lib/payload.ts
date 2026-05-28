@@ -439,6 +439,52 @@ export async function getPostsByBrand(brandId: string, limit = 8): Promise<Paylo
 
 /* ── Resource Pages ──────────────────────────────────────────────────────── */
 
+export type PayloadFaqItem = {
+  id:        string
+  question:  string
+  answer:    string
+  category:  string
+  sortOrder: number
+}
+
+export type PayloadFaqCategory = {
+  category: string
+  items:    PayloadFaqItem[]
+}
+
+export async function getFaqItems(): Promise<PayloadFaqCategory[]> {
+  try {
+    const params = new URLSearchParams()
+    params.set('limit', '200')
+    params.set('where[status][equals]', 'published')
+    params.set('sort', 'category,sortOrder')
+    params.set('depth', '0')
+
+    const res = await fetch(`${PAYLOAD_URL}/api/faq-items?${params}`, {
+      next: { revalidate: 300, tags: ['faq'] },
+    })
+    if (!res.ok) return []
+    const data: PayloadListResponse<any> = await res.json()
+
+    const grouped = new Map<string, PayloadFaqItem[]>()
+    for (const item of (data.docs ?? [])) {
+      const cat = item.category as string
+      if (!grouped.has(cat)) grouped.set(cat, [])
+      grouped.get(cat)!.push({
+        id:        String(item.id),
+        question:  item.question,
+        answer:    item.answer,
+        category:  cat,
+        sortOrder: item.sortOrder ?? 0,
+      })
+    }
+
+    return [...grouped.entries()].map(([category, items]) => ({ category, items }))
+  } catch {
+    return []
+  }
+}
+
 export type PayloadSpecEntry = {
   id:    string | null
   label: string
