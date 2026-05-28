@@ -7,6 +7,7 @@ import { useTheme } from '@/context/ThemeContext'
 import {
   parseLexical, imageUrl,
   type PayloadBrandFull, type PayloadPost, type PayloadResourcePage,
+  type PayloadModelSeries,
   type LexNode, type LexInline,
 } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
@@ -156,6 +157,53 @@ function ArticleCard({ post }: { post: PayloadPost }) {
   )
 }
 
+/* ── Model Series card ───────────────────────────────────────────────────── */
+function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
+  const { t } = useTheme()
+  const [hov, setHov] = useState(false)
+  const imgUrl = imageUrl(series.image)
+  const href = `/shop/model/${series.productHandle}`
+
+  return (
+    <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          border: `1px solid ${hov ? t.gold + '60' : t.border}`,
+          transition: 'border-color 0.25s, transform 0.25s',
+          transform: hov ? 'translateY(-3px)' : 'translateY(0)',
+          cursor: 'pointer', overflow: 'hidden',
+        }}
+      >
+        <div style={{ height: '180px', background: t.bgSurface, position: 'relative', overflow: 'hidden' }}>
+          {imgUrl
+            ? <Image src={imgUrl} alt={series.name} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
+            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
+          }
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
+          <div style={{ position: 'absolute', bottom: '14px', left: '16px', right: '16px' }}>
+            <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '20px', fontWeight: 400, color: '#fff', lineHeight: 1.2 }}>
+              {series.name}
+            </div>
+            {series.yearIntroduced && (
+              <div style={{ fontSize: '9px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-inter)', fontWeight: 500, marginTop: '4px' }}>
+                Est. {series.yearIntroduced}
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
+          <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+            Shop This Series
+          </span>
+          <span style={{ fontSize: '13px', color: t.gold, opacity: hov ? 1 : 0.6, transition: 'opacity 0.2s' }}>→</span>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 /* ── Product card — matches store ListingPage exactly ────────────────────── */
 const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
@@ -278,6 +326,7 @@ export default function ResourcesBrandPage({
   const hasArticles  = articles.length > 0
   const hasProducts  = products.length > 0
   const brandName    = brand?.name ?? slug
+  const modelSeries  = (brand?.modelSeries ?? []).filter(m => m.productHandle)
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh' }}>
@@ -361,6 +410,16 @@ export default function ResourcesBrandPage({
             <SectionHead eyebrow={brandName} title="Models & Reference Pages" />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
               {resourcePages.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
+            </div>
+          </section>
+        )}
+
+        {/* ── Model Series / Product Lines ─────────────────────────────── */}
+        {modelSeries.length > 0 && (
+          <section style={{ padding: '48px 0' }}>
+            <SectionHead eyebrow={brandName} title="Model Series & Product Lines" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
+              {modelSeries.map(s => <ModelSeriesCard key={s.id} series={s} />)}
             </div>
           </section>
         )}
