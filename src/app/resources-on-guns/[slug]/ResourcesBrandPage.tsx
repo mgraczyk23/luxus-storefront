@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
@@ -179,22 +179,179 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
   )
 }
 
-/* ── Gallery photo ───────────────────────────────────────────────────────── */
-function GalleryPhoto({ item }: { item: PayloadGalleryItem }) {
+/* ── Gallery lightbox ────────────────────────────────────────────────────── */
+function LightboxModal({ items, index, onClose, onPrev, onNext }: {
+  items: PayloadGalleryItem[]
+  index: number
+  onClose: () => void
+  onPrev: () => void
+  onNext: () => void
+}) {
   const { t } = useTheme()
-  const [hov, setHov] = useState(false)
-  const src = imageUrl(item.image)
+  const item = items[index]
+  const src = imageUrl(item?.image)
+  const touchX = useRef(0)
+  const multi = items.length > 1
+
+  useEffect(() => {
+    const handle = (e: KeyboardEvent) => {
+      if (e.key === 'Escape')      onClose()
+      if (e.key === 'ArrowLeft')   onPrev()
+      if (e.key === 'ArrowRight')  onNext()
+    }
+    document.addEventListener('keydown', handle)
+    return () => document.removeEventListener('keydown', handle)
+  }, [onClose, onPrev, onNext])
+
+  // Prevent body scroll while open
+  useEffect(() => {
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [])
+
   if (!src) return null
+
+  const btnBase: React.CSSProperties = {
+    position: 'absolute', top: '50%', transform: 'translateY(-50%)',
+    background: 'rgba(0,0,0,0.55)', border: `1px solid ${t.gold}40`,
+    color: '#fff', width: '44px', height: '44px', fontSize: '22px',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+    cursor: 'pointer', zIndex: 2, lineHeight: 1,
+    fontFamily: 'var(--font-inter)', fontWeight: 300,
+  }
+
   return (
     <div
+      onClick={onClose}
+      onTouchStart={e => { touchX.current = e.touches[0].clientX }}
+      onTouchEnd={e => {
+        const delta = e.changedTouches[0].clientX - touchX.current
+        if (delta > 50) onPrev()
+        else if (delta < -50) onNext()
+      }}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        background: 'rgba(0,0,0,0.92)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      }}
+    >
+      {/* Close */}
+      <button
+        onClick={e => { e.stopPropagation(); onClose() }}
+        style={{
+          position: 'fixed', top: '20px', right: '20px',
+          background: 'rgba(0,0,0,0.55)', border: `1px solid ${t.gold}50`,
+          color: '#fff', width: '40px', height: '40px', fontSize: '20px',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer', zIndex: 3, lineHeight: 1,
+        }}
+        aria-label="Close"
+      >×</button>
+
+      {/* Prev */}
+      {multi && (
+        <button
+          onClick={e => { e.stopPropagation(); onPrev() }}
+          style={{ ...btnBase, left: '16px' }}
+          aria-label="Previous"
+        >‹</button>
+      )}
+
+      {/* Image */}
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ position: 'relative', width: '90vw', maxWidth: '1200px', height: '78vh' }}
+      >
+        <Image
+          src={src}
+          alt={item.image?.alt ?? ''}
+          fill
+          style={{ objectFit: 'contain' }}
+          sizes="90vw"
+          priority
+        />
+      </div>
+
+      {/* Caption + counter */}
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '24px', minHeight: '24px' }}
+      >
+        {item.caption && (
+          <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.72)', fontFamily: 'var(--font-inter)', fontWeight: 300, fontStyle: 'italic', textAlign: 'center' }}>
+            {item.caption}
+          </span>
+        )}
+        {multi && (
+          <span style={{ fontSize: '10px', letterSpacing: '0.14em', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, flexShrink: 0, marginLeft: 'auto' }}>
+            {index + 1} / {items.length}
+          </span>
+        )}
+      </div>
+
+      {/* Next */}
+      {multi && (
+        <button
+          onClick={e => { e.stopPropagation(); onNext() }}
+          style={{ ...btnBase, right: '16px' }}
+          aria-label="Next"
+        >›</button>
+      )}
+    </div>
+  )
+}
+
+function GallerySection({ items, eyebrow }: { items: PayloadGalleryItem[]; eyebrow: string }) {
+  const { t } = useTheme()
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null)
+  const open  = useCallback((i: number) => setLightboxIdx(i), [])
+  const close = useCallback(() => setLightboxIdx(null), [])
+  const prev  = useCallback(() => setLightboxIdx(i => i !== null ? (i - 1 + items.length) % items.length : null), [items.length])
+  const next  = useCallback(() => setLightboxIdx(i => i !== null ? (i + 1) % items.length : null), [items.length])
+
+  return (
+    <section className="rp-section">
+      <SectionHead eyebrow={eyebrow} title="Gallery" />
+      <div className="rp-gallery-grid">
+        {items.map((item, i) => {
+          const src = imageUrl(item.image)
+          if (!src) return null
+          return (
+            <GalleryThumb key={item.id} item={item} src={src} onClick={() => open(i)} />
+          )
+        })}
+      </div>
+      {lightboxIdx !== null && (
+        <LightboxModal items={items} index={lightboxIdx} onClose={close} onPrev={prev} onNext={next} />
+      )}
+    </section>
+  )
+}
+
+function GalleryThumb({ item, src, onClick }: { item: PayloadGalleryItem; src: string; onClick: () => void }) {
+  const { t } = useTheme()
+  const [hov, setHov] = useState(false)
+  return (
+    <div
+      onClick={onClick}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
-      style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', background: t.bgSurface, cursor: hov && item.caption ? 'default' : undefined }}
+      style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', background: t.bgSurface, cursor: 'pointer' }}
     >
       <Image src={src} alt={item.image?.alt ?? ''} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.05)' : 'scale(1)', transition: 'transform 0.45s ease' }} />
+      <div style={{ position: 'absolute', inset: 0, background: hov ? 'rgba(0,0,0,0.22)' : 'transparent', transition: 'background 0.25s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {hov && (
+          <div style={{ width: '36px', height: '36px', border: `1px solid rgba(255,255,255,0.7)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M1 1h5M1 1v5M15 1h-5M15 1v5M1 15h5M1 15v-5M15 15h-5M15 15v-5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+        )}
+      </div>
       {item.caption && hov && (
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '8px 12px', background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
-          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.88)', fontFamily: 'var(--font-inter)', fontWeight: 300, fontStyle: 'italic' }}>{item.caption}</span>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '8px 10px', background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%)' }}>
+          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.85)', fontFamily: 'var(--font-inter)', fontWeight: 300, fontStyle: 'italic' }}>{item.caption}</span>
         </div>
       )}
     </div>
@@ -487,14 +644,7 @@ export default function ResourcesBrandPage({
         )}
 
         {/* ── Photo Gallery ────────────────────────────────────────────── */}
-        {gallery.length > 0 && (
-          <section className="rp-section">
-            <SectionHead eyebrow={brandName} title="Gallery" />
-            <div className="rp-gallery-grid">
-              {gallery.map(item => <GalleryPhoto key={item.id} item={item} />)}
-            </div>
-          </section>
-        )}
+        {gallery.length > 0 && <GallerySection items={gallery} eyebrow={brandName} />}
 
         {/* ── Blog Articles ────────────────────────────────────────────── */}
         {hasArticles && (
