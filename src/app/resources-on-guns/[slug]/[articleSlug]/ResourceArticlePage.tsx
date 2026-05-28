@@ -312,7 +312,7 @@ export default function ResourceArticlePage({
           {page.title}
         </h1>
         {page.excerpt && (
-          <p style={{ fontFamily: 'var(--font-inter)', fontSize: '17px', fontWeight: 300, color: t.textDim, lineHeight: 1.7, margin: '0 0 32px', maxWidth: '680px' }}>
+          <p style={{ fontFamily: 'var(--font-inter)', fontSize: '17px', fontWeight: 300, color: t.textDim, lineHeight: 1.7, margin: '0 0 32px' }}>
             {page.excerpt}
           </p>
         )}
