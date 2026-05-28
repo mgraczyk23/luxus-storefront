@@ -648,6 +648,11 @@ a {
   .lxs-account-tabs button { white-space: nowrap; flex-shrink: 0; }
 }
 
+/* ── Resource article two-column block ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .lex-two-col { grid-template-columns: 1fr !important; gap: 24px !important; }
+}
+
 /* ── Shop By Directory ───────────────────────────────────────────────────── */
 .lxs-shop-by-page { padding: 52px 40px 80px; }
 .lxs-shop-by-grid { grid-template-columns: repeat(4, 1fr); }

@@ -7,7 +7,7 @@ import { useTheme } from '@/context/ThemeContext'
 import {
   parseLexical, imageUrl,
   type PayloadBrandFull, type PayloadResourcePage, type PayloadSpecTable,
-  type LexNode, type LexInline,
+  type LexNode, type LexInline, type LexBlockNode,
 } from '@/lib/payload'
 
 /* ── Lexical inline renderer ─────────────────────────────────────────────── */
@@ -80,6 +80,136 @@ function LexBlock({ node }: { node: LexNode }) {
       </figure>
     )
   }
+  if (node.type === 'block') return <LexCustomBlock node={node} />
+  return null
+}
+
+/* ── Custom block renderers ──────────────────────────────────────────────── */
+
+function LexCustomBlock({ node }: { node: LexBlockNode }) {
+  const { t } = useTheme()
+
+  // ── Inline Spec Table ──────────────────────────────────────────────────────
+  if (node.blockType === 'specBlock') {
+    return (
+      <div style={{ margin: '36px 0', border: `1px solid ${t.border}`, background: t.bgSurface }}>
+        {(node.heading || node.note) && (
+          <div style={{ padding: '16px 20px 12px', borderBottom: `1px solid ${t.border}` }}>
+            {node.heading && (
+              <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '17px', fontWeight: 400, color: t.text, lineHeight: 1.3 }}>
+                {node.heading}
+              </div>
+            )}
+            {node.note && (
+              <p style={{ fontFamily: 'var(--font-inter)', fontSize: '13px', fontWeight: 300, color: t.textDim, margin: node.heading ? '6px 0 0' : 0, lineHeight: 1.6 }}>
+                {node.note}
+              </p>
+            )}
+          </div>
+        )}
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-inter)' }}>
+          <tbody>
+            {node.entries.map((e, i) => (
+              <tr key={i} style={{ borderBottom: i < node.entries.length - 1 ? `1px solid ${t.border}` : 'none' }}>
+                <td style={{ padding: '9px 20px', fontSize: '12px', fontWeight: 500, color: t.textDim, width: '36%', verticalAlign: 'top', letterSpacing: '0.02em' }}>
+                  {e.label}
+                </td>
+                <td style={{ padding: '9px 20px 9px 0', fontSize: '13px', fontWeight: 300, color: t.text, verticalAlign: 'top', lineHeight: 1.55 }}>
+                  {e.value}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  // ── Feature / Callout Box ──────────────────────────────────────────────────
+  if (node.blockType === 'featureBox') {
+    const styles: Record<string, React.CSSProperties> = {
+      features: { border: `1px solid ${t.gold}40`, background: t.bgSurface },
+      note:     { border: `1px solid ${t.border}`, background: t.bgSurface },
+      callout:  { border: `1px solid ${t.gold}`, background: t.gold + '12' },
+    }
+    const headingColor = node.style === 'callout' ? t.gold : t.text
+    const bulletColor  = node.style === 'features' ? t.gold : t.textDim
+    const boxStyle = styles[node.style] ?? styles.features
+
+    return (
+      <div style={{ margin: '36px 0', padding: '22px 26px', ...boxStyle }}>
+        {node.heading && (
+          <div style={{ fontFamily: 'var(--font-inter)', fontSize: '9px', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 600, color: headingColor, marginBottom: '14px' }}>
+            {node.heading}
+          </div>
+        )}
+        <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {node.items.map((item, i) => (
+            <li key={i} style={{ display: 'flex', alignItems: 'baseline', gap: '10px', fontFamily: 'var(--font-inter)', fontSize: '14px', fontWeight: 300, color: t.text, lineHeight: 1.65 }}>
+              <span style={{ color: bulletColor, fontWeight: 600, flexShrink: 0, fontSize: '12px' }}>—</span>
+              {item.text}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  // ── Two Column: Text + Spec ────────────────────────────────────────────────
+  if (node.blockType === 'twoColumnSpec') {
+    const leftFr  = node.ratio === '60-40' ? '3fr' : node.ratio === '40-60' ? '2fr' : '1fr'
+    const rightFr = node.ratio === '60-40' ? '2fr' : node.ratio === '40-60' ? '3fr' : '1fr'
+    const paragraphs = (node.leftText ?? '').split(/\n\n+/).filter(Boolean)
+
+    return (
+      <div style={{ margin: '36px 0', display: 'grid', gridTemplateColumns: `${leftFr} ${rightFr}`, gap: '40px', alignItems: 'start' }}
+           className="lex-two-col">
+        {/* Left: flowing text */}
+        <div>
+          {paragraphs.map((para, i) => (
+            <p key={i} style={{ fontFamily: 'var(--font-inter)', fontSize: '16px', fontWeight: 300, lineHeight: 1.85, color: t.text, margin: i < paragraphs.length - 1 ? '0 0 20px' : 0 }}>
+              {para}
+            </p>
+          ))}
+        </div>
+
+        {/* Right: spec table */}
+        <div style={{ border: `1px solid ${t.border}`, background: t.bgSurface }}>
+          {(node.rightHeading || node.rightNote) && (
+            <div style={{ padding: '14px 18px 10px', borderBottom: `1px solid ${t.border}` }}>
+              {node.rightHeading && (
+                <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '16px', fontWeight: 400, color: t.text, lineHeight: 1.3 }}>
+                  {node.rightHeading}
+                </div>
+              )}
+              {node.rightNote && (
+                <p style={{ fontFamily: 'var(--font-inter)', fontSize: '12.5px', fontWeight: 300, color: t.textDim, margin: node.rightHeading ? '5px 0 0' : 0, lineHeight: 1.55 }}>
+                  {node.rightNote}
+                </p>
+              )}
+            </div>
+          )}
+          {(node.rightEntries ?? []).length > 0 && (
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-inter)' }}>
+              <tbody>
+                {node.rightEntries.map((e, i) => (
+                  <tr key={i} style={{ borderBottom: i < node.rightEntries.length - 1 ? `1px solid ${t.border}` : 'none' }}>
+                    <td style={{ padding: '8px 18px', fontSize: '11.5px', fontWeight: 500, color: t.textDim, width: '40%', verticalAlign: 'top', letterSpacing: '0.02em' }}>
+                      {e.label}
+                    </td>
+                    <td style={{ padding: '8px 18px 8px 0', fontSize: '12.5px', fontWeight: 300, color: t.text, verticalAlign: 'top', lineHeight: 1.5 }}>
+                      {e.value}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return null
 }
 

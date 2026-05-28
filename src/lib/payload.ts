@@ -656,6 +656,11 @@ export async function getPolicy(slug: 'shipping' | 'privacy' | 'terms'): Promise
 /* ── Lexical rich-text → React-renderable node tree ─────────────────────── */
 // Lexical rich-text → React-renderable node tree
 // Returns an array of block-level descriptors consumed by LexicalRenderer
+export type LexBlockNode =
+  | { type: "block"; blockType: "specBlock";      heading?: string; note?: string; entries: { label: string; value: string }[] }
+  | { type: "block"; blockType: "featureBox";     style: "features" | "note" | "callout"; heading?: string; items: { text: string }[] }
+  | { type: "block"; blockType: "twoColumnSpec";  ratio: "50-50" | "60-40" | "40-60"; leftText?: string; rightHeading?: string; rightNote?: string; rightEntries: { label: string; value: string }[] }
+
 export type LexNode =
   | { type: "paragraph";   children: LexInline[] }
   | { type: "heading";     tag: "h2" | "h3"; id?: string; children: LexInline[] }
@@ -663,6 +668,7 @@ export type LexNode =
   | { type: "list";        listType: "bullet" | "number"; items: LexInline[][] }
   | { type: "hr" }
   | { type: "upload";      url: string; alt: string; caption?: string }
+  | LexBlockNode
 
 export type LexInline =
   | { type: "text";   text: string; bold?: boolean; italic?: boolean; underline?: boolean; code?: boolean }
@@ -715,6 +721,18 @@ export function parseLexical(content: any): LexNode[] {
     if (node.type === "upload" && node.value) {
       const url = imageUrl(node.value) ?? ""
       return [{ type: "upload", url, alt: node.value.alt ?? "", caption: node.fields?.caption }]
+    }
+    if (node.type === "block" && node.fields?.blockType) {
+      const f = node.fields
+      if (f.blockType === "specBlock") {
+        return [{ type: "block", blockType: "specBlock", heading: f.heading ?? undefined, note: f.note ?? undefined, entries: f.entries ?? [] }]
+      }
+      if (f.blockType === "featureBox") {
+        return [{ type: "block", blockType: "featureBox", style: f.style ?? "features", heading: f.heading ?? undefined, items: f.items ?? [] }]
+      }
+      if (f.blockType === "twoColumnSpec") {
+        return [{ type: "block", blockType: "twoColumnSpec", ratio: f.ratio ?? "50-50", leftText: f.leftText ?? undefined, rightHeading: f.rightHeading ?? undefined, rightNote: f.rightNote ?? undefined, rightEntries: f.rightEntries ?? [] }]
+      }
     }
     return []
   })
