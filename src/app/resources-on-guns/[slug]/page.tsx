@@ -1,6 +1,6 @@
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getBrand, getPostsByBrand } from "@/lib/payload"
+import { getBrand, getPostsByBrand, getResourcePages } from "@/lib/payload"
 import ResourcesBrandPage from "./ResourcesBrandPage"
 import type { Metadata } from "next"
 
@@ -57,20 +57,20 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const brandData = brand.status === 'fulfilled' ? brand.value : null
   const allProds  = allProducts.status === 'fulfilled' ? allProducts.value : []
 
-  // Products from Medusa for this brand slug
   const brandProds = allProds.filter(p =>
     p.attribute_lists.brand.some(b => toSlug(b) === slug)
   )
 
-  // Articles linked to this brand in Payload
-  const articles = brandData
-    ? await getPostsByBrand(brandData.id).catch(() => [])
-    : []
+  const [articles, resourcePages] = await Promise.all([
+    brandData ? getPostsByBrand(brandData.id).catch(() => []) : [],
+    brandData ? getResourcePages(brandData.id).catch(() => []) : [],
+  ])
 
   return (
     <ResourcesBrandPage
       brand={brandData}
       articles={articles}
+      resourcePages={resourcePages}
       products={brandProds}
       slug={slug}
     />

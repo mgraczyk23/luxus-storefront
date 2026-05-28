@@ -1,7 +1,13 @@
 import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
-const ALLOWED_TAGS = new Set(['site-settings', 'posts', 'comments', 'subscribers', 'products', 'hero-slides', 'about-page', 'brands', 'shop-tile-images', 'policy-shipping', 'policy-privacy', 'policy-terms'])
+const STATIC_TAGS = new Set(['site-settings', 'posts', 'comments', 'subscribers', 'products', 'hero-slides', 'about-page', 'brands', 'shop-tile-images', 'policy-shipping', 'policy-privacy', 'policy-terms'])
+const DYNAMIC_PREFIXES = ['brand-', 'resource-brand-', 'resource-page-']
+
+function isAllowedTag(tag: string): boolean {
+  if (STATIC_TAGS.has(tag)) return true
+  return DYNAMIC_PREFIXES.some(p => tag.startsWith(p))
+}
 
 function checkSecret(req: NextRequest) {
   const secret = req.nextUrl.searchParams.get("secret")
@@ -13,7 +19,7 @@ export async function GET(req: NextRequest) {
   if (!checkSecret(req)) return new NextResponse('Unauthorized', { status: 401 })
 
   const tag = req.nextUrl.searchParams.get('tag')
-  if (!tag || !ALLOWED_TAGS.has(tag)) {
+  if (!tag || !isAllowedTag(tag)) {
     return NextResponse.json({ error: 'Invalid or missing tag' }, { status: 400 })
   }
 

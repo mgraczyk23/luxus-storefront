@@ -437,6 +437,110 @@ export async function getPostsByBrand(brandId: string, limit = 8): Promise<Paylo
   }
 }
 
+/* ── Resource Pages ──────────────────────────────────────────────────────── */
+
+export type PayloadSpecEntry = {
+  id:    string | null
+  label: string
+  value: string
+}
+
+export type PayloadSpecTable = {
+  id:      string | null
+  heading: string | null
+  note:    string | null
+  entries: PayloadSpecEntry[]
+}
+
+export type PayloadResourcePage = {
+  id:             string
+  title:          string
+  slug:           string
+  excerpt:        string | null
+  featuredImage:  PayloadImage | null
+  brand:          { id: string; name: string; slug: string } | string
+  status:         'draft' | 'published'
+  sortOrder:      number
+  seoTitle:       string | null
+  seoDescription: string | null
+  content:        unknown // Lexical JSON
+  specs:          PayloadSpecTable[]
+  updatedAt:      string
+  createdAt:      string
+}
+
+export async function getResourcePages(brandId: string): Promise<PayloadResourcePage[]> {
+  try {
+    const params = new URLSearchParams()
+    params.set('where[brand][equals]', brandId)
+    params.set('where[status][equals]', 'published')
+    params.set('sort', 'sortOrder')
+    params.set('depth', '1')
+    params.set('limit', '100')
+    params.set('select[content]', 'false')
+
+    const res = await fetch(`${PAYLOAD_URL}/api/resource-pages?${params}`, {
+      next: { revalidate: 300, tags: [`resource-brand-${brandId}`] },
+    })
+    if (!res.ok) return []
+    const data: PayloadListResponse<any> = await res.json()
+    return (data.docs ?? []).map(mapResourcePage)
+  } catch {
+    return []
+  }
+}
+
+export async function getResourcePage(slug: string): Promise<PayloadResourcePage | null> {
+  try {
+    const params = new URLSearchParams()
+    params.set('where[slug][equals]', slug)
+    params.set('where[status][equals]', 'published')
+    params.set('depth', '2')
+    params.set('limit', '1')
+
+    const res = await fetch(`${PAYLOAD_URL}/api/resource-pages?${params}`, {
+      next: { revalidate: 300, tags: [`resource-page-${slug}`] },
+    })
+    if (!res.ok) return null
+    const data: PayloadListResponse<any> = await res.json()
+    const doc = data.docs[0]
+    if (!doc) return null
+    return mapResourcePage(doc)
+  } catch {
+    return null
+  }
+}
+
+function mapResourcePage(doc: any): PayloadResourcePage {
+  return {
+    id:             String(doc.id),
+    title:          doc.title,
+    slug:           doc.slug,
+    excerpt:        doc.excerpt ?? null,
+    featuredImage:  doc.featuredImage ?? null,
+    brand:          typeof doc.brand === 'object' && doc.brand
+                      ? { id: String(doc.brand.id), name: doc.brand.name, slug: doc.brand.slug }
+                      : String(doc.brand ?? ''),
+    status:         doc.status,
+    sortOrder:      doc.sortOrder ?? 0,
+    seoTitle:       doc.seoTitle ?? null,
+    seoDescription: doc.seoDescription ?? null,
+    content:        doc.content ?? null,
+    specs:          (doc.specs ?? []).map((s: any) => ({
+      id:      s.id ?? null,
+      heading: s.heading ?? null,
+      note:    s.note    ?? null,
+      entries: (s.entries ?? []).map((e: any) => ({
+        id:    e.id    ?? null,
+        label: e.label,
+        value: e.value,
+      })),
+    })),
+    updatedAt: doc.updatedAt,
+    createdAt: doc.createdAt,
+  }
+}
+
 /* ── About Page Images ───────────────────────────────────────────────────── */
 
 export type AboutPageImages = {

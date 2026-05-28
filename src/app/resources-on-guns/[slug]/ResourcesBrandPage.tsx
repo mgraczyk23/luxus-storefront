@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
 import {
   parseLexical, imageUrl,
-  type PayloadBrandFull, type PayloadPost, type PayloadModelSeries,
+  type PayloadBrandFull, type PayloadPost, type PayloadResourcePage,
   type LexNode, type LexInline,
 } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
@@ -98,50 +98,43 @@ function SectionHead({ eyebrow, title, action }: { eyebrow?: string; title: stri
   )
 }
 
-/* ── Model series card ───────────────────────────────────────────────────── */
-function ModelCard({ model }: { model: PayloadModelSeries }) {
+/* ── Resource page card (model/topic sub-page) ───────────────────────────── */
+function ResourceCard({ page, brandSlug }: { page: PayloadResourcePage; brandSlug: string }) {
   const { t } = useTheme()
   const [hov, setHov] = useState(false)
-  const imgUrl = imageUrl(model.image)
-  const nodes = parseLexical(model.description)
-  const firstPara = nodes.find(n => n.type === 'paragraph')
-  const excerpt = firstPara?.type === 'paragraph'
-    ? firstPara.children.map(c => (c.type === 'text' ? c.text : '')).join('').slice(0, 160)
-    : null
-
-  const inner = (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ border: `1px solid ${hov && model.productHandle ? t.gold + '60' : t.border}`, transition: 'border-color 0.25s', height: '100%', display: 'flex', flexDirection: 'column', cursor: model.productHandle ? 'pointer' : 'default' }}
-    >
-      <div style={{ height: '220px', background: t.bgSurface, overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
-        {imgUrl
-          ? <Image src={imgUrl} alt={model.name} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
-          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
-        }
-      </div>
-      <div style={{ padding: '20px 22px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '10px' }}>
-          <h3 style={{ fontFamily: 'var(--font-playfair)', fontSize: '19px', fontWeight: 400, color: hov && model.productHandle ? t.gold : t.text, margin: 0, transition: 'color 0.22s', lineHeight: 1.25 }}>{model.name}</h3>
-          {model.yearIntroduced && <span style={{ fontSize: '10px', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 300 }}>Est. {model.yearIntroduced}</span>}
+  const imgUrl = imageUrl(page.featuredImage)
+  return (
+    <Link href={`/resources-on-guns/${brandSlug}/${page.slug}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{ border: `1px solid ${hov ? t.gold + '60' : t.border}`, transition: 'border-color 0.25s', height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+      >
+        <div style={{ height: '220px', background: t.bgSurface, overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+          {imgUrl
+            ? <Image src={imgUrl} alt={page.title} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
+            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
+          }
         </div>
-        {excerpt && <p style={{ fontSize: '13.5px', fontWeight: 300, lineHeight: 1.7, color: t.textDim, fontFamily: 'var(--font-inter)', margin: 0, flex: 1 }}>{excerpt}{excerpt.length === 160 ? '…' : ''}</p>}
-        {model.productHandle && (
+        <div style={{ padding: '20px 22px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <h3 style={{ fontFamily: 'var(--font-playfair)', fontSize: '19px', fontWeight: 400, color: hov ? t.gold : t.text, margin: '0 0 10px', transition: 'color 0.22s', lineHeight: 1.25 }}>
+            {page.title}
+          </h3>
+          {page.excerpt && (
+            <p style={{ fontSize: '13.5px', fontWeight: 300, lineHeight: 1.7, color: t.textDim, fontFamily: 'var(--font-inter)', margin: 0, flex: 1 }}>
+              {page.excerpt.slice(0, 160)}{page.excerpt.length > 160 ? '…' : ''}
+            </p>
+          )}
           <div style={{ marginTop: '14px', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
-            View in Store →
+            Read More →
           </div>
-        )}
+        </div>
       </div>
-    </div>
+    </Link>
   )
-
-  return model.productHandle
-    ? <Link href={`/product/${model.productHandle}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>{inner}</Link>
-    : inner
 }
 
-/* ── Article card ────────────────────────────────────────────────────────── */
+/* ── Blog article card ───────────────────────────────────────────────────── */
 function ArticleCard({ post }: { post: PayloadPost }) {
   const { t } = useTheme()
   const [hov, setHov] = useState(false)
@@ -197,26 +190,26 @@ function ProductCard({ product }: { product: MappedProduct }) {
 export default function ResourcesBrandPage({
   brand,
   articles,
+  resourcePages,
   products,
   slug,
 }: {
   brand: PayloadBrandFull | null
   articles: PayloadPost[]
+  resourcePages: PayloadResourcePage[]
   products: MappedProduct[]
   slug: string
 }) {
   const { t } = useTheme()
 
-  const heroUrl     = imageUrl(brand?.heroImage)
-  const logoUrl     = imageUrl(brand?.logo)
-  const histNodes   = parseLexical(brand?.history)
-  const hasHistory  = histNodes.length > 0
-  const hasModels   = (brand?.modelSeries?.length ?? 0) > 0
-  const hasGallery  = (brand?.gallery?.length ?? 0) > 0
-  const hasTimeline = (brand?.timeline?.length ?? 0) > 0
-  const hasArticles = articles.length > 0
-  const hasProducts = products.length > 0
-  const brandName   = brand?.name ?? slug
+  const heroUrl      = imageUrl(brand?.heroImage)
+  const logoUrl      = imageUrl(brand?.logo)
+  const histNodes    = parseLexical(brand?.history)
+  const hasHistory   = histNodes.length > 0
+  const hasResources = resourcePages.length > 0
+  const hasArticles  = articles.length > 0
+  const hasProducts  = products.length > 0
+  const brandName    = brand?.name ?? slug
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh' }}>
@@ -271,7 +264,6 @@ export default function ResourcesBrandPage({
                 <span style={{ fontSize: '13px', color: t.text, fontFamily: 'var(--font-inter)', fontWeight: 300 }}>{brand.origin}</span>
               </div>
             )}
-            {/* Link to store brand page */}
             <div style={{ marginLeft: 'auto' }}>
               <Link href={`/brand/${slug}`} style={{ fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
                 Shop {brandName} →
@@ -283,7 +275,7 @@ export default function ResourcesBrandPage({
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
 
-        {/* ── History / Philosophy ──────────────────────────────────────── */}
+        {/* ── History / Overview ───────────────────────────────────────── */}
         {(brand?.description || hasHistory) && (
           <section style={{ padding: '64px 0 48px' }}>
             <div style={{ maxWidth: '760px' }}>
@@ -295,69 +287,22 @@ export default function ResourcesBrandPage({
           </section>
         )}
 
-        {/* ── Model Series ─────────────────────────────────────────────── */}
-        {hasModels && (
+        {/* ── Resource Pages (models, topics, specs) ───────────────────── */}
+        {hasResources && (
           <section style={{ padding: '48px 0' }}>
-            <SectionHead eyebrow={brandName} title="Models & Product Lines" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px' }}>
-              {brand!.modelSeries.map(m => <ModelCard key={m.id} model={m} />)}
+            <SectionHead eyebrow={brandName} title="Models & Reference Pages" />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+              {resourcePages.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
             </div>
           </section>
         )}
 
-        {/* ── Photo Gallery ─────────────────────────────────────────────── */}
-        {hasGallery && (
-          <section style={{ padding: '48px 0' }}>
-            <SectionHead eyebrow={brandName} title="Gallery" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
-              {brand!.gallery.map(g => {
-                const url = imageUrl(g.image)
-                if (!url) return null
-                return (
-                  <div key={g.id}>
-                    <div style={{ position: 'relative', paddingTop: '75%', overflow: 'hidden', border: `1px solid ${t.border}` }}>
-                      <Image src={url} alt={g.image.alt ?? g.caption ?? brandName} fill style={{ objectFit: 'cover' }} />
-                    </div>
-                    {g.caption && <p style={{ marginTop: '8px', fontSize: '11.5px', fontStyle: 'italic', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 300 }}>{g.caption}</p>}
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* ── Timeline ─────────────────────────────────────────────────── */}
-        {hasTimeline && (
-          <section style={{ padding: '48px 0' }}>
-            <SectionHead eyebrow={brandName} title="Brand Timeline" />
-            <div style={{ position: 'relative', paddingLeft: '32px', borderLeft: `2px solid ${t.border}` }}>
-              {brand!.timeline.map((item, i) => (
-                <div key={item.id} style={{ position: 'relative', marginBottom: i < brand!.timeline.length - 1 ? '40px' : 0 }}>
-                  <div style={{ position: 'absolute', left: '-41px', width: '18px', height: '18px', borderRadius: '50%', background: t.bg, border: `2px solid ${t.gold}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: t.gold }} />
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', marginBottom: '8px' }}>
-                    <span style={{ fontFamily: 'var(--font-inter)', fontSize: '12px', fontWeight: 600, color: t.gold, letterSpacing: '0.08em' }}>{item.year}</span>
-                    <h3 style={{ fontFamily: 'var(--font-playfair)', fontSize: '18px', fontWeight: 400, color: t.text, margin: 0, lineHeight: 1.3 }}>{item.title}</h3>
-                  </div>
-                  {item.body && <p style={{ fontSize: '14.5px', fontWeight: 300, lineHeight: 1.75, color: t.textDim, fontFamily: 'var(--font-inter)', margin: '0 0 12px' }}>{item.body}</p>}
-                  {item.image && imageUrl(item.image) && (
-                    <div style={{ position: 'relative', width: '320px', maxWidth: '100%', paddingTop: '56%', border: `1px solid ${t.border}`, overflow: 'hidden' }}>
-                      <Image src={imageUrl(item.image)!} alt={item.title} fill style={{ objectFit: 'cover' }} />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── Articles & Resources ─────────────────────────────────────── */}
+        {/* ── Blog Articles ────────────────────────────────────────────── */}
         {hasArticles && (
           <section style={{ padding: '48px 0' }}>
             <SectionHead
               eyebrow={brandName}
-              title="Articles & Resources"
+              title="Articles & Features"
               action={
                 <Link href="/articles" style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
                   All Articles →
@@ -399,7 +344,7 @@ export default function ResourcesBrandPage({
         )}
 
         {/* ── Empty state ───────────────────────────────────────────────── */}
-        {!brand && !hasProducts && (
+        {!brand && !hasProducts && !hasResources && (
           <div style={{ padding: '80px 0', textAlign: 'center' }}>
             <p style={{ fontFamily: 'var(--font-inter)', fontSize: '14px', fontWeight: 300, color: t.textDim }}>
               Content coming soon. <Link href="/resources-on-guns" style={{ color: t.gold, textDecoration: 'none' }}>← Back to Resources</Link>
