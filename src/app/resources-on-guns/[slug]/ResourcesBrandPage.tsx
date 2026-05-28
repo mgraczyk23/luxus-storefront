@@ -62,7 +62,7 @@ function LexBlock({ node }: { node: LexNode }) {
   if (node.type === 'list') {
     const Tag = node.listType === 'number' ? 'ol' : 'ul'
     return (
-      <Tag style={{ paddingLeft: '28px', marginBottom: '24px' }}>
+      <Tag style={{ paddingLeft: '28px', marginBottom: '24px', listStyle: node.listType === 'number' ? 'decimal' : 'disc' }}>
         {node.items.map((item, i) => (
           <li key={i} style={{ fontSize: '17px', fontWeight: 300, lineHeight: 1.85, color: t.text, marginBottom: '6px', fontFamily: 'var(--font-inter)' }}>
             {item.map((c, j) => <InlineNode key={j} node={c} />)}
