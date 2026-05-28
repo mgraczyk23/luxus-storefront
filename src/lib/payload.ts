@@ -659,7 +659,7 @@ export async function getPolicy(slug: 'shipping' | 'privacy' | 'terms'): Promise
 export type LexBlockNode =
   | { type: "block"; blockType: "specBlock";      heading?: string; note?: string; entries: { label: string; value: string }[] }
   | { type: "block"; blockType: "featureBox";     style: "features" | "note" | "callout"; heading?: string; items: { text: string }[] }
-  | { type: "block"; blockType: "twoColumnSpec";  ratio: "50-50" | "60-40" | "40-60"; leftText?: string; rightHeading?: string; rightNote?: string; rightEntries: { label: string; value: string }[] }
+  | { type: "block"; blockType: "twoColumnSpec";  ratio: "50-50" | "60-40" | "40-60"; leftHeading?: string; leftContent?: unknown; rightHeading?: string; rightContent?: unknown }
 
 export type LexNode =
   | { type: "paragraph";   children: LexInline[] }
@@ -731,7 +731,7 @@ export function parseLexical(content: any): LexNode[] {
         return [{ type: "block", blockType: "featureBox", style: f.style ?? "features", heading: f.heading ?? undefined, items: f.items ?? [] }]
       }
       if (f.blockType === "twoColumnSpec") {
-        return [{ type: "block", blockType: "twoColumnSpec", ratio: f.ratio ?? "50-50", leftText: f.leftText ?? undefined, rightHeading: f.rightHeading ?? undefined, rightNote: f.rightNote ?? undefined, rightEntries: f.rightEntries ?? [] }]
+        return [{ type: "block", blockType: "twoColumnSpec", ratio: f.ratio ?? "50-50", leftHeading: f.leftHeading ?? undefined, leftContent: f.leftContent ?? null, rightHeading: f.rightHeading ?? undefined, rightContent: f.rightContent ?? null }]
       }
     }
     return []

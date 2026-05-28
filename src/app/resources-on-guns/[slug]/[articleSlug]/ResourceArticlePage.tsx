@@ -155,56 +155,36 @@ function LexCustomBlock({ node }: { node: LexBlockNode }) {
     )
   }
 
-  // ── Two Column: Text + Spec ────────────────────────────────────────────────
+  // ── Two Column ────────────────────────────────────────────────────────────
   if (node.blockType === 'twoColumnSpec') {
     const leftFr  = node.ratio === '60-40' ? '3fr' : node.ratio === '40-60' ? '2fr' : '1fr'
     const rightFr = node.ratio === '60-40' ? '2fr' : node.ratio === '40-60' ? '3fr' : '1fr'
-    const paragraphs = (node.leftText ?? '').split(/\n\n+/).filter(Boolean)
+    const leftNodes  = parseLexical(node.leftContent)
+    const rightNodes = parseLexical(node.rightContent)
+
+    const colHeadStyle: React.CSSProperties = {
+      fontFamily: 'var(--font-playfair)',
+      fontSize: '18px',
+      fontWeight: 400,
+      color: t.text,
+      margin: '0 0 18px',
+      paddingBottom: '10px',
+      borderBottom: `1px solid ${t.border}`,
+      lineHeight: 1.3,
+    }
 
     return (
-      <div style={{ margin: '36px 0', display: 'grid', gridTemplateColumns: `${leftFr} ${rightFr}`, gap: '40px', alignItems: 'start' }}
-           className="lex-two-col">
-        {/* Left: flowing text */}
+      <div
+        style={{ margin: '36px 0', display: 'grid', gridTemplateColumns: `${leftFr} ${rightFr}`, gap: '40px', alignItems: 'start' }}
+        className="lex-two-col"
+      >
         <div>
-          {paragraphs.map((para, i) => (
-            <p key={i} style={{ fontFamily: 'var(--font-inter)', fontSize: '16px', fontWeight: 300, lineHeight: 1.85, color: t.text, margin: i < paragraphs.length - 1 ? '0 0 20px' : 0 }}>
-              {para}
-            </p>
-          ))}
+          {node.leftHeading && <h3 style={colHeadStyle}>{node.leftHeading}</h3>}
+          {leftNodes.map((n, i) => <LexBlock key={i} node={n} />)}
         </div>
-
-        {/* Right: spec table */}
-        <div style={{ border: `1px solid ${t.border}`, background: t.bgSurface }}>
-          {(node.rightHeading || node.rightNote) && (
-            <div style={{ padding: '14px 18px 10px', borderBottom: `1px solid ${t.border}` }}>
-              {node.rightHeading && (
-                <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '16px', fontWeight: 400, color: t.text, lineHeight: 1.3 }}>
-                  {node.rightHeading}
-                </div>
-              )}
-              {node.rightNote && (
-                <p style={{ fontFamily: 'var(--font-inter)', fontSize: '12.5px', fontWeight: 300, color: t.textDim, margin: node.rightHeading ? '5px 0 0' : 0, lineHeight: 1.55 }}>
-                  {node.rightNote}
-                </p>
-              )}
-            </div>
-          )}
-          {(node.rightEntries ?? []).length > 0 && (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-inter)' }}>
-              <tbody>
-                {node.rightEntries.map((e, i) => (
-                  <tr key={i} style={{ borderBottom: i < node.rightEntries.length - 1 ? `1px solid ${t.border}` : 'none' }}>
-                    <td style={{ padding: '8px 18px', fontSize: '11.5px', fontWeight: 500, color: t.textDim, width: '40%', verticalAlign: 'top', letterSpacing: '0.02em' }}>
-                      {e.label}
-                    </td>
-                    <td style={{ padding: '8px 18px 8px 0', fontSize: '12.5px', fontWeight: 300, color: t.text, verticalAlign: 'top', lineHeight: 1.5 }}>
-                      {e.value}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+        <div>
+          {node.rightHeading && <h3 style={colHeadStyle}>{node.rightHeading}</h3>}
+          {rightNodes.map((n, i) => <LexBlock key={i} node={n} />)}
         </div>
       </div>
     )
