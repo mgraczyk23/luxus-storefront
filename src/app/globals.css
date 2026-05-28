@@ -668,6 +668,17 @@ a {
   .lxs-shop-by-grid { grid-template-columns: repeat(2, 1fr); gap: 10px !important; }
 }
 
+/* ── ResourcesBrandPage — section spacing ───────────────────────────────── */
+.rp-section       { padding: 48px 0; }
+.rp-section-first { padding: 56px 0 40px; }
+.rp-section-last  { padding: 48px 0 80px; }
+
+@media (max-width: 640px) {
+  .rp-section       { padding: 28px 0; }
+  .rp-section-first { padding: 28px 0 16px; }
+  .rp-section-last  { padding: 28px 0 48px; }
+}
+
 /* ── ResourcesBrandPage — responsive grids ──────────────────────────────── */
 .rp-resource-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; align-items: stretch; }
 .rp-series-grid   { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }

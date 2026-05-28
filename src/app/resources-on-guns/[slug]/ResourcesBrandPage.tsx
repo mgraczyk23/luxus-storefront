@@ -446,7 +446,7 @@ export default function ResourcesBrandPage({
 
         {/* ── History / Overview ───────────────────────────────────────── */}
         {(brand?.description || hasHistory) && (
-          <section style={{ padding: '56px 0 40px' }}>
+          <section className="rp-section-first">
             {!hasHistory && brand?.description && (
               <p style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.85, color: t.text, fontFamily: 'var(--font-inter)', margin: 0 }}>{brand.description}</p>
             )}
@@ -456,7 +456,7 @@ export default function ResourcesBrandPage({
 
         {/* ── Timeline ─────────────────────────────────────────────────── */}
         {timeline.length > 0 && (
-          <section style={{ padding: '48px 0' }}>
+          <section className="rp-section">
             <SectionHead eyebrow={brandName} title="History & Milestones" />
             <div style={{ maxWidth: '700px' }}>
               {timeline.map((item, i) => (
@@ -468,7 +468,7 @@ export default function ResourcesBrandPage({
 
         {/* ── Resource Pages (models, topics, specs) ───────────────────── */}
         {hasResources && (
-          <section style={{ padding: '48px 0' }}>
+          <section className="rp-section">
             <SectionHead eyebrow={brandName} title="Models & Reference Pages" />
             <div className="rp-resource-grid">
               {resourcePages.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
@@ -478,7 +478,7 @@ export default function ResourcesBrandPage({
 
         {/* ── Model Series / Product Lines ─────────────────────────────── */}
         {modelSeries.length > 0 && (
-          <section style={{ padding: '48px 0' }}>
+          <section className="rp-section">
             <SectionHead eyebrow={brandName} title="Model Series & Product Lines" />
             <div className="rp-series-grid">
               {modelSeries.map(s => <ModelSeriesCard key={s.id} series={s} />)}
@@ -488,7 +488,7 @@ export default function ResourcesBrandPage({
 
         {/* ── Photo Gallery ────────────────────────────────────────────── */}
         {gallery.length > 0 && (
-          <section style={{ padding: '48px 0' }}>
+          <section className="rp-section">
             <SectionHead eyebrow={brandName} title="Gallery" />
             <div className="rp-gallery-grid">
               {gallery.map(item => <GalleryPhoto key={item.id} item={item} />)}
@@ -498,7 +498,7 @@ export default function ResourcesBrandPage({
 
         {/* ── Blog Articles ────────────────────────────────────────────── */}
         {hasArticles && (
-          <section style={{ padding: '48px 0' }}>
+          <section className="rp-section">
             <SectionHead
               eyebrow={brandName}
               title="Articles & Features"
@@ -516,7 +516,7 @@ export default function ResourcesBrandPage({
 
         {/* ── Available for Purchase ───────────────────────────────────── */}
         {hasProducts && (
-          <section style={{ padding: '48px 0 80px' }}>
+          <section className="rp-section-last">
             <SectionHead
               eyebrow={brandName}
               title="Available for Purchase"
