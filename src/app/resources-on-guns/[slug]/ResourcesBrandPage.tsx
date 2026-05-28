@@ -156,31 +156,99 @@ function ArticleCard({ post }: { post: PayloadPost }) {
   )
 }
 
-/* ── Product card ────────────────────────────────────────────────────────── */
+/* ── Product card — matches store ListingPage exactly ────────────────────── */
+const fmt = (n: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+
 function ProductCard({ product }: { product: MappedProduct }) {
   const { t } = useTheme()
   const [hov, setHov] = useState(false)
-  const img = product.images?.[0]
-  const price = product.price ? `$${(product.price / 100).toLocaleString('en-US', { minimumFractionDigits: 0 })}` : null
+
   return (
-    <Link href={`/product/${product.handle}`} style={{ textDecoration: 'none' }}>
-      <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ cursor: 'pointer' }}>
-        <div style={{ border: `1px solid ${hov ? t.gold + '50' : t.border}`, overflow: 'hidden', position: 'relative', paddingTop: '100%', marginBottom: '12px', transition: 'border-color 0.25s', background: t.bgSurface }}>
-          {img
-            ? <Image src={img} alt={product.title} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
-            : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '9px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
-          }
-          {product.contact_for_pricing && (
-            <div style={{ position: 'absolute', top: '8px', right: '8px', background: t.gold, color: '#fff', fontSize: '7px', fontFamily: 'var(--font-inter)', fontWeight: 500, letterSpacing: '0.1em', padding: '3px 6px', textTransform: 'uppercase' }}>CONTACT</div>
+    <Link href={`/product/${product.handle}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          background: hov ? '#fafafa' : '#ffffff',
+          border: `1px solid ${hov ? t.gold + '55' : t.border}`,
+          borderRadius: '1px', overflow: 'hidden',
+          transition: 'all 0.28s ease',
+          transform: hov ? 'translateY(-4px)' : 'translateY(0)',
+          boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1),0 0 0 1px ${t.gold}25` : '0 2px 8px rgba(0,0,0,0.05)',
+          cursor: 'pointer', fontFamily: 'var(--font-inter)',
+          display: 'flex', flexDirection: 'column', flex: 1,
+        }}
+      >
+        {/* Image */}
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', overflow: 'hidden', flexShrink: 0, background: '#f0f0f0' }}>
+          {product.thumbnail ? (
+            <Image
+              src={product.thumbnail}
+              alt={product.title}
+              fill
+              style={{ objectFit: 'contain', filter: !product.in_stock ? 'grayscale(0.55) brightness(0.78)' : 'none' }}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', filter: !product.in_stock ? 'grayscale(0.55) brightness(0.78)' : 'none' }}>
+              <span style={{ fontSize: '9px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span>
+            </div>
+          )}
+
+          {product.details?.primary_category && product.in_stock && (
+            <div style={{
+              position: 'absolute', top: '10px', left: '10px',
+              background: 'rgba(255,255,255,0.88)', border: `1px solid ${t.gold}50`,
+              padding: '3px 9px', fontSize: '8.5px', letterSpacing: '0.14em',
+              textTransform: 'uppercase', fontWeight: 500, color: t.gold, backdropFilter: 'blur(6px)',
+            }}>
+              {product.details.primary_category}
+            </div>
+          )}
+
+          {!product.in_stock && (
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(11,10,9,0.32)' }}>
+              <div style={{ background: 'rgba(255,255,255,0.92)', border: `1px solid ${t.gold}`, color: t.gold, padding: '7px 22px', fontSize: '10px', letterSpacing: '0.32em', textTransform: 'uppercase', fontWeight: 600, backdropFilter: 'blur(6px)' }}>
+                Unavailable
+              </div>
+            </div>
+          )}
+
+          {product.in_stock && (
+            <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.88)', border: '1px solid #3a6a3a55', padding: '3px 9px', backdropFilter: 'blur(6px)' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#3a6a3a' }} />
+              <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500, color: '#3a6a3a' }}>Available</span>
+            </div>
           )}
         </div>
-        <div style={{ fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.textDim, fontFamily: 'var(--font-inter)', marginBottom: '4px' }}>
-          {product.attribute_lists.caliber?.[0]}
+
+        {/* Body */}
+        <div style={{ padding: '18px 20px 22px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div style={{ fontSize: '8.5px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontWeight: 500, marginBottom: '5px' }}>
+            {product.attributes?.brand}
+          </div>
+          <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '19px', fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: '5px' }}>
+            {product.title}
+          </div>
+          <div style={{ fontSize: '10.5px', color: '#525258', fontWeight: 300, letterSpacing: '0.04em', marginBottom: '13px' }}>
+            {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(' · ')}
+          </div>
+          <div style={{ height: '1px', background: t.border, marginBottom: '13px', marginTop: 'auto' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{
+              fontSize: product.contact_for_pricing ? '10px' : '15px',
+              fontWeight: product.contact_for_pricing ? 400 : 500,
+              color: product.contact_for_pricing ? t.gold : t.text,
+              letterSpacing: product.contact_for_pricing ? '0.04em' : '0.01em',
+            }}>
+              {product.contact_for_pricing ? 'Contact Us For Pricing' : product.price !== null ? fmt(product.price) : '—'}
+            </div>
+            <div style={{ fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: '1px', opacity: hov ? 1 : 0.65, transition: 'opacity 0.2s' }}>
+              View Details
+            </div>
+          </div>
         </div>
-        <h4 style={{ fontFamily: 'var(--font-playfair)', fontSize: '15px', fontWeight: 400, color: hov ? t.gold : t.text, lineHeight: 1.3, margin: '0 0 6px', transition: 'color 0.22s' }}>{product.title}</h4>
-        {!product.contact_for_pricing && price && (
-          <div style={{ fontFamily: 'var(--font-inter)', fontSize: '14px', fontWeight: 400, color: t.text }}>{price}</div>
-        )}
       </div>
     </Link>
   )
