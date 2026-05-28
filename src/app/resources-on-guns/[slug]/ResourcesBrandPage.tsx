@@ -447,12 +447,10 @@ export default function ResourcesBrandPage({
         {/* ── History / Overview ───────────────────────────────────────── */}
         {(brand?.description || hasHistory) && (
           <section style={{ padding: '56px 0 40px' }}>
-            <div style={{ maxWidth: '760px' }}>
-              {!hasHistory && brand?.description && (
-                <p style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.85, color: t.text, fontFamily: 'var(--font-inter)', margin: 0 }}>{brand.description}</p>
-              )}
-              {hasHistory && histNodes.map((n, i) => <LexBlock key={i} node={n} />)}
-            </div>
+            {!hasHistory && brand?.description && (
+              <p style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.85, color: t.text, fontFamily: 'var(--font-inter)', margin: 0 }}>{brand.description}</p>
+            )}
+            {hasHistory && histNodes.map((n, i) => <LexBlock key={i} node={n} />)}
           </section>
         )}
 
