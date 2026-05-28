@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import { imageUrl } from '@/lib/payload'
-import type { AboutPageImages, PayloadBrand } from '@/lib/payload'
+import type { AboutPageImages, AboutPageText, PayloadBrand } from '@/lib/payload'
 
 function ImgBox({ style = {}, index = 0 }: { style?: React.CSSProperties; index?: number }) {
   const { t } = useTheme()
@@ -73,12 +73,68 @@ function BrandTile({ name, origin, description, logo, slug }: { name: string; or
 
 export default function AboutPage({
   images = { heroImage: null, storyImageMain: null, storyImageLeft: null, storyImageRight: null, valuesImage: null },
+  text = {},
   brands = [],
 }: {
   images?: AboutPageImages
+  text?: AboutPageText
   brands?: PayloadBrand[]
 }) {
   const { t } = useTheme()
+
+  const c = {
+    heroHeadline:    text.heroHeadline    ?? "The Boutique the Collector Deserved.",
+    heroDescription: text.heroDescription ?? "Founded in 2026 with a single conviction — that collectors spending thousands on a precision firearm deserve an experience that matches the quality of what they're buying.",
+    stats: [
+      [text.stat1Number ?? "450+", text.stat1Label ?? "Curated Pieces"],
+      [text.stat2Number ?? "35+",  text.stat2Label ?? "Premier Brands"],
+      [text.stat3Number ?? "2026", text.stat3Label ?? "Est."],
+    ] as [string, string][],
+    fflLicense: text.fflLicenseNumber ?? "1-59-XXX-XX-XX-55688",
+
+    excellenceHeading: text.excellenceHeading ?? "A Distinguished Showcase of Top-Tier Firearm Craftsmanship",
+    excellenceBody:    text.excellenceBody    ?? "Welcome to Luxus Collection, LLC. We have diligently assembled an extensive catalog of premium firearms from the world’s most respected manufacturers, each piece exemplifying unmatched precision, reliability, and artistic excellence.",
+    excellenceItalic:  text.excellenceItalic  ?? "We represent more than just a retail experience — we are a benchmark of gun-making mastery, where heritage and innovation meet.",
+
+    storyHeading:   text.storyHeading   ?? "A Market That Deserved Better",
+    storyPara1:     text.storyPara1     ?? "Collectors spending $5,000 on a Cabot pistol or $8,000 on a Korth revolver were navigating a fragmented market of gun shows, private sales, and general-purpose retailers that offered no curation, no expertise, and no experience befitting a purchase of that significance.",
+    storyPara2:     text.storyPara2     ?? "The gap was obvious to anyone paying attention. The fine watch market had long since matured into something refined — boutiques with trained staff, curated selections, detailed provenance, and service that matched the price point. The fine timepiece buyer knew exactly what they were getting and why it was worth it.",
+    storyPara3:     text.storyPara3     ?? "The fine firearms collector had no such equivalent. The platforms existed, but the experience didn’t. Luxus Collection was built to close that gap.",
+    storyPara4:     text.storyPara4     ?? "We launched in 2026 with a focused inventory, direct relationships with the manufacturers we carry, and a commitment to treating every customer as the serious collector they are — not a one-time transaction.",
+    storyPullquote: text.storyPullquote ?? "We didn’t set out to sell more guns. We set out to make buying one remarkable.",
+    storyParaFinal: text.storyParaFinal ?? "Today, Luxus Collection carries over 450 curated pieces from more than 35 of the world’s most respected manufacturers, with every listing individually assessed for condition, provenance, and fit within our collection’s standard.",
+
+    phil1Title: text.phil1Title ?? "Curation Over Inventory",
+    phil1Body:  text.phil1Body  ?? "We carry fewer pieces than a general retailer by design. Every item on our site has been individually assessed — for quality, condition, rarity, and fit within our collection’s standard. If we wouldn’t be proud to own it, we don’t list it.",
+    phil2Title: text.phil2Title ?? "Expertise Over Volume",
+    phil2Body:  text.phil2Body  ?? "Our team understands what they sell at a depth that generic retailers can’t match. We know the difference between a standard Nighthawk build and a consignment Agent with provenance. That knowledge is available to every customer, at every price point.",
+    phil3Title: text.phil3Title ?? "Relationship Over Transaction",
+    phil3Body:  text.phil3Body  ?? "A collector spending $4,000 on a pistol should leave the experience better informed than when they arrived — about the piece, about its maker, and about what to look for next. We measure our success by repeat customers, not first-time conversions.",
+
+    missionHeading: text.missionHeading ?? "Beyond Commerce.",
+    missionBody1:   text.missionBody1   ?? "Our mission transcends commerce. We aren’t only driven to offer the finest firearms — we aim to innovate and continually elevate the experience that surrounds them.",
+    missionBody2:   text.missionBody2   ?? "Each piece in our catalog is more than a tool. It is an emblem of tradition, precision, and luxury, selected to set a global standard while honoring the roots of the craft.",
+    missionCallout: text.missionCallout ?? "Luxus Collection is not just a name — it’s a legacy.",
+    pillars: [
+      [text.pillar1Title ?? "Unrivaled Expertise",           text.pillar1Body ?? "Our team understands the industry’s nuances in depth. Backed by years of experience, every piece is meticulously selected to align with the Luxus promise of exclusivity."],
+      [text.pillar2Title ?? "Global Standards, Personal Touch", text.pillar2Body ?? "We pride ourselves on meeting international benchmarks while keeping every interaction deeply personal. Each client, each firearm, each inquiry is handled with the utmost care."],
+      [text.pillar3Title ?? "Heritage Meets Innovation",     text.pillar3Body ?? "We merge the artistry of traditional gunmaking with state-of-the-art technology, preserving what is timeless while continually elevating what is possible."],
+      [text.pillar4Title ?? "From Humble Beginnings",        text.pillar4Body ?? "What began with a singular conviction has grown into a renowned destination defined by passion, exclusivity, and an ever-evolving portfolio of the world’s finest."],
+    ] as [string, string][],
+
+    curationHeading: text.curationHeading ?? "The Curation Standard",
+    curationIntro:   text.curationIntro   ?? "Not every pistol from a respected manufacturer meets our standard. Production variance, condition issues, and mismatched market positioning all factor into what we carry. Our curation process applies four criteria to every piece before it earns a listing.",
+    criteria: [
+      [text.crit1Title ?? "Manufacturer Reputation",    text.crit1Body ?? "We carry brands with demonstrable commitment to quality, not aspirational claims."],
+      [text.crit2Title ?? "Individual Piece Condition", text.crit2Body ?? "New or pre-owned, every piece is graded. We describe what we see and photograph what we have."],
+      [text.crit3Title ?? "Market Fit",                 text.crit3Body ?? "The price must reflect genuine value. We don’t inflate collector markets with artificial scarcity."],
+      [text.crit4Title ?? "Provenance When Available",  text.crit4Body ?? "Historical or notable pieces come with documentation. We trace what can be traced."],
+    ] as [string, string][],
+
+    fflBody:      text.fflBody      ?? "Luxus Collection holds a current Federal Firearms License and operates in full compliance with all applicable federal, state, and local laws governing the sale and transfer of firearms. Every transaction is conducted with the legal precision our customers’ purchases deserve.",
+    fflCard1Body: text.fflCard1Body ?? "We hold FFL License #{LICENSE}, authorizing us to engage in the business of dealing in firearms.",
+    fflCard2Body: text.fflCard2Body ?? "We screen all orders against applicable state and local laws before shipment. Buyers are responsible for understanding the laws in their jurisdiction.",
+  }
 
   return (
     <div className="lxs-about-page" style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
@@ -94,14 +150,13 @@ export default function AboutPage({
             <div>
               <Eyebrow label="Our Story" />
               <h1 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(44px,5.5vw,80px)",fontWeight:300,lineHeight:1.04,letterSpacing:"0.005em",color:t.text,marginBottom:"28px" }}>
-                The Boutique the<br/>
-                Collector <em style={{ color:t.gold,fontStyle:"italic" }}>Deserved.</em>
+                {c.heroHeadline}
               </h1>
               <p style={{ fontSize:"15px",fontWeight:300,lineHeight:1.85,color:t.textMuted,maxWidth:"440px",letterSpacing:"0.025em" }}>
-                Founded in 2026 with a single conviction — that collectors spending thousands on a precision firearm deserve an experience that matches the quality of what they&apos;re buying.
+                {c.heroDescription}
               </p>
               <div style={{ display:"flex",gap:"40px",marginTop:"52px",paddingTop:"32px",borderTop:`1px solid ${t.border}` }}>
-                {[["450+","Curated Pieces"],["35+","Premier Brands"],["2026","Est."]].map(([n,l]) => (
+                {c.stats.map(([n,l]) => (
                   <div key={l}>
                     <div style={{ fontFamily:"var(--font-playfair)",fontSize:"32px",fontWeight:300,color:t.gold,lineHeight:1,marginBottom:"4px" }}>{n}</div>
                     <div style={{ fontSize:"8.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.textMuted,fontWeight:400 }}>{l}</div>
@@ -122,7 +177,7 @@ export default function AboutPage({
               </div>
               <div style={{ position:"absolute",bottom:"40px",left:"-36px",background:"rgba(255,255,255,0.96)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"14px 18px",backdropFilter:"blur(12px)",boxShadow:"0 12px 40px rgba(0,0,0,0.1)",minWidth:"200px" }}>
                 <div style={{ fontSize:"7.5px",letterSpacing:"0.22em",color:t.gold,textTransform:"uppercase",fontWeight:500,marginBottom:"5px" }}>Federal Firearms Licensee</div>
-                <div style={{ fontFamily:"var(--font-playfair)",fontSize:"15px",fontWeight:400,color:t.text,marginBottom:"3px" }}>License #1-59-XXX-XX-XX-55688</div>
+                <div style={{ fontFamily:"var(--font-playfair)",fontSize:"15px",fontWeight:400,color:t.text,marginBottom:"3px" }}>License #{c.fflLicense}</div>
                 <div style={{ fontSize:"10.5px",color:t.textMuted,fontWeight:300 }}>Fully Licensed · Fully Compliant</div>
               </div>
             </div>
@@ -135,13 +190,13 @@ export default function AboutPage({
         <div style={{ maxWidth:"1180px",margin:"0 auto",textAlign:"center" }}>
           <Eyebrow label="Investment-Grade Excellence" />
           <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(28px,3vw,44px)",fontWeight:300,color:t.text,lineHeight:1.15,letterSpacing:"0.01em",margin:"0 auto 28px",maxWidth:"900px" }}>
-            A Distinguished Showcase of Top-Tier <em style={{ color:t.gold,fontStyle:"italic" }}>Firearm Craftsmanship</em>
+            {c.excellenceHeading}
           </h2>
           <p style={{ fontSize:"15.5px",fontWeight:300,lineHeight:1.9,color:t.textMuted,maxWidth:"780px",margin:"0 auto 18px",letterSpacing:"0.02em" }}>
-            Welcome to Luxus Collection, LLC. We have diligently assembled an extensive catalog of premium firearms from the world&apos;s most respected manufacturers, each piece exemplifying unmatched precision, reliability, and artistic excellence.
+            {c.excellenceBody}
           </p>
           <p style={{ fontSize:"14px",fontWeight:300,lineHeight:1.9,color:t.textDim,maxWidth:"720px",margin:"0 auto 44px",letterSpacing:"0.02em",fontStyle:"italic" }}>
-            We represent more than just a retail experience — we are a benchmark of gun-making mastery, where heritage and innovation meet.
+            {c.excellenceItalic}
           </p>
           <div style={{ display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"10px",maxWidth:"780px",margin:"0 auto" }}>
             {["Heckler & Koch","Smith & Wesson","Ruger","SIG Sauer","Colt","Korth","Nighthawk Custom","Cabot Guns","Wilson Combat"].map(name => (
@@ -184,26 +239,21 @@ export default function AboutPage({
             <div>
               <Eyebrow label="The Beginning" />
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(30px,3vw,44px)",fontWeight:300,color:t.text,lineHeight:1.15,marginBottom:"32px",letterSpacing:"0.01em" }}>
-                A Market That Deserved Better
+                {c.storyHeading}
               </h2>
               <div style={{ display:"flex",flexDirection:"column",gap:"22px" }}>
-                {[
-                  "Collectors spending $5,000 on a Cabot pistol or $8,000 on a Korth revolver were navigating a fragmented market of gun shows, private sales, and general-purpose retailers that offered no curation, no expertise, and no experience befitting a purchase of that significance.",
-                  "The gap was obvious to anyone paying attention. The fine watch market had long since matured into something refined — boutiques with trained staff, curated selections, detailed provenance, and service that matched the price point. The fine timepiece buyer knew exactly what they were getting and why it was worth it.",
-                  "The fine firearms collector had no such equivalent. The platforms existed, but the experience didn't. Luxus Collection was built to close that gap.",
-                  "We launched in 2026 with a focused inventory, direct relationships with the manufacturers we carry, and a commitment to treating every customer as the serious collector they are — not a one-time transaction.",
-                ].map((para, i) => (
+                {[c.storyPara1, c.storyPara2, c.storyPara3, c.storyPara4].map((para, i) => (
                   <p key={i} style={{ fontSize:"15px",fontWeight:300,lineHeight:1.9,color:i===0?t.text:t.textMuted,letterSpacing:"0.02em" }}>{para}</p>
                 ))}
               </div>
               <div style={{ margin:"44px 0",padding:"0 0 0 32px",borderLeft:`3px solid ${t.gold}`,position:"relative" }}>
                 <div style={{ fontFamily:"var(--font-playfair)",fontSize:"80px",lineHeight:0.65,color:t.gold,opacity:0.2,position:"absolute",top:"8px",left:"20px",fontWeight:300,userSelect:"none" }}>&ldquo;</div>
                 <div style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(20px,2.2vw,26px)",fontWeight:300,fontStyle:"italic",color:t.text,lineHeight:1.6,letterSpacing:"0.01em" }}>
-                  We didn&apos;t set out to sell more guns. We set out to make buying one remarkable.
+                  {c.storyPullquote}
                 </div>
               </div>
               <p style={{ fontSize:"15px",fontWeight:300,lineHeight:1.9,color:t.textMuted,letterSpacing:"0.02em" }}>
-                Today, Luxus Collection carries over 450 curated pieces from more than 35 of the world&apos;s most respected manufacturers, with every listing individually assessed for condition, provenance, and fit within our collection&apos;s standard.
+                {c.storyParaFinal}
               </p>
             </div>
           </div>
@@ -219,9 +269,9 @@ export default function AboutPage({
             <div style={{ width:"36px",height:"1px",background:t.gold,margin:"18px auto 0" }}/>
           </div>
           <div className="lxs-about-values">
-            <ValueCard number="01" title="Curation Over Inventory" body="We carry fewer pieces than a general retailer by design. Every item on our site has been individually assessed — for quality, condition, rarity, and fit within our collection's standard. If we wouldn't be proud to own it, we don't list it."/>
-            <ValueCard number="02" title="Expertise Over Volume" body="Our team understands what they sell at a depth that generic retailers can't match. We know the difference between a standard Nighthawk build and a consignment Agent with provenance. That knowledge is available to every customer, at every price point."/>
-            <ValueCard number="03" title="Relationship Over Transaction" body="A collector spending $4,000 on a pistol should leave the experience better informed than when they arrived — about the piece, about its maker, and about what to look for next. We measure our success by repeat customers, not first-time conversions."/>
+            <ValueCard number="01" title={c.phil1Title} body={c.phil1Body}/>
+            <ValueCard number="02" title={c.phil2Title} body={c.phil2Body}/>
+            <ValueCard number="03" title={c.phil3Title} body={c.phil3Body}/>
           </div>
         </div>
       </section>
@@ -234,18 +284,18 @@ export default function AboutPage({
             <div>
               <Eyebrow label="Our Mission" />
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(30px,3vw,46px)",fontWeight:300,color:t.text,lineHeight:1.12,letterSpacing:"0.01em",marginBottom:"24px" }}>
-                Beyond <em style={{ color:t.gold,fontStyle:"italic" }}>Commerce.</em>
+                {c.missionHeading}
               </h2>
               <p style={{ fontSize:"15px",fontWeight:300,lineHeight:1.9,color:t.textMuted,marginBottom:"20px",letterSpacing:"0.02em" }}>
-                Our mission transcends commerce. We aren&apos;t only driven to offer the finest firearms — we aim to innovate and continually elevate the experience that surrounds them.
+                {c.missionBody1}
               </p>
               <p style={{ fontSize:"14px",fontWeight:300,lineHeight:1.85,color:t.textDim,letterSpacing:"0.02em" }}>
-                Each piece in our catalog is more than a tool. It is an emblem of tradition, precision, and luxury, selected to set a global standard while honoring the roots of the craft.
+                {c.missionBody2}
               </p>
               <div style={{ marginTop:"36px",padding:"22px 26px",background:"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}` }}>
                 <div style={{ fontSize:"8.5px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:600,marginBottom:"8px" }}>The Through-line</div>
                 <p style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,fontStyle:"italic",color:t.text,lineHeight:1.55,letterSpacing:"0.01em" }}>
-                  Luxus Collection is not just a name — it&apos;s a legacy.
+                  {c.missionCallout}
                 </p>
               </div>
             </div>
@@ -255,12 +305,7 @@ export default function AboutPage({
                 Four Pillars of the Experience
               </h3>
               <div style={{ display:"flex",flexDirection:"column" }}>
-                {[
-                  ["Unrivaled Expertise","Our team understands the industry's nuances in depth. Backed by years of experience, every piece is meticulously selected to align with the Luxus promise of exclusivity."],
-                  ["Global Standards, Personal Touch","We pride ourselves on meeting international benchmarks while keeping every interaction deeply personal. Each client, each firearm, each inquiry is handled with the utmost care."],
-                  ["Heritage Meets Innovation","We merge the artistry of traditional gunmaking with state-of-the-art technology, preserving what is timeless while continually elevating what is possible."],
-                  ["From Humble Beginnings","What began with a singular conviction has grown into a renowned destination defined by passion, exclusivity, and an ever-evolving portfolio of the world's finest."],
-                ].map(([title, body], i, arr) => (
+                {c.pillars.map(([title, body], i, arr) => (
                   <div key={title} style={{ display:"flex",gap:"20px",padding:"20px 0",borderBottom:i<arr.length-1?`1px solid ${t.border}`:"none" }}>
                     <div style={{ flexShrink:0,fontFamily:"var(--font-playfair)",fontSize:"20px",fontWeight:300,color:t.gold,lineHeight:1,letterSpacing:"0.04em",width:"28px",paddingTop:"2px" }}>
                       {String(i+1).padStart(2,"0")}
@@ -284,18 +329,13 @@ export default function AboutPage({
             <div>
               <Eyebrow label="How We Select" />
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(28px,3vw,44px)",fontWeight:300,color:t.text,lineHeight:1.15,marginBottom:"28px",letterSpacing:"0.01em" }}>
-                The Curation Standard
+                {c.curationHeading}
               </h2>
               <p style={{ fontSize:"14.5px",fontWeight:300,lineHeight:1.88,color:t.textMuted,marginBottom:"36px",letterSpacing:"0.02em" }}>
-                Not every pistol from a respected manufacturer meets our standard. Production variance, condition issues, and mismatched market positioning all factor into what we carry. Our curation process applies four criteria to every piece before it earns a listing.
+                {c.curationIntro}
               </p>
               <div style={{ display:"flex",flexDirection:"column" }}>
-                {[
-                  ["Manufacturer Reputation",   "We carry brands with demonstrable commitment to quality, not aspirational claims."],
-                  ["Individual Piece Condition", "New or pre-owned, every piece is graded. We describe what we see and photograph what we have."],
-                  ["Market Fit",                 "The price must reflect genuine value. We don’t inflate collector markets with artificial scarcity."],
-                  ["Provenance When Available",  "Historical or notable pieces come with documentation. We trace what can be traced."],
-                ].map(([title, body], i, arr) => (
+                {c.criteria.map(([title, body], i, arr) => (
                   <div key={title} style={{ display:"flex",gap:"18px",padding:"20px 0",borderBottom:i<arr.length-1?`1px solid ${t.border}`:"none" }}>
                     <div style={{ width:"6px",height:"6px",borderRadius:"50%",background:t.gold,marginTop:"7px",flexShrink:0 }}/>
                     <div>
@@ -371,13 +411,13 @@ export default function AboutPage({
                 FFL Licensing &<br/>Legal Compliance
               </h2>
               <p style={{ fontSize:"14px",fontWeight:300,lineHeight:1.88,color:t.textMuted,letterSpacing:"0.02em" }}>
-                Luxus Collection holds a current Federal Firearms License and operates in full compliance with all applicable federal, state, and local laws governing the sale and transfer of firearms. Every transaction is conducted with the legal precision our customers&apos; purchases deserve.
+                {c.fflBody}
               </p>
             </div>
             <div className="lxs-about-ffl-cards">
               {[
-                { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 1L18 5V10C18 14 14.5 17 10 19C5.5 17 2 14 2 10V5L10 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/><path d="M6.5 10L8.5 12L13.5 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"Federal Firearms License", body:"We hold FFL License #1-59-XXX-XX-XX-55688, authorizing us to engage in the business of dealing in firearms." },
-                { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10H17M3 10L7 6M3 10L7 14M17 10L13 6M17 10L13 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"State Law Compliance", body:"We screen all orders against applicable state and local laws before shipment. Buyers are responsible for understanding the laws in their jurisdiction." },
+                { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 1L18 5V10C18 14 14.5 17 10 19C5.5 17 2 14 2 10V5L10 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/><path d="M6.5 10L8.5 12L13.5 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"Federal Firearms License", body:c.fflCard1Body.replace('{LICENSE}', c.fflLicense) },
+                { icon:<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10H17M3 10L7 6M3 10L7 14M17 10L13 6M17 10L13 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>, heading:"State Law Compliance", body:c.fflCard2Body },
               ].map(({ icon, heading, body }) => (
                 <div key={heading} style={{ padding:"22px",background:"#fff",border:`1px solid ${t.border}` }}>
                   <div style={{ color:t.gold,marginBottom:"12px" }}>{icon}</div>

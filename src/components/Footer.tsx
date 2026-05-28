@@ -24,7 +24,7 @@ const FOOTER_LINKS = {
     { label: "Sign In",        href: "/auth"              },
     { label: "Register",       href: "/auth?tab=register" },
     { label: "Order History",  href: "/account"           },
-    { label: "Consignment",    href: "/consignment"       },
+    { label: "Sell Your Gun",  href: "/sell-your-gun"     },
   ],
 }
 

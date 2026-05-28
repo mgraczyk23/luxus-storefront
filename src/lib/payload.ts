@@ -587,7 +587,7 @@ function mapResourcePage(doc: any): PayloadResourcePage {
   }
 }
 
-/* ── About Page Images ───────────────────────────────────────────────────── */
+/* ── About Page ──────────────────────────────────────────────────────────── */
 
 export type AboutPageImages = {
   heroImage:       PayloadImage | null
@@ -595,6 +595,42 @@ export type AboutPageImages = {
   storyImageLeft:  PayloadImage | null
   storyImageRight: PayloadImage | null
   valuesImage:     PayloadImage | null
+}
+
+export type AboutPageText = {
+  heroHeadline?:    string
+  heroDescription?: string
+  stat1Number?: string; stat1Label?: string
+  stat2Number?: string; stat2Label?: string
+  stat3Number?: string; stat3Label?: string
+  fflLicenseNumber?: string
+  excellenceHeading?: string
+  excellenceBody?:    string
+  excellenceItalic?:  string
+  storyHeading?:     string
+  storyPara1?: string; storyPara2?: string; storyPara3?: string; storyPara4?: string
+  storyPullquote?:  string
+  storyParaFinal?:  string
+  phil1Title?: string; phil1Body?: string
+  phil2Title?: string; phil2Body?: string
+  phil3Title?: string; phil3Body?: string
+  missionHeading?: string
+  missionBody1?:   string
+  missionBody2?:   string
+  missionCallout?: string
+  pillar1Title?: string; pillar1Body?: string
+  pillar2Title?: string; pillar2Body?: string
+  pillar3Title?: string; pillar3Body?: string
+  pillar4Title?: string; pillar4Body?: string
+  curationHeading?: string
+  curationIntro?:   string
+  crit1Title?: string; crit1Body?: string
+  crit2Title?: string; crit2Body?: string
+  crit3Title?: string; crit3Body?: string
+  crit4Title?: string; crit4Body?: string
+  fflBody?:      string
+  fflCard1Body?: string
+  fflCard2Body?: string
 }
 
 export async function getAboutPageImages(): Promise<AboutPageImages> {
@@ -617,6 +653,107 @@ export async function getAboutPageImages(): Promise<AboutPageImages> {
     }
   } catch {
     return empty
+  }
+}
+
+export async function getAboutPageText(): Promise<AboutPageText> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/about-page?depth=0`, {
+      next: { revalidate: 300, tags: ['about-page'] },
+    })
+    if (!res.ok) return {}
+    const d = await res.json()
+    const pick = (k: string) => (typeof d[k] === 'string' && d[k] ? d[k] : undefined)
+    return {
+      heroHeadline:    pick('heroHeadline'),
+      heroDescription: pick('heroDescription'),
+      stat1Number: pick('stat1Number'), stat1Label: pick('stat1Label'),
+      stat2Number: pick('stat2Number'), stat2Label: pick('stat2Label'),
+      stat3Number: pick('stat3Number'), stat3Label: pick('stat3Label'),
+      fflLicenseNumber: pick('fflLicenseNumber'),
+      excellenceHeading: pick('excellenceHeading'),
+      excellenceBody:    pick('excellenceBody'),
+      excellenceItalic:  pick('excellenceItalic'),
+      storyHeading:   pick('storyHeading'),
+      storyPara1:     pick('storyPara1'),
+      storyPara2:     pick('storyPara2'),
+      storyPara3:     pick('storyPara3'),
+      storyPara4:     pick('storyPara4'),
+      storyPullquote: pick('storyPullquote'),
+      storyParaFinal: pick('storyParaFinal'),
+      phil1Title: pick('phil1Title'), phil1Body: pick('phil1Body'),
+      phil2Title: pick('phil2Title'), phil2Body: pick('phil2Body'),
+      phil3Title: pick('phil3Title'), phil3Body: pick('phil3Body'),
+      missionHeading: pick('missionHeading'),
+      missionBody1:   pick('missionBody1'),
+      missionBody2:   pick('missionBody2'),
+      missionCallout: pick('missionCallout'),
+      pillar1Title: pick('pillar1Title'), pillar1Body: pick('pillar1Body'),
+      pillar2Title: pick('pillar2Title'), pillar2Body: pick('pillar2Body'),
+      pillar3Title: pick('pillar3Title'), pillar3Body: pick('pillar3Body'),
+      pillar4Title: pick('pillar4Title'), pillar4Body: pick('pillar4Body'),
+      curationHeading: pick('curationHeading'),
+      curationIntro:   pick('curationIntro'),
+      crit1Title: pick('crit1Title'), crit1Body: pick('crit1Body'),
+      crit2Title: pick('crit2Title'), crit2Body: pick('crit2Body'),
+      crit3Title: pick('crit3Title'), crit3Body: pick('crit3Body'),
+      crit4Title: pick('crit4Title'), crit4Body: pick('crit4Body'),
+      fflBody:      pick('fflBody'),
+      fflCard1Body: pick('fflCard1Body'),
+      fflCard2Body: pick('fflCard2Body'),
+    }
+  } catch {
+    return {}
+  }
+}
+
+/* ── Consignment Page ────────────────────────────────────────────────────── */
+
+export type ConsignmentPageText = {
+  headline?:               string
+  introParagraph?:         string
+  diffBoxTitle?:           string
+  option1Heading?:         string
+  option1Body?:            string
+  option2Heading?:         string
+  option2Body?:            string
+  commissionNote?:         string
+  salesEmailResponseTime?: string
+  formHeading?:            string
+  step1Title?: string; step1Body?: string
+  step2Title?: string; step2Body?: string
+  step3Title?: string; step3Body?: string
+  step4Title?: string; step4Body?: string
+  outrightBoxBody?:        string
+}
+
+export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/consignment-page?depth=0`, {
+      next: { revalidate: 300, tags: ['consignment-page'] },
+    })
+    if (!res.ok) return {}
+    const d = await res.json()
+    const pick = (k: string) => (typeof d[k] === 'string' && d[k] ? d[k] : undefined)
+    return {
+      headline:               pick('headline'),
+      introParagraph:         pick('introParagraph'),
+      diffBoxTitle:           pick('diffBoxTitle'),
+      option1Heading:         pick('option1Heading'),
+      option1Body:            pick('option1Body'),
+      option2Heading:         pick('option2Heading'),
+      option2Body:            pick('option2Body'),
+      commissionNote:         pick('commissionNote'),
+      salesEmailResponseTime: pick('salesEmailResponseTime'),
+      formHeading:            pick('formHeading'),
+      step1Title: pick('step1Title'), step1Body: pick('step1Body'),
+      step2Title: pick('step2Title'), step2Body: pick('step2Body'),
+      step3Title: pick('step3Title'), step3Body: pick('step3Body'),
+      step4Title: pick('step4Title'), step4Body: pick('step4Body'),
+      outrightBoxBody: pick('outrightBoxBody'),
+    }
+  } catch {
+    return {}
   }
 }
 

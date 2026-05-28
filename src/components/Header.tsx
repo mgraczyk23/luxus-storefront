@@ -16,7 +16,7 @@ function getActivePage(pathname: string): string {
   if (pathname.startsWith('/support')) return 'support'
   if (pathname.startsWith('/about')) return 'about'
   if (pathname.startsWith('/contact')) return 'contact'
-  if (pathname.startsWith('/consignment')) return 'consignment'
+  if (pathname.startsWith('/sell-your-gun')) return 'consignment'
   if (pathname.startsWith('/account')) return 'account'
   if (pathname.startsWith('/cart')) return 'cart'
   return ''
@@ -43,7 +43,7 @@ function MobileNav({ cartCount }: { cartCount: number }) {
     { section: "Shop By",   items: [["/shop/brands", "Brands"], ["/shop/collections", "Collections"], ["/shop/categories", "Categories"]] as [string, string][] },
     { section: "Editorial", items: [["/resources-on-guns", "Resources on Guns"], ["/articles", "Articles"]] as [string, string][] },
     { section: "Account",   items: [["/account", "My Account"], ["/auth", "Sign In / Register"]] as [string, string][] },
-    { section: "Company",   items: [["/about", "About"], ["/contact", "Contact"], ["/consignment", "Consignment"]] as [string, string][] },
+    { section: "Company",   items: [["/about", "About"], ["/contact", "Contact"], ["/sell-your-gun", "Sell Your Gun"]] as [string, string][] },
     { section: "Help",      items: [["/faq", "FAQ"], ["/support", "Support"]] as [string, string][] },
   ]
 
@@ -273,7 +273,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
               {contactOpen && (
                 <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", paddingTop: "14px" }}>
                   <div style={{ background: "#ffffff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, minWidth: "168px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", padding: "8px 0" }}>
-                    {([["Contact Us", "/contact", activePage === 'contact'], ["Consignment", "/consignment", activePage === 'consignment']] as [string, string, boolean][]).map(([label, href, isActive]) => (
+                    {([["Contact Us", "/contact", activePage === 'contact'], ["Sell Your Gun", "/sell-your-gun", activePage === 'consignment']] as [string, string, boolean][]).map(([label, href, isActive]) => (
                       <Link key={label} href={href}
                         style={{ display: "block", padding: "9px 22px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: isActive ? t.gold : t.textMuted, textDecoration: "none", fontFamily: "'Inter',sans-serif", fontWeight: 500, transition: "all 0.15s" }}
                         onMouseEnter={e => { e.currentTarget.style.color = t.gold; e.currentTarget.style.paddingLeft = "26px" }}

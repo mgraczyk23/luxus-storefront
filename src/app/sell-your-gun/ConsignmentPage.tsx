@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
+import type { ConsignmentPageText, SiteSettings } from '@/lib/payload'
 
 const INQUIRY_TYPES = [
   "Select a topic…",
@@ -13,7 +14,13 @@ const INQUIRY_TYPES = [
   "Other",
 ]
 
-export default function ConsignmentPage() {
+export default function ConsignmentPage({
+  text = {},
+  settings,
+}: {
+  text?: ConsignmentPageText
+  settings?: SiteSettings
+}) {
   const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", inquiryType:INQUIRY_TYPES[0], make:"", model:"", estimatedValue:"", message:"" })
   const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
@@ -55,6 +62,40 @@ export default function ConsignmentPage() {
     textTransform:"uppercase" as const, color:t.textDim, fontWeight:500, marginBottom:"6px",
   }
 
+  const c = {
+    headline:      text.headline      ?? "Consignment & Private Sales",
+    introParagraph: text.introParagraph ?? "Whether you're looking to consign a piece through our platform or prefer to sell a firearm outright, we'd love to hear from you. Our team will respond personally within three business days.",
+    diffBoxTitle:  text.diffBoxTitle  ?? "Consign or Sell — What's the Difference?",
+    option1Heading: text.option1Heading ?? "Consignment",
+    option1Body:   text.option1Body   ?? "We list and sell the piece on your behalf. You receive the sale price minus our commission once it sells. No upfront fees — you only pay if and when the piece sells.",
+    option2Heading: text.option2Heading ?? "Private Sale",
+    option2Body:   text.option2Body   ?? "Prefer a quicker, simpler transaction? Reach out and we may be able to purchase your piece directly, subject to our assessment and a mutual agreement on price.",
+    commissionNote: text.commissionNote ?? "Consignment rates start at **15%** on sales ≥ $1,500 and **20%** on sales below $1,500. No listing fees — you only pay if and when your piece sells.",
+    salesEmailResponseTime: text.salesEmailResponseTime ?? "Response within 3 business days",
+    formHeading:   text.formHeading   ?? "Tell Us About Your Piece",
+    steps: [
+      [text.step1Title ?? "We review your inquiry",   text.step1Body ?? "Our team looks at what you've shared and assesses current market value for comparable pieces."],
+      [text.step2Title ?? "We reach out personally",  text.step2Body ?? "A member of our team contacts you directly — no automated replies — to discuss options and next steps."],
+      [text.step3Title ?? "We agree on terms",        text.step3Body ?? "Whether consigning or selling outright, we'll walk through the agreement before anything moves forward."],
+      [text.step4Title ?? "We handle the rest",       text.step4Body ?? "Once agreed, we coordinate listing, FFL logistics, and buyer communication on your behalf."],
+    ] as [string, string][],
+    outrightBoxBody: text.outrightBoxBody ?? "Not interested in waiting for a consignment sale? We may be able to purchase your piece directly. Simply select \"Sell a Firearm Outright\" in the dropdown above.",
+  }
+
+  const phone         = settings?.contact.phone         ?? "(941) 253-3660"
+  const phoneTollFree = settings?.contact.phoneTollFree  ?? "(833) 486-6659"
+  const emailSales    = settings?.contact.emailSales     ?? "sales@luxus-collection.com"
+  const hours         = settings?.hours
+  const hoursLine     = hours
+    ? `Mon – Fri ${hours.weekdayOpen} – ${hours.weekdayClose} · Sat ${hours.saturdayOpen} – ${hours.saturdayClose} ${hours.timezone}`
+    : "Mon – Fri 8:30am – 6pm · Sat 10am – 2pm EST"
+
+  // Render **bold** markers in commission note
+  function renderNote(text: string) {
+    const parts = text.split('**')
+    return parts.map((p, i) => i % 2 === 1 ? <span key={i} style={{ color:t.text, fontWeight:500 }}>{p}</span> : p)
+  }
+
   return (
     <div style={{ background:t.bg,color:t.text,fontFamily:"var(--font-inter)" }}>
 
@@ -62,7 +103,7 @@ export default function ConsignmentPage() {
       <div style={{ background:"linear-gradient(to bottom,#f3f3f5,#ffffff)",borderBottom:`1px solid ${t.border}`,padding:"52px 40px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ display:"flex",alignItems:"center",gap:"8px",marginBottom:"20px" }}>
-            {["Home","Consignment"].map((c,i,a) => (
+            {["Home","Sell Your Gun"].map((c,i,a) => (
               <div key={c} style={{ display:"flex",alignItems:"center",gap:"8px" }}>
                 {i>0&&<span style={{ fontSize:"9px",color:t.textDim }}>›</span>}
                 <span style={{ fontSize:"10px",color:i<a.length-1?t.textDim:t.textMuted,fontWeight:300 }}>
@@ -79,18 +120,15 @@ export default function ConsignmentPage() {
                 <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>Sell or Consign</span>
               </div>
               <h1 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(32px,4vw,54px)",fontWeight:400,color:t.text,lineHeight:1.08,marginBottom:"20px" }}>
-                Consignment &amp;<br/>Private Sales
+                {c.headline}
               </h1>
               <p style={{ fontSize:"14.5px",fontWeight:300,color:t.textMuted,lineHeight:1.85,marginBottom:"24px",maxWidth:"460px" }}>
-                Whether you&apos;re looking to consign a piece through our platform or prefer to sell a firearm outright, we&apos;d love to hear from you. Our team will respond personally within three business days.
+                {c.introParagraph}
               </p>
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
-                <div style={{ fontSize:"8.5px",letterSpacing:"0.16em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>Consign or Sell — What&apos;s the Difference?</div>
+                <div style={{ fontSize:"8.5px",letterSpacing:"0.16em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>{c.diffBoxTitle}</div>
                 <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
-                  {[
-                    ["Consignment","We list and sell the piece on your behalf. You receive the sale price minus our commission once it sells. No upfront fees — you only pay if and when the piece sells."],
-                    ["Private Sale","Prefer a quicker, simpler transaction? Reach out and we may be able to purchase your piece directly, subject to our assessment and a mutual agreement on price."],
-                  ].map(([heading,body]) => (
+                  {[[c.option1Heading, c.option1Body],[c.option2Heading, c.option2Body]].map(([heading, body]) => (
                     <div key={heading} style={{ display:"flex",gap:"12px",alignItems:"flex-start" }}>
                       <div style={{ width:"5px",height:"5px",borderRadius:"50%",background:t.gold,marginTop:"6px",flexShrink:0 }}/>
                       <div>
@@ -106,20 +144,20 @@ export default function ConsignmentPage() {
             <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"22px 24px" }}>
                 <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,marginBottom:"8px" }}>Sales &amp; Consignment Email</div>
-                <a href="mailto:sales@luxus-collection.com" style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.gold,textDecoration:"none",display:"block",marginBottom:"4px" }}>
-                  sales@luxus-collection.com
+                <a href={`mailto:${emailSales}`} style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.gold,textDecoration:"none",display:"block",marginBottom:"4px" }}>
+                  {emailSales}
                 </a>
-                <div style={{ fontSize:"11px",fontWeight:300,color:t.textDim }}>Response within 3 business days</div>
+                <div style={{ fontSize:"11px",fontWeight:300,color:t.textDim }}>{c.salesEmailResponseTime}</div>
               </div>
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"22px 24px" }}>
                 <div style={{ fontSize:"8px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.textDim,fontWeight:500,marginBottom:"8px" }}>Phone</div>
-                <a href="tel:9412533660" style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.text,textDecoration:"none",display:"block",marginBottom:"4px" }}>(941) 253-3660</a>
-                <a href="tel:8334866659" style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,textDecoration:"none",display:"block",marginBottom:"8px",letterSpacing:"0.02em" }}>(833) 486-6659 · Toll-Free</a>
-                <div style={{ fontSize:"11px",fontWeight:300,color:t.textDim }}>Mon – Fri 8:30am – 6pm · Sat 10am – 2pm EST</div>
+                <a href={`tel:${phone.replace(/\D/g,'')}`} style={{ fontFamily:"var(--font-playfair)",fontSize:"17px",fontWeight:400,color:t.text,textDecoration:"none",display:"block",marginBottom:"4px" }}>{phone}</a>
+                <a href={`tel:${phoneTollFree.replace(/\D/g,'')}`} style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,textDecoration:"none",display:"block",marginBottom:"8px",letterSpacing:"0.02em" }}>{phoneTollFree} · Toll-Free</a>
+                <div style={{ fontSize:"11px",fontWeight:300,color:t.textDim }}>{hoursLine}</div>
               </div>
               <div style={{ background:"#fafafa",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"14px 18px" }}>
                 <p style={{ fontSize:"11.5px",fontWeight:300,color:t.textMuted,lineHeight:1.72 }}>
-                  Consignment rates start at <span style={{ color:t.text,fontWeight:500 }}>15%</span> on sales ≥ $1,500 and <span style={{ color:t.text,fontWeight:500 }}>20%</span> on sales below $1,500. No listing fees — you only pay if and when your piece sells.
+                  {renderNote(c.commissionNote)}
                 </p>
               </div>
             </div>
@@ -137,7 +175,7 @@ export default function ConsignmentPage() {
                 <div style={{ width:"18px",height:"1px",background:t.gold }}/>
                 <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>Get In Touch</span>
               </div>
-              <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(24px,2.8vw,36px)",fontWeight:400,color:t.text,lineHeight:1.15 }}>Tell Us About Your Piece</h2>
+              <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(24px,2.8vw,36px)",fontWeight:400,color:t.text,lineHeight:1.15 }}>{c.formHeading}</h2>
             </div>
 
             {formStatus === "success" ? (
@@ -208,7 +246,7 @@ export default function ConsignmentPage() {
                 </button>
                 {formStatus === "error" && (
                   <p style={{ fontSize:"11px",color:"#c0392b",textAlign:"center",marginTop:"8px",fontFamily:"var(--font-inter)" }}>
-                    Something went wrong — please try again or email sales@luxus-collection.com directly.
+                    Something went wrong — please try again or email {emailSales} directly.
                   </p>
                 )}
                 <p style={{ fontSize:"10px",color:t.textDim,textAlign:"center",marginTop:"12px",letterSpacing:"0.03em",fontWeight:300 }}>
@@ -222,12 +260,7 @@ export default function ConsignmentPage() {
           <div style={{ position:"sticky",top:"88px",display:"flex",flexDirection:"column",gap:"16px" }}>
             <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderTop:`2px solid ${t.gold}`,padding:"24px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"18px" }}>What Happens Next</div>
-              {[
-                ["We review your inquiry","Our team looks at what you've shared and assesses current market value for comparable pieces."],
-                ["We reach out personally","A member of our team contacts you directly — no automated replies — to discuss options and next steps."],
-                ["We agree on terms","Whether consigning or selling outright, we'll walk through the agreement before anything moves forward."],
-                ["We handle the rest","Once agreed, we coordinate listing, FFL logistics, and buyer communication on your behalf."],
-              ].map(([title,body],i,a) => (
+              {c.steps.map(([title, body], i, a) => (
                 <div key={title} style={{ display:"flex",gap:"14px",paddingBottom:i<a.length-1?"16px":"0",marginBottom:i<a.length-1?"16px":"0",borderBottom:i<a.length-1?`1px solid ${t.border}`:"none" }}>
                   <div style={{ width:"24px",height:"24px",border:`1px solid ${t.gold}45`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0 }}>
                     <span style={{ fontFamily:"var(--font-playfair)",fontSize:"13px",fontWeight:400,color:t.gold }}>{i+1}</span>
@@ -245,7 +278,7 @@ export default function ConsignmentPage() {
                 <div>
                   <div style={{ fontSize:"8.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"6px" }}>Prefer to Sell Outright?</div>
                   <p style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,lineHeight:1.72 }}>
-                    Not interested in waiting for a consignment sale? We may be able to purchase your piece directly. Simply select <em style={{ color:t.text }}>&ldquo;Sell a Firearm Outright&rdquo;</em> in the dropdown above.
+                    {c.outrightBoxBody}
                   </p>
                 </div>
               </div>
