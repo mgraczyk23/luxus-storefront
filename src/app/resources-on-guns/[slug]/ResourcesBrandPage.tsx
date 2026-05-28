@@ -11,7 +11,7 @@ import {
 } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
 
-/* ── Inline Lexical renderer ─────────────────────────────────────────────── */
+/* ── Lexical inline renderer ─────────────────────────────────────────────── */
 
 function InlineNode({ node }: { node: LexInline }) {
   const { t } = useTheme()
@@ -84,14 +84,14 @@ function LexBlock({ node }: { node: LexNode }) {
   return null
 }
 
-/* ── Section heading ─────────────────────────────────────────────────────── */
-function SectionHeading({ label, action }: { label: string; action?: React.ReactNode }) {
+/* ── Section divider ─────────────────────────────────────────────────────── */
+function SectionHead({ eyebrow, title, action }: { eyebrow?: string; title: string; action?: React.ReactNode }) {
   const { t } = useTheme()
   return (
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '36px', paddingBottom: '14px', borderBottom: `1px solid ${t.border}` }}>
+    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '36px', paddingBottom: '14px', borderBottom: `1px solid ${t.border}` }}>
       <div>
-        <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '6px' }}>Manufacturer Profile</div>
-        <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '30px', fontWeight: 400, color: t.text, margin: 0 }}>{label}</h2>
+        {eyebrow && <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '6px' }}>{eyebrow}</div>}
+        <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px', fontWeight: 400, color: t.text, margin: 0 }}>{title}</h2>
       </div>
       {action}
     </div>
@@ -116,17 +116,10 @@ function ModelCard({ model }: { model: PayloadModelSeries }) {
       style={{ border: `1px solid ${hov && model.productHandle ? t.gold + '60' : t.border}`, transition: 'border-color 0.25s', height: '100%', display: 'flex', flexDirection: 'column', cursor: model.productHandle ? 'pointer' : 'default' }}
     >
       <div style={{ height: '220px', background: t.bgSurface, overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
-        {imgUrl ? (
-          <Image src={imgUrl} alt={model.name} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="32" height="32" viewBox="0 0 36 36" fill="none" opacity="0.15">
-              <rect x="2" y="2" width="32" height="32" rx="1" stroke={t.gold} strokeWidth="0.8"/>
-              <circle cx="12" cy="12" r="4" stroke={t.gold} strokeWidth="0.8"/>
-              <path d="M2 26L11 17L17 23L25 13L34 23V34H2V26Z" stroke={t.gold} strokeWidth="0.8"/>
-            </svg>
-          </div>
-        )}
+        {imgUrl
+          ? <Image src={imgUrl} alt={model.name} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
+          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
+        }
       </div>
       <div style={{ padding: '20px 22px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '10px' }}>
@@ -134,14 +127,18 @@ function ModelCard({ model }: { model: PayloadModelSeries }) {
           {model.yearIntroduced && <span style={{ fontSize: '10px', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 300 }}>Est. {model.yearIntroduced}</span>}
         </div>
         {excerpt && <p style={{ fontSize: '13.5px', fontWeight: 300, lineHeight: 1.7, color: t.textDim, fontFamily: 'var(--font-inter)', margin: 0, flex: 1 }}>{excerpt}{excerpt.length === 160 ? '…' : ''}</p>}
+        {model.productHandle && (
+          <div style={{ marginTop: '14px', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+            View in Store →
+          </div>
+        )}
       </div>
     </div>
   )
 
-  if (model.productHandle) {
-    return <Link href={`/product/${model.productHandle}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>{inner}</Link>
-  }
-  return inner
+  return model.productHandle
+    ? <Link href={`/product/${model.productHandle}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>{inner}</Link>
+    : inner
 }
 
 /* ── Article card ────────────────────────────────────────────────────────── */
@@ -166,7 +163,7 @@ function ArticleCard({ post }: { post: PayloadPost }) {
   )
 }
 
-/* ── Product card (simplified, no hover add-to-cart) ────────────────────── */
+/* ── Product card ────────────────────────────────────────────────────────── */
 function ProductCard({ product }: { product: MappedProduct }) {
   const { t } = useTheme()
   const [hov, setHov] = useState(false)
@@ -184,8 +181,8 @@ function ProductCard({ product }: { product: MappedProduct }) {
             <div style={{ position: 'absolute', top: '8px', right: '8px', background: t.gold, color: '#fff', fontSize: '7px', fontFamily: 'var(--font-inter)', fontWeight: 500, letterSpacing: '0.1em', padding: '3px 6px', textTransform: 'uppercase' }}>CONTACT</div>
           )}
         </div>
-        <div style={{ fontFamily: 'var(--font-inter)', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.textDim, marginBottom: '4px' }}>
-          {product.attribute_lists.caliber?.[0] && `${product.attribute_lists.caliber[0]}`}
+        <div style={{ fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.textDim, fontFamily: 'var(--font-inter)', marginBottom: '4px' }}>
+          {product.attribute_lists.caliber?.[0]}
         </div>
         <h4 style={{ fontFamily: 'var(--font-playfair)', fontSize: '15px', fontWeight: 400, color: hov ? t.gold : t.text, lineHeight: 1.3, margin: '0 0 6px', transition: 'color 0.22s' }}>{product.title}</h4>
         {!product.contact_for_pricing && price && (
@@ -197,7 +194,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
 }
 
 /* ── Main export ─────────────────────────────────────────────────────────── */
-export default function BrandHubPage({
+export default function ResourcesBrandPage({
   brand,
   articles,
   products,
@@ -210,39 +207,48 @@ export default function BrandHubPage({
 }) {
   const { t } = useTheme()
 
-  const heroUrl    = imageUrl(brand?.heroImage)
-  const logoUrl    = imageUrl(brand?.logo)
-  const histNodes  = parseLexical(brand?.history)
-  const hasHistory = histNodes.length > 0
-  const hasModels  = (brand?.modelSeries?.length ?? 0) > 0
-  const hasGallery = (brand?.gallery?.length ?? 0) > 0
+  const heroUrl     = imageUrl(brand?.heroImage)
+  const logoUrl     = imageUrl(brand?.logo)
+  const histNodes   = parseLexical(brand?.history)
+  const hasHistory  = histNodes.length > 0
+  const hasModels   = (brand?.modelSeries?.length ?? 0) > 0
+  const hasGallery  = (brand?.gallery?.length ?? 0) > 0
   const hasTimeline = (brand?.timeline?.length ?? 0) > 0
   const hasArticles = articles.length > 0
   const hasProducts = products.length > 0
-  const brandName  = brand?.name ?? slug
+  const brandName   = brand?.name ?? slug
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh' }}>
+      {/* ── Breadcrumb ───────────────────────────────────────────────────── */}
+      <div style={{ borderBottom: `1px solid ${t.border}`, padding: '12px 24px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontFamily: 'var(--font-inter)', fontWeight: 300 }}>
+          <Link href="/" style={{ color: t.textDim, textDecoration: 'none' }}>Home</Link>
+          <span style={{ color: t.border }}>›</span>
+          <Link href="/resources-on-guns" style={{ color: t.textDim, textDecoration: 'none' }}>Resources on Guns</Link>
+          <span style={{ color: t.border }}>›</span>
+          <span style={{ color: t.text }}>{brandName}</span>
+        </div>
+      </div>
+
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div style={{ position: 'relative', height: heroUrl ? '480px' : '280px', overflow: 'hidden', background: heroUrl ? undefined : t.bgSurface }}>
-        {heroUrl && (
-          <Image src={heroUrl} alt={brandName} fill style={{ objectFit: 'cover' }} priority />
-        )}
-        <div style={{ position: 'absolute', inset: 0, background: heroUrl ? 'linear-gradient(to bottom, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0.55) 100%)' : 'none' }} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 24px 48px', textAlign: 'center' }}>
+      <div style={{ position: 'relative', height: heroUrl ? '480px' : '260px', overflow: 'hidden', background: heroUrl ? undefined : t.bgSurface }}>
+        {heroUrl && <Image src={heroUrl} alt={brandName} fill style={{ objectFit: 'cover' }} priority />}
+        <div style={{ position: 'absolute', inset: 0, background: heroUrl ? 'linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.58) 100%)' : 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 24px 52px', textAlign: 'center' }}>
           {logoUrl && (
-            <div style={{ width: '80px', height: '80px', position: 'relative', marginBottom: '16px', filter: heroUrl ? 'brightness(0) invert(1)' : undefined }}>
+            <div style={{ width: '72px', height: '72px', position: 'relative', marginBottom: '14px', filter: heroUrl ? 'brightness(0) invert(1)' : undefined }}>
               <Image src={logoUrl} alt={brandName} fill style={{ objectFit: 'contain' }} />
             </div>
           )}
-          <div style={{ fontSize: '9px', letterSpacing: '0.28em', textTransform: 'uppercase', color: heroUrl ? 'rgba(255,255,255,0.7)' : t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '10px' }}>
-            Manufacturer Profile
+          <div style={{ fontSize: '8.5px', letterSpacing: '0.28em', textTransform: 'uppercase', color: heroUrl ? 'rgba(255,255,255,0.65)' : t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '10px' }}>
+            Resources on Guns
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(32px,5vw,56px)', fontWeight: 400, color: heroUrl ? '#fff' : t.text, margin: '0 0 12px', lineHeight: 1.1, letterSpacing: '0.01em' }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(30px,5vw,52px)', fontWeight: 400, color: heroUrl ? '#fff' : t.text, margin: '0 0 12px', lineHeight: 1.1 }}>
             {brandName}
           </h1>
           {brand?.tagline && (
-            <p style={{ fontFamily: 'var(--font-inter)', fontSize: '15px', fontWeight: 300, color: heroUrl ? 'rgba(255,255,255,0.82)' : t.textDim, margin: 0, maxWidth: '560px', lineHeight: 1.6, letterSpacing: '0.02em' }}>
+            <p style={{ fontFamily: 'var(--font-inter)', fontSize: '15px', fontWeight: 300, color: heroUrl ? 'rgba(255,255,255,0.8)' : t.textDim, margin: 0, maxWidth: '540px', lineHeight: 1.6 }}>
               {brand.tagline}
             </p>
           )}
@@ -252,7 +258,7 @@ export default function BrandHubPage({
       {/* ── Brand meta bar ───────────────────────────────────────────────── */}
       {(brand?.origin || brand?.foundingYear) && (
         <div style={{ borderBottom: `1px solid ${t.border}`, background: t.bgSurface }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'center' }}>
             {brand.foundingYear && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '8px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Founded</span>
@@ -265,6 +271,12 @@ export default function BrandHubPage({
                 <span style={{ fontSize: '13px', color: t.text, fontFamily: 'var(--font-inter)', fontWeight: 300 }}>{brand.origin}</span>
               </div>
             )}
+            {/* Link to store brand page */}
+            <div style={{ marginLeft: 'auto' }}>
+              <Link href={`/brand/${slug}`} style={{ fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+                Shop {brandName} →
+              </Link>
+            </div>
           </div>
         </div>
       )}
@@ -286,7 +298,7 @@ export default function BrandHubPage({
         {/* ── Model Series ─────────────────────────────────────────────── */}
         {hasModels && (
           <section style={{ padding: '48px 0' }}>
-            <SectionHeading label="Models & Product Lines" />
+            <SectionHead eyebrow={brandName} title="Models & Product Lines" />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '24px' }}>
               {brand!.modelSeries.map(m => <ModelCard key={m.id} model={m} />)}
             </div>
@@ -296,7 +308,7 @@ export default function BrandHubPage({
         {/* ── Photo Gallery ─────────────────────────────────────────────── */}
         {hasGallery && (
           <section style={{ padding: '48px 0' }}>
-            <SectionHeading label="Gallery" />
+            <SectionHead eyebrow={brandName} title="Gallery" />
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
               {brand!.gallery.map(g => {
                 const url = imageUrl(g.image)
@@ -317,7 +329,7 @@ export default function BrandHubPage({
         {/* ── Timeline ─────────────────────────────────────────────────── */}
         {hasTimeline && (
           <section style={{ padding: '48px 0' }}>
-            <SectionHeading label="Brand Timeline" />
+            <SectionHead eyebrow={brandName} title="Brand Timeline" />
             <div style={{ position: 'relative', paddingLeft: '32px', borderLeft: `2px solid ${t.border}` }}>
               {brand!.timeline.map((item, i) => (
                 <div key={item.id} style={{ position: 'relative', marginBottom: i < brand!.timeline.length - 1 ? '40px' : 0 }}>
@@ -328,9 +340,7 @@ export default function BrandHubPage({
                     <span style={{ fontFamily: 'var(--font-inter)', fontSize: '12px', fontWeight: 600, color: t.gold, letterSpacing: '0.08em' }}>{item.year}</span>
                     <h3 style={{ fontFamily: 'var(--font-playfair)', fontSize: '18px', fontWeight: 400, color: t.text, margin: 0, lineHeight: 1.3 }}>{item.title}</h3>
                   </div>
-                  {item.body && (
-                    <p style={{ fontSize: '14.5px', fontWeight: 300, lineHeight: 1.75, color: t.textDim, fontFamily: 'var(--font-inter)', margin: '0 0 12px' }}>{item.body}</p>
-                  )}
+                  {item.body && <p style={{ fontSize: '14.5px', fontWeight: 300, lineHeight: 1.75, color: t.textDim, fontFamily: 'var(--font-inter)', margin: '0 0 12px' }}>{item.body}</p>}
                   {item.image && imageUrl(item.image) && (
                     <div style={{ position: 'relative', width: '320px', maxWidth: '100%', paddingTop: '56%', border: `1px solid ${t.border}`, overflow: 'hidden' }}>
                       <Image src={imageUrl(item.image)!} alt={item.title} fill style={{ objectFit: 'cover' }} />
@@ -345,8 +355,9 @@ export default function BrandHubPage({
         {/* ── Articles & Resources ─────────────────────────────────────── */}
         {hasArticles && (
           <section style={{ padding: '48px 0' }}>
-            <SectionHeading
-              label="Articles & Resources"
+            <SectionHead
+              eyebrow={brandName}
+              title="Articles & Resources"
               action={
                 <Link href="/articles" style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
                   All Articles →
@@ -359,13 +370,14 @@ export default function BrandHubPage({
           </section>
         )}
 
-        {/* ── Products Available for Purchase ───────────────────────────── */}
+        {/* ── Available for Purchase ───────────────────────────────────── */}
         {hasProducts && (
           <section style={{ padding: '48px 0 80px' }}>
-            <SectionHeading
-              label="Available for Purchase"
+            <SectionHead
+              eyebrow={brandName}
+              title="Available for Purchase"
               action={
-                <Link href={`/shop?brand=${encodeURIComponent(brandName)}`} style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+                <Link href={`/brand/${slug}`} style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
                   Shop All →
                 </Link>
               }
@@ -376,7 +388,7 @@ export default function BrandHubPage({
             {products.length > 8 && (
               <div style={{ textAlign: 'center', marginTop: '40px' }}>
                 <Link
-                  href={`/shop?brand=${encodeURIComponent(brandName)}`}
+                  href={`/brand/${slug}`}
                   style={{ display: 'inline-block', padding: '13px 40px', border: `1px solid ${t.gold}`, color: t.gold, fontFamily: 'var(--font-inter)', fontSize: '10px', fontWeight: 500, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}
                 >
                   View All {products.length} {brandName} Products
@@ -386,13 +398,14 @@ export default function BrandHubPage({
           </section>
         )}
 
-        {/* ── Empty state (no Payload content + no products) ────────────── */}
+        {/* ── Empty state ───────────────────────────────────────────────── */}
         {!brand && !hasProducts && (
           <div style={{ padding: '80px 0', textAlign: 'center' }}>
-            <p style={{ fontFamily: 'var(--font-inter)', fontSize: '14px', fontWeight: 300, color: t.textDim }}>No products found for this brand.</p>
+            <p style={{ fontFamily: 'var(--font-inter)', fontSize: '14px', fontWeight: 300, color: t.textDim }}>
+              Content coming soon. <Link href="/resources-on-guns" style={{ color: t.gold, textDecoration: 'none' }}>← Back to Resources</Link>
+            </p>
           </div>
         )}
-
       </div>
     </div>
   )

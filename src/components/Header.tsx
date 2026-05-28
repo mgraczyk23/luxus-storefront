@@ -10,6 +10,7 @@ function getActivePage(pathname: string): string {
   if (pathname === '/') return 'home'
   if (pathname.startsWith('/shop') || pathname.startsWith('/featured')) return 'shop'
   if (pathname.startsWith('/product')) return 'shop'
+  if (pathname.startsWith('/resources-on-guns')) return 'resources'
   if (pathname.startsWith('/articles') || pathname.startsWith('/article')) return 'articles'
   if (pathname.startsWith('/faq')) return 'faq'
   if (pathname.startsWith('/support')) return 'support'
@@ -40,7 +41,7 @@ function MobileNav({ cartCount }: { cartCount: number }) {
   const NAV = [
     { section: "Shop",      items: [["/", "Home"], ["/shop", "Shop All"], ["/cart", "Cart"]] as [string, string][] },
     { section: "Shop By",   items: [["/shop/brands", "Brands"], ["/shop/collections", "Collections"], ["/shop/categories", "Categories"]] as [string, string][] },
-    { section: "Editorial", items: [["/articles", "Articles"]] as [string, string][] },
+    { section: "Editorial", items: [["/resources-on-guns", "Resources on Guns"], ["/articles", "Articles"]] as [string, string][] },
     { section: "Account",   items: [["/account", "My Account"], ["/auth", "Sign In / Register"]] as [string, string][] },
     { section: "Company",   items: [["/about", "About"], ["/contact", "Contact"], ["/consignment", "Consignment"]] as [string, string][] },
     { section: "Help",      items: [["/faq", "FAQ"], ["/support", "Support"]] as [string, string][] },
@@ -191,10 +192,11 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
   }
 
   const NAV = [
-    { slug: "articles", label: "Articles", href: "/articles" },
-    { slug: "faq",      label: "FAQ",      href: "/faq"      },
-    { slug: "support",  label: "Support",  href: "/support"  },
-    { slug: "about",    label: "About",    href: "/about"    },
+    { slug: "resources", label: "Resources on Guns", href: "/resources-on-guns" },
+    { slug: "articles",  label: "Articles",           href: "/articles"          },
+    { slug: "faq",       label: "FAQ",                href: "/faq"               },
+    { slug: "support",   label: "Support",            href: "/support"           },
+    { slug: "about",     label: "About",              href: "/about"             },
   ]
 
   return (

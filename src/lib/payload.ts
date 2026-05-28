@@ -281,14 +281,17 @@ export async function getHeroSlides(): Promise<HeroSlide[]> {
 /* ── Brands ──────────────────────────────────────────────────────────────── */
 
 export type PayloadBrand = {
-  id:          string
-  name:        string
-  slug:        string
-  origin:      string | null
-  description: string | null
-  logo:        PayloadImage | null
-  featured:    boolean
-  sortOrder:   number
+  id:           string
+  name:         string
+  slug:         string
+  origin:       string | null
+  tagline:      string | null
+  foundingYear: number | null
+  description:  string | null
+  logo:         PayloadImage | null
+  featured:     boolean
+  showInHub:    boolean
+  sortOrder:    number
 }
 
 export type PayloadModelSeries = {
@@ -328,24 +331,28 @@ export type PayloadBrandFull = PayloadBrand & {
 
 function mapBrandBase(b: any): PayloadBrand {
   return {
-    id:          String(b.id),
-    name:        b.name,
-    slug:        b.slug,
-    origin:      b.origin      ?? null,
-    description: b.description ?? null,
-    logo:        b.logo        ?? null,
-    featured:    b.featured    ?? false,
-    sortOrder:   b.sortOrder   ?? 0,
+    id:           String(b.id),
+    name:         b.name,
+    slug:         b.slug,
+    origin:       b.origin       ?? null,
+    tagline:      b.tagline      ?? null,
+    foundingYear: b.foundingYear ?? null,
+    description:  b.description  ?? null,
+    logo:         b.logo         ?? null,
+    featured:     b.featured     ?? false,
+    showInHub:    b.showInHub    ?? false,
+    sortOrder:    b.sortOrder    ?? 0,
   }
 }
 
-export async function getBrands(opts: { featuredOnly?: boolean } = {}): Promise<PayloadBrand[]> {
+export async function getBrands(opts: { featuredOnly?: boolean; hubOnly?: boolean } = {}): Promise<PayloadBrand[]> {
   try {
     const params = new URLSearchParams()
     params.set('limit', '100')
     params.set('depth', '1')
     params.set('sort', 'sortOrder')
     if (opts.featuredOnly) params.set('where[featured][equals]', 'true')
+    if (opts.hubOnly)      params.set('where[showInHub][equals]', 'true')
 
     const res = await fetch(`${PAYLOAD_URL}/api/brands?${params}`, {
       next: { revalidate: 300, tags: ['brands'] },
