@@ -7,7 +7,7 @@ import { useTheme } from '@/context/ThemeContext'
 import {
   parseLexical, imageUrl,
   type PayloadBrandFull, type PayloadPost, type PayloadResourcePage,
-  type PayloadModelSeries,
+  type PayloadModelSeries, type PayloadGalleryItem, type PayloadTimelineItem,
   type LexNode, type LexInline,
 } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
@@ -85,53 +85,148 @@ function LexBlock({ node }: { node: LexNode }) {
   return null
 }
 
-/* ── Section divider ─────────────────────────────────────────────────────── */
+/* ── Section header ──────────────────────────────────────────────────────── */
 function SectionHead({ eyebrow, title, action }: { eyebrow?: string; title: string; action?: React.ReactNode }) {
   const { t } = useTheme()
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '36px', paddingBottom: '14px', borderBottom: `1px solid ${t.border}` }}>
       <div>
         {eyebrow && <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '6px' }}>{eyebrow}</div>}
-        <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px', fontWeight: 400, color: t.text, margin: 0 }}>{title}</h2>
+        <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(22px,4vw,28px)', fontWeight: 400, color: t.text, margin: 0 }}>{title}</h2>
       </div>
       {action}
     </div>
   )
 }
 
-/* ── Resource page card (model/topic sub-page) ───────────────────────────── */
+/* ── Resource page card ──────────────────────────────────────────────────── */
 function ResourceCard({ page, brandSlug }: { page: PayloadResourcePage; brandSlug: string }) {
   const { t } = useTheme()
   const [hov, setHov] = useState(false)
   const imgUrl = imageUrl(page.featuredImage)
   return (
-    <Link href={`/resources-on-guns/${brandSlug}/${page.slug}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+    <Link href={`/resources-on-guns/${brandSlug}/${page.slug}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column' }}>
       <div
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
-        style={{ border: `1px solid ${hov ? t.gold + '60' : t.border}`, transition: 'border-color 0.25s', height: '100%', display: 'flex', flexDirection: 'column', cursor: 'pointer' }}
+        style={{ border: `1px solid ${hov ? t.gold + '60' : t.border}`, transition: 'border-color 0.25s', display: 'flex', flexDirection: 'column', cursor: 'pointer', flex: 1 }}
       >
-        <div style={{ height: '220px', background: t.bgSurface, overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
+        <div style={{ height: '200px', background: t.bgSurface, overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
           {imgUrl
             ? <Image src={imgUrl} alt={page.title} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
             : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
           }
         </div>
-        <div style={{ padding: '20px 22px 24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <h3 style={{ fontFamily: 'var(--font-playfair)', fontSize: '19px', fontWeight: 400, color: hov ? t.gold : t.text, margin: '0 0 10px', transition: 'color 0.22s', lineHeight: 1.25 }}>
+        <div style={{ padding: '18px 20px 22px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <h3 style={{ fontFamily: 'var(--font-playfair)', fontSize: '18px', fontWeight: 400, color: hov ? t.gold : t.text, margin: '0 0 8px', transition: 'color 0.22s', lineHeight: 1.25 }}>
             {page.title}
           </h3>
           {page.excerpt && (
-            <p style={{ fontSize: '13.5px', fontWeight: 300, lineHeight: 1.7, color: t.textDim, fontFamily: 'var(--font-inter)', margin: 0, flex: 1 }}>
-              {page.excerpt.slice(0, 160)}{page.excerpt.length > 160 ? '…' : ''}
+            <p style={{ fontSize: '13px', fontWeight: 300, lineHeight: 1.7, color: t.textDim, fontFamily: 'var(--font-inter)', margin: 0, flex: 1 }}>
+              {page.excerpt.slice(0, 130)}{page.excerpt.length > 130 ? '…' : ''}
             </p>
           )}
-          <div style={{ marginTop: '14px', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+          <div style={{ marginTop: '12px', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
             Read More →
           </div>
         </div>
       </div>
     </Link>
+  )
+}
+
+/* ── Model Series card ───────────────────────────────────────────────────── */
+function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
+  const { t } = useTheme()
+  const [hov, setHov] = useState(false)
+  const imgUrl = imageUrl(series.image)
+
+  return (
+    <Link href={`/shop/model/${series.productHandle}`} style={{ textDecoration: 'none', display: 'block' }}>
+      <div
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          border: `1px solid ${hov ? t.gold + '60' : t.border}`,
+          transition: 'border-color 0.25s, transform 0.25s',
+          transform: hov ? 'translateY(-3px)' : 'translateY(0)',
+          cursor: 'pointer', overflow: 'hidden',
+        }}
+      >
+        <div style={{ height: '160px', background: t.bgSurface, position: 'relative', overflow: 'hidden' }}>
+          {imgUrl
+            ? <Image src={imgUrl} alt={series.name} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
+            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
+          }
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
+          <div style={{ position: 'absolute', bottom: '12px', left: '14px', right: '14px' }}>
+            <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '18px', fontWeight: 400, color: '#fff', lineHeight: 1.2 }}>
+              {series.name}
+            </div>
+            {series.yearIntroduced && (
+              <div style={{ fontSize: '9px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-inter)', fontWeight: 500, marginTop: '3px' }}>
+                Est. {series.yearIntroduced}
+              </div>
+            )}
+          </div>
+        </div>
+        <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
+          <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Shop This Series</span>
+          <span style={{ fontSize: '13px', color: t.gold, opacity: hov ? 1 : 0.6, transition: 'opacity 0.2s' }}>→</span>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+/* ── Gallery photo ───────────────────────────────────────────────────────── */
+function GalleryPhoto({ item }: { item: PayloadGalleryItem }) {
+  const { t } = useTheme()
+  const [hov, setHov] = useState(false)
+  const src = imageUrl(item.image)
+  if (!src) return null
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ position: 'relative', aspectRatio: '4/3', overflow: 'hidden', background: t.bgSurface, cursor: hov && item.caption ? 'default' : undefined }}
+    >
+      <Image src={src} alt={item.image?.alt ?? ''} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.05)' : 'scale(1)', transition: 'transform 0.45s ease' }} />
+      {item.caption && hov && (
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '8px 12px', background: 'linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 100%)' }}>
+          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.88)', fontFamily: 'var(--font-inter)', fontWeight: 300, fontStyle: 'italic' }}>{item.caption}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/* ── Timeline entry ──────────────────────────────────────────────────────── */
+function TimelineEntry({ item, isLast }: { item: PayloadTimelineItem; isLast: boolean }) {
+  const { t } = useTheme()
+  const imgUrl = imageUrl(item.image)
+  return (
+    <div style={{ display: 'flex', gap: '24px', position: 'relative', paddingBottom: isLast ? 0 : '40px' }}>
+      {/* Year column */}
+      <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '60px' }}>
+        <div style={{ padding: '5px 8px', border: `1px solid ${t.gold}`, background: t.bgSurface }}>
+          <span style={{ fontFamily: 'var(--font-inter)', fontSize: '11px', fontWeight: 600, color: t.gold, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>{item.year}</span>
+        </div>
+        {!isLast && <div style={{ width: '1px', flex: 1, marginTop: '8px', background: `linear-gradient(to bottom, ${t.gold}60, ${t.border})` }} />}
+      </div>
+      {/* Content column */}
+      <div style={{ flex: 1, paddingTop: '3px', paddingBottom: isLast ? 0 : '8px' }}>
+        <h4 style={{ fontFamily: 'var(--font-playfair)', fontSize: '18px', fontWeight: 400, color: t.text, margin: '0 0 8px', lineHeight: 1.3 }}>{item.title}</h4>
+        {item.body && (
+          <p style={{ fontSize: '14px', fontWeight: 300, lineHeight: 1.75, color: t.textDim, fontFamily: 'var(--font-inter)', margin: '0 0 12px' }}>{item.body}</p>
+        )}
+        {imgUrl && (
+          <div style={{ position: 'relative', height: '180px', overflow: 'hidden', border: `1px solid ${t.border}` }}>
+            <Image src={imgUrl} alt={item.title} fill style={{ objectFit: 'cover' }} />
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -157,54 +252,7 @@ function ArticleCard({ post }: { post: PayloadPost }) {
   )
 }
 
-/* ── Model Series card ───────────────────────────────────────────────────── */
-function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
-  const { t } = useTheme()
-  const [hov, setHov] = useState(false)
-  const imgUrl = imageUrl(series.image)
-  const href = `/shop/model/${series.productHandle}`
-
-  return (
-    <Link href={href} style={{ textDecoration: 'none', display: 'block' }}>
-      <div
-        onMouseEnter={() => setHov(true)}
-        onMouseLeave={() => setHov(false)}
-        style={{
-          border: `1px solid ${hov ? t.gold + '60' : t.border}`,
-          transition: 'border-color 0.25s, transform 0.25s',
-          transform: hov ? 'translateY(-3px)' : 'translateY(0)',
-          cursor: 'pointer', overflow: 'hidden',
-        }}
-      >
-        <div style={{ height: '180px', background: t.bgSurface, position: 'relative', overflow: 'hidden' }}>
-          {imgUrl
-            ? <Image src={imgUrl} alt={series.name} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
-            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
-          }
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)' }} />
-          <div style={{ position: 'absolute', bottom: '14px', left: '16px', right: '16px' }}>
-            <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '20px', fontWeight: 400, color: '#fff', lineHeight: 1.2 }}>
-              {series.name}
-            </div>
-            {series.yearIntroduced && (
-              <div style={{ fontSize: '9px', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.7)', fontFamily: 'var(--font-inter)', fontWeight: 500, marginTop: '4px' }}>
-                Est. {series.yearIntroduced}
-              </div>
-            )}
-          </div>
-        </div>
-        <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
-          <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
-            Shop This Series
-          </span>
-          <span style={{ fontSize: '13px', color: t.gold, opacity: hov ? 1 : 0.6, transition: 'opacity 0.2s' }}>→</span>
-        </div>
-      </div>
-    </Link>
-  )
-}
-
-/* ── Product card — matches store ListingPage exactly ────────────────────── */
+/* ── Product card ────────────────────────────────────────────────────────── */
 const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
 
@@ -213,14 +261,14 @@ function ProductCard({ product }: { product: MappedProduct }) {
   const [hov, setHov] = useState(false)
 
   return (
-    <Link href={`/product/${product.handle}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Link href={`/product/${product.handle}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column' }}>
       <div
         onMouseEnter={() => setHov(true)}
         onMouseLeave={() => setHov(false)}
         style={{
           background: hov ? '#fafafa' : '#ffffff',
           border: `1px solid ${hov ? t.gold + '55' : t.border}`,
-          borderRadius: '1px', overflow: 'hidden',
+          overflow: 'hidden',
           transition: 'all 0.28s ease',
           transform: hov ? 'translateY(-4px)' : 'translateY(0)',
           boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1),0 0 0 1px ${t.gold}25` : '0 2px 8px rgba(0,0,0,0.05)',
@@ -239,16 +287,16 @@ function ProductCard({ product }: { product: MappedProduct }) {
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
           ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', filter: !product.in_stock ? 'grayscale(0.55) brightness(0.78)' : 'none' }}>
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <span style={{ fontSize: '9px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span>
             </div>
           )}
 
           {product.details?.primary_category && product.in_stock && (
             <div style={{
-              position: 'absolute', top: '10px', left: '10px',
+              position: 'absolute', top: '8px', left: '8px',
               background: 'rgba(255,255,255,0.88)', border: `1px solid ${t.gold}50`,
-              padding: '3px 9px', fontSize: '8.5px', letterSpacing: '0.14em',
+              padding: '3px 8px', fontSize: '8px', letterSpacing: '0.14em',
               textTransform: 'uppercase', fontWeight: 500, color: t.gold, backdropFilter: 'blur(6px)',
             }}>
               {product.details.primary_category}
@@ -257,42 +305,43 @@ function ProductCard({ product }: { product: MappedProduct }) {
 
           {!product.in_stock && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(11,10,9,0.32)' }}>
-              <div style={{ background: 'rgba(255,255,255,0.92)', border: `1px solid ${t.gold}`, color: t.gold, padding: '7px 22px', fontSize: '10px', letterSpacing: '0.32em', textTransform: 'uppercase', fontWeight: 600, backdropFilter: 'blur(6px)' }}>
+              <div style={{ background: 'rgba(255,255,255,0.92)', border: `1px solid ${t.gold}`, color: t.gold, padding: '6px 16px', fontSize: '9px', letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>
                 Unavailable
               </div>
             </div>
           )}
 
           {product.in_stock && (
-            <div style={{ position: 'absolute', top: '10px', right: '10px', display: 'flex', alignItems: 'center', gap: '5px', background: 'rgba(255,255,255,0.88)', border: '1px solid #3a6a3a55', padding: '3px 9px', backdropFilter: 'blur(6px)' }}>
-              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#3a6a3a' }} />
-              <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', fontWeight: 500, color: '#3a6a3a' }}>Available</span>
+            <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.88)', border: '1px solid #3a6a3a55', padding: '3px 8px' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#3a6a3a', flexShrink: 0 }} />
+              <span style={{ fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: '#3a6a3a' }}>Available</span>
             </div>
           )}
         </div>
 
         {/* Body */}
-        <div style={{ padding: '18px 20px 22px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ fontSize: '8.5px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontWeight: 500, marginBottom: '5px' }}>
+        <div style={{ padding: '14px 16px 18px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+          <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontWeight: 500, marginBottom: '4px' }}>
             {product.attributes?.brand}
           </div>
-          <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '19px', fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: '5px' }}>
+          <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '16px', fontWeight: 400, color: t.text, lineHeight: 1.25, marginBottom: '4px' }}>
             {product.title}
           </div>
-          <div style={{ fontSize: '10.5px', color: '#525258', fontWeight: 300, letterSpacing: '0.04em', marginBottom: '13px' }}>
+          <div style={{ fontSize: '10px', color: '#525258', fontWeight: 300, letterSpacing: '0.03em', marginBottom: '10px' }}>
             {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(' · ')}
           </div>
-          <div style={{ height: '1px', background: t.border, marginBottom: '13px', marginTop: 'auto' }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ height: '1px', background: t.border, marginBottom: '10px', marginTop: 'auto' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
             <div style={{
-              fontSize: product.contact_for_pricing ? '10px' : '15px',
+              fontSize: product.contact_for_pricing ? '9px' : '14px',
               fontWeight: product.contact_for_pricing ? 400 : 500,
               color: product.contact_for_pricing ? t.gold : t.text,
               letterSpacing: product.contact_for_pricing ? '0.04em' : '0.01em',
+              lineHeight: 1.3,
             }}>
               {product.contact_for_pricing ? 'Contact Us For Pricing' : product.price !== null ? fmt(product.price) : '—'}
             </div>
-            <div style={{ fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: '1px', opacity: hov ? 1 : 0.65, transition: 'opacity 0.2s' }}>
+            <div style={{ fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: '1px', opacity: hov ? 1 : 0.65, transition: 'opacity 0.2s', whiteSpace: 'nowrap', flexShrink: 0 }}>
               View Details
             </div>
           </div>
@@ -327,12 +376,15 @@ export default function ResourcesBrandPage({
   const hasProducts  = products.length > 0
   const brandName    = brand?.name ?? slug
   const modelSeries  = (brand?.modelSeries ?? []).filter(m => m.productHandle)
+  const gallery      = (brand?.gallery ?? []).filter(g => g.image)
+  const timeline     = brand?.timeline ?? []
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh' }}>
+
       {/* ── Breadcrumb ───────────────────────────────────────────────────── */}
       <div style={{ borderBottom: `1px solid ${t.border}`, padding: '12px 24px' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontFamily: 'var(--font-inter)', fontWeight: 300 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontFamily: 'var(--font-inter)', fontWeight: 300, flexWrap: 'wrap' }}>
           <Link href="/" style={{ color: t.textDim, textDecoration: 'none' }}>Home</Link>
           <span style={{ color: t.border }}>›</span>
           <Link href="/resources-on-guns" style={{ color: t.textDim, textDecoration: 'none' }}>Resources on Guns</Link>
@@ -342,23 +394,23 @@ export default function ResourcesBrandPage({
       </div>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <div style={{ position: 'relative', height: heroUrl ? '480px' : '260px', overflow: 'hidden', background: heroUrl ? undefined : t.bgSurface }}>
+      <div style={{ position: 'relative', height: heroUrl ? 'clamp(260px,50vw,480px)' : '220px', overflow: 'hidden', background: heroUrl ? undefined : t.bgSurface }}>
         {heroUrl && <Image src={heroUrl} alt={brandName} fill style={{ objectFit: 'cover' }} priority />}
         <div style={{ position: 'absolute', inset: 0, background: heroUrl ? 'linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.58) 100%)' : 'none' }} />
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 24px 52px', textAlign: 'center' }}>
+        <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 24px 44px', textAlign: 'center' }}>
           {logoUrl && (
-            <div style={{ width: '72px', height: '72px', position: 'relative', marginBottom: '14px', filter: heroUrl ? 'brightness(0) invert(1)' : undefined }}>
+            <div style={{ width: '64px', height: '64px', position: 'relative', marginBottom: '12px', filter: heroUrl ? 'brightness(0) invert(1)' : undefined }}>
               <Image src={logoUrl} alt={brandName} fill style={{ objectFit: 'contain' }} />
             </div>
           )}
-          <div style={{ fontSize: '8.5px', letterSpacing: '0.28em', textTransform: 'uppercase', color: heroUrl ? 'rgba(255,255,255,0.65)' : t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '10px' }}>
+          <div style={{ fontSize: '8.5px', letterSpacing: '0.28em', textTransform: 'uppercase', color: heroUrl ? 'rgba(255,255,255,0.65)' : t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '8px' }}>
             Resources on Guns
           </div>
-          <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(30px,5vw,52px)', fontWeight: 400, color: heroUrl ? '#fff' : t.text, margin: '0 0 12px', lineHeight: 1.1 }}>
+          <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(26px,5vw,52px)', fontWeight: 400, color: heroUrl ? '#fff' : t.text, margin: '0 0 10px', lineHeight: 1.1 }}>
             {brandName}
           </h1>
           {brand?.tagline && (
-            <p style={{ fontFamily: 'var(--font-inter)', fontSize: '15px', fontWeight: 300, color: heroUrl ? 'rgba(255,255,255,0.8)' : t.textDim, margin: 0, maxWidth: '540px', lineHeight: 1.6 }}>
+            <p style={{ fontFamily: 'var(--font-inter)', fontSize: 'clamp(13px,2vw,15px)', fontWeight: 300, color: heroUrl ? 'rgba(255,255,255,0.8)' : t.textDim, margin: 0, maxWidth: '540px', lineHeight: 1.6 }}>
               {brand.tagline}
             </p>
           )}
@@ -368,7 +420,7 @@ export default function ResourcesBrandPage({
       {/* ── Brand meta bar ───────────────────────────────────────────────── */}
       {(brand?.origin || brand?.foundingYear) && (
         <div style={{ borderBottom: `1px solid ${t.border}`, background: t.bgSurface }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '14px 24px', display: 'flex', gap: '32px', flexWrap: 'wrap', alignItems: 'center' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '12px 24px', display: 'flex', gap: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
             {brand.foundingYear && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <span style={{ fontSize: '8px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Founded</span>
@@ -390,16 +442,28 @@ export default function ResourcesBrandPage({
         </div>
       )}
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
 
         {/* ── History / Overview ───────────────────────────────────────── */}
         {(brand?.description || hasHistory) && (
-          <section style={{ padding: '64px 0 48px' }}>
+          <section style={{ padding: '56px 0 40px' }}>
             <div style={{ maxWidth: '760px' }}>
               {!hasHistory && brand?.description && (
-                <p style={{ fontSize: '17px', fontWeight: 300, lineHeight: 1.85, color: t.text, fontFamily: 'var(--font-inter)', margin: 0 }}>{brand.description}</p>
+                <p style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.85, color: t.text, fontFamily: 'var(--font-inter)', margin: 0 }}>{brand.description}</p>
               )}
               {hasHistory && histNodes.map((n, i) => <LexBlock key={i} node={n} />)}
+            </div>
+          </section>
+        )}
+
+        {/* ── Timeline ─────────────────────────────────────────────────── */}
+        {timeline.length > 0 && (
+          <section style={{ padding: '48px 0' }}>
+            <SectionHead eyebrow={brandName} title="History & Milestones" />
+            <div style={{ maxWidth: '700px' }}>
+              {timeline.map((item, i) => (
+                <TimelineEntry key={item.id} item={item} isLast={i === timeline.length - 1} />
+              ))}
             </div>
           </section>
         )}
@@ -408,7 +472,7 @@ export default function ResourcesBrandPage({
         {hasResources && (
           <section style={{ padding: '48px 0' }}>
             <SectionHead eyebrow={brandName} title="Models & Reference Pages" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+            <div className="rp-resource-grid">
               {resourcePages.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
             </div>
           </section>
@@ -418,8 +482,18 @@ export default function ResourcesBrandPage({
         {modelSeries.length > 0 && (
           <section style={{ padding: '48px 0' }}>
             <SectionHead eyebrow={brandName} title="Model Series & Product Lines" />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '20px' }}>
+            <div className="rp-series-grid">
               {modelSeries.map(s => <ModelSeriesCard key={s.id} series={s} />)}
+            </div>
+          </section>
+        )}
+
+        {/* ── Photo Gallery ────────────────────────────────────────────── */}
+        {gallery.length > 0 && (
+          <section style={{ padding: '48px 0' }}>
+            <SectionHead eyebrow={brandName} title="Gallery" />
+            <div className="rp-gallery-grid">
+              {gallery.map(item => <GalleryPhoto key={item.id} item={item} />)}
             </div>
           </section>
         )}
@@ -431,12 +505,12 @@ export default function ResourcesBrandPage({
               eyebrow={brandName}
               title="Articles & Features"
               action={
-                <Link href="/articles" style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+                <Link href="/articles" style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
                   All Articles →
                 </Link>
               }
             />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '32px' }}>
+            <div className="rp-article-grid">
               {articles.map(p => <ArticleCard key={p.id} post={p} />)}
             </div>
           </section>
@@ -449,12 +523,12 @@ export default function ResourcesBrandPage({
               eyebrow={brandName}
               title="Available for Purchase"
               action={
-                <Link href={`/brand/${slug}`} style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
+                <Link href={`/brand/${slug}`} style={{ fontSize: '10px', letterSpacing: '0.12em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontFamily: 'var(--font-inter)', fontWeight: 500 }}>
                   Shop All →
                 </Link>
               }
             />
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '28px' }}>
+            <div className="rp-product-grid">
               {products.slice(0, 8).map(p => <ProductCard key={p.id} product={p} />)}
             </div>
             {products.length > 8 && (
@@ -478,6 +552,7 @@ export default function ResourcesBrandPage({
             </p>
           </div>
         )}
+
       </div>
     </div>
   )
