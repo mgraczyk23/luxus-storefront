@@ -291,6 +291,54 @@ export type PayloadBrand = {
   sortOrder:   number
 }
 
+export type PayloadModelSeries = {
+  id:             string
+  name:           string
+  yearIntroduced: number | null
+  description:    unknown // Lexical JSON
+  image:          PayloadImage | null
+  productHandle:  string | null
+}
+
+export type PayloadGalleryItem = {
+  id:      string
+  image:   PayloadImage
+  caption: string | null
+}
+
+export type PayloadTimelineItem = {
+  id:    string
+  year:  string
+  title: string
+  body:  string | null
+  image: PayloadImage | null
+}
+
+export type PayloadBrandFull = PayloadBrand & {
+  heroImage:      PayloadImage | null
+  tagline:        string | null
+  foundingYear:   number | null
+  history:        unknown // Lexical JSON
+  modelSeries:    PayloadModelSeries[]
+  gallery:        PayloadGalleryItem[]
+  timeline:       PayloadTimelineItem[]
+  seoTitle:       string | null
+  seoDescription: string | null
+}
+
+function mapBrandBase(b: any): PayloadBrand {
+  return {
+    id:          String(b.id),
+    name:        b.name,
+    slug:        b.slug,
+    origin:      b.origin      ?? null,
+    description: b.description ?? null,
+    logo:        b.logo        ?? null,
+    featured:    b.featured    ?? false,
+    sortOrder:   b.sortOrder   ?? 0,
+  }
+}
+
 export async function getBrands(opts: { featuredOnly?: boolean } = {}): Promise<PayloadBrand[]> {
   try {
     const params = new URLSearchParams()
@@ -304,16 +352,79 @@ export async function getBrands(opts: { featuredOnly?: boolean } = {}): Promise<
     })
     if (!res.ok) return []
     const data = await res.json()
-    return (data.docs ?? []).map((b: any) => ({
-      id:          b.id,
-      name:        b.name,
-      slug:        b.slug,
-      origin:      b.origin      ?? null,
-      description: b.description ?? null,
-      logo:        b.logo        ?? null,
-      featured:    b.featured    ?? false,
-      sortOrder:   b.sortOrder   ?? 0,
-    }))
+    return (data.docs ?? []).map(mapBrandBase)
+  } catch {
+    return []
+  }
+}
+
+export async function getBrand(slug: string): Promise<PayloadBrandFull | null> {
+  try {
+    const params = new URLSearchParams()
+    params.set('where[slug][equals]', slug)
+    params.set('depth', '2')
+    params.set('limit', '1')
+
+    const res = await fetch(`${PAYLOAD_URL}/api/brands?${params}`, {
+      next: { revalidate: 300, tags: ['brands', `brand-${slug}`] },
+    })
+    if (!res.ok) return null
+    const data: PayloadListResponse<any> = await res.json()
+    const b = data.docs[0]
+    if (!b) return null
+
+    return {
+      ...mapBrandBase(b),
+      heroImage:      b.heroImage      ?? null,
+      tagline:        b.tagline        ?? null,
+      foundingYear:   b.foundingYear   ?? null,
+      history:        b.history        ?? null,
+      modelSeries:    (b.modelSeries ?? []).map((m: any) => ({
+        id:             String(m.id),
+        name:           m.name,
+        yearIntroduced: m.yearIntroduced ?? null,
+        description:    m.description ?? null,
+        image:          m.image ?? null,
+        productHandle:  m.productHandle ?? null,
+      })),
+      gallery: (b.gallery ?? [])
+        .filter((g: any) => g.image)
+        .map((g: any) => ({
+          id:      String(g.id),
+          image:   g.image,
+          caption: g.caption ?? null,
+        })),
+      timeline: (b.timeline ?? []).map((t: any) => ({
+        id:    String(t.id),
+        year:  t.year,
+        title: t.title,
+        body:  t.body  ?? null,
+        image: t.image ?? null,
+      })),
+      seoTitle:       b.seoTitle       ?? null,
+      seoDescription: b.seoDescription ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
+export async function getPostsByBrand(brandId: string, limit = 8): Promise<PayloadPost[]> {
+  try {
+    const params = new URLSearchParams()
+    params.set('where[brand][equals]', brandId)
+    params.set('where[status][equals]', 'published')
+    params.set('sort', '-publishedAt')
+    params.set('depth', '1')
+    params.set('limit', String(limit))
+    params.set('select[content]', 'false')
+
+    const res = await fetch(`${PAYLOAD_URL}/api/posts?${params}`, {
+      next: { revalidate: 300, tags: ['posts', `brand-${brandId}`] },
+    })
+    if (!res.ok) return []
+    const data: PayloadListResponse<PayloadPost> = await res.json()
+    return data.docs ?? []
   } catch {
     return []
   }
