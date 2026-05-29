@@ -46,6 +46,8 @@ export type MappedProduct = {
   details: {
     primary_category: string | null
   }
+  tags:       string[]   // raw tag values, e.g. ["Featured"]
+  is_firearm: boolean    // true when product type === "Firearm"
   seo_meta_title: string | null
   seo_meta_description: string | null
 }
@@ -173,6 +175,8 @@ export function mapMedusaProduct(p: any): MappedProduct {
     details: {
       primary_category: p.metadata?.primary_category ?? null,
     },
+    tags:       (p.tags ?? []).map((t: { value: string }) => t.value),
+    is_firearm: p.type?.value?.toLowerCase() === "firearm",
     seo_meta_title:       null,
     seo_meta_description: null,
   }

@@ -24,7 +24,7 @@ export function getProducts(params?: Record<string, string>) {
 
 export function getProduct(handle: string) {
   return storeFetch<{ products: any[] }>(
-    `/store/products?handle=${encodeURIComponent(handle)}&fields=*variants,*variants.prices,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type`
+    `/store/products?handle=${encodeURIComponent(handle)}&fields=*variants,*variants.prices,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*tags,*type`
   )
 }
 
@@ -70,6 +70,14 @@ export function getCollection(handle: string) {
   return storeFetch<{ collections: any[] }>(
     `/store/collections?handle=${encodeURIComponent(handle)}`
   )
+}
+
+export function getProductTags() {
+  return storeFetch<{ product_tags: { id: string; value: string }[] }>("/store/product-tags?limit=100")
+}
+
+export function getProductTypes() {
+  return storeFetch<{ product_types: { id: string; value: string }[] }>("/store/product-types?limit=100")
 }
 
 // ── Cart ──────────────────────────────────────────────────────────────────────
