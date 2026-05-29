@@ -534,21 +534,31 @@ export default function ProductDetailPage({
               </button>
             </div>
 
-            {/* FFL Notice */}
-            <div style={{ background: "#fafafa", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}40`, padding: "12px 14px", marginBottom: "20px" }}>
-              <div style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-                <svg width="13" height="14" viewBox="0 0 13 14" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}>
-                  <path d="M6.5 1L12 4V7C12 10 9 12.5 6.5 13C4 12.5 1 10 1 7V4L6.5 1Z" stroke={t.textDim} strokeWidth="1" strokeLinejoin="round" />
-                  <path d="M6.5 5V7.5M6.5 9H6.51" stroke={t.textDim} strokeWidth="1" strokeLinecap="round" />
-                </svg>
-                <div>
-                  <div style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "3px" }}>FFL Transfer Required</div>
-                  <div style={{ fontSize: "11px", color: t.textDim, fontWeight: 300, lineHeight: 1.65, letterSpacing: "0.01em" }}>
-                    All firearms must be transferred through a licensed FFL dealer in your state. Contact us or proceed to checkout to provide your dealer's information.
+            {/* FFL Transfer Required — only shown for Firearm product type */}
+            {product.is_firearm && (
+              <div style={{ background: "#fafafa", border: `1px solid ${t.gold}30`, borderLeft: `3px solid ${t.gold}`, padding: "14px 16px", marginBottom: "20px" }}>
+                <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                  <svg width="16" height="18" viewBox="0 0 16 18" fill="none" style={{ flexShrink: 0, marginTop: "1px", color: t.gold }}>
+                    <path d="M8 1L15 4.5V9C15 13 11.5 16.5 8 17.5C4.5 16.5 1 13 1 9V4.5L8 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round"/>
+                    <path d="M8 7V10.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                    <circle cx="8" cy="13" r="0.8" fill="currentColor"/>
+                  </svg>
+                  <div>
+                    <div style={{ fontSize: "8.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.gold, fontWeight: 600, marginBottom: "4px" }}>
+                      FFL Transfer Required
+                    </div>
+                    <div style={{ fontSize: "11.5px", color: t.textMuted, fontWeight: 300, lineHeight: 1.7, letterSpacing: "0.01em" }}>
+                      All firearms must be transferred through a licensed FFL dealer in your state. Provide your dealer&apos;s information at checkout — we ship directly to them.{" "}
+                      <a href="/support#ffl" style={{ color: t.gold, textDecoration: "none", fontWeight: 400 }}
+                        onMouseEnter={e => (e.currentTarget.style.textDecoration = "underline")}
+                        onMouseLeave={e => (e.currentTarget.style.textDecoration = "none")}>
+                        How FFL transfers work →
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Share row */}
             <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
