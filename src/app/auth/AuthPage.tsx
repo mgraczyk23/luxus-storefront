@@ -2,20 +2,21 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useAuth } from '@/context/AuthContext'
 
-function InputField({ label, type = "text", placeholder, value, onChange, hint }: {
+function InputField({ label, type = "text", placeholder, value, onChange, hint, onHintClick }: {
   label: string; type?: string; placeholder?: string;
-  value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; hint?: string
+  value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  hint?: string; onHintClick?: () => void
 }) {
   const { t } = useTheme()
   return (
     <div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "6px" }}>
         <label style={{ fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, fontFamily: "var(--font-inter)" }}>{label}</label>
-        {hint && <span style={{ fontSize: "10px", color: t.gold, cursor: "pointer", fontFamily: "var(--font-inter)", fontWeight: 300 }}>{hint}</span>}
+        {hint && <span onClick={onHintClick} style={{ fontSize: "10px", color: t.gold, cursor: onHintClick ? "pointer" : "default", fontFamily: "var(--font-inter)", fontWeight: 300 }}>{hint}</span>}
       </div>
       <input type={type} placeholder={placeholder} value={value} onChange={onChange}
         style={{ width: "100%", padding: "12px 14px", background: "var(--lxs-bg)", border: `1px solid ${t.border}`, color: t.text, fontSize: "13px", fontFamily: "var(--font-inter)", fontWeight: 300, letterSpacing: "0.02em", outline: "none", borderRadius: "1px", transition: "border-color 0.2s" }}
@@ -41,8 +42,13 @@ const STRENGTH_COLOR = ["", "#b05040", "#c08030", "#8a9030", "#4a8a4a", "#3a7a6a
 export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "signin" | "register" }) {
   const { t } = useTheme()
   const { signIn, register } = useAuth()
-  const router = useRouter()
+  const router  = useRouter()
+  const params  = useSearchParams()
+  const resetOk = params.get("reset") === "success"
   const [tab, setTab] = useState<"signin"|"register">(defaultTab)
+  const [showForgot,    setShowForgot]    = useState(false)
+  const [forgotEmail,   setForgotEmail]   = useState("")
+  const [forgotStatus,  setForgotStatus]  = useState<"idle"|"loading"|"sent">("idle")
 
   const [siEmail, setSiEmail]         = useState("")
   const [siPassword, setSiPassword]   = useState("")
@@ -60,6 +66,17 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
   const [showStrength, setShowStrength] = useState(false)
 
   const strength = passwordStrength(regPassword)
+
+  const handleForgot = async () => {
+    if (!forgotEmail || forgotStatus === "loading") return
+    setForgotStatus("loading")
+    await fetch("/api/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: forgotEmail }),
+    }).catch(() => {})
+    setForgotStatus("sent")
+  }
 
   const handleSignIn = async () => {
     if (!siEmail || !siPassword) return
@@ -163,7 +180,7 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
             </div>
 
             {/* ── SIGN IN ── */}
-            {tab === "signin" && (
+            {tab === "signin" && !showForgot && (
               siStatus === "success" ? (
                 <div style={{ textAlign: "center", padding: "40px 0" }}>
                   <div style={{ width: "52px", height: "52px", border: `1px solid ${t.gold}`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
@@ -178,7 +195,7 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
                   <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, marginBottom: "32px" }}>Welcome back to Luxus Collection.</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "24px" }}>
                     <InputField label="Email Address" type="email" placeholder="you@example.com" value={siEmail} onChange={e => setSiEmail(e.target.value)}/>
-                    <InputField label="Password" type="password" placeholder="••••••••••" value={siPassword} onChange={e => setSiPassword(e.target.value)} hint="Forgot password?"/>
+                    <InputField label="Password" type="password" placeholder="••••••••••" value={siPassword} onChange={e => setSiPassword(e.target.value)} hint="Forgot password?" onHintClick={() => { setShowForgot(true); setForgotEmail(siEmail); setForgotStatus("idle") }}/>
                   </div>
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px", cursor: "pointer" }}>
                     <div style={{ width: "14px", height: "14px", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px", flexShrink: 0 }}/>
@@ -198,6 +215,50 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
                   </p>
                 </div>
               )
+            )}
+
+            {/* ── FORGOT PASSWORD ── */}
+            {tab === "signin" && showForgot && (
+              <div style={{ maxWidth: "380px" }}>
+                <button onClick={() => setShowForgot(false)} style={{ display: "flex", alignItems: "center", gap: "6px", background: "none", border: "none", color: t.textMuted, fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", cursor: "pointer", padding: 0, marginBottom: "28px", fontFamily: "var(--font-inter)", fontWeight: 500 }}>
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M7 4H1M1 4L4 1M1 4L4 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Back to Sign In
+                </button>
+                {forgotStatus === "sent" ? (
+                  <div>
+                    <div style={{ width: "52px", height: "52px", border: `1px solid ${t.gold}`, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "20px" }}>
+                      <svg width="20" height="15" viewBox="0 0 20 15" fill="none"><path d="M1 7.5L7 13.5L19 1.5" stroke={t.gold} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                    <div style={{ fontFamily: "var(--font-playfair)", fontSize: "26px", fontWeight: 400, color: t.text, marginBottom: "10px" }}>Check Your Inbox</div>
+                    <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.8 }}>
+                      If an account exists for <strong style={{ fontWeight: 500, color: t.text }}>{forgotEmail}</strong>, you&apos;ll receive a reset link within a few minutes. The link expires in 15 minutes.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,2.5vw,34px)", fontWeight: 400, color: t.text, marginBottom: "8px", lineHeight: 1.2 }}>Forgot Password?</h2>
+                    <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, marginBottom: "28px" }}>Enter your email and we&apos;ll send you a reset link.</p>
+                    <div style={{ marginBottom: "20px" }}>
+                      <InputField label="Email Address" type="email" placeholder="you@example.com" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}/>
+                    </div>
+                    <button onClick={handleForgot} disabled={!forgotEmail || forgotStatus === "loading"}
+                      style={{ width: "100%", padding: "14px", background: forgotEmail ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: forgotEmail ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s" }}
+                      onMouseEnter={e => { if (forgotEmail) e.currentTarget.style.background = t.goldLight }}
+                      onMouseLeave={e => { if (forgotEmail) e.currentTarget.style.background = t.gold }}>
+                      {forgotStatus === "loading" ? "Sending…" : "Send Reset Link"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reset-success banner */}
+            {tab === "signin" && !showForgot && resetOk && siStatus === "idle" && (
+              <div style={{ padding: "12px 16px", background: "#f0f7f0", border: "1px solid #4a8a4a40", marginBottom: "20px", maxWidth: "380px" }}>
+                <p style={{ fontSize: "12px", fontWeight: 300, color: "#3a6a3a", margin: 0 }}>
+                  ✓ Password updated — please sign in with your new password.
+                </p>
+              </div>
             )}
 
             {/* ── REGISTER ── */}
