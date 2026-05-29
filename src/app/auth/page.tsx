@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import type { Metadata } from "next"
 import AuthPage from "./AuthPage"
 
@@ -12,5 +13,9 @@ export default async function Page({
   searchParams: Promise<{ tab?: string }>
 }) {
   const { tab } = await searchParams
-  return <AuthPage defaultTab={tab === "register" ? "register" : "signin"} />
+  return (
+    <Suspense>
+      <AuthPage defaultTab={tab === "register" ? "register" : "signin"} />
+    </Suspense>
+  )
 }
