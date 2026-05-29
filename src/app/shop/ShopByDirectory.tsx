@@ -107,15 +107,15 @@ export default function ShopByDirectory({
   title,
   items,
 }: {
-  type: 'brand' | 'collection' | 'category'
+  type: 'brand' | 'collection' | 'category' | 'model'
   title: string
   items: DirectoryItem[]
 }) {
   const isBrand = type === 'brand'
 
   const typeLabel = items.length === 1
-    ? (type === 'category' ? 'category' : type === 'collection' ? 'collection' : 'brand')
-    : (type === 'category' ? 'categories' : type === 'collection' ? 'collections' : 'brands')
+    ? (type === 'category' ? 'category' : type === 'collection' ? 'collection' : type === 'model' ? 'model' : 'brand')
+    : (type === 'category' ? 'categories' : type === 'collection' ? 'collections' : type === 'model' ? 'models' : 'brands')
 
   return (
     <div className="lxs-shop-by-page" style={{ maxWidth: '1440px', margin: '0 auto' }}>

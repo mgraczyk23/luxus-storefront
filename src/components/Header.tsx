@@ -40,7 +40,7 @@ function MobileNav({ cartCount }: { cartCount: number }) {
 
   const NAV = [
     { section: "Shop",      items: [["/", "Home"], ["/shop", "Shop All"], ["/cart", "Cart"]] as [string, string][] },
-    { section: "Shop By",   items: [["/shop/brands", "Brands"], ["/shop/collections", "Collections"], ["/shop/categories", "Categories"]] as [string, string][] },
+    { section: "Shop By",   items: [["/shop/brands", "Brands"], ["/shop/collections", "Collections"], ["/shop/categories", "Categories"], ["/shop/models", "Models"]] as [string, string][] },
     { section: "Editorial", items: [["/resources-on-guns", "Resources on Guns"], ["/articles", "Articles"]] as [string, string][] },
     { section: "Account",   items: [["/account", "My Account"], ["/auth", "Sign In / Register"]] as [string, string][] },
     { section: "Company",   items: [["/about", "About"], ["/contact", "Contact"], ["/sell-your-gun", "Sell Your Gun"]] as [string, string][] },
@@ -237,7 +237,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
               {shopByOpen && (
                 <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", paddingTop: "14px" }}>
                   <div style={{ background: "#ffffff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, minWidth: "148px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", padding: "8px 0" }}>
-                    {([["Brands", "/shop/brands"], ["Collections", "/shop/collections"], ["Categories", "/shop/categories"]] as [string, string][]).map(([label, href]) => (
+                    {([["Brands", "/shop/brands"], ["Collections", "/shop/collections"], ["Categories", "/shop/categories"], ["Models", "/shop/models"]] as [string, string][]).map(([label, href]) => (
                       <Link key={label} href={href}
                         style={{ display: "block", padding: "9px 22px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.textMuted, textDecoration: "none", fontFamily: "'Inter',sans-serif", fontWeight: 500, transition: "all 0.15s" }}
                         onMouseEnter={e => { e.currentTarget.style.color = t.gold; e.currentTarget.style.paddingLeft = "26px" }}

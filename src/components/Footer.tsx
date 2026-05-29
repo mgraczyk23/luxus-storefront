@@ -7,10 +7,11 @@ import type { SiteSettings } from '@/lib/payload'
 
 const FOOTER_LINKS = {
   Shop: [
-    { label: "Brands",       href: "/shop?by=brand"       },
-    { label: "Collections",  href: "/shop?by=collection"  },
-    { label: "Categories",   href: "/shop?by=category"    },
-    { label: "Featured",     href: "/featured"            },
+    { label: "Brands",       href: "/shop/brands"      },
+    { label: "Collections",  href: "/shop/collections" },
+    { label: "Categories",   href: "/shop/categories"  },
+    { label: "Models",       href: "/shop/models"      },
+    { label: "Featured",     href: "/featured"         },
   ],
   Information: [
     { label: "About",            href: "/about"    },

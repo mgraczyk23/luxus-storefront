@@ -230,8 +230,9 @@ export type ShopTileImageMap = Record<string, string> // handle → absolute ima
 export async function getShopTileImages(): Promise<{
   collections: ShopTileImageMap
   categories:  ShopTileImageMap
+  models:      ShopTileImageMap
 }> {
-  const empty = { collections: {}, categories: {} }
+  const empty = { collections: {}, categories: {}, models: {} }
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/shop-tile-images?depth=1`, {
       next: { revalidate: 300, tags: ['shop-tile-images'] },
@@ -251,6 +252,7 @@ export async function getShopTileImages(): Promise<{
     return {
       collections: toMap(data.collections),
       categories:  toMap(data.categories),
+      models:      toMap(data.models),
     }
   } catch {
     return empty
