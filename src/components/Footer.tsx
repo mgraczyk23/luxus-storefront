@@ -30,7 +30,10 @@ const FOOTER_LINKS = {
 
 export default function Footer({ settings }: { settings: SiteSettings }) {
   const { t } = useTheme()
-  const { contact, social } = settings
+  const { contact, social, footer = {} } = settings
+  const blurb         = footer.blurb         ?? "A boutique destination for the serious collector, curating the world's finest production and custom pistols since 2026."
+  const copyrightLine = footer.copyrightLine  ?? "© 2026 Luxus Collection LLC · luxus-collection.com · All Rights Reserved"
+  const legalLine     = footer.legalLine      ?? "All transactions conducted in full compliance with federal, state, and local firearms laws. FFL transfers required. Licensed Federal Firearms Dealer · License #1-59-XXX-XX-XX-55688."
 
   const SOCIAL = [
     { label: "Facebook",    href: social.facebook,   icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 2H15C13.67 2 12.4 2.53 11.46 3.46C10.53 4.4 10 5.67 10 7V10H7V14H10V22H14V14H17L18 10H14V7C14 6.73 14.11 6.48 14.29 6.29C14.48 6.11 14.73 6 15 6H18V2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
@@ -60,7 +63,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
                 style={{ height: "56px", width: "auto", display: "block", filter: "brightness(0.68) saturate(1.1)" }}/>
             </div>
             <p className="lxs-footer-brand-blurb" style={{ fontSize: "12px", fontWeight: 300, lineHeight: 1.85, color: "#525258", maxWidth: "260px", margin: 0 }}>
-              A boutique destination for the serious collector, curating the world&apos;s finest production and custom pistols since 2026.
+              {blurb}
             </p>
 
             {/* Contact links */}
@@ -126,7 +129,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
         {/* ── Bottom bar ───────────────────────────────────────────────── */}
         <div className="lxs-footer-bottom" style={{ borderTop: `1px solid ${t.border}`, padding: "22px 0", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
           <span style={{ fontSize: "9.5px", color: t.textMuted, letterSpacing: "0.04em" }}>
-            © 2026 Luxus Collection LLC · luxus-collection.com · All Rights Reserved
+            {copyrightLine}
           </span>
           <div className="lxs-footer-legal" style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap" }}>
             <Link href="/privacy"
@@ -142,7 +145,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
               Terms &amp; Conditions
             </Link>
             <span style={{ fontSize: "9.5px", color: t.textMuted, letterSpacing: "0.025em", lineHeight: 1.6 }}>
-              All transactions conducted in full compliance with federal, state, and local firearms laws. FFL transfers required. Licensed Federal Firearms Dealer · License #1-59-XXX-XX-XX-55688.
+              {legalLine}
             </span>
           </div>
         </div>

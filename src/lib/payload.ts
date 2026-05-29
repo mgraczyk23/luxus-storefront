@@ -176,6 +176,11 @@ export type SiteSettings = {
     message?: string
     link?:    string
   }
+  footer: {
+    blurb?:         string
+    copyrightLine?: string
+    legalLine?:     string
+  }
 }
 
 const SETTINGS_FALLBACK: SiteSettings = {
@@ -202,6 +207,7 @@ const SETTINGS_FALLBACK: SiteSettings = {
     location:      'Sarasota, FL',
   },
   announcement: { enabled: false },
+  footer: {},
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {
