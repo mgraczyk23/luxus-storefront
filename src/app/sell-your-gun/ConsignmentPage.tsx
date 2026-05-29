@@ -67,11 +67,11 @@ export default function ConsignmentPage({
     introParagraph: text.introParagraph ?? "Whether you're looking to consign a piece through our platform or prefer to sell a firearm outright, we'd love to hear from you. Our team will respond personally within three business days.",
     diffBoxTitle:  text.diffBoxTitle  ?? "Consign or Sell — What's the Difference?",
     options: [
-      { heading: text.option1Heading ?? "Consignment",  body: text.option1Body ?? "We list and sell the piece on your behalf. You receive the sale price minus our commission once it sells. No upfront fees — you only pay if and when the piece sells.", link: text.option1Link },
-      { heading: text.option2Heading ?? "Private Sale", body: text.option2Body ?? "Prefer a quicker, simpler transaction? Reach out and we may be able to purchase your piece directly, subject to our assessment and a mutual agreement on price.", link: text.option2Link },
-      ...(text.option3Heading ? [{ heading: text.option3Heading, body: text.option3Body ?? "", link: text.option3Link }] : []),
-      ...(text.option4Heading ? [{ heading: text.option4Heading, body: text.option4Body ?? "", link: text.option4Link }] : []),
-      ...(text.option5Heading ? [{ heading: text.option5Heading, body: text.option5Body ?? "", link: text.option5Link }] : []),
+      { heading: text.option1Heading ?? "Consignment",  body: text.option1Body ?? "We list and sell the piece on your behalf. You receive the sale price minus our commission once it sells. No upfront fees — you only pay if and when the piece sells.", link: text.option1Link, linkText: text.option1LinkText },
+      { heading: text.option2Heading ?? "Private Sale", body: text.option2Body ?? "Prefer a quicker, simpler transaction? Reach out and we may be able to purchase your piece directly, subject to our assessment and a mutual agreement on price.", link: text.option2Link, linkText: text.option2LinkText },
+      ...(text.option3Heading ? [{ heading: text.option3Heading, body: text.option3Body ?? "", link: text.option3Link, linkText: text.option3LinkText }] : []),
+      ...(text.option4Heading ? [{ heading: text.option4Heading, body: text.option4Body ?? "", link: text.option4Link, linkText: text.option4LinkText }] : []),
+      ...(text.option5Heading ? [{ heading: text.option5Heading, body: text.option5Body ?? "", link: text.option5Link, linkText: text.option5LinkText }] : []),
     ],
     commissionNote: text.commissionNote ?? "Consignment rates start at **15%** on sales ≥ $1,500 and **20%** on sales below $1,500. No listing fees — you only pay if and when your piece sells.",
     salesEmailResponseTime: text.salesEmailResponseTime ?? "Response within 3 business days",
@@ -82,7 +82,9 @@ export default function ConsignmentPage({
       [text.step3Title ?? "We agree on terms",        text.step3Body ?? "Whether consigning or selling outright, we'll walk through the agreement before anything moves forward."],
       [text.step4Title ?? "We handle the rest",       text.step4Body ?? "Once agreed, we coordinate listing, FFL logistics, and buyer communication on your behalf."],
     ] as [string, string][],
-    outrightBoxBody: text.outrightBoxBody ?? "Not interested in waiting for a consignment sale? We may be able to purchase your piece directly. Simply select \"Sell a Firearm Outright\" in the dropdown above.",
+    outrightBoxBody:     text.outrightBoxBody ?? "Not interested in waiting for a consignment sale? We may be able to purchase your piece directly. Simply select \"Sell a Firearm Outright\" in the dropdown above.",
+    outrightBoxLink:     text.outrightBoxLink,
+    outrightBoxLinkText: text.outrightBoxLinkText,
   }
 
   const phone         = settings?.contact.phone         ?? "(941) 253-3660"
@@ -131,19 +133,18 @@ export default function ConsignmentPage({
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
                 <div style={{ fontSize:"8.5px",letterSpacing:"0.16em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>{c.diffBoxTitle}</div>
                 <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
-                  {c.options.map(({ heading, body, link }) => (
+                  {c.options.map(({ heading, body, link, linkText }) => (
                     <div key={heading} style={{ display:"flex",gap:"12px",alignItems:"flex-start" }}>
                       <div style={{ width:"5px",height:"5px",borderRadius:"50%",background:t.gold,marginTop:"6px",flexShrink:0 }}/>
                       <div>
-                        {link ? (
-                          <Link href={link} style={{ fontSize:"12px",fontWeight:500,color:t.gold,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:"5px",marginBottom:"3px" }}>
-                            {heading}
+                        <div style={{ fontSize:"12px",fontWeight:500,color:t.text,marginBottom:"3px" }}>{heading}</div>
+                        <div style={{ fontSize:"12.5px",fontWeight:300,color:t.textMuted,lineHeight:1.7 }}>{body}</div>
+                        {link && linkText && (
+                          <Link href={link} style={{ display:"inline-flex",alignItems:"center",gap:"4px",marginTop:"5px",fontSize:"11px",fontWeight:500,color:t.gold,textDecoration:"none",letterSpacing:"0.02em" }}>
+                            {linkText}
                             <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5H7.5M7.5 4.5L5 2M7.5 4.5L5 7" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/></svg>
                           </Link>
-                        ) : (
-                          <div style={{ fontSize:"12px",fontWeight:500,color:t.text,marginBottom:"3px" }}>{heading}</div>
                         )}
-                        <div style={{ fontSize:"12.5px",fontWeight:300,color:t.textMuted,lineHeight:1.7 }}>{body}</div>
                       </div>
                     </div>
                   ))}
@@ -287,9 +288,15 @@ export default function ConsignmentPage({
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ color:t.gold,flexShrink:0,marginTop:"2px" }}><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1"/><path d="M7 6V10" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/><circle cx="7" cy="4.5" r="0.6" fill="currentColor"/></svg>
                 <div>
                   <div style={{ fontSize:"8.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"6px" }}>Prefer to Sell Outright?</div>
-                  <p style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,lineHeight:1.72 }}>
+                  <p style={{ fontSize:"12px",fontWeight:300,color:t.textMuted,lineHeight:1.72,margin:0 }}>
                     {c.outrightBoxBody}
                   </p>
+                  {c.outrightBoxLink && c.outrightBoxLinkText && (
+                    <Link href={c.outrightBoxLink} style={{ display:"inline-flex",alignItems:"center",gap:"4px",marginTop:"8px",fontSize:"11px",fontWeight:500,color:t.gold,textDecoration:"none",letterSpacing:"0.02em" }}>
+                      {c.outrightBoxLinkText}
+                      <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5H7.5M7.5 4.5L5 2M7.5 4.5L5 7" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

@@ -716,18 +716,23 @@ export type ConsignmentPageText = {
   option1Heading?:         string
   option1Body?:            string
   option1Link?:            string
+  option1LinkText?:        string
   option2Heading?:         string
   option2Body?:            string
   option2Link?:            string
+  option2LinkText?:        string
   option3Heading?:         string
   option3Body?:            string
   option3Link?:            string
+  option3LinkText?:        string
   option4Heading?:         string
   option4Body?:            string
   option4Link?:            string
+  option4LinkText?:        string
   option5Heading?:         string
   option5Body?:            string
   option5Link?:            string
+  option5LinkText?:        string
   commissionNote?:         string
   salesEmailResponseTime?: string
   formHeading?:            string
@@ -736,6 +741,8 @@ export type ConsignmentPageText = {
   step3Title?: string; step3Body?: string
   step4Title?: string; step4Body?: string
   outrightBoxBody?:        string
+  outrightBoxLink?:        string
+  outrightBoxLinkText?:    string
 }
 
 export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
@@ -753,18 +760,23 @@ export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
       option1Heading:         pick('option1Heading'),
       option1Body:            pick('option1Body'),
       option1Link:            pick('option1Link'),
+      option1LinkText:        pick('option1LinkText'),
       option2Heading:         pick('option2Heading'),
       option2Body:            pick('option2Body'),
       option2Link:            pick('option2Link'),
+      option2LinkText:        pick('option2LinkText'),
       option3Heading:         pick('option3Heading'),
       option3Body:            pick('option3Body'),
       option3Link:            pick('option3Link'),
+      option3LinkText:        pick('option3LinkText'),
       option4Heading:         pick('option4Heading'),
       option4Body:            pick('option4Body'),
       option4Link:            pick('option4Link'),
+      option4LinkText:        pick('option4LinkText'),
       option5Heading:         pick('option5Heading'),
       option5Body:            pick('option5Body'),
       option5Link:            pick('option5Link'),
+      option5LinkText:        pick('option5LinkText'),
       commissionNote:         pick('commissionNote'),
       salesEmailResponseTime: pick('salesEmailResponseTime'),
       formHeading:            pick('formHeading'),
@@ -772,7 +784,9 @@ export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
       step2Title: pick('step2Title'), step2Body: pick('step2Body'),
       step3Title: pick('step3Title'), step3Body: pick('step3Body'),
       step4Title: pick('step4Title'), step4Body: pick('step4Body'),
-      outrightBoxBody: pick('outrightBoxBody'),
+      outrightBoxBody:     pick('outrightBoxBody'),
+      outrightBoxLink:     pick('outrightBoxLink'),
+      outrightBoxLinkText: pick('outrightBoxLinkText'),
     }
   } catch {
     return {}
