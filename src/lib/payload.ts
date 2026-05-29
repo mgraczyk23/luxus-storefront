@@ -800,6 +800,77 @@ export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
   }
 }
 
+/* ── Featured Page ───────────────────────────────────────────────────────── */
+
+export type FeaturedPageText = {
+  headline?:            string
+  introParagraph?:      string
+  classifiedsHeadline?: string
+  classifiedsIntro?:    string
+  classifiedsBadge?:    string
+}
+
+export type FeaturedClassifiedItem = {
+  id:          string
+  title:       string
+  price:       number | null
+  priceNote:   string | null
+  condition:   string | null
+  category:    string | null
+  brand:       string | null
+  model:       string | null
+  caliber:     string | null
+  description: string | null
+  location:    string | null
+  listedBy:    string | null
+  imageUrl:    string | null
+  sortOrder:   number | null
+}
+
+export async function getFeaturedPageText(): Promise<FeaturedPageText> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/featured-page?depth=0`, {
+      next: { revalidate: 300, tags: ['featured-page'] },
+    })
+    if (!res.ok) return {}
+    const d = await res.json()
+    const pick = (k: string) => (typeof d[k] === 'string' && d[k] ? d[k] : undefined)
+    return {
+      headline:            pick('headline'),
+      introParagraph:      pick('introParagraph'),
+      classifiedsHeadline: pick('classifiedsHeadline'),
+      classifiedsIntro:    pick('classifiedsIntro'),
+      classifiedsBadge:    pick('classifiedsBadge'),
+    }
+  } catch { return {} }
+}
+
+export async function getFeaturedClassifieds(): Promise<FeaturedClassifiedItem[]> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/featured-classifieds?where[active][equals]=true&sort=sortOrder&limit=12&depth=1`, {
+      next: { revalidate: 300, tags: ['featured-page'] },
+    })
+    if (!res.ok) return []
+    const d = await res.json()
+    return (d.docs ?? []).map((item: any): FeaturedClassifiedItem => ({
+      id:          String(item.id),
+      title:       item.title ?? '',
+      price:       typeof item.price === 'number' ? item.price : null,
+      priceNote:   item.priceNote ?? null,
+      condition:   item.condition ?? null,
+      category:    item.category ?? null,
+      brand:       item.brand ?? null,
+      model:       item.model ?? null,
+      caliber:     item.caliber ?? null,
+      description: item.description ?? null,
+      location:    item.location ?? null,
+      listedBy:    item.listedBy ?? null,
+      imageUrl:    item.featuredImage?.url ?? null,
+      sortOrder:   item.sortOrder ?? null,
+    }))
+  } catch { return [] }
+}
+
 /* ── Contact Page ────────────────────────────────────────────────────────── */
 
 export type ContactPageText = {
