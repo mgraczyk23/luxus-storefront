@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
-import type { PayloadFaqCategory } from '@/lib/payload'
+import type { PayloadFaqCategory, SiteSettings } from '@/lib/payload'
 
 /* ── Per-category icons (keyed by category name) ────────────────────────── */
 const ICONS: Record<string, React.ReactNode> = {
@@ -62,7 +62,7 @@ function AccordionItem({ item, isOpen, onToggle, highlight = "" }: {
 }
 
 /* ── Main component ──────────────────────────────────────────────────────── */
-export default function FAQPage({ categories }: { categories: PayloadFaqCategory[] }) {
+export default function FAQPage({ categories, settings }: { categories: PayloadFaqCategory[]; settings?: SiteSettings }) {
   const { t } = useTheme()
   const [search, setSearch] = useState("")
   const [activeCategory, setActiveCategory] = useState(categories[0]?.category ?? "")
@@ -280,8 +280,8 @@ export default function FAQPage({ categories }: { categories: PayloadFaqCategory
             </div>
             <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
               {[
-                { label: "Call Us", value: "(941) 253-3660", sub: "Mon – Fri, 8:30am – 6pm EST", href: "tel:9412533660" },
-                { label: "Toll-Free", value: "(833) 486-6659", sub: "Mon – Fri, 8:30am – 6pm EST", href: "tel:8334866659" },
+                { label: "Call Us",    value: settings?.contact.phone         ?? "(941) 253-3660", sub: `Mon – Fri, ${settings?.hours.weekdayOpen ?? "8:30am"} – ${settings?.hours.weekdayClose ?? "6pm"} ${settings?.hours.timezone ?? "EST"}`, href: `tel:${(settings?.contact.phone         ?? "(941) 253-3660").replace(/\D/g,'')}` },
+                { label: "Toll-Free", value: settings?.contact.phoneTollFree  ?? "(833) 486-6659", sub: `Mon – Fri, ${settings?.hours.weekdayOpen ?? "8:30am"} – ${settings?.hours.weekdayClose ?? "6pm"} ${settings?.hours.timezone ?? "EST"}`, href: `tel:${(settings?.contact.phoneTollFree ?? "(833) 486-6659").replace(/\D/g,'')}` },
               ].map(item => (
                 <a key={item.href} href={item.href}
                   style={{ flex: 1, minWidth: "160px", padding: "20px 24px", background: "#fff", border: `1px solid ${t.border}`, textDecoration: "none", display: "flex", flexDirection: "column", gap: "8px", transition: "border-color 0.2s" }}

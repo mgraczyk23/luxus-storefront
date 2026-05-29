@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { getProduct, getProducts, getProductDetails } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
+import { getSiteSettings } from "@/lib/payload"
 import ProductDetailPage from "./ProductDetailPage"
 import type { Metadata } from "next"
 
@@ -42,9 +43,10 @@ export default async function ProductPage(
   const product = mapMedusaProduct(raw)
 
   // Fetch product details (SEO fields + extra module data) and related products in parallel
-  const [detailRes, relRes] = await Promise.all([
+  const [detailRes, relRes, settings] = await Promise.all([
     getProductDetails(raw.id).catch(() => null),
     getProducts({ limit: "20", fields: RELATED_FIELDS }).catch(() => null),
+    getSiteSettings(),
   ])
 
   const detail = detailRes?.product_detail
@@ -60,7 +62,7 @@ export default async function ProductPage(
 
   return (
     <Suspense>
-      <ProductDetailPage product={product} relatedProducts={relatedProducts} />
+      <ProductDetailPage product={product} relatedProducts={relatedProducts} settings={settings} />
     </Suspense>
   )
 }

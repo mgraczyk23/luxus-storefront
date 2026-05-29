@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getFaqItems } from "@/lib/payload"
+import { getFaqItems, getSiteSettings } from "@/lib/payload"
 import FAQPage from "./FAQPage"
 
 export const revalidate = 300
@@ -10,6 +10,6 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const categories = await getFaqItems()
-  return <FAQPage categories={categories} />
+  const [categories, settings] = await Promise.all([getFaqItems(), getSiteSettings()])
+  return <FAQPage categories={categories} settings={settings} />
 }

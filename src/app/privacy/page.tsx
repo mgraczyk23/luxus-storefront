@@ -1,4 +1,4 @@
-import { getPolicy } from "@/lib/payload"
+import { getPolicy, getSiteSettings } from "@/lib/payload"
 import PolicyPage from "@/components/PolicyPage"
 import type { Metadata } from "next"
 
@@ -10,6 +10,6 @@ export const metadata: Metadata = {
 export const revalidate = 300
 
 export default async function Page() {
-  const data = await getPolicy('privacy')
-  return <PolicyPage policy="privacy" data={data} />
+  const [data, settings] = await Promise.all([getPolicy('privacy'), getSiteSettings()])
+  return <PolicyPage policy="privacy" data={data} settings={settings} />
 }

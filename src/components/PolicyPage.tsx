@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
-import type { PolicyData } from '@/lib/payload'
+import type { PolicyData, SiteSettings } from '@/lib/payload'
 
 export type PolicySlug = 'shipping' | 'privacy' | 'terms'
 
-export default function PolicyPage({ policy, data }: { policy: PolicySlug; data: PolicyData }) {
+export default function PolicyPage({ policy, data, settings }: { policy: PolicySlug; data: PolicyData; settings?: SiteSettings }) {
   const { t } = useTheme()
   const [activeSection, setActiveSection] = useState<number | null>(null)
   const doc = data
@@ -106,9 +106,9 @@ export default function PolicyPage({ policy, data }: { policy: PolicySlug; data:
               <div style={{ fontSize:"8.5px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"10px" }}>Questions about this policy?</div>
               <p style={{ fontSize:"13px",fontWeight:300,color:t.textMuted,lineHeight:1.75,marginBottom:"12px" }}>We&apos;re happy to clarify anything. Reach out directly:</p>
               <div style={{ display:"flex",gap:"24px",flexWrap:"wrap" }}>
-                <a href="mailto:info@luxus-collection.com" style={{ fontSize:"13px",color:t.gold,textDecoration:"none",fontWeight:300 }}>info@luxus-collection.com</a>
-                <a href="tel:9412533660" style={{ fontSize:"13px",color:t.textMuted,textDecoration:"none",fontWeight:300 }}>(941) 253-3660</a>
-                <a href="tel:8334866659" style={{ fontSize:"13px",color:t.textMuted,textDecoration:"none",fontWeight:300 }}>(833) 486-6659 · Toll-Free</a>
+                <a href={`mailto:${settings?.contact.emailInfo ?? "info@luxus-collection.com"}`} style={{ fontSize:"13px",color:t.gold,textDecoration:"none",fontWeight:300 }}>{settings?.contact.emailInfo ?? "info@luxus-collection.com"}</a>
+                <a href={`tel:${(settings?.contact.phone ?? "(941) 253-3660").replace(/\D/g,'')}`} style={{ fontSize:"13px",color:t.textMuted,textDecoration:"none",fontWeight:300 }}>{settings?.contact.phone ?? "(941) 253-3660"}</a>
+                <a href={`tel:${(settings?.contact.phoneTollFree ?? "(833) 486-6659").replace(/\D/g,'')}`} style={{ fontSize:"13px",color:t.textMuted,textDecoration:"none",fontWeight:300 }}>{settings?.contact.phoneTollFree ?? "(833) 486-6659"} · Toll-Free</a>
               </div>
             </div>
           </article>

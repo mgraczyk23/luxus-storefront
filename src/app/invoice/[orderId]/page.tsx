@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { getSiteSettings } from "@/lib/payload"
 import InvoicePage from "./InvoicePage"
 
 export async function generateMetadata({
@@ -19,5 +20,6 @@ export default async function Page({
   params: Promise<{ orderId: string }>
 }) {
   const { orderId } = await params
-  return <InvoicePage orderId={orderId} />
+  const settings = await getSiteSettings()
+  return <InvoicePage orderId={orderId} settings={settings} />
 }

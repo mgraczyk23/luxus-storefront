@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import type { SiteSettings } from '@/lib/payload'
 
 const invFmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(n || 0)
@@ -26,7 +27,7 @@ const MOCK_ORDERS = [
     shipTo: { name: "Ace Gun Shop (FFL)", line1: "612 Bransford Ave", line2: "Nashville, TN 37204", phone: "(615) 555-0188", license: "1-62-XXX-XX-XX-XXXXX" } },
 ]
 
-export default function InvoicePage({ orderId }: { orderId: string }) {
+export default function InvoicePage({ orderId, settings }: { orderId: string; settings?: SiteSettings }) {
   const order = MOCK_ORDERS.find(o => o.id === orderId) || MOCK_ORDERS[0]
   const backdrop = "#eceaea"
 
@@ -226,9 +227,9 @@ export default function InvoicePage({ orderId }: { orderId: string }) {
           <div className="inv-brand">
             <div className="inv-co">Luxus Collection, LLC</div>
             <div className="inv-meta">
-              1199 N Beneva Rd<br/>
-              Sarasota, FL 34232<br/>
-              <a href="tel:9412533660">(941) 253-3660</a> · <a href="tel:8334866659">(833) 486-6659</a>
+              {settings?.address.line1 ?? "1199 N Beneva Rd"}<br/>
+              {settings?.address.city ?? "Sarasota"}, {settings?.address.state ?? "FL"} {settings?.address.zip ?? "34232"}<br/>
+              <a href={`tel:${(settings?.contact.phone ?? "(941) 253-3660").replace(/\D/g,'')}`}>{settings?.contact.phone ?? "(941) 253-3660"}</a> · <a href={`tel:${(settings?.contact.phoneTollFree ?? "(833) 486-6659").replace(/\D/g,'')}`}>{settings?.contact.phoneTollFree ?? "(833) 486-6659"}</a>
             </div>
           </div>
           <div className="inv-title-block">

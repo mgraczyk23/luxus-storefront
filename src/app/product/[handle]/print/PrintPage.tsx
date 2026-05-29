@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import type { MappedProduct } from '@/lib/medusa'
+import type { SiteSettings } from '@/lib/payload'
 
 const PLAYFAIR = "var(--font-playfair), serif"
 const GOLD = "#c09530"
@@ -15,7 +16,7 @@ function formatOverview(text: string): string {
 const fmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 
-export default function PrintPage({ product }: { product: MappedProduct }) {
+export default function PrintPage({ product, settings }: { product: MappedProduct; settings?: SiteSettings }) {
   const triggered = useRef(false)
   const [productUrl, setProductUrl] = useState(`https://luxus-collection.com/product/${product.handle}`)
 
@@ -248,9 +249,9 @@ export default function PrintPage({ product }: { product: MappedProduct }) {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
               {[
-                { label: "Direct", value: "(941) 253-3660" },
-                { label: "Toll-Free", value: "(833) 486-6659" },
-                { label: "Email", value: "info@luxus-collection.com" },
+                { label: "Direct",    value: settings?.contact.phone        ?? "(941) 253-3660" },
+                { label: "Toll-Free", value: settings?.contact.phoneTollFree ?? "(833) 486-6659" },
+                { label: "Email",     value: settings?.contact.emailInfo     ?? "info@luxus-collection.com" },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <div style={{ fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", color: "#bbb", fontWeight: 500, marginBottom: "3px" }}>{label}</div>

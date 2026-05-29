@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
+import type { SiteSettings } from '@/lib/payload'
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 
 const PLAYFAIR = "var(--font-playfair), serif"
@@ -98,9 +99,11 @@ function RelatedCard({ product }: { product: MappedProduct }) {
 export default function ProductDetailPage({
   product,
   relatedProducts,
+  settings,
 }: {
   product: MappedProduct
   relatedProducts: MappedProduct[]
+  settings?: SiteSettings
 }) {
   const { t } = useTheme()
 
@@ -744,9 +747,9 @@ export default function ProductDetailPage({
               </p>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {[
-                  { href: "tel:9412533660", label: "(941) 253-3660" },
-                  { href: "tel:8334866659", label: "(833) 486-6659 · Toll-Free" },
-                  { href: "mailto:info@luxus-collection.com", label: "info@luxus-collection.com" },
+                  { href: `tel:${(settings?.contact.phone ?? "(941) 253-3660").replace(/\D/g,'')}`, label: settings?.contact.phone ?? "(941) 253-3660" },
+                  { href: `tel:${(settings?.contact.phoneTollFree ?? "(833) 486-6659").replace(/\D/g,'')}`, label: `${settings?.contact.phoneTollFree ?? "(833) 486-6659"} · Toll-Free` },
+                  { href: `mailto:${settings?.contact.emailInfo ?? "info@luxus-collection.com"}`, label: settings?.contact.emailInfo ?? "info@luxus-collection.com" },
                 ].map(({ href, label }) => (
                   <a key={href} href={href}
                     style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", color: t.textMuted, fontSize: "13px", fontWeight: 300, transition: "color 0.18s" }}
@@ -823,7 +826,7 @@ export default function ProductDetailPage({
                   </button>
                   {formStatus === 'error' && (
                     <p style={{ fontSize: "11px", color: "#c0392b", textAlign: "center", marginTop: "8px", fontFamily: "'Inter',sans-serif" }}>
-                      Something went wrong — please try again or email sales@luxus-collection.com.
+                      Something went wrong — please try again or email {settings?.contact.emailSales ?? "sales@luxus-collection.com"}.
                     </p>
                   )}
                   <p style={{ fontSize: "9.5px", color: t.textDim, textAlign: "center", marginTop: "12px", letterSpacing: "0.03em", fontWeight: 300 }}>
@@ -992,7 +995,7 @@ export default function ProductDetailPage({
                   </button>
                   {formStatus === 'error' && (
                     <p style={{ fontSize: "11px", color: "#c0392b", textAlign: "center", marginTop: "8px", fontFamily: "'Inter',sans-serif" }}>
-                      Something went wrong — please try again or email sales@luxus-collection.com.
+                      Something went wrong — please try again or email {settings?.contact.emailSales ?? "sales@luxus-collection.com"}.
                     </p>
                   )}
                   <p style={{ fontSize: "10.5px", fontWeight: 300, color: t.textDim, textAlign: "center", marginTop: "8px" }}>
