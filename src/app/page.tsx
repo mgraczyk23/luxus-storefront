@@ -1,4 +1,4 @@
-import { getProducts, getCollections, getCategories } from "@/lib/api"
+import { getProducts, getCollections, getCategories, getProductTags } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getPosts, getHeroSlides, getShopTileImages, imageUrl } from "@/lib/payload"
 import HomePage from "@/components/home/HomePage"
@@ -34,7 +34,7 @@ const FALLBACK_CATEGORIES = [
 ]
 
 export default async function Home() {
-  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes, heroSlidesRes, tileImagesRes] = await Promise.allSettled([
+  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes, heroSlidesRes, tileImagesRes, tagsRes] = await Promise.allSettled([
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
@@ -43,6 +43,7 @@ export default async function Home() {
     getPosts({ limit: 6, noContent: true }),
     getHeroSlides(),
     getShopTileImages(),
+    getProductTags(),
   ])
 
   // Build a count map: categoryId → number of products
@@ -61,25 +62,40 @@ export default async function Home() {
   const rawProducts = productsRes.status === "fulfilled" ? (productsRes.value.products ?? []) : []
   const products = rawProducts.map(mapMedusaProduct)
 
-  // Look for a collection titled "Featured" to power the Featured Collection section.
-  // If it exists, fetch those products; otherwise fall back to newest 4.
   const allCollections: { id: string; title?: string; name?: string }[] =
     collectionsRes.status === "fulfilled" ? (collectionsRes.value.collections ?? []) : []
 
-  const featuredCollection = allCollections.find(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (c: any) => (c.title ?? c.name ?? "").toLowerCase() === "featured"
-  )
+  const allTags = tagsRes.status === "fulfilled" ? tagsRes.value.product_tags : []
+  const featuredTag = allTags.find(t => t.value.toLowerCase() === "featured")
 
+  // Primary: query by "Featured" tag (many-to-many — product stays in its own collection)
+  // Fallback: featured collection, then newest 4 products
   let featuredProducts = products.slice(0, 4)
-  if (featuredCollection) {
-    const featuredRes = await getProducts({
-      "collection_id[]": featuredCollection.id,
+  if (featuredTag) {
+    const tagRes = await getProducts({
+      "tag_id[]": featuredTag.id,
       limit: "4",
       fields: PRODUCT_FIELDS,
     }).catch(() => null)
-    if (featuredRes && featuredRes.products?.length) {
-      featuredProducts = featuredRes.products.map(mapMedusaProduct)
+    if (tagRes?.products?.length) {
+      featuredProducts = tagRes.products.map(mapMedusaProduct)
+    }
+  }
+  if (featuredProducts === products.slice(0, 4)) {
+    // No tagged products yet — try the featured collection as fallback
+    const featuredCollection = allCollections.find(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (c: any) => (c.title ?? c.name ?? "").toLowerCase() === "featured"
+    )
+    if (featuredCollection) {
+      const colRes = await getProducts({
+        "collection_id[]": featuredCollection.id,
+        limit: "4",
+        fields: PRODUCT_FIELDS,
+      }).catch(() => null)
+      if (colRes?.products?.length) {
+        featuredProducts = colRes.products.map(mapMedusaProduct)
+      }
     }
   }
 
