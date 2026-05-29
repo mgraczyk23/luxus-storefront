@@ -195,7 +195,6 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
     { slug: "resources", label: "Resources on Guns", href: "/resources-on-guns" },
     { slug: "articles",  label: "Articles",           href: "/articles"          },
     { slug: "faq",       label: "FAQ",                href: "/faq"               },
-    { slug: "support",   label: "Support",            href: "/support"           },
     { slug: "about",     label: "About",              href: "/about"             },
   ]
 
@@ -264,7 +263,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
               onMouseEnter={() => setContactOpen(true)}
               onMouseLeave={() => setContactOpen(false)}>
               <Link href="/contact" className="nav-link"
-                style={{ ...navItem, display: "flex", alignItems: "center", gap: "4px", color: contactOpen || activePage === 'contact' || activePage === 'consignment' ? t.gold : t.textMuted }}>
+                style={{ ...navItem, display: "flex", alignItems: "center", gap: "4px", color: contactOpen || activePage === 'contact' || activePage === 'consignment' || activePage === 'support' ? t.gold : t.textMuted }}>
                 Contact
                 <svg width="7" height="5" viewBox="0 0 7 5" fill="none" style={{ transition: "transform 0.2s", transform: contactOpen ? "rotate(180deg)" : "none" }}>
                   <path d="M0.5 0.5L3.5 4L6.5 0.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -273,7 +272,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
               {contactOpen && (
                 <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", paddingTop: "14px" }}>
                   <div style={{ background: "#ffffff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, minWidth: "168px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", padding: "8px 0" }}>
-                    {([["Contact Us", "/contact", activePage === 'contact'], ["Sell Your Gun", "/sell-your-gun", activePage === 'consignment']] as [string, string, boolean][]).map(([label, href, isActive]) => (
+                    {([["Contact Us", "/contact", activePage === 'contact'], ["Support", "/support", activePage === 'support'], ["Sell Your Gun", "/sell-your-gun", activePage === 'consignment']] as [string, string, boolean][]).map(([label, href, isActive]) => (
                       <Link key={label} href={href}
                         style={{ display: "block", padding: "9px 22px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: isActive ? t.gold : t.textMuted, textDecoration: "none", fontFamily: "'Inter',sans-serif", fontWeight: 500, transition: "all 0.15s" }}
                         onMouseEnter={e => { e.currentTarget.style.color = t.gold; e.currentTarget.style.paddingLeft = "26px" }}
