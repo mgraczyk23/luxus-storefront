@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
 import type { MappedProduct } from '@/lib/medusa'
 import type { SiteSettings } from '@/lib/payload'
+import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 
 const PLAYFAIR = "var(--font-playfair), serif"
@@ -112,6 +113,8 @@ export default function ProductDetailPage({
   const [showSticky, setShowSticky] = useState(false)
   const [activeTab, setActiveTab] = useState<'overview' | 'specifications' | 'in the box'>('overview')
   const [wishlisted, setWishlisted] = useState(false)
+  // Hydrate wishlist state from localStorage after mount
+  useEffect(() => { setWishlisted(isWishlisted(product.handle)) }, [product.handle])
   const [contactModalOpen, setContactModalOpen] = useState(false)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
   const [form, setForm] = useState({
@@ -526,7 +529,17 @@ export default function ProductDetailPage({
               )}
 
               {/* Wishlist */}
-              <button onClick={() => setWishlisted(w => !w)}
+              <button onClick={() => {
+                  const added = toggleWishlist({
+                    handle: product.handle, title: product.title,
+                    brand: product.attributes?.brand ?? null,
+                    caliber: product.attributes?.caliber ?? null,
+                    action: product.attributes?.action ?? null,
+                    price: product.price, contact_for_pricing: product.contact_for_pricing,
+                    thumbnail: product.thumbnail,
+                  })
+                  setWishlisted(added)
+                }}
                 style={{ padding: "13px 32px", background: "transparent", border: `1px solid ${wishlisted ? t.gold + "60" : t.border}`, color: wishlisted ? t.gold : t.textMuted, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                 <svg width="14" height="13" viewBox="0 0 14 13" fill="none">
                   <path d="M7 12C7 12 1 8 1 4C1 2.34315 2.34315 1 4 1C5.20537 1 6.25249 1.70194 6.77735 2.72271C6.87716 2.91782 7.12284 2.91782 7.22265 2.72271C7.74751 1.70194 8.79463 1 10 1C11.6569 1 13 2.34315 13 4C13 8 7 12 7 12Z"

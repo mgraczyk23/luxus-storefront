@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { getSiteSettings } from "@/lib/payload"
 import AccountPage from "./AccountPage"
 
 export const metadata: Metadata = {
@@ -6,6 +7,7 @@ export const metadata: Metadata = {
   description: "View your order history, wishlist, and account details.",
 }
 
-export default function Page() {
-  return <AccountPage />
+export default async function Page() {
+  const settings = await getSiteSettings()
+  return <AccountPage settings={settings} />
 }

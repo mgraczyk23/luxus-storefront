@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
+import { AuthProvider } from "@/context/AuthContext"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import AnnouncementBar from "@/components/AnnouncementBar"
@@ -46,12 +47,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     >
       <body>
         <ThemeProvider>
-          {annActive && <AnnouncementBar message={ann.message!} link={ann.link} />}
-          <Header />
-          <main style={{ paddingTop: "calc(68px + var(--ann-h, 0px))" }}>
-            {children}
-          </main>
-          <Footer settings={settings} />
+          <AuthProvider>
+            {annActive && <AnnouncementBar message={ann.message!} link={ann.link} />}
+            <Header />
+            <main style={{ paddingTop: "calc(68px + var(--ann-h, 0px))" }}>
+              {children}
+            </main>
+            <Footer settings={settings} />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

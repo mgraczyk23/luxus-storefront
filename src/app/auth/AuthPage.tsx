@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
+import { useAuth } from '@/context/AuthContext'
 
 function InputField({ label, type = "text", placeholder, value, onChange, hint }: {
   label: string; type?: string; placeholder?: string;
@@ -38,11 +40,14 @@ const STRENGTH_COLOR = ["", "#b05040", "#c08030", "#8a9030", "#4a8a4a", "#3a7a6a
 
 export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "signin" | "register" }) {
   const { t } = useTheme()
+  const { signIn, register } = useAuth()
+  const router = useRouter()
   const [tab, setTab] = useState<"signin"|"register">(defaultTab)
 
   const [siEmail, setSiEmail]         = useState("")
   const [siPassword, setSiPassword]   = useState("")
-  const [siStatus, setSiStatus]       = useState<"idle"|"loading"|"success">("idle")
+  const [siStatus, setSiStatus]       = useState<"idle"|"loading"|"success"|"error">("idle")
+  const [siError, setSiError]         = useState("")
 
   const [regFirst, setRegFirst]       = useState("")
   const [regLast, setRegLast]         = useState("")
@@ -50,21 +55,36 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
   const [regPassword, setRegPassword] = useState("")
   const [regConfirm, setRegConfirm]   = useState("")
   const [regConsent, setRegConsent]   = useState(false)
-  const [regStatus, setRegStatus]     = useState<"idle"|"loading"|"success">("idle")
+  const [regStatus, setRegStatus]     = useState<"idle"|"loading"|"success"|"error">("idle")
+  const [regError, setRegError]       = useState("")
   const [showStrength, setShowStrength] = useState(false)
 
   const strength = passwordStrength(regPassword)
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!siEmail || !siPassword) return
-    setSiStatus("loading")
-    setTimeout(() => setSiStatus("success"), 1200)
+    setSiStatus("loading"); setSiError("")
+    try {
+      await signIn(siEmail, siPassword)
+      setSiStatus("success")
+      setTimeout(() => router.push("/account"), 800)
+    } catch (err: any) {
+      setSiError(err.message ?? "Sign in failed")
+      setSiStatus("error")
+    }
   }
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!regFirst || !regEmail || !regPassword || regPassword !== regConfirm || !regConsent) return
-    setRegStatus("loading")
-    setTimeout(() => setRegStatus("success"), 1400)
+    setRegStatus("loading"); setRegError("")
+    try {
+      await register(regFirst, regLast, regEmail, regPassword)
+      setRegStatus("success")
+      setTimeout(() => router.push("/account"), 800)
+    } catch (err: any) {
+      setRegError(err.message ?? "Registration failed")
+      setRegStatus("error")
+    }
   }
 
   const canRegister = !!(regFirst && regEmail && regPassword && regPassword === regConfirm && regConsent)
@@ -164,12 +184,13 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
                     <div style={{ width: "14px", height: "14px", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px", flexShrink: 0 }}/>
                     <span style={{ fontSize: "12px", fontWeight: 300, color: t.textMuted }}>Keep me signed in</span>
                   </label>
-                  <button onClick={handleSignIn} disabled={!siEmail || !siPassword}
+                  <button onClick={handleSignIn} disabled={!siEmail || !siPassword || siStatus === "loading"}
                     style={{ width: "100%", padding: "14px", background: siEmail && siPassword ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: siEmail && siPassword ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s" }}
                     onMouseEnter={e => { if (siEmail && siPassword) e.currentTarget.style.background = t.goldLight }}
                     onMouseLeave={e => { if (siEmail && siPassword) e.currentTarget.style.background = t.gold }}>
                     {siStatus === "loading" ? "Signing In…" : "Sign In"}
                   </button>
+                  {siStatus === "error" && <p style={{ fontSize: "11px", color: "#b05040", marginTop: "8px", fontWeight: 300 }}>{siError}</p>}
                   <ORDivider/>
                   <p style={{ fontSize: "12.5px", fontWeight: 300, color: t.textMuted, textAlign: "center" }}>
                     New to Luxus Collection?{" "}
@@ -225,12 +246,13 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
                       I agree to the <Link href="/terms" style={{ color: t.gold, textDecoration: "none" }}>Terms &amp; Conditions</Link> and <Link href="/privacy" style={{ color: t.gold, textDecoration: "none" }}>Privacy Policy</Link>
                     </span>
                   </label>
-                  <button onClick={handleRegister} disabled={!canRegister}
-                    style={{ width: "100%", padding: "14px", background: canRegister ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s" }}
-                    onMouseEnter={e => e.currentTarget.style.background = t.goldLight}
-                    onMouseLeave={e => e.currentTarget.style.background = t.gold}>
+                  <button onClick={handleRegister} disabled={!canRegister || regStatus === "loading"}
+                    style={{ width: "100%", padding: "14px", background: canRegister ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: canRegister ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s" }}
+                    onMouseEnter={e => { if (canRegister) e.currentTarget.style.background = t.goldLight }}
+                    onMouseLeave={e => { if (canRegister) e.currentTarget.style.background = t.gold }}>
                     {regStatus === "loading" ? "Creating Account…" : "Create Account"}
                   </button>
+                  {regStatus === "error" && <p style={{ fontSize: "11px", color: "#b05040", marginTop: "8px", fontWeight: 300 }}>{regError}</p>}
                   <ORDivider/>
                   <p style={{ fontSize: "12.5px", fontWeight: 300, color: t.textMuted, textAlign: "center" }}>
                     Already have an account?{" "}

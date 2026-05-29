@@ -1,52 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
+import { useAuth } from '@/context/AuthContext'
+import { getCustomerOrders, getWishlist, toggleWishlist, type LxsOrder, type WishlistItem } from '@/lib/auth'
+import type { SiteSettings } from '@/lib/payload'
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
+const fmt = (cents: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(cents / 100)
 
-const MOCK_USER = { firstName: "James", lastName: "Whitfield", email: "james@example.com", phone: "(615) 555-0142", memberSince: "March 2026" }
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
 
-const MOCK_ORDERS = [
-  { id: "LXC-109842", date: "May 14, 2026", status: "In Transit", statusCode: "transit",
-    items: [{ title: "Nighthawk Custom Agent", brand: "Nighthawk Custom", caliber: ".45 ACP", price: 3499 }],
-    total: 3499, ffl: "Ace Gun Shop, Nashville TN", tracking: "786192847365" },
-  { id: "LXC-098311", date: "Apr 2, 2026", status: "Delivered", statusCode: "delivered",
-    items: [{ title: "SIG Sauer P210 Legend", brand: "SIG Sauer", caliber: "9mm", price: 2199 }],
-    total: 2199, ffl: "Premier Arms, Franklin TN", tracking: "786192847200" },
-  { id: "LXC-087104", date: "Feb 18, 2026", status: "Delivered", statusCode: "delivered",
-    items: [{ title: "Colt Python 6-inch", brand: "Colt", caliber: ".357 Magnum", price: 1899 }],
-    total: 1899, ffl: "Ace Gun Shop, Nashville TN", tracking: "786192846901" },
-]
-
-const MOCK_WISHLIST = [
-  { id: 1, title: "Cabot Guns American Joe", brand: "Cabot Guns", caliber: ".45 ACP", action: "Single Action", price: null as number|null, contact_for_pricing: true },
-  { id: 2, title: "Korth NXS Revolver", brand: "Korth", caliber: ".357 Magnum", action: "DA / SA", price: 6800, contact_for_pricing: false },
-  { id: 3, title: "Wilson Combat Supergrade", brand: "Wilson Combat", caliber: ".45 ACP", action: "Single Action", price: 4950, contact_for_pricing: false },
-]
-
-const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  transit:    { bg: "#c09530", text: "#0a0a0a" },
-  delivered:  { bg: "#4a8a4a", text: "#fff" },
-  processing: { bg: "#3a6a8a", text: "#fff" },
-  cancelled:  { bg: "#8a4a4a", text: "#fff" },
+const STATUS_MAP: Record<string, { label: string; bg: string }> = {
+  pending:    { label: "Processing",  bg: "#3a6a8a" },
+  completed:  { label: "Completed",   bg: "#4a8a4a" },
+  cancelled:  { label: "Cancelled",   bg: "#8a4a4a" },
+  archived:   { label: "Archived",    bg: "#707076" },
 }
 
-function StatusBadge({ code, label }: { code: string; label: string }) {
-  const c = STATUS_COLORS[code] || STATUS_COLORS.processing
+function StatusBadge({ status }: { status: string }) {
+  const s = STATUS_MAP[status] ?? { label: status, bg: "#c09530" }
   return (
-    <span style={{ padding: "3px 10px", background: c.bg + "22", border: `1px solid ${c.bg}55`, fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: c.bg, fontWeight: 500 }}>{label}</span>
+    <span style={{ padding: "3px 10px", background: s.bg + "22", border: `1px solid ${s.bg}55`, fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: s.bg, fontWeight: 500 }}>
+      {s.label}
+    </span>
   )
 }
 
-function ImgBox({ index = 0, style = {} }: { index?: number; style?: React.CSSProperties }) {
+function ImgBox({ style = {} }: { style?: React.CSSProperties }) {
   const { t } = useTheme()
-  const l = ["#e8e8eb,#d4d4d8", "#e8e8eb,#d4d4d8", "#e8e8eb,#d4d4d8"]
-  const [c1, c2] = l[index % 3].split(",")
   return (
-    <div style={{ background: `linear-gradient(140deg,${c1},${c2})`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0, ...style }}>
+    <div style={{ background: "linear-gradient(140deg,#e8e8eb,#d4d4d8)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, ...style }}>
       <svg width="18" height="18" viewBox="0 0 36 36" fill="none" opacity="0.14">
         <rect x="2" y="2" width="32" height="32" rx="1" stroke={t.gold} strokeWidth="0.8"/>
         <circle cx="12" cy="12" r="4" stroke={t.gold} strokeWidth="0.8"/>
@@ -65,151 +53,247 @@ const TABS = [
     icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" strokeWidth="1"/><path d="M1.5 12.5C1.5 10.015 4.015 8 7 8C9.985 8 12.5 10.015 12.5 12.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/></svg> },
 ]
 
-export default function AccountPage() {
+export default function AccountPage({ settings }: { settings?: SiteSettings }) {
   const { t } = useTheme()
-  const [tab, setTab]             = useState("orders")
+  const { customer, token, isLoading, isLoggedIn, signOut, updateProfile } = useAuth()
+  const router = useRouter()
+
+  const [tab,           setTab]          = useState("orders")
   const [expandedOrder, setExpandedOrder] = useState<string|null>(null)
-  const [editMode, setEditMode]   = useState(false)
+  const [orders,        setOrders]        = useState<LxsOrder[]>([])
+  const [ordersLoading, setOrdersLoading] = useState(false)
+  const [wishlist,      setWishlist]      = useState<WishlistItem[]>([])
+
+  // Profile edit state
+  const [editMode,   setEditMode]   = useState(false)
+  const [editFirst,  setEditFirst]  = useState("")
+  const [editLast,   setEditLast]   = useState("")
+  const [editPhone,  setEditPhone]  = useState("")
+  const [saveStatus, setSaveStatus] = useState<"idle"|"saving"|"saved"|"error">("idle")
+  const [saveError,  setSaveError]  = useState("")
+
+  // Redirect to /auth if not logged in once loading is done
+  useEffect(() => {
+    if (!isLoading && !isLoggedIn) router.replace("/auth")
+  }, [isLoading, isLoggedIn, router])
+
+  // Fetch orders when tab switches to orders
+  useEffect(() => {
+    if (tab === "orders" && token && orders.length === 0) {
+      setOrdersLoading(true)
+      getCustomerOrders(token).then(o => { setOrders(o); setOrdersLoading(false) })
+    }
+  }, [tab, token, orders.length])
+
+  // Load wishlist from localStorage when tab switches
+  useEffect(() => {
+    if (tab === "wishlist") setWishlist(getWishlist())
+  }, [tab])
+
+  // Pre-fill edit fields when entering edit mode
+  useEffect(() => {
+    if (editMode && customer) {
+      setEditFirst(customer.first_name)
+      setEditLast(customer.last_name)
+      setEditPhone(customer.phone ?? "")
+    }
+  }, [editMode, customer])
+
+  const handleSaveProfile = async () => {
+    setSaveStatus("saving"); setSaveError("")
+    try {
+      await updateProfile({ first_name: editFirst, last_name: editLast, phone: editPhone || undefined })
+      setSaveStatus("saved")
+      setEditMode(false)
+      setTimeout(() => setSaveStatus("idle"), 2000)
+    } catch (err: any) {
+      setSaveError(err.message ?? "Failed to save")
+      setSaveStatus("error")
+    }
+  }
+
+  const handleSignOut = () => { signOut(); router.push("/") }
 
   const inp: React.CSSProperties = { width: "100%", padding: "11px 14px", background: "#ffffff", border: `1px solid ${t.border}`, color: t.text, fontSize: "12.5px", fontFamily: "var(--font-inter)", fontWeight: 300, letterSpacing: "0.02em", outline: "none", borderRadius: "1px" }
 
+  if (isLoading || !customer) {
+    return (
+      <div style={{ minHeight: "80vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-inter)", color: t.textDim, fontSize: "11px", letterSpacing: "0.1em" }}>
+        Loading…
+      </div>
+    )
+  }
+
+  const memberSince = new Date(customer.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+
   return (
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "var(--font-inter)" }}>
-      <div>
-        {/* Banner */}
-        <div style={{ background: "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "40px 40px 0" }}>
-          <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
-            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", paddingBottom: "28px", borderBottom: `1px solid ${t.border}` }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                  <div style={{ width: "18px", height: "1px", background: t.gold }}/>
-                  <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>My Account</span>
-                </div>
-                <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,3vw,40px)", fontWeight: 400, color: t.text, lineHeight: 1.1 }}>
-                  Welcome back, {MOCK_USER.firstName}.
-                </h1>
-                <div style={{ fontSize: "11.5px", color: t.textDim, fontWeight: 300, marginTop: "6px" }}>Member since {MOCK_USER.memberSince} · {MOCK_USER.email}</div>
+
+      {/* Banner */}
+      <div style={{ background: "linear-gradient(to bottom,#f3f3f5,#ffffff)", borderBottom: `1px solid ${t.border}`, padding: "40px 40px 0" }}>
+        <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", paddingBottom: "28px", borderBottom: `1px solid ${t.border}` }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
+                <div style={{ width: "18px", height: "1px", background: t.gold }}/>
+                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>My Account</span>
               </div>
-              <button style={{ padding: "9px 20px", background: "transparent", border: `1px solid ${t.border}`, color: t.textMuted, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer", transition: "all 0.18s", whiteSpace: "nowrap", flexShrink: 0 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
-                Sign Out
+              <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,3vw,40px)", fontWeight: 400, color: t.text, lineHeight: 1.1 }}>
+                Welcome back, {customer.first_name}.
+              </h1>
+              <div style={{ fontSize: "11.5px", color: t.textDim, fontWeight: 300, marginTop: "6px" }}>
+                Member since {memberSince} · {customer.email}
+              </div>
+            </div>
+            <button onClick={handleSignOut}
+              style={{ padding: "9px 20px", background: "transparent", border: `1px solid ${t.border}`, color: t.textMuted, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer", transition: "all 0.18s", whiteSpace: "nowrap", flexShrink: 0 }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted }}>
+              Sign Out
+            </button>
+          </div>
+          {/* Tab bar */}
+          <div className="lxs-account-tabs" style={{ display: "flex" }}>
+            {TABS.map(({ id, label, icon }) => (
+              <button key={id} onClick={() => setTab(id)}
+                style={{ display: "flex", alignItems: "center", gap: "8px", padding: "16px 24px 16px 0", background: "none", border: "none", borderBottom: `2px solid ${tab === id ? t.gold : "transparent"}`, marginBottom: "-1px", cursor: "pointer", fontFamily: "var(--font-inter)", fontWeight: tab === id ? 500 : 300, fontSize: "9.5px", letterSpacing: "0.14em", textTransform: "uppercase", color: tab === id ? t.gold : t.textMuted, transition: "all 0.2s" }}>
+                <span style={{ color: tab === id ? t.gold : t.textDim }}>{icon}</span>
+                {label}
               </button>
-            </div>
-            {/* Tab bar */}
-            <div className="lxs-account-tabs" style={{ display: "flex" }}>
-              {TABS.map(({ id, label, icon }) => (
-                <button key={id} onClick={() => setTab(id)}
-                  style={{ display: "flex", alignItems: "center", gap: "8px", padding: "16px 24px 16px 0", background: "none", border: "none", borderBottom: `2px solid ${tab === id ? t.gold : "transparent"}`, marginBottom: "-1px", cursor: "pointer", fontFamily: "var(--font-inter)", fontWeight: tab === id ? 500 : 300, fontSize: "9.5px", letterSpacing: "0.14em", textTransform: "uppercase", color: tab === id ? t.gold : t.textMuted, transition: "all 0.2s" }}>
-                  <span style={{ color: tab === id ? t.gold : t.textDim }}>{icon}</span>
-                  {label}
-                </button>
-              ))}
-            </div>
+            ))}
           </div>
         </div>
+      </div>
 
-        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "48px 40px 80px" }}>
+      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "48px 40px 80px" }}>
 
-          {/* ── ORDER HISTORY ── */}
-          {tab === "orders" && (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", fontWeight: 400, color: t.text }}>Order History</div>
-                <span style={{ fontSize: "11px", color: t.textDim, fontWeight: 300 }}><span style={{ color: t.text, fontWeight: 400 }}>{MOCK_ORDERS.length}</span> orders</span>
+        {/* ── ORDER HISTORY ── */}
+        {tab === "orders" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", fontWeight: 400, color: t.text }}>Order History</div>
+              {!ordersLoading && <span style={{ fontSize: "11px", color: t.textDim, fontWeight: 300 }}><span style={{ color: t.text, fontWeight: 400 }}>{orders.length}</span> orders</span>}
+            </div>
+
+            {ordersLoading ? (
+              <div style={{ padding: "60px 0", textAlign: "center", fontSize: "11px", color: t.textDim }}>Loading orders…</div>
+            ) : orders.length === 0 ? (
+              <div style={{ padding: "60px 0", textAlign: "center", border: `1px solid ${t.border}`, background: "#fafafa" }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", fontWeight: 400, color: t.text, marginBottom: "10px" }}>No orders yet</div>
+                <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, marginBottom: "20px" }}>Your order history will appear here once you make a purchase.</p>
+                <Link href="/shop" style={{ fontSize: "9.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.gold, fontWeight: 600, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "2px" }}>Browse the Collection →</Link>
               </div>
+            ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                {MOCK_ORDERS.map(order => (
-                  <div key={order.id} style={{ border: `1px solid ${expandedOrder === order.id ? t.gold + "50" : t.border}`, transition: "border-color 0.22s" }}>
-                    <div className="lxs-order-head" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: "20px", padding: "18px 22px", alignItems: "center", cursor: "pointer", background: "#fff" }}
-                      onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
-                      <div>
-                        <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Order</div>
-                        <div style={{ fontFamily: "var(--font-playfair)", fontSize: "15px", fontWeight: 400, color: t.gold }}>{order.id}</div>
+                {orders.map(order => {
+                  const displayId = `LXC-${String(order.display_id).padStart(6, '0')}`
+                  const tracking  = order.fulfillments?.[0]?.tracking_links?.[0]?.tracking_number ?? null
+                  return (
+                    <div key={order.id} style={{ border: `1px solid ${expandedOrder === order.id ? t.gold + "50" : t.border}`, transition: "border-color 0.22s" }}>
+                      <div className="lxs-order-head" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: "20px", padding: "18px 22px", alignItems: "center", cursor: "pointer", background: "#fff" }}
+                        onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
+                        <div>
+                          <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Order</div>
+                          <div style={{ fontFamily: "var(--font-playfair)", fontSize: "15px", fontWeight: 400, color: t.gold }}>{displayId}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Date</div>
+                          <div style={{ fontSize: "12px", fontWeight: 300, color: t.text }}>{fmtDate(order.created_at)}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Status</div>
+                          <StatusBadge status={order.status}/>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Total</div>
+                          <div style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", fontWeight: 400, color: t.text }}>{fmt(order.total)}</div>
+                        </div>
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.25s", transform: expandedOrder === order.id ? "rotate(180deg)" : "none", color: t.textDim, flexShrink: 0 }}>
+                          <path d="M0.5 0.5L5 5L9.5 0.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                        </svg>
                       </div>
-                      <div>
-                        <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Date</div>
-                        <div style={{ fontSize: "12px", fontWeight: 300, color: t.text }}>{order.date}</div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Status</div>
-                        <StatusBadge code={order.statusCode} label={order.status}/>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Total</div>
-                        <div style={{ fontFamily: "var(--font-playfair)", fontSize: "16px", fontWeight: 400, color: t.text }}>{fmt(order.total)}</div>
-                      </div>
-                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" style={{ transition: "transform 0.25s", transform: expandedOrder === order.id ? "rotate(180deg)" : "none", color: t.textDim, flexShrink: 0 }}>
-                        <path d="M0.5 0.5L5 5L9.5 0.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                      </svg>
-                    </div>
-                    <div style={{ overflow: "hidden", maxHeight: expandedOrder === order.id ? "500px" : "0", transition: "max-height 0.3s ease" }}>
-                      <div style={{ padding: "20px 22px", borderTop: `1px solid ${t.border}`, background: "#fafafa" }}>
-                        {order.items.map((item, i) => (
-                          <div key={i} style={{ display: "flex", gap: "14px", alignItems: "center", marginBottom: "14px" }}>
-                            <ImgBox index={i} style={{ width: "56px", height: "56px", border: `1px solid ${t.border}` }}/>
+                      <div style={{ overflow: "hidden", maxHeight: expandedOrder === order.id ? "600px" : "0", transition: "max-height 0.3s ease" }}>
+                        <div style={{ padding: "20px 22px", borderTop: `1px solid ${t.border}`, background: "#fafafa" }}>
+                          {(order.items ?? []).map((item, i) => (
+                            <div key={item.id ?? i} style={{ display: "flex", gap: "14px", alignItems: "center", marginBottom: "14px" }}>
+                              {item.thumbnail
+                                ? <div style={{ width: "56px", height: "56px", border: `1px solid ${t.border}`, position: "relative", flexShrink: 0, overflow: "hidden" }}>
+                                    <Image src={item.thumbnail} alt={item.title} fill style={{ objectFit: "contain" }} sizes="56px"/>
+                                  </div>
+                                : <ImgBox style={{ width: "56px", height: "56px", border: `1px solid ${t.border}` }}/>}
+                              <div>
+                                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "15px", fontWeight: 400, color: t.text, marginBottom: "2px" }}>{item.title}</div>
+                                <div style={{ fontSize: "10.5px", color: t.textDim, fontWeight: 300 }}>{fmt(item.unit_price)} · Qty {item.quantity}</div>
+                              </div>
+                            </div>
+                          ))}
+                          <div className="lxs-order-meta" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px", paddingTop: "14px", borderTop: `1px solid ${t.border}` }}>
                             <div>
-                              <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "3px" }}>{item.brand}</div>
-                              <div style={{ fontFamily: "var(--font-playfair)", fontSize: "15px", fontWeight: 400, color: t.text, marginBottom: "2px" }}>{item.title}</div>
-                              <div style={{ fontSize: "10.5px", color: t.textDim, fontWeight: 300 }}>{item.caliber} · {fmt(item.price)}</div>
+                              <div style={{ fontSize: "8px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Order ID</div>
+                              <div style={{ fontSize: "12px", fontWeight: 300, color: t.text, letterSpacing: "0.04em" }}>{order.id.slice(0, 20)}…</div>
+                            </div>
+                            {tracking && (
+                              <div>
+                                <div style={{ fontSize: "8px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Tracking</div>
+                                <div style={{ fontSize: "12px", fontWeight: 300, color: t.gold, letterSpacing: "0.04em" }}>{tracking}</div>
+                              </div>
+                            )}
+                            <div style={{ display: "flex", alignItems: "flex-end", gap: "18px", flexWrap: "wrap" }}>
+                              <Link href={`/invoice/${order.id}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.gold, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "2px", fontWeight: 500 }}>
+                                <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 0.5V7.5M5.5 7.5L2.5 4.5M5.5 7.5L8.5 4.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/><path d="M1 10H10" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/></svg>
+                                Invoice
+                              </Link>
+                              <Link href={`/support?order=${displayId}`} style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, textDecoration: "none", borderBottom: `1px solid ${t.border}`, paddingBottom: "2px", fontWeight: 500 }}
+                                onMouseEnter={e => e.currentTarget.style.color = t.gold} onMouseLeave={e => e.currentTarget.style.color = t.textMuted}>
+                                Order Support →
+                              </Link>
                             </div>
                           </div>
-                        ))}
-                        <div className="lxs-order-meta" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px", paddingTop: "14px", borderTop: `1px solid ${t.border}` }}>
-                          <div>
-                            <div style={{ fontSize: "8px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>FFL Dealer</div>
-                            <div style={{ fontSize: "12px", fontWeight: 300, color: t.text }}>{order.ffl}</div>
-                          </div>
-                          <div>
-                            <div style={{ fontSize: "8px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Tracking</div>
-                            <div style={{ fontSize: "12px", fontWeight: 300, color: t.gold, letterSpacing: "0.04em" }}>{order.tracking}</div>
-                          </div>
-                          <div style={{ display: "flex", alignItems: "flex-end", gap: "18px", flexWrap: "wrap" }}>
-                            <Link href={`/invoice/${order.id}`} style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.gold, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "2px", fontWeight: 500 }}
-                              onMouseEnter={e => e.currentTarget.style.color = t.goldLight} onMouseLeave={e => e.currentTarget.style.color = t.gold}>
-                              <svg width="11" height="11" viewBox="0 0 11 11" fill="none" style={{ flexShrink: 0 }}>
-                                <path d="M5.5 0.5V7.5M5.5 7.5L2.5 4.5M5.5 7.5L8.5 4.5" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M1 10H10" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
-                              </svg>
-                              Download Invoice
-                            </Link>
-                            <Link href={`/support?order=${order.id}`} style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, textDecoration: "none", borderBottom: `1px solid ${t.border}`, paddingBottom: "2px", fontWeight: 500 }}
-                              onMouseEnter={e => e.currentTarget.style.color = t.gold} onMouseLeave={e => e.currentTarget.style.color = t.textMuted}>
-                              Order Support →
-                            </Link>
-                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {/* ── WISHLIST ── */}
-          {tab === "wishlist" && (
-            <div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", fontWeight: 400, color: t.text }}>Saved Pieces</div>
-                <span style={{ fontSize: "11px", color: t.textDim, fontWeight: 300 }}><span style={{ color: t.text, fontWeight: 400 }}>{MOCK_WISHLIST.length}</span> items</span>
+        {/* ── WISHLIST ── */}
+        {tab === "wishlist" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", fontWeight: 400, color: t.text }}>Saved Pieces</div>
+              <span style={{ fontSize: "11px", color: t.textDim, fontWeight: 300 }}><span style={{ color: t.text, fontWeight: 400 }}>{wishlist.length}</span> items</span>
+            </div>
+            {wishlist.length === 0 ? (
+              <div style={{ padding: "60px 0", textAlign: "center", border: `1px solid ${t.border}`, background: "#fafafa" }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", fontWeight: 400, color: t.text, marginBottom: "10px" }}>Your wishlist is empty</div>
+                <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, marginBottom: "20px" }}>Save pieces from the collection using the heart button on any product page.</p>
+                <Link href="/shop" style={{ fontSize: "9.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.gold, fontWeight: 600, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "2px" }}>Browse the Collection →</Link>
               </div>
+            ) : (
               <div className="lxs-wishlist-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "20px" }}>
-                {MOCK_WISHLIST.map((item, i) => (
-                  <div key={item.id} style={{ border: `1px solid ${t.border}`, background: t.bgCard, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                    <ImgBox index={i} style={{ height: "180px", flexShrink: 0 }}/>
+                {wishlist.map((item) => (
+                  <div key={item.handle} style={{ border: `1px solid ${t.border}`, background: t.bgCard, overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                    <div style={{ height: "180px", position: "relative", background: "#f0f0f2", flexShrink: 0 }}>
+                      {item.thumbnail
+                        ? <Image src={item.thumbnail} alt={item.title} fill style={{ objectFit: "contain" }} sizes="(max-width: 640px) 100vw, 33vw"/>
+                        : <ImgBox style={{ width: "100%", height: "100%" }}/>}
+                    </div>
                     <div style={{ padding: "16px 18px 18px", display: "flex", flexDirection: "column", flex: 1 }}>
-                      <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "4px" }}>{item.brand}</div>
+                      {item.brand && <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "4px" }}>{item.brand}</div>}
                       <div style={{ fontFamily: "var(--font-playfair)", fontSize: "17px", fontWeight: 400, color: t.text, lineHeight: 1.25, marginBottom: "4px" }}>{item.title}</div>
-                      <div style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, marginBottom: "14px" }}>{item.caliber} · {item.action}</div>
+                      {item.caliber && <div style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, marginBottom: "14px" }}>{item.caliber}</div>}
                       <div style={{ height: "1px", background: t.border, marginBottom: "12px", marginTop: "auto" }}/>
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                        <div style={{ fontSize: item.contact_for_pricing ? "10px" : "14px", fontWeight: item.contact_for_pricing ? 400 : 500, color: item.contact_for_pricing ? t.gold : t.text, letterSpacing: item.contact_for_pricing ? "0.04em" : "0.01em" }}>
-                          {item.contact_for_pricing ? "Contact for Pricing" : fmt(item.price!)}
+                        <div style={{ fontSize: item.contact_for_pricing ? "10px" : "14px", fontWeight: item.contact_for_pricing ? 400 : 500, color: item.contact_for_pricing ? t.gold : t.text }}>
+                          {item.contact_for_pricing ? "Contact for Pricing" : item.price !== null ? fmt(item.price * 100) : "—"}
                         </div>
-                        <div style={{ display: "flex", gap: "8px" }}>
-                          <Link href={`/product/${item.id}`} style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.gold, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500 }}>View</Link>
+                        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+                          <Link href={`/product/${item.handle}`} style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.gold, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500 }}>View</Link>
                           <span style={{ fontSize: "9px", color: t.textDim, cursor: "pointer", transition: "color 0.18s" }}
+                            onClick={() => { toggleWishlist(item); setWishlist(getWishlist()) }}
                             onMouseEnter={e => e.currentTarget.style.color = "#b05040"}
                             onMouseLeave={e => e.currentTarget.style.color = t.textDim}>Remove</span>
                         </div>
@@ -218,64 +302,62 @@ export default function AccountPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
 
-          {/* ── ACCOUNT SETTINGS ── */}
-          {tab === "settings" && (
-            <div style={{ maxWidth: "640px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", fontWeight: 400, color: t.text }}>Account Details</div>
-                <button onClick={() => setEditMode(!editMode)}
-                  style={{ padding: "8px 18px", background: "transparent", border: `1px solid ${editMode ? t.gold + "60" : t.border}`, color: editMode ? t.gold : t.textMuted, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
-                  {editMode ? "Save Changes" : "Edit"}
-                </button>
-              </div>
-              {[
-                { label: "First Name", val: MOCK_USER.firstName },
-                { label: "Last Name",  val: MOCK_USER.lastName },
-                { label: "Email Address", val: MOCK_USER.email },
-                { label: "Phone Number",  val: MOCK_USER.phone },
-              ].map(({ label, val }) => (
-                <div key={label} style={{ display: "grid", gridTemplateColumns: "1fr 2fr", alignItems: "center", padding: "16px 0", borderBottom: `1px solid ${t.border}` }}>
-                  <span style={{ fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500 }}>{label}</span>
-                  {editMode ? (
-                    <input defaultValue={val} style={{ ...inp, padding: "9px 12px" }}
-                      onFocus={e => e.currentTarget.style.borderColor = t.gold + "60"}
-                      onBlur={e => e.currentTarget.style.borderColor = t.border}/>
-                  ) : (
-                    <span style={{ fontSize: "13px", fontWeight: 300, color: t.text, letterSpacing: "0.01em" }}>{val}</span>
-                  )}
-                </div>
-              ))}
-              <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: `1px solid ${t.border}` }}>
-                <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "16px" }}>Change Password</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  {["Current Password", "New Password", "Confirm New Password"].map(l => (
-                    <div key={l}>
-                      <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }}>{l}</label>
-                      <input type="password" placeholder="••••••••••" style={inp}
-                        onFocus={e => e.currentTarget.style.borderColor = t.gold + "60"}
-                        onBlur={e => e.currentTarget.style.borderColor = t.border}/>
-                    </div>
-                  ))}
-                  <button style={{ alignSelf: "flex-start", padding: "11px 24px", background: t.gold, border: "none", color: "#fff", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "background 0.2s" }}
-                    onMouseEnter={e => e.currentTarget.style.background = t.goldLight}
-                    onMouseLeave={e => e.currentTarget.style.background = t.gold}>Update Password</button>
-                </div>
-              </div>
-              <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: `1px solid ${t.border}` }}>
-                <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#b05040", fontWeight: 500, marginBottom: "8px" }}>Danger Zone</div>
-                <button style={{ padding: "9px 18px", background: "transparent", border: "1px solid #8a4a4a55", color: "#b05040", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer", transition: "all 0.18s" }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = "#b05040"}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = "#8a4a4a55"}>
-                  Delete Account
+        {/* ── ACCOUNT SETTINGS ── */}
+        {tab === "settings" && (
+          <div style={{ maxWidth: "640px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", fontWeight: 400, color: t.text }}>Account Details</div>
+              <div style={{ display: "flex", gap: "10px" }}>
+                {editMode && (
+                  <button onClick={() => { setEditMode(false); setSaveStatus("idle") }}
+                    style={{ padding: "8px 18px", background: "transparent", border: `1px solid ${t.border}`, color: t.textMuted, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer" }}>
+                    Cancel
+                  </button>
+                )}
+                <button onClick={editMode ? handleSaveProfile : () => setEditMode(true)}
+                  disabled={saveStatus === "saving"}
+                  style={{ padding: "8px 18px", background: editMode ? t.gold : "transparent", border: `1px solid ${editMode ? t.gold : t.border}`, color: editMode ? "#fff" : t.textMuted, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
+                  {saveStatus === "saving" ? "Saving…" : saveStatus === "saved" ? "Saved ✓" : editMode ? "Save Changes" : "Edit"}
                 </button>
               </div>
             </div>
-          )}
+            {saveStatus === "error" && <p style={{ fontSize: "11px", color: "#b05040", marginBottom: "16px", fontWeight: 300 }}>{saveError}</p>}
 
-        </div>
+            {[
+              { label: "First Name",    key: "first_name", val: customer.first_name, editVal: editFirst, setVal: setEditFirst },
+              { label: "Last Name",     key: "last_name",  val: customer.last_name,  editVal: editLast,  setVal: setEditLast  },
+              { label: "Email Address", key: "email",      val: customer.email,      editVal: customer.email, setVal: () => {} },
+              { label: "Phone Number",  key: "phone",      val: customer.phone ?? "—", editVal: editPhone, setVal: setEditPhone },
+            ].map(({ label, key, val, editVal, setVal }) => (
+              <div key={key} style={{ display: "grid", gridTemplateColumns: "1fr 2fr", alignItems: "center", padding: "16px 0", borderBottom: `1px solid ${t.border}` }}>
+                <span style={{ fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500 }}>{label}</span>
+                {editMode && key !== "email" ? (
+                  <input value={editVal} onChange={e => setVal(e.target.value)} style={{ ...inp, padding: "9px 12px" }}
+                    onFocus={e => e.currentTarget.style.borderColor = t.gold + "60"}
+                    onBlur={e => e.currentTarget.style.borderColor = t.border}/>
+                ) : (
+                  <span style={{ fontSize: "13px", fontWeight: 300, color: t.text, letterSpacing: "0.01em" }}>{val}</span>
+                )}
+              </div>
+            ))}
+
+            <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: `1px solid ${t.border}` }}>
+              <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "8px" }}>Password</div>
+              <p style={{ fontSize: "12.5px", fontWeight: 300, color: t.textMuted, lineHeight: 1.7, marginBottom: "14px" }}>
+                To change your password, use the password reset link sent to your email address.
+              </p>
+              <Link href={`mailto:support@luxus-collection.com?subject=Password Reset Request`}
+                style={{ fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.gold, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "2px", fontWeight: 500 }}>
+                Request Password Reset →
+              </Link>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   )
