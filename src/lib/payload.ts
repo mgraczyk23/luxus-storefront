@@ -715,8 +715,19 @@ export type ConsignmentPageText = {
   diffBoxTitle?:           string
   option1Heading?:         string
   option1Body?:            string
+  option1Link?:            string
   option2Heading?:         string
   option2Body?:            string
+  option2Link?:            string
+  option3Heading?:         string
+  option3Body?:            string
+  option3Link?:            string
+  option4Heading?:         string
+  option4Body?:            string
+  option4Link?:            string
+  option5Heading?:         string
+  option5Body?:            string
+  option5Link?:            string
   commissionNote?:         string
   salesEmailResponseTime?: string
   formHeading?:            string
@@ -741,8 +752,19 @@ export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
       diffBoxTitle:           pick('diffBoxTitle'),
       option1Heading:         pick('option1Heading'),
       option1Body:            pick('option1Body'),
+      option1Link:            pick('option1Link'),
       option2Heading:         pick('option2Heading'),
       option2Body:            pick('option2Body'),
+      option2Link:            pick('option2Link'),
+      option3Heading:         pick('option3Heading'),
+      option3Body:            pick('option3Body'),
+      option3Link:            pick('option3Link'),
+      option4Heading:         pick('option4Heading'),
+      option4Body:            pick('option4Body'),
+      option4Link:            pick('option4Link'),
+      option5Heading:         pick('option5Heading'),
+      option5Body:            pick('option5Body'),
+      option5Link:            pick('option5Link'),
       commissionNote:         pick('commissionNote'),
       salesEmailResponseTime: pick('salesEmailResponseTime'),
       formHeading:            pick('formHeading'),

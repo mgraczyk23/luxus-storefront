@@ -66,10 +66,13 @@ export default function ConsignmentPage({
     headline:      text.headline      ?? "Consignment & Private Sales",
     introParagraph: text.introParagraph ?? "Whether you're looking to consign a piece through our platform or prefer to sell a firearm outright, we'd love to hear from you. Our team will respond personally within three business days.",
     diffBoxTitle:  text.diffBoxTitle  ?? "Consign or Sell — What's the Difference?",
-    option1Heading: text.option1Heading ?? "Consignment",
-    option1Body:   text.option1Body   ?? "We list and sell the piece on your behalf. You receive the sale price minus our commission once it sells. No upfront fees — you only pay if and when the piece sells.",
-    option2Heading: text.option2Heading ?? "Private Sale",
-    option2Body:   text.option2Body   ?? "Prefer a quicker, simpler transaction? Reach out and we may be able to purchase your piece directly, subject to our assessment and a mutual agreement on price.",
+    options: [
+      { heading: text.option1Heading ?? "Consignment",  body: text.option1Body ?? "We list and sell the piece on your behalf. You receive the sale price minus our commission once it sells. No upfront fees — you only pay if and when the piece sells.", link: text.option1Link },
+      { heading: text.option2Heading ?? "Private Sale", body: text.option2Body ?? "Prefer a quicker, simpler transaction? Reach out and we may be able to purchase your piece directly, subject to our assessment and a mutual agreement on price.", link: text.option2Link },
+      ...(text.option3Heading ? [{ heading: text.option3Heading, body: text.option3Body ?? "", link: text.option3Link }] : []),
+      ...(text.option4Heading ? [{ heading: text.option4Heading, body: text.option4Body ?? "", link: text.option4Link }] : []),
+      ...(text.option5Heading ? [{ heading: text.option5Heading, body: text.option5Body ?? "", link: text.option5Link }] : []),
+    ],
     commissionNote: text.commissionNote ?? "Consignment rates start at **15%** on sales ≥ $1,500 and **20%** on sales below $1,500. No listing fees — you only pay if and when your piece sells.",
     salesEmailResponseTime: text.salesEmailResponseTime ?? "Response within 3 business days",
     formHeading:   text.formHeading   ?? "Tell Us About Your Piece",
@@ -128,11 +131,18 @@ export default function ConsignmentPage({
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
                 <div style={{ fontSize:"8.5px",letterSpacing:"0.16em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>{c.diffBoxTitle}</div>
                 <div style={{ display:"flex",flexDirection:"column",gap:"12px" }}>
-                  {[[c.option1Heading, c.option1Body],[c.option2Heading, c.option2Body]].map(([heading, body]) => (
+                  {c.options.map(({ heading, body, link }) => (
                     <div key={heading} style={{ display:"flex",gap:"12px",alignItems:"flex-start" }}>
                       <div style={{ width:"5px",height:"5px",borderRadius:"50%",background:t.gold,marginTop:"6px",flexShrink:0 }}/>
                       <div>
-                        <div style={{ fontSize:"12px",fontWeight:500,color:t.text,marginBottom:"3px" }}>{heading}</div>
+                        {link ? (
+                          <Link href={link} style={{ fontSize:"12px",fontWeight:500,color:t.gold,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:"5px",marginBottom:"3px" }}>
+                            {heading}
+                            <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 4.5H7.5M7.5 4.5L5 2M7.5 4.5L5 7" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </Link>
+                        ) : (
+                          <div style={{ fontSize:"12px",fontWeight:500,color:t.text,marginBottom:"3px" }}>{heading}</div>
+                        )}
                         <div style={{ fontSize:"12.5px",fontWeight:300,color:t.textMuted,lineHeight:1.7 }}>{body}</div>
                       </div>
                     </div>
