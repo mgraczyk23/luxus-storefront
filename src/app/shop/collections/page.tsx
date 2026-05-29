@@ -20,7 +20,7 @@ export default async function CollectionsDirectory() {
 
   const tileImages = tileImagesRes.status === 'fulfilled'
     ? tileImagesRes.value
-    : { collections: {}, categories: {} }
+    : { collections: {} as Record<string,string>, categories: {} as Record<string,string>, models: {} as Record<string,string> }
 
   const countMap: Record<string, number> = {}
   if (countRes.status === 'fulfilled') {
