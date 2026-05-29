@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
+import { useAuth } from '@/context/AuthContext'
 
 function getActivePage(pathname: string): string {
   if (pathname === '/') return 'home'
@@ -28,6 +29,7 @@ function MobileNav({ cartCount }: { cartCount: number }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
+  const { isLoggedIn, customer, signOut } = useAuth()
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -35,14 +37,19 @@ function MobileNav({ cartCount }: { cartCount: number }) {
   }, [open])
 
   const go = (path: string) => { router.push(path); setOpen(false) }
+  const handleSignOut = () => { signOut(); setOpen(false); router.push("/") }
 
   const T = { bg: "#ffffff", surface: "#fafafa", text: "#1a1a1a", muted: "#525258", dim: "#707076", border: "#e4e4e6", gold: "#7e5e10" }
+
+  const accountItems: [string, string][] = isLoggedIn
+    ? [["/account", "My Account"], ["/account", "Order History"]]
+    : [["/account", "My Account"], ["/auth", "Sign In"], ["/auth?tab=register", "Register"]]
 
   const NAV = [
     { section: "Shop",      items: [["/", "Home"], ["/shop", "Shop All"], ["/cart", "Cart"]] as [string, string][] },
     { section: "Shop By",   items: [["/shop/brands", "Brands"], ["/shop/collections", "Collections"], ["/shop/categories", "Categories"], ["/shop/models", "Models"]] as [string, string][] },
     { section: "Editorial", items: [["/resources-on-guns", "Resources on Guns"], ["/articles", "Articles"]] as [string, string][] },
-    { section: "Account",   items: [["/account", "My Account"], ["/auth", "Sign In / Register"]] as [string, string][] },
+    { section: "Account",   items: accountItems },
     { section: "Company",   items: [["/about", "About"], ["/contact", "Contact"], ["/sell-your-gun", "Sell Your Gun"]] as [string, string][] },
     { section: "Help",      items: [["/faq", "FAQ"], ["/support", "Support"]] as [string, string][] },
   ]
@@ -151,14 +158,25 @@ function MobileNav({ cartCount }: { cartCount: number }) {
             <div style={{ overflowY: "auto", flex: 1, padding: "8px 0" }}>
               {NAV.map(({ section, items }) => (
                 <div key={section} style={{ padding: "14px 0 8px", borderBottom: `1px solid ${T.border}` }}>
-                  <div style={{ padding: "0 22px 10px", fontSize: "9px", letterSpacing: "0.24em", textTransform: "uppercase", color: T.gold, fontWeight: 600 }}>{section}</div>
+                  <div style={{ padding: "0 22px 10px", fontSize: "9px", letterSpacing: "0.24em", textTransform: "uppercase", color: T.gold, fontWeight: 600 }}>
+                    {section === "Account" && isLoggedIn && customer
+                      ? `${customer.first_name} ${customer.last_name}`
+                      : section}
+                  </div>
                   {items.map(([path, label]) => (
-                    <button key={path} onClick={() => go(path)}
+                    <button key={label} onClick={() => go(path)}
                       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "14px 22px", color: T.text, fontSize: "14px", fontWeight: 400, background: "none", border: "none", cursor: "pointer", minHeight: "48px", letterSpacing: "0.02em", textAlign: "left" }}>
                       <span>{label}</span>
                       <svg width="9" height="9" viewBox="0 0 9 9" fill="none" style={{ color: T.dim, flexShrink: 0 }}><path d="M1 1L8 1L8 8M8 1L1 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     </button>
                   ))}
+                  {section === "Account" && isLoggedIn && (
+                    <button onClick={handleSignOut}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "14px 22px", color: "#b05040", fontSize: "14px", fontWeight: 400, background: "none", border: "none", cursor: "pointer", minHeight: "48px", letterSpacing: "0.02em", textAlign: "left" }}>
+                      <span>Sign Out</span>
+                      <svg width="9" height="9" viewBox="0 0 9 9" fill="none" style={{ color: "#b05040", flexShrink: 0 }}><path d="M1 1L8 1L8 8M8 1L1 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
@@ -174,6 +192,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
   const { t } = useTheme()
   const pathname = usePathname()
   const activePage = getActivePage(pathname)
+  const { isLoggedIn, customer } = useAuth()
 
   const [scrolled, setScrolled] = useState(false)
   const [shopByOpen, setShopByOpen] = useState(false)
@@ -300,7 +319,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
             {/* Account */}
             <Link href="/account" className="nav-link"
               style={{ ...navItem, color: activePage === 'account' ? t.gold : t.textMuted }}>
-              Account
+              {isLoggedIn && customer ? customer.first_name : "Account"}
             </Link>
 
             {/* Cart */}

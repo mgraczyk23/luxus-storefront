@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
@@ -41,10 +41,15 @@ const STRENGTH_COLOR = ["", "#b05040", "#c08030", "#8a9030", "#4a8a4a", "#3a7a6a
 
 export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "signin" | "register" }) {
   const { t } = useTheme()
-  const { signIn, register } = useAuth()
+  const { signIn, register, isLoggedIn, isLoading } = useAuth()
   const router  = useRouter()
   const params  = useSearchParams()
   const resetOk = params.get("reset") === "success"
+
+  // Redirect to account if already signed in
+  useEffect(() => {
+    if (!isLoading && isLoggedIn) router.replace("/account")
+  }, [isLoading, isLoggedIn, router])
   const [tab, setTab] = useState<"signin"|"register">(defaultTab)
   const [showForgot,    setShowForgot]    = useState(false)
   const [forgotEmail,   setForgotEmail]   = useState("")
