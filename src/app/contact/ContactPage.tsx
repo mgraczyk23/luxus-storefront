@@ -7,20 +7,21 @@ import type { SiteSettings, ContactPageText } from '@/lib/payload'
 
 const TOPIC_PLACEHOLDER = "Select a topic…"
 
-function MapPlaceholder({ address }: { address: SiteSettings['address'] }) {
+function MapEmbed({ address }: { address: SiteSettings['address'] }) {
   const { t } = useTheme()
+  const src = address.mapEmbedUrl ||
+    `https://maps.google.com/maps?q=${encodeURIComponent(`${address.line1}, ${address.city}, ${address.state} ${address.zip}`)}&output=embed&zoom=15`
   return (
-    <div style={{ position: "relative", height: "100%", minHeight: "340px", background: "linear-gradient(140deg,#e8e8eb,#d4d4d8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-      {[20,40,60,80].map(pct => <div key={`h${pct}`} style={{ position:"absolute",left:0,right:0,top:`${pct}%`,height:"1px",background:t.gold+"12" }}/>)}
-      {[20,40,60,80].map(pct => <div key={`v${pct}`} style={{ position:"absolute",top:0,bottom:0,left:`${pct}%`,width:"1px",background:t.gold+"12" }}/>)}
-      <div style={{ position:"relative",display:"flex",flexDirection:"column",alignItems:"center" }}>
-        <div style={{ width:"22px",height:"22px",borderRadius:"50%",border:`2px solid ${t.gold}`,background:"#ffffff",display:"flex",alignItems:"center",justifyContent:"center",position:"relative",zIndex:1 }}>
-          <div style={{ width:"6px",height:"6px",borderRadius:"50%",background:t.gold }}/>
-        </div>
-        <div style={{ width:"1px",height:"18px",background:`linear-gradient(to bottom,${t.gold},transparent)` }}/>
-        <div style={{ position:"absolute",top:"-6px",left:"-6px",width:"34px",height:"34px",borderRadius:"50%",border:`1px solid ${t.gold}40` }}/>
-      </div>
-      <div style={{ position:"absolute",bottom:"20px",left:"20px",background:"rgba(255,255,255,0.92)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"10px 14px",backdropFilter:"blur(8px)" }}>
+    <div style={{ position:"relative", height:"100%", minHeight:"340px", border:`1px solid ${t.border}`, overflow:"hidden" }}>
+      <iframe
+        src={src}
+        width="100%" height="100%"
+        style={{ border:0, display:"block", minHeight:"340px", filter:"grayscale(15%) contrast(96%)" }}
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+        title="Luxus Collection location"
+      />
+      <div style={{ position:"absolute",bottom:"16px",left:"16px",background:"rgba(255,255,255,0.96)",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}`,padding:"10px 14px",backdropFilter:"blur(8px)",pointerEvents:"none" }}>
         <div style={{ fontSize:"7.5px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"3px" }}>Headquarters</div>
         <div style={{ fontSize:"12px",fontWeight:300,color:t.text,lineHeight:1.5 }}>
           Luxus Collection, LLC<br/>
@@ -291,7 +292,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
               <div style={{ fontSize:"8px",letterSpacing:"0.24em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px" }}>
                 <div style={{ width:"14px",height:"1px",background:t.gold }}/>Location
               </div>
-              <MapPlaceholder address={address} />
+              <MapEmbed address={address} />
             </div>
             <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>Business Hours</div>

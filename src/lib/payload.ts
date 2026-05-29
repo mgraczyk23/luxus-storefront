@@ -140,10 +140,11 @@ export type SiteSettings = {
     emailPress:    string
   }
   address: {
-    line1: string
-    city:  string
-    state: string
-    zip:   string
+    line1:        string
+    city:         string
+    state:        string
+    zip:          string
+    mapEmbedUrl?: string
   }
   hours: {
     weekdayOpen:   string
