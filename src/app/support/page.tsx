@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
-import { getSiteSettings } from "@/lib/payload"
+import { getSiteSettings, getSupportPageText } from "@/lib/payload"
 import SupportPage from "./SupportPage"
+
+export const revalidate = 300
 
 export const metadata: Metadata = {
   title: "Customer Support",
@@ -8,6 +10,6 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const settings = await getSiteSettings()
-  return <SupportPage settings={settings} />
+  const [settings, text] = await Promise.all([getSiteSettings(), getSupportPageText()])
+  return <SupportPage settings={settings} text={text} />
 }

@@ -793,6 +793,92 @@ export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
   }
 }
 
+/* ── Contact Page ────────────────────────────────────────────────────────── */
+
+export type ContactPageText = {
+  headline?:        string
+  introParagraph?:  string
+  topic1?: string; topic2?: string; topic3?: string; topic4?: string; topic5?: string
+  topic6?: string; topic7?: string; topic8?: string; topic9?: string; topic10?: string
+  emailChannelSub?: string
+  salesChannelSub?: string
+  pressChannelSub?: string
+  expect1Title?: string; expect1Body?: string
+  expect2Title?: string; expect2Body?: string
+  expect3Title?: string; expect3Body?: string
+  expect4Title?: string; expect4Body?: string
+}
+
+export async function getContactPageText(): Promise<ContactPageText> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/contact-page?depth=0`, {
+      next: { revalidate: 300, tags: ['contact-page'] },
+    })
+    if (!res.ok) return {}
+    const d = await res.json()
+    const pick = (k: string) => (typeof d[k] === 'string' && d[k] ? d[k] : undefined)
+    return {
+      headline: pick('headline'), introParagraph: pick('introParagraph'),
+      topic1: pick('topic1'), topic2: pick('topic2'), topic3: pick('topic3'),
+      topic4: pick('topic4'), topic5: pick('topic5'), topic6: pick('topic6'),
+      topic7: pick('topic7'), topic8: pick('topic8'), topic9: pick('topic9'), topic10: pick('topic10'),
+      emailChannelSub: pick('emailChannelSub'),
+      salesChannelSub: pick('salesChannelSub'),
+      pressChannelSub: pick('pressChannelSub'),
+      expect1Title: pick('expect1Title'), expect1Body: pick('expect1Body'),
+      expect2Title: pick('expect2Title'), expect2Body: pick('expect2Body'),
+      expect3Title: pick('expect3Title'), expect3Body: pick('expect3Body'),
+      expect4Title: pick('expect4Title'), expect4Body: pick('expect4Body'),
+    }
+  } catch { return {} }
+}
+
+/* ── Support Page ────────────────────────────────────────────────────────── */
+
+export type SupportPageText = {
+  headline?:        string
+  introParagraph?:  string
+  topic1?: string; topic2?: string; topic3?: string; topic4?: string; topic5?: string
+  topic6?: string; topic7?: string; topic8?: string; topic9?: string; topic10?: string
+  emailCardSub?:    string
+  fflHeadline?: string; fflIntro?: string; fflFeeNote?: string
+  fflStep1Title?: string; fflStep1Desc?: string
+  fflStep2Title?: string; fflStep2Desc?: string
+  fflStep3Title?: string; fflStep3Desc?: string
+  fflStep4Title?: string; fflStep4Desc?: string
+  fflStep5Title?: string; fflStep5Desc?: string
+  infoCard1Heading?: string; infoCard1Body?: string
+  infoCard2Heading?: string; infoCard2Body?: string
+  infoCard3Heading?: string; infoCard3Body?: string
+}
+
+export async function getSupportPageText(): Promise<SupportPageText> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/support-page?depth=0`, {
+      next: { revalidate: 300, tags: ['support-page'] },
+    })
+    if (!res.ok) return {}
+    const d = await res.json()
+    const pick = (k: string) => (typeof d[k] === 'string' && d[k] ? d[k] : undefined)
+    return {
+      headline: pick('headline'), introParagraph: pick('introParagraph'),
+      topic1: pick('topic1'), topic2: pick('topic2'), topic3: pick('topic3'),
+      topic4: pick('topic4'), topic5: pick('topic5'), topic6: pick('topic6'),
+      topic7: pick('topic7'), topic8: pick('topic8'), topic9: pick('topic9'), topic10: pick('topic10'),
+      emailCardSub: pick('emailCardSub'),
+      fflHeadline: pick('fflHeadline'), fflIntro: pick('fflIntro'), fflFeeNote: pick('fflFeeNote'),
+      fflStep1Title: pick('fflStep1Title'), fflStep1Desc: pick('fflStep1Desc'),
+      fflStep2Title: pick('fflStep2Title'), fflStep2Desc: pick('fflStep2Desc'),
+      fflStep3Title: pick('fflStep3Title'), fflStep3Desc: pick('fflStep3Desc'),
+      fflStep4Title: pick('fflStep4Title'), fflStep4Desc: pick('fflStep4Desc'),
+      fflStep5Title: pick('fflStep5Title'), fflStep5Desc: pick('fflStep5Desc'),
+      infoCard1Heading: pick('infoCard1Heading'), infoCard1Body: pick('infoCard1Body'),
+      infoCard2Heading: pick('infoCard2Heading'), infoCard2Body: pick('infoCard2Body'),
+      infoCard3Heading: pick('infoCard3Heading'), infoCard3Body: pick('infoCard3Body'),
+    }
+  } catch { return {} }
+}
+
 /* ── Policy Pages ────────────────────────────────────────────────────────── */
 
 export type PolicySection = { heading: string; body: string }
