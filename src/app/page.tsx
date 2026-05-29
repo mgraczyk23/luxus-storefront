@@ -99,7 +99,7 @@ export default async function Home() {
     }
   }
 
-  const tileImages = tileImagesRes.status === "fulfilled" ? tileImagesRes.value : { collections: {}, categories: {} }
+  const tileImages = tileImagesRes.status === "fulfilled" ? tileImagesRes.value : { collections: {} as Record<string,string>, categories: {} as Record<string,string>, models: {} as Record<string,string> }
 
   const collections = allCollections
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
