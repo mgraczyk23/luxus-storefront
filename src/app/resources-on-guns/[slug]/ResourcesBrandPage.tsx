@@ -140,43 +140,53 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
   const { t } = useTheme()
   const [hov, setHov] = useState(false)
   const imgUrl = imageUrl(series.image)
+  const hasLink = !!series.productHandle
 
-  return (
-    <Link href={`/shop/model/${series.productHandle}`} style={{ textDecoration: 'none', display: 'block' }}>
-      <div
-        onMouseEnter={() => setHov(true)}
-        onMouseLeave={() => setHov(false)}
-        style={{
-          border: `1px solid ${hov ? t.gold + '60' : t.border}`,
-          transition: 'border-color 0.25s, transform 0.25s',
-          transform: hov ? 'translateY(-3px)' : 'translateY(0)',
-          cursor: 'pointer', overflow: 'hidden',
-        }}
-      >
-        <div style={{ height: '160px', background: t.bgSurface, position: 'relative', overflow: 'hidden' }}>
-          {imgUrl
-            ? <Image src={imgUrl} alt={series.name} fill style={{ objectFit: 'cover', transform: hov ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
-            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
-          }
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
-          <div style={{ position: 'absolute', bottom: '12px', left: '14px', right: '14px' }}>
-            <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '18px', fontWeight: 400, color: '#fff', lineHeight: 1.2 }}>
-              {series.name}
-            </div>
-            {series.yearIntroduced && (
-              <div style={{ fontSize: '9px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-inter)', fontWeight: 500, marginTop: '3px' }}>
-                Est. {series.yearIntroduced}
-              </div>
-            )}
+  const card = (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        border: `1px solid ${hov && hasLink ? t.gold + '60' : t.border}`,
+        transition: 'border-color 0.25s, transform 0.25s',
+        transform: hov && hasLink ? 'translateY(-3px)' : 'translateY(0)',
+        cursor: hasLink ? 'pointer' : 'default',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ height: '160px', background: t.bgSurface, position: 'relative', overflow: 'hidden' }}>
+        {imgUrl
+          ? <Image src={imgUrl} alt={series.name} fill style={{ objectFit: 'cover', transform: hov && hasLink ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
+          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
+        }
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
+        <div style={{ position: 'absolute', bottom: '12px', left: '14px', right: '14px' }}>
+          <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '18px', fontWeight: 400, color: '#fff', lineHeight: 1.2 }}>
+            {series.name}
           </div>
-        </div>
-        <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
-          <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Shop This Series</span>
-          <span style={{ fontSize: '13px', color: t.gold, opacity: hov ? 1 : 0.6, transition: 'opacity 0.2s' }}>→</span>
+          {series.yearIntroduced && (
+            <div style={{ fontSize: '9px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', fontFamily: 'var(--font-inter)', fontWeight: 500, marginTop: '3px' }}>
+              Est. {series.yearIntroduced}
+            </div>
+          )}
         </div>
       </div>
-    </Link>
+      <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
+        {hasLink ? (
+          <>
+            <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Shop This Series</span>
+            <span style={{ fontSize: '13px', color: t.gold, opacity: hov ? 1 : 0.6, transition: 'opacity 0.2s' }}>→</span>
+          </>
+        ) : (
+          <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Model Overview</span>
+        )}
+      </div>
+    </div>
   )
+
+  return hasLink
+    ? <Link href={`/shop/model/${series.productHandle}`} style={{ textDecoration: 'none', display: 'block' }}>{card}</Link>
+    : <div>{card}</div>
 }
 
 /* ── Gallery lightbox ────────────────────────────────────────────────────── */
@@ -532,7 +542,7 @@ export default function ResourcesBrandPage({
   const hasArticles  = articles.length > 0
   const hasProducts  = products.length > 0
   const brandName    = brand?.name ?? slug
-  const modelSeries  = (brand?.modelSeries ?? []).filter(m => m.productHandle)
+  const modelSeries  = brand?.modelSeries ?? []
   const gallery      = (brand?.gallery ?? []).filter(g => g.image)
   const timeline     = brand?.timeline ?? []
 
