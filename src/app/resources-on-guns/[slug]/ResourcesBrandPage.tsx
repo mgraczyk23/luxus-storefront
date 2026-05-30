@@ -141,6 +141,7 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
   const [hov, setHov] = useState(false)
   const imgUrl = imageUrl(series.image)
   const hasLink = !!series.productHandle
+  const descNodes = parseLexical(series.description)
 
   const card = (
     <div
@@ -171,7 +172,12 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
           )}
         </div>
       </div>
-      <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
+      {descNodes.length > 0 && (
+        <div style={{ padding: '12px 14px 14px', borderBottom: `1px solid ${t.border}`, fontSize: '12.5px', fontWeight: 300, color: t.textMuted, lineHeight: 1.72, fontFamily: 'var(--font-inter)' }}>
+          {descNodes.map((n, i) => <LexBlock key={i} node={n} />)}
+        </div>
+      )}
+      <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
         {hasLink ? (
           <>
             <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Shop This Series</span>
