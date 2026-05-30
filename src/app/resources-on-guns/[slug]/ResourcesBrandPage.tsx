@@ -153,9 +153,10 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
         transform: hov && hasLink ? 'translateY(-3px)' : 'translateY(0)',
         cursor: hasLink ? 'pointer' : 'default',
         overflow: 'hidden',
+        display: 'flex', flexDirection: 'column', height: '100%',
       }}
     >
-      <div style={{ height: '160px', background: t.bgSurface, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: '160px', background: t.bgSurface, position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
         {imgUrl
           ? <Image src={imgUrl} alt={series.name} fill style={{ objectFit: 'cover', transform: hov && hasLink ? 'scale(1.04)' : 'scale(1)', transition: 'transform 0.4s ease' }} />
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '10px', color: t.textDim, letterSpacing: '0.1em' }}>LUXUS</span></div>
@@ -173,11 +174,11 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
         </div>
       </div>
       {descNodes.length > 0 && (
-        <div style={{ padding: '12px 14px 14px', borderBottom: `1px solid ${t.border}`, fontSize: '12.5px', fontWeight: 300, color: t.textMuted, lineHeight: 1.72, fontFamily: 'var(--font-inter)' }}>
+        <div style={{ padding: '12px 14px 14px', flex: 1, borderBottom: `1px solid ${t.border}`, fontSize: '11.5px', fontWeight: 300, color: t.textMuted, lineHeight: 1.72, fontFamily: 'var(--font-inter)' }}>
           {descNodes.map((n, i) => <LexBlock key={i} node={n} />)}
         </div>
       )}
-      <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface }}>
+      <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: t.bgSurface, flexShrink: 0, marginTop: 'auto' }}>
         {hasLink ? (
           <>
             <span style={{ fontSize: '8.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500 }}>Shop This Series</span>
@@ -191,8 +192,8 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
   )
 
   return hasLink
-    ? <Link href={`/shop/model/${series.productHandle}`} style={{ textDecoration: 'none', display: 'block' }}>{card}</Link>
-    : <div>{card}</div>
+    ? <Link href={`/shop/model/${series.productHandle}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>{card}</Link>
+    : <div style={{ height: '100%' }}>{card}</div>
 }
 
 /* ── Gallery lightbox ────────────────────────────────────────────────────── */
