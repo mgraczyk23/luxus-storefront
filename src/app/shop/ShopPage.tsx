@@ -604,6 +604,19 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     window.location.href = url.toString()
   }
 
+  const [localQ, setLocalQ] = useState(q)
+  useEffect(() => { setLocalQ(q) }, [q])
+
+  const submitSearch = (value: string) => {
+    const url = new URL(window.location.href)
+    if (value.trim()) {
+      url.searchParams.set('q', value.trim())
+    } else {
+      url.searchParams.delete('q')
+    }
+    window.location.href = url.toString()
+  }
+
   const removePill = (pill: { key: string; value: string }) => {
     setPage(1)
     if (pill.key === 'price') {
@@ -771,6 +784,31 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
 
         {/* Product area */}
         <div>
+          {/* Search box */}
+          <form onSubmit={e => { e.preventDefault(); submitSearch(localQ) }}
+            style={{ display: "flex", gap: "0", marginBottom: "20px" }}>
+            <input
+              type="search"
+              value={localQ}
+              onChange={e => setLocalQ(e.target.value)}
+              placeholder="Search by brand, model, caliber…"
+              style={{ flex: 1, padding: "10px 14px", border: `1px solid ${t.border}`, borderRight: "none", background: "#fafafa", color: t.text, fontFamily: "'Inter',sans-serif", fontSize: "13px", outline: "none", letterSpacing: "0.02em" }}
+              onFocus={e => e.currentTarget.style.borderColor = t.gold + "80"}
+              onBlur={e => e.currentTarget.style.borderColor = t.border}
+            />
+            <button type="submit"
+              style={{ padding: "10px 18px", background: t.gold, border: "none", color: "#fff", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", fontFamily: "'Inter',sans-serif", flexShrink: 0 }}>
+              Search
+            </button>
+            {q && (
+              <button type="button" onClick={clearSearch}
+                style={{ padding: "10px 14px", background: "none", border: `1px solid ${t.border}`, borderLeft: "none", color: t.textMuted, fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center" }}
+                title="Clear search">
+                ×
+              </button>
+            )}
+          </form>
+
           {/* Toolbar */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", marginBottom: "28px", flexWrap: "wrap" }}>
 
