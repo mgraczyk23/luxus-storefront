@@ -306,15 +306,11 @@ function AuctionCard({ auction }: { auction: Auction }) {
         )}
         <div style={{
           position: "absolute", top: "12px", left: "12px",
-          display: "flex", alignItems: "center", gap: "6px",
+          display: "flex", alignItems: "center",
           background: "rgba(255,255,255,0.92)",
-          border: `1px solid ${t.gold}55`, padding: "4px 10px", backdropFilter: "blur(6px)",
+          border: "1px solid #3a6a3a55", padding: "4px 10px", backdropFilter: "blur(6px)",
         }}>
-          <span style={{
-            width: "6px", height: "6px", borderRadius: "50%",
-            background: "#c93030", animation: "lxsAuctionPulse 1.6s ease-out infinite",
-          }} />
-          <span style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#c93030", fontWeight: 600 }}>
+          <span style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: "#3a6a3a", fontWeight: 600 }}>
             Live
           </span>
         </div>
