@@ -260,6 +260,7 @@ a {
   .lxs-pdp-inquiry { grid-template-columns: 1fr !important; gap: 32px !important; }
   .lxs-pdp-related { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
   .lxs-pdp-highlights { grid-template-columns: 1fr !important; }
+  .lxs-related-price-row { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
 }
 
 /* ── GunBroker auction grid ──────────────────────────────────────────── */
