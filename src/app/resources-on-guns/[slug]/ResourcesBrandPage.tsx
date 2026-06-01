@@ -513,7 +513,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
         )}
 
         {product.in_stock && (
-          <div style={{ position: 'absolute', top: '8px', right: '8px', background: 'rgba(255,255,255,0.88)', border: '1px solid #3a6a3a55', padding: '3px 8px' }}>
+          <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.88)', border: '1px solid #3a6a3a55', padding: '3px 8px' }}>
             <span style={{ fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: '#3a6a3a' }}>Available</span>
           </div>
         )}
