@@ -77,6 +77,16 @@ function BrandCard({ brand }: { brand: PayloadBrand }) {
 
 export default function ResourcesHubPage({ brands }: { brands: PayloadBrand[] }) {
   const { t } = useTheme()
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const q = searchQuery.trim().toLowerCase()
+  const filteredBrands = q
+    ? brands.filter(b =>
+        b.name?.toLowerCase().includes(q) ||
+        b.origin?.toLowerCase().includes(q) ||
+        b.tagline?.toLowerCase().includes(q)
+      )
+    : brands
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh' }}>
@@ -89,9 +99,27 @@ export default function ResourcesHubPage({ brands }: { brands: PayloadBrand[] })
           <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(36px,5vw,52px)', fontWeight: 400, color: t.text, margin: '0 0 20px', lineHeight: 1.1 }}>
             Resources on Guns
           </h1>
-          <p style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.8, color: t.textDim, fontFamily: 'var(--font-inter)', margin: 0 }}>
+          <p style={{ fontSize: '16px', fontWeight: 300, lineHeight: 1.8, color: t.textDim, fontFamily: 'var(--font-inter)', margin: '0 0 32px' }}>
             Deep dives into the history, engineering, and craftsmanship behind the world&rsquo;s finest firearms manufacturers. Explore model histories, factory stories, and the artisans who build them.
           </p>
+          {/* Search */}
+          <div style={{ display: 'flex', maxWidth: '420px', margin: '0 auto' }}>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search manufacturers…"
+              style={{ flex: 1, padding: '11px 16px', border: `1px solid ${t.border}`, background: '#fff', color: t.text, fontFamily: 'var(--font-inter)', fontSize: '13px', outline: 'none', letterSpacing: '0.02em' }}
+              onFocus={e => e.currentTarget.style.borderColor = t.gold + '80'}
+              onBlur={e => e.currentTarget.style.borderColor = t.border}
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery('')}
+                style={{ padding: '11px 14px', background: 'none', border: `1px solid ${t.border}`, borderLeft: 'none', color: t.textMuted, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', lineHeight: 1 }}>
+                ×
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -99,17 +127,33 @@ export default function ResourcesHubPage({ brands }: { brands: PayloadBrand[] })
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '64px 24px 80px' }}>
         {brands.length > 0 ? (
           <>
-            <div style={{ marginBottom: '40px' }}>
-              <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '8px' }}>
-                Manufacturer Profiles
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '40px' }}>
+              <div>
+                <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '8px' }}>
+                  Manufacturer Profiles
+                </div>
+                <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px', fontWeight: 400, color: t.text, margin: 0 }}>
+                  {q ? `Results for "${searchQuery}"` : 'Featured Manufacturers'}
+                </h2>
               </div>
-              <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px', fontWeight: 400, color: t.text, margin: 0 }}>
-                Featured Manufacturers
-              </h2>
+              <span style={{ fontSize: '11px', color: t.textDim, fontWeight: 300 }}>
+                <span style={{ color: t.text, fontWeight: 400 }}>{filteredBrands.length}</span> {filteredBrands.length === 1 ? 'profile' : 'profiles'}
+              </span>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
-              {brands.map(b => <BrandCard key={b.id} brand={b} />)}
-            </div>
+            {filteredBrands.length > 0 ? (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+                {filteredBrands.map(b => <BrandCard key={b.id} brand={b} />)}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '22px', color: t.textDim, fontWeight: 300, marginBottom: '16px' }}>
+                  No profiles found for &ldquo;{searchQuery}&rdquo;
+                </div>
+                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: `1px solid ${t.border}`, padding: '8px 20px', cursor: 'pointer', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.textMuted, fontFamily: 'var(--font-inter)' }}>
+                  Clear search
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>

@@ -201,6 +201,7 @@ function ArticleCard({ post, index }: { post: PayloadPost; index: number }) {
 export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null }) {
   const { t } = useTheme()
   const [activeCategory, setActiveCategory] = useState("All")
+  const [searchQuery, setSearchQuery] = useState("")
   const [page, setPage] = useState(1)
   const PER_PAGE = 12
 
@@ -208,9 +209,20 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
 
   const categories = ["All", ...Array.from(new Set(allPosts.map((p) => p.category).filter(Boolean))).sort()]
 
-  const featured   = allPosts.find((p) => p.featured) ?? allPosts[0]
-  const rest       = allPosts.filter((p) => p.id !== featured?.id)
-  const filtered   = activeCategory === "All" ? rest : rest.filter((p) => p.category === activeCategory)
+  const featured = allPosts.find((p) => p.featured) ?? allPosts[0]
+  const rest     = allPosts.filter((p) => p.id !== featured?.id)
+
+  const q = searchQuery.trim().toLowerCase()
+  const filtered = rest.filter((p) => {
+    if (activeCategory !== "All" && p.category !== activeCategory) return false
+    if (!q) return true
+    return (
+      p.title?.toLowerCase().includes(q) ||
+      p.excerpt?.toLowerCase().includes(q) ||
+      p.category?.toLowerCase().includes(q)
+    )
+  })
+
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
   const paginated  = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 
@@ -247,6 +259,25 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
               <p style={{ fontSize: "14px", fontWeight: 300, color: t.textMuted, lineHeight: 1.8, letterSpacing: "0.02em" }}>
                 Long-form writing on the craft, history, and culture of fine firearms, for the collector who wants to understand what they own.
               </p>
+            </div>
+
+            {/* Search input */}
+            <div style={{ display: "flex", gap: "0", marginBottom: "24px", maxWidth: "480px" }}>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={e => { setSearchQuery(e.target.value); setPage(1) }}
+                placeholder="Search articles…"
+                style={{ flex: 1, padding: "10px 14px", border: `1px solid ${t.border}`, background: "#fff", color: t.text, fontFamily: "var(--font-inter)", fontSize: "13px", outline: "none", letterSpacing: "0.02em" }}
+                onFocus={e => e.currentTarget.style.borderColor = t.gold + "80"}
+                onBlur={e => e.currentTarget.style.borderColor = t.border}
+              />
+              {searchQuery && (
+                <button onClick={() => { setSearchQuery(""); setPage(1) }}
+                  style={{ padding: "10px 14px", background: "none", border: `1px solid ${t.border}`, borderLeft: "none", color: t.textMuted, fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", lineHeight: 1 }}>
+                  ×
+                </button>
+              )}
             </div>
 
             {/* Category tabs */}
@@ -301,7 +332,14 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
           </div>
         ) : (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
-            <div style={{ fontFamily: "var(--font-playfair)", fontSize: "28px", fontWeight: 300, color: t.textMuted }}>No articles in this category yet</div>
+            <div style={{ fontFamily: "var(--font-playfair)", fontSize: "28px", fontWeight: 300, color: t.textMuted }}>
+              {q ? `No articles found for "${searchQuery}"` : "No articles in this category yet"}
+            </div>
+            {q && (
+              <button onClick={() => setSearchQuery("")} style={{ marginTop: "16px", background: "none", border: `1px solid ${t.border}`, padding: "8px 20px", cursor: "pointer", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.textMuted, fontFamily: "var(--font-inter)" }}>
+                Clear search
+              </button>
+            )}
           </div>
         )}
 
