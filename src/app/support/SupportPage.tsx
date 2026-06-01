@@ -53,7 +53,7 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
       [text.fflStep5Title ?? "Complete the background check", text.fflStep5Desc ?? "At your dealer, you'll fill out ATF Form 4473 and pass the NICS background check. Upon approval, the firearm is yours."],
     ] as [string, string][],
     infoCards: [
-      [text.infoCard1Heading ?? "Legal Compliance",      text.infoCard1Body ?? "All transactions are conducted in full compliance with applicable federal, state, and local laws. We hold Federal Firearms License #1-59-XXX-XX-XX-55688."],
+      [text.infoCard1Heading ?? "Legal Compliance",      text.infoCard1Body ?? `All transactions are conducted in full compliance with applicable federal, state, and local laws. We hold Federal Firearms License #${settings.fflLicense ?? "Update in Site Settings"}.`],
       [text.infoCard2Heading ?? "Discreet Packaging",    text.infoCard2Body ?? "All shipments are packaged discreetly with no external markings indicating firearm content. Packaging is professional, secure, and fully insured for the declared value."],
       [text.infoCard3Heading ?? "Response Commitment",   text.infoCard3Body ?? "Every inquiry receives a personal response — not an automated reply. We aim to respond within one business day and are available by phone Monday through Saturday."],
     ] as [string, string][],

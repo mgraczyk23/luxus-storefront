@@ -75,10 +75,12 @@ export default function AboutPage({
   images = { heroImage: null, storyImageMain: null, storyImageLeft: null, storyImageRight: null, valuesImage: null },
   text = {},
   brands = [],
+  settings,
 }: {
   images?: AboutPageImages
   text?: AboutPageText
   brands?: PayloadBrand[]
+  settings?: import('@/lib/payload').SiteSettings
 }) {
   const { t } = useTheme()
 
@@ -90,7 +92,7 @@ export default function AboutPage({
       [text.stat2Number ?? "35+",  text.stat2Label ?? "Premier Brands"],
       [text.stat3Number ?? "2026", text.stat3Label ?? "Est."],
     ] as [string, string][],
-    fflLicense: text.fflLicenseNumber ?? "1-59-XXX-XX-XX-55688",
+    fflLicense: settings?.fflLicense ?? text.fflLicenseNumber ?? "Update in Site Settings",
 
     excellenceHeading: text.excellenceHeading ?? "A Distinguished Showcase of Top-Tier Firearm Craftsmanship",
     excellenceBody:    text.excellenceBody    ?? "Welcome to Luxus Collection, LLC. We have diligently assembled an extensive catalog of premium firearms from the world’s most respected manufacturers, each piece exemplifying unmatched precision, reliability, and artistic excellence.",

@@ -171,6 +171,7 @@ export type SiteSettings = {
     location?:      string
     memo?:          string
   }
+  fflLicense?: string
   announcement: {
     enabled:  boolean
     message?: string
@@ -217,7 +218,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     })
     if (!res.ok) return SETTINGS_FALLBACK
     const data = await res.json()
-    return { ...SETTINGS_FALLBACK, ...data }
+    return { ...SETTINGS_FALLBACK, ...data, fflLicense: data.fflLicense || undefined }
   } catch {
     return SETTINGS_FALLBACK
   }

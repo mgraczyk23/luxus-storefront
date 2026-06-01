@@ -60,16 +60,7 @@ type Article = {
 
 /* ── Static mock data ─────────────────────────────────────────────────── */
 
-const BRANDS = [
-  { id: "1", name: "SIG Sauer",        slug: "sig-sauer"        },
-  { id: "2", name: "Korth",            slug: "korth"            },
-  { id: "3", name: "Colt",             slug: "colt"             },
-  { id: "4", name: "Smith & Wesson",   slug: "smith-wesson"     },
-  { id: "5", name: "Walther",          slug: "walther"          },
-  { id: "6", name: "Mauser",           slug: "mauser"           },
-  { id: "7", name: "Heckler & Koch",   slug: "heckler-koch"     },
-  { id: "8", name: "Beretta",          slug: "beretta"          },
-]
+type BrandItem = { name: string; slug: string }
 
 const MOCK_AUCTIONS: Auction[] = [
   { id: 1086459123, title: "Wilson Combat Bill Wilson Carry .45 ACP",  thumbnail: null, currentBid: 2850, bidCount: 14, timeLeft: "2d 14h", buyNowPrice: 3995, reserveMet: true,  gunBrokerUrl: "https://www.gunbroker.com/item/1086459123" },
@@ -372,7 +363,7 @@ function AuctionCard({ auction }: { auction: Auction }) {
 
 /* ── BrandTile ────────────────────────────────────────────────────────── */
 
-function BrandTile({ brand }: { brand: typeof BRANDS[0] }) {
+function BrandTile({ brand }: { brand: BrandItem }) {
   const { t } = useTheme()
   const [hov, setHov] = useState(false)
   return (
@@ -548,6 +539,7 @@ export default function HomePage({
   collections,
   categories,
   articles = [],
+  brands = [],
 }: {
   heroProduct: HeroProduct
   heroSlides?: HeroSlide[]
@@ -556,6 +548,7 @@ export default function HomePage({
   collections: ShopItem[]
   categories: ShopItem[]
   articles?: Article[]
+  brands?: BrandItem[]
 }) {
   const { t } = useTheme()
   const [tab, setTab] = useState<"collections" | "categories">("collections")
@@ -635,7 +628,7 @@ export default function HomePage({
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <SectionHead eyebrow="Manufacturers" title="Shop By Brand" center />
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "12px" }}>
-            {BRANDS.map(b => <BrandTile key={b.id} brand={b} />)}
+            {brands.map(b => <BrandTile key={b.slug} brand={b} />)}
           </div>
         </div>
       </section>

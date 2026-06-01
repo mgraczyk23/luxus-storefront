@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getAboutPageImages, getAboutPageText, getBrands } from "@/lib/payload"
+import { getAboutPageImages, getAboutPageText, getBrands, getSiteSettings } from "@/lib/payload"
 import AboutPage from "./AboutPage"
 
 export const metadata: Metadata = {
@@ -8,10 +8,11 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const [images, text, brands] = await Promise.all([
+  const [images, text, brands, settings] = await Promise.all([
     getAboutPageImages(),
     getAboutPageText(),
     getBrands({ featuredOnly: true }),
+    getSiteSettings(),
   ])
-  return <AboutPage images={images} text={text} brands={brands} />
+  return <AboutPage images={images} text={text} brands={brands} settings={settings} />
 }

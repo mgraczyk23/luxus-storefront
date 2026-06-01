@@ -38,25 +38,43 @@ export default async function Home() {
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
-    // Fetch product→category associations to sort categories by inventory depth
-    getProducts({ limit: "500", fields: "id,*categories" }),
+    // Fetch product→category+brand associations to sort categories and derive live brand list
+    getProducts({ limit: "500", fields: "id,*categories,*attribute_values,*attribute_values.attribute_type" }),
     getPosts({ limit: 6, noContent: true }),
     getHeroSlides(),
     getShopTileImages(),
     getProductTags(),
   ])
 
-  // Build a count map: categoryId → number of products
+  // Build count maps from the combined product fetch
   const catCountMap: Record<string, number> = {}
+  const brandCountMap: Record<string, number> = {}
   if (catCountRes.status === "fulfilled") {
     for (const p of (catCountRes.value.products ?? [])) {
+      // Category counts
       for (const c of (p.categories ?? [])) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const id = (c as any).id as string | undefined
         if (id) catCountMap[id] = (catCountMap[id] ?? 0) + 1
       }
+      // Brand counts from attribute_values
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      for (const av of (p.attribute_values ?? [])) {
+        if ((av as any).attribute_type?.slug === 'brand' && (av as any).value) {
+          const brand = String((av as any).value).trim()
+          if (brand) brandCountMap[brand] = (brandCountMap[brand] ?? 0) + 1
+        }
+      }
     }
   }
+
+  const toSlug = (s: string) => s.toLowerCase()
+    .replace(/\s*&\s*/g, '-').replace(/\s+and\s+/g, '-')
+    .replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
+
+  const brands = Object.entries(brandCountMap)
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => ({ name, slug: toSlug(name) }))
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawProducts = productsRes.status === "fulfilled" ? (productsRes.value.products ?? []) : []
@@ -173,6 +191,7 @@ export default async function Home() {
       collections={displayCollections}
       categories={displayCategories}
       articles={articles}
+      brands={brands}
     />
   )
 }
