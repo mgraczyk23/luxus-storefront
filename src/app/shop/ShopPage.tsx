@@ -598,6 +598,12 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     setFilters({ categories: [], brand: [], model: [], caliber: [], action: [], barrel_length: [], priceMin: PRICE_FLOOR, priceMax: PRICE_MAX })
   }
 
+  const clearSearch = () => {
+    const p = new URLSearchParams(window.location.search)
+    p.delete('q')
+    router.replace(`/shop${p.toString() ? '?' + p.toString() : ''}`, { scroll: false })
+  }
+
   const removePill = (pill: { key: string; value: string }) => {
     setPage(1)
     if (pill.key === 'price') {
@@ -727,7 +733,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
                 {q ? `Results for "${q}"` : "All Firearms"}
               </h1>
               {q && (
-                <button onClick={() => router.push('/shop')} style={{ marginTop: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, fontFamily: "'Inter',sans-serif", fontWeight: 500, padding: 0, display: "flex", alignItems: "center", gap: "5px" }}
+                <button onClick={() => clearSearch()} style={{ marginTop: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, fontFamily: "'Inter',sans-serif", fontWeight: 500, padding: 0, display: "flex", alignItems: "center", gap: "5px" }}
                   onMouseEnter={e => e.currentTarget.style.color = t.gold}
                   onMouseLeave={e => e.currentTarget.style.color = t.textMuted}>
                   <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 1L8 8M8 1L1 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
@@ -771,7 +777,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
             {/* Active pills */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", flex: 1 }}>
               {q && (
-                <FilterPill label={`Search: ${q}`} onRemove={() => router.push('/shop')} />
+                <FilterPill label={`Search: ${q}`} onRemove={() => clearSearch()} />
               )}
               {activePills.length > 0 ? (
                 activePills.map(pill => (
