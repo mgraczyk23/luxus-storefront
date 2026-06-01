@@ -118,9 +118,9 @@ a {
   [style*="padding: 80px 72px"]                           { padding: 48px 24px !important; }
 
   /* Related card price row — reset truncation so price is visible in column layout */
-  .lxs-related-price-row > span                           { white-space: normal !important; overflow: visible !important; min-width: unset !important; width: 100%; }
+  .lxs-related-price-row > span                           { white-space: normal !important; overflow: visible !important; min-width: unset !important; width: 100%; text-align: center !important; }
   /* Related card price row — center-align to match store cards */
-  .lxs-related-price-row                                  { align-items: center !important; }
+  .lxs-related-price-row                                  { align-items: center !important; justify-content: center !important; }
   /* PDP section wrappers — reduce horizontal padding on mobile */
   .lxs-pdp-section-wrap                                   { padding-left: 16px !important; padding-right: 16px !important; }
   /* PDP inquiry form box — less padding on mobile */
