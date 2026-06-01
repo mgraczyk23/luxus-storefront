@@ -85,9 +85,10 @@ function RelatedCard({ product }: { product: MappedProduct }) {
         transform: hov ? "translateY(-4px)" : "translateY(0)",
         boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1)` : "0 2px 8px rgba(0,0,0,0.05)",
         cursor: "pointer", fontFamily: "'Inter',sans-serif",
+        display: "flex", flexDirection: "column", height: "100%",
       }}
     >
-      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#f0f0f0" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#f0f0f0", flexShrink: 0 }}>
         {product.thumbnail ? (
           <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain" }}
             sizes="(max-width: 640px) 50vw, 25vw" />
@@ -100,13 +101,13 @@ function RelatedCard({ product }: { product: MappedProduct }) {
           </div>
         )}
       </div>
-      <div style={{ padding: "16px 18px 20px" }}>
+      <div style={{ padding: "16px 18px 20px", display: "flex", flexDirection: "column", flex: 1 }}>
         <div style={{ fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "4px" }}>{product.attributes?.brand}</div>
         <div style={{ fontFamily: PLAYFAIR, fontSize: "17px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "4px" }}>{product.title}</div>
         <div style={{ fontSize: "10px", color: t.textMuted, fontWeight: 300, marginBottom: "12px" }}>
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
         </div>
-        <div style={{ height: "1px", background: t.border, marginBottom: "12px" }} />
+        <div style={{ height: "1px", background: t.border, marginBottom: "12px", marginTop: "auto" }} />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
           <span style={{ fontSize: product.contact_for_pricing ? "10px" : "14px", fontWeight: 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.03em" : "0.01em" }}>
             {product.contact_for_pricing ? "Contact For Pricing" : product.price !== null ? fmt(product.price) : "—"}
@@ -926,7 +927,7 @@ export default function ProductDetailPage({
                 View All
               </Link>
             </div>
-            <div className="lxs-pdp-related" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "18px" }}>
+            <div className="lxs-pdp-related" style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "18px", alignItems: "stretch" }}>
               {relatedProducts.map(p => <RelatedCard key={p.id} product={p} />)}
             </div>
           </div>
