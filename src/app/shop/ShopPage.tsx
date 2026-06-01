@@ -161,12 +161,10 @@ function ProductCard({ product }: { product: MappedProduct }) {
         {product.in_stock && (
           <div style={{
             position: "absolute", top: "10px", right: "10px",
-            display: "flex", alignItems: "center", gap: "5px",
             background: "rgba(255,255,255,0.88)",
             border: `1px solid #3a6a3a55`,
             padding: "3px 9px", backdropFilter: "blur(6px)",
           }}>
-            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#3a6a3a" }} />
             <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: "#3a6a3a" }}>
               Available
             </span>
