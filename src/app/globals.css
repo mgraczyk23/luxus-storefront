@@ -692,7 +692,7 @@ a {
 
 @media (max-width: 640px) {
   .rp-resource-grid { grid-template-columns: 1fr; gap: 16px; }
-  .rp-series-grid   { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .rp-series-grid   { grid-template-columns: 1fr; gap: 12px; }
   .rp-article-grid  { grid-template-columns: 1fr; gap: 20px; }
   .rp-product-grid  { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .rp-gallery-grid  { grid-template-columns: repeat(2, 1fr); gap: 8px; }
