@@ -72,15 +72,6 @@ const MOCK_AUCTIONS: Auction[] = [
   { id: 1086459129, title: "Korth Mongoose .44 Magnum, Stainless",     thumbnail: null, currentBid: 5800, bidCount: 17, timeLeft: "9h 18m", buyNowPrice: null, reserveMet: true,  gunBrokerUrl: "https://www.gunbroker.com/item/1086459129" },
 ]
 
-const MOCK_ARTICLES: Article[] = [
-  { id: "1", category: "Editor's Note",      slug: "what-we-look-for",         date: "May 19, 2026", title: "What We Look For When We Add a Maker to the Collection",          excerpt: "The intangible qualities, provenance, restraint, craftsmanship that holds up under a loupe, that determine which brands earn a place on our shelves." },
-  { id: "2", category: "Engraving",          slug: "reading-an-engravers-hand", date: "May 14, 2026", title: "Reading a Master Engraver's Signature: A Brief Field Guide",        excerpt: "Otto Carter, Tim George, the Whitneys, how to identify the hand behind a piece and what each style commands at auction." },
-  { id: "3", category: "Market Watch",       slug: "pre-war-colt-saa",         date: "May 6, 2026",  title: "The Quiet Resurgence of the Pre-War Colt Single Action Army",      excerpt: "First-generation SAA prices have outpaced inflation every year since 2019. We trace the curve and talk to four collectors driving the trend." },
-  { id: "4", category: "Craft & Engineering",slug: "inside-cabot-guns",        date: "May 12, 2026", title: "The Geometry of Perfection: Inside Cabot Guns' Machining Process",  excerpt: "How a former aerospace facility in rural Pennsylvania became the birthplace of the world's most precisely manufactured 1911." },
-  { id: "5", category: "Collector's Guide",  slug: "korth-vs-manurhin",        date: "Apr 28, 2026", title: "Korth vs. Manurhin: A Study in European Revolver Obsession",         excerpt: "Two countries. Two philosophies. Both defined by a refusal to compromise on the double-action revolver." },
-  { id: "6", category: "Brand Spotlight",    slug: "nighthawk-one-gun-promise", date: "Apr 9, 2026",  title: "Nighthawk's One-Gun-One-Gunsmith Promise, Still Worth It in 2026?",  excerpt: "We spend two days in Berryville, Arkansas with the team behind America's most respected custom 1911 shop." },
-]
-
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 
 const fmt = (n: number) =>
