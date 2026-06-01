@@ -1,12 +1,77 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
+
+type SearchHit = {
+  id: string
+  handle: string
+  title: string
+  brand: string | null
+  caliber: string | null
+  price: number | null
+  contact_for_pricing: boolean
+  thumbnail: string | null
+  in_stock: boolean
+}
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
+
+function useSearch(query: string) {
+  const [hits, setHits]   = useState<SearchHit[]>([])
+  const [total, setTotal] = useState(0)
+
+  useEffect(() => {
+    if (query.trim().length < 2) { setHits([]); setTotal(0); return }
+    const timer = setTimeout(async () => {
+      try {
+        const res  = await fetch(`/api/search?q=${encodeURIComponent(query.trim())}&limit=6`)
+        const data = await res.json()
+        setHits(data.hits ?? [])
+        setTotal(data.estimatedTotalHits ?? 0)
+      } catch { setHits([]); setTotal(0) }
+    }, 280)
+    return () => clearTimeout(timer)
+  }, [query])
+
+  return { hits, total }
+}
+
+function SearchResultItem({ hit, onClick }: { hit: SearchHit; onClick: () => void }) {
+  const { t } = useTheme()
+  const [hov, setHov] = useState(false)
+  return (
+    <Link href={`/product/${hit.handle}`} onClick={onClick} style={{ textDecoration: "none" }}>
+      <div
+        onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+        style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 16px", background: hov ? "#fafafa" : "transparent", transition: "background 0.15s", cursor: "pointer" }}
+      >
+        <div style={{ width: "44px", height: "44px", flexShrink: 0, background: "#f0f0f0", border: `1px solid ${t.border}`, position: "relative", overflow: "hidden" }}>
+          {hit.thumbnail
+            ? <Image src={hit.thumbnail} alt={hit.title} fill style={{ objectFit: "contain" }} sizes="44px" />
+            : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="14" height="14" viewBox="0 0 36 36" fill="none" opacity="0.2"><rect x="2" y="2" width="32" height="32" rx="1" stroke="#888" strokeWidth="1"/><circle cx="12" cy="12" r="4" stroke="#888" strokeWidth="1"/><path d="M2 26L12 16L18 22L26 12L34 22V34H2V26Z" stroke="#888" strokeWidth="1"/></svg>
+              </div>
+          }
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {hit.brand && <div style={{ fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "2px" }}>{hit.brand}</div>}
+          <div style={{ fontSize: "13px", fontWeight: 400, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "var(--font-playfair)" }}>{hit.title}</div>
+          {hit.caliber && <div style={{ fontSize: "10px", color: t.textMuted, fontWeight: 300, marginTop: "1px" }}>{hit.caliber}</div>}
+        </div>
+        <div style={{ flexShrink: 0, fontSize: "12px", fontWeight: 500, color: hit.contact_for_pricing ? t.gold : t.text }}>
+          {hit.contact_for_pricing ? "Contact" : hit.price !== null ? fmt(hit.price) : "—"}
+        </div>
+      </div>
+    </Link>
+  )
+}
 
 function getActivePage(pathname: string): string {
   if (pathname === '/') return 'home'
@@ -32,6 +97,7 @@ function MobileNav() {
   const router = useRouter()
   const { isLoggedIn, customer, signOut } = useAuth()
   const { cartCount } = useCart()
+  const { hits, total } = useSearch(searchQuery)
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -137,9 +203,27 @@ function MobileNav() {
                 Search
               </button>
             </form>
-            <div style={{ marginTop: "16px", fontSize: "11px", color: T.dim, fontWeight: 300, lineHeight: 1.6 }}>
-              Try <span style={{ color: T.gold }}>&ldquo;Nighthawk&rdquo;</span>, <span style={{ color: T.gold }}>&ldquo;.357 Magnum&rdquo;</span>, or <span style={{ color: T.gold }}>&ldquo;1911&rdquo;</span>.
-            </div>
+            {/* Live results */}
+            {hits.length > 0 ? (
+              <div style={{ marginTop: "12px", borderTop: `1px solid ${T.border}` }}>
+                {hits.map(hit => (
+                  <SearchResultItem key={hit.id} hit={hit} onClick={() => { setSearchOpen(false); setSearchQuery('') }} />
+                ))}
+                {total > hits.length && (
+                  <Link href={`/shop?q=${encodeURIComponent(searchQuery)}`}
+                    onClick={() => { setSearchOpen(false); setSearchQuery('') }}
+                    style={{ display: "block", padding: "12px 16px", fontSize: "10px", letterSpacing: "0.14em", textTransform: "uppercase", color: T.gold, fontWeight: 500, textDecoration: "none", borderTop: `1px solid ${T.border}`, textAlign: "center" }}>
+                    View all {total} results →
+                  </Link>
+                )}
+              </div>
+            ) : searchQuery.length >= 2 ? (
+              <div style={{ marginTop: "16px", fontSize: "12px", color: T.dim, fontWeight: 300 }}>No results for &ldquo;{searchQuery}&rdquo;</div>
+            ) : (
+              <div style={{ marginTop: "16px", fontSize: "11px", color: T.dim, fontWeight: 300, lineHeight: 1.6 }}>
+                Try <span style={{ color: T.gold }}>&ldquo;Nighthawk&rdquo;</span>, <span style={{ color: T.gold }}>&ldquo;.357 Magnum&rdquo;</span>, or <span style={{ color: T.gold }}>&ldquo;1911&rdquo;</span>.
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -200,6 +284,21 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false)
   const [shopByOpen, setShopByOpen] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const searchRef = useRef<HTMLDivElement>(null)
+  const { hits, total } = useSearch(searchQuery)
+
+  useEffect(() => {
+    if (!searchOpen) return
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchOpen(false); setSearchQuery('')
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [searchOpen])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50)
@@ -311,13 +410,58 @@ export default function Header() {
           {/* Right controls */}
           <div style={{ display: "flex", alignItems: "center", gap: "18px", flexShrink: 0 }}>
             {/* Search */}
-            <Link href="/shop" className="nav-link" aria-label="Search"
-              style={{ display: "flex", alignItems: "center", justifyContent: "center", color: t.textMuted, width: "20px", height: "20px" }}>
-              <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.1"/>
-                <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
-              </svg>
-            </Link>
+            <div ref={searchRef} style={{ position: "relative" }}>
+              <button
+                onClick={() => { setSearchOpen(o => !o); setSearchQuery('') }}
+                aria-label="Search"
+                style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: searchOpen ? t.gold : t.textMuted, width: "20px", height: "20px", transition: "color 0.2s" }}
+              >
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" strokeWidth="1.1"/>
+                  <line x1="10.5" y1="10.5" x2="14" y2="14" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                </svg>
+              </button>
+              {searchOpen && (
+                <div style={{ position: "absolute", right: 0, top: "calc(100% + 16px)", width: "380px", background: "#fff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, boxShadow: "0 20px 60px rgba(0,0,0,0.12)", zIndex: 200 }}>
+                  <div style={{ padding: "14px 16px", borderBottom: `1px solid ${t.border}` }}>
+                    <form onSubmit={e => { e.preventDefault(); setSearchOpen(false); setSearchQuery(''); if (searchQuery.trim()) window.location.href = `/shop?q=${encodeURIComponent(searchQuery.trim())}` }}
+                      style={{ display: "flex", gap: "8px" }}>
+                      <input
+                        autoFocus
+                        type="search"
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        placeholder="Brand, model, caliber…"
+                        style={{ flex: 1, padding: "9px 12px", border: `1px solid ${t.border}`, background: "#fafafa", color: t.text, fontFamily: "'Inter',sans-serif", fontSize: "13px", outline: "none", letterSpacing: "0.02em" }}
+                      />
+                      <button type="submit" style={{ padding: "0 14px", background: t.gold, border: "none", color: "#fff", fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer" }}>
+                        Go
+                      </button>
+                    </form>
+                  </div>
+                  {hits.length > 0 ? (
+                    <div>
+                      {hits.map(hit => (
+                        <SearchResultItem key={hit.id} hit={hit} onClick={() => { setSearchOpen(false); setSearchQuery('') }} />
+                      ))}
+                      {total > hits.length && (
+                        <Link href={`/shop?q=${encodeURIComponent(searchQuery)}`}
+                          onClick={() => { setSearchOpen(false); setSearchQuery('') }}
+                          style={{ display: "block", padding: "11px 16px", fontSize: "9.5px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.gold, fontWeight: 500, textDecoration: "none", borderTop: `1px solid ${t.border}`, textAlign: "center" }}>
+                          View all {total} results →
+                        </Link>
+                      )}
+                    </div>
+                  ) : searchQuery.length >= 2 ? (
+                    <div style={{ padding: "16px", fontSize: "12px", color: t.textMuted, fontWeight: 300 }}>No results for &ldquo;{searchQuery}&rdquo;</div>
+                  ) : (
+                    <div style={{ padding: "14px 16px", fontSize: "10.5px", color: t.textMuted, fontWeight: 300, lineHeight: 1.7 }}>
+                      Try <span style={{ color: t.gold }}>&ldquo;Nighthawk&rdquo;</span>, <span style={{ color: t.gold }}>&ldquo;1911&rdquo;</span>, or <span style={{ color: t.gold }}>&ldquo;.357&rdquo;</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Account */}
             <Link href="/account" className="nav-link"
