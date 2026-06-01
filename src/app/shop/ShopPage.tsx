@@ -445,6 +445,25 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   const [sortOpen, setSortOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
+  // ── Search query from URL ────────────────────────────────────────────────────
+  const q = searchParams.get('q') ?? ''
+  const [searchHandles, setSearchHandles] = useState<string[]>([])
+  const [searchTotal, setSearchTotal] = useState(0)
+  const [searchDone, setSearchDone] = useState(!q)
+
+  useEffect(() => {
+    if (!q) { setSearchHandles([]); setSearchTotal(0); setSearchDone(true); return }
+    setSearchDone(false)
+    fetch(`/api/search?q=${encodeURIComponent(q)}&limit=200`)
+      .then(r => r.json())
+      .then(data => {
+        setSearchHandles((data.hits ?? []).map((h: { handle: string }) => h.handle))
+        setSearchTotal(data.estimatedTotalHits ?? 0)
+        setSearchDone(true)
+      })
+      .catch(() => { setSearchHandles([]); setSearchTotal(0); setSearchDone(true) })
+  }, [q])
+
   const sortRef = useRef<HTMLDivElement>(null)
   const isFirstMount = useRef(true)
 
@@ -470,6 +489,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     if (page > 1) p.set('page', String(page))
     if (filters.priceMin > PRICE_FLOOR) p.set('priceMin', String(filters.priceMin))
     if (filters.priceMax < PRICE_MAX) p.set('priceMax', String(filters.priceMax))
+    if (q) p.set('q', q)
     const qs = p.toString()
     router.replace(`/shop${qs ? '?' + qs : ''}`, { scroll: false })
   }, [filters, sort, page]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -519,18 +539,32 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   }, [products, filters])
 
   // ── Filtering ───────────────────────────────────────────────────────────────
-  const filtered = useMemo(() => products.filter(p => {
-    if (filters.categories.length    && !filters.categories.some(c => p.categories.includes(c)))                         return false
-    if (filters.brand.length         && !filters.brand.some(f => p.attribute_lists.brand.includes(f)))                   return false
-    if (filters.model.length         && !filters.model.some(f => p.attribute_lists.model.includes(f)))                   return false
-    if (filters.caliber.length       && !filters.caliber.some(f => p.attribute_lists.caliber.includes(f)))               return false
-    if (filters.action.length        && !filters.action.some(f => p.attribute_lists.action.includes(f)))                 return false
-    if (filters.barrel_length.length && !filters.barrel_length.some(f => p.attribute_lists.barrel_length.includes(f)))  return false
-    if (!p.contact_for_pricing && p.price !== null) {
-      if (p.price < filters.priceMin || p.price > filters.priceMax) return false
+  const filtered = useMemo(() => {
+    // When a search query is active, start from Meilisearch results (in rank order)
+    let base: MappedProduct[]
+    if (q) {
+      if (!searchDone) return []
+      const rankMap = new Map(searchHandles.map((h, i) => [h, i]))
+      base = products
+        .filter(p => rankMap.has(p.handle))
+        .sort((a, b) => (rankMap.get(a.handle) ?? 999) - (rankMap.get(b.handle) ?? 999))
+    } else {
+      base = products
     }
-    return true
-  }), [products, filters])
+
+    return base.filter(p => {
+      if (filters.categories.length    && !filters.categories.some(c => p.categories.includes(c)))                         return false
+      if (filters.brand.length         && !filters.brand.some(f => p.attribute_lists.brand.includes(f)))                   return false
+      if (filters.model.length         && !filters.model.some(f => p.attribute_lists.model.includes(f)))                   return false
+      if (filters.caliber.length       && !filters.caliber.some(f => p.attribute_lists.caliber.includes(f)))               return false
+      if (filters.action.length        && !filters.action.some(f => p.attribute_lists.action.includes(f)))                 return false
+      if (filters.barrel_length.length && !filters.barrel_length.some(f => p.attribute_lists.barrel_length.includes(f)))  return false
+      if (!p.contact_for_pricing && p.price !== null) {
+        if (p.price < filters.priceMin || p.price > filters.priceMax) return false
+      }
+      return true
+    })
+  }, [products, filters, q, searchHandles, searchDone])
 
   // ── Sorting ─────────────────────────────────────────────────────────────────
   const sorted = useMemo(() => [...filtered].sort((a, b) => {
@@ -690,11 +724,22 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
                 </span>
               </div>
               <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em", margin: 0 }}>
-                All Firearms
+                {q ? `Results for "${q}"` : "All Firearms"}
               </h1>
+              {q && (
+                <button onClick={() => router.push('/shop')} style={{ marginTop: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, fontFamily: "'Inter',sans-serif", fontWeight: 500, padding: 0, display: "flex", alignItems: "center", gap: "5px" }}
+                  onMouseEnter={e => e.currentTarget.style.color = t.gold}
+                  onMouseLeave={e => e.currentTarget.style.color = t.textMuted}>
+                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 1L8 8M8 1L1 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
+                  Clear search
+                </button>
+              )}
             </div>
             <div style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.03em", paddingBottom: "6px", flexShrink: 0 }}>
-              <span style={{ color: t.text, fontWeight: 400 }}>{filtered.length}</span> items
+              {!searchDone && q
+                ? <span style={{ color: t.textDim }}>Searching…</span>
+                : <><span style={{ color: t.text, fontWeight: 400 }}>{filtered.length}</span>{q && searchTotal > filtered.length ? ` of ${searchTotal}` : ""} {filtered.length === 1 ? 'item' : 'items'}</>
+              }
             </div>
           </div>
         </div>
@@ -725,11 +770,14 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
 
             {/* Active pills */}
             <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", flex: 1 }}>
+              {q && (
+                <FilterPill label={`Search: ${q}`} onRemove={() => router.push('/shop')} />
+              )}
               {activePills.length > 0 ? (
                 activePills.map(pill => (
                   <FilterPill key={`${pill.key}-${pill.value}`} label={pill.label} onRemove={() => removePill(pill)} />
                 ))
-              ) : (
+              ) : !q && (
                 <span style={{ fontSize: "11px", color: t.textDim, fontWeight: 300, letterSpacing: "0.03em" }}>
                   Showing all {products.length} {products.length === 1 ? 'item' : 'items'}
                 </span>
