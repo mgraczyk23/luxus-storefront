@@ -1,10 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
+import { useCart } from '@/context/CartContext'
+import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import type { SiteSettings, FeaturedPageText, FeaturedClassifiedItem } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
 
@@ -17,8 +19,32 @@ const CONDITION_LABELS: Record<string, string> = {
 
 function ProductCard({ product }: { product: MappedProduct }) {
   const { t } = useTheme()
+  const { addItem } = useCart()
   const router = useRouter()
   const [hov, setHov] = useState(false)
+  const [wishlisted, setWishlisted] = useState(false)
+  const [addedToCart, setAddedToCart] = useState(false)
+
+  useEffect(() => { setWishlisted(isWishlisted(product.handle)) }, [product.handle])
+
+  const handleHeartClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const next = toggleWishlist({ handle: product.handle, title: product.title, brand: product.brand, caliber: product.attributes?.caliber ?? null, action: product.attributes?.action ?? null, price: product.price, contact_for_pricing: product.contact_for_pricing, thumbnail: product.thumbnail })
+    setWishlisted(next)
+  }
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    addItem(product)
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 1800)
+  }
+
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    router.push(`/product/${product.handle}`)
+  }
+
   return (
     <div onClick={() => router.push(`/product/${product.handle}`)}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
@@ -44,12 +70,42 @@ function ProductCard({ product }: { product: MappedProduct }) {
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
         </div>
         <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }}/>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
           <div style={{ fontSize: product.contact_for_pricing ? "10px" : "15px", fontWeight: product.contact_for_pricing ? 400 : 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em" }}>
             {product.contact_for_pricing ? "Contact for Pricing" : (product.price ? fmt(product.price) : "—")}
           </div>
-          <div style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}>
-            View Details
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+            <button
+              onClick={handleHeartClick}
+              title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", display: "flex", alignItems: "center", color: wishlisted ? "#c0392b" : t.textMuted, opacity: hov || wishlisted ? 1 : 0.55, transition: "all 0.2s" }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+            {product.contact_for_pricing ? (
+              <button
+                onClick={handleViewDetails}
+                style={{ background: "none", border: "none", cursor: "pointer", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}
+              >
+                View Details
+              </button>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                style={{
+                  background: addedToCart ? t.gold : "transparent",
+                  border: `1px solid ${t.gold}`,
+                  color: addedToCart ? "#fff" : t.gold,
+                  fontSize: "8px", letterSpacing: "0.12em", textTransform: "uppercase",
+                  fontWeight: 600, padding: "5px 10px", cursor: "pointer",
+                  transition: "all 0.2s", whiteSpace: "nowrap",
+                }}
+              >
+                {addedToCart ? "Added ✓" : "Add to Cart"}
+              </button>
+            )}
           </div>
         </div>
       </div>

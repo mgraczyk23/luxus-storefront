@@ -5,6 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
+import { useCart } from '@/context/CartContext'
+import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import type { MappedProduct } from '@/lib/medusa'
 
 const PLAYFAIR = "var(--font-playfair), serif"
@@ -65,121 +67,172 @@ function ImgBox({ style = {} }: { style?: React.CSSProperties }) {
 // ── ProductCard ───────────────────────────────────────────────────────────────
 function ProductCard({ product }: { product: MappedProduct }) {
   const { t } = useTheme()
+  const { addItem } = useCart()
+  const router = useRouter()
   const [hov, setHov] = useState(false)
+  const [wishlisted, setWishlisted] = useState(false)
+  const [addedToCart, setAddedToCart] = useState(false)
+
+  useEffect(() => { setWishlisted(isWishlisted(product.handle)) }, [product.handle])
+
+  const handleHeartClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const next = toggleWishlist({ handle: product.handle, title: product.title, brand: product.brand, caliber: product.attributes?.caliber ?? null, action: product.attributes?.action ?? null, price: product.price, contact_for_pricing: product.contact_for_pricing, thumbnail: product.thumbnail })
+    setWishlisted(next)
+  }
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    addItem(product)
+    setAddedToCart(true)
+    setTimeout(() => setAddedToCart(false), 1800)
+  }
+
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    router.push(`/product/${product.handle}`)
+  }
 
   return (
-    <Link href={`/product/${product.handle}`} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <div
-        onMouseEnter={() => setHov(true)}
-        onMouseLeave={() => setHov(false)}
-        style={{
-          background: hov ? t.bgCardHover : t.bgCard,
-          border: `1px solid ${hov ? t.gold + "55" : t.border}`,
-          borderRadius: "1px", overflow: "hidden",
-          transition: "all 0.28s ease",
-          transform: hov ? "translateY(-4px)" : "translateY(0)",
-          boxShadow: hov
-            ? `0 16px 48px rgba(0,0,0,0.1),0 0 0 1px ${t.gold}25`
-            : "0 2px 8px rgba(0,0,0,0.05)",
-          cursor: "pointer", fontFamily: "'Inter',sans-serif",
-          display: "flex", flexDirection: "column", flex: 1,
-        }}
-      >
-        {/* Image */}
-        <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#f0f0f0" }}>
-          {product.thumbnail ? (
-            <Image
-              src={product.thumbnail}
-              alt={product.title}
-              fill
-              style={{ objectFit: "contain", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
-          ) : (
-            <ImgBox style={{ filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} />
-          )}
+    <div
+      onClick={() => router.push(`/product/${product.handle}`)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? t.bgCardHover : t.bgCard,
+        border: `1px solid ${hov ? t.gold + "55" : t.border}`,
+        borderRadius: "1px", overflow: "hidden",
+        transition: "all 0.28s ease",
+        transform: hov ? "translateY(-4px)" : "translateY(0)",
+        boxShadow: hov
+          ? `0 16px 48px rgba(0,0,0,0.1),0 0 0 1px ${t.gold}25`
+          : "0 2px 8px rgba(0,0,0,0.05)",
+        cursor: "pointer", fontFamily: "'Inter',sans-serif",
+        display: "flex", flexDirection: "column", flex: 1, height: "100%",
+      }}
+    >
+      {/* Image */}
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#f0f0f0" }}>
+        {product.thumbnail ? (
+          <Image
+            src={product.thumbnail}
+            alt={product.title}
+            fill
+            style={{ objectFit: "contain", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }}
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          />
+        ) : (
+          <ImgBox style={{ filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} />
+        )}
 
-          {/* Primary category badge — top-left on desktop, bottom-left on mobile (CSS override) */}
-          {product.details?.primary_category && product.in_stock && (
-            <div className="lxs-card-badge-cat" style={{
-              position: "absolute", top: "10px", left: "10px",
-              background: "rgba(255,255,255,0.88)",
-              border: `1px solid ${t.gold}50`, padding: "3px 9px",
-              fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase",
-              fontWeight: 500, color: t.gold, backdropFilter: "blur(6px)",
-            }}>
-              {product.details.primary_category}
-            </div>
-          )}
+        {/* Primary category badge */}
+        {product.details?.primary_category && product.in_stock && (
+          <div className="lxs-card-badge-cat" style={{
+            position: "absolute", top: "10px", left: "10px",
+            background: "rgba(255,255,255,0.88)",
+            border: `1px solid ${t.gold}50`, padding: "3px 9px",
+            fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase",
+            fontWeight: 500, color: t.gold, backdropFilter: "blur(6px)",
+          }}>
+            {product.details.primary_category}
+          </div>
+        )}
 
-          {/* Unavailable overlay */}
-          {!product.in_stock && (
+        {/* Unavailable overlay */}
+        {!product.in_stock && (
+          <div style={{
+            position: "absolute", inset: 0,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(11,10,9,0.32)",
+          }}>
             <div style={{
-              position: "absolute", inset: 0,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: "rgba(11,10,9,0.32)",
+              background: "rgba(255,255,255,0.92)",
+              border: `1px solid ${t.gold}`,
+              color: t.gold, padding: "7px 22px",
+              fontSize: "10px", letterSpacing: "0.32em", textTransform: "uppercase",
+              fontWeight: 600, backdropFilter: "blur(6px)",
             }}>
-              <div style={{
-                background: "rgba(255,255,255,0.92)",
-                border: `1px solid ${t.gold}`,
-                color: t.gold, padding: "7px 22px",
-                fontSize: "10px", letterSpacing: "0.32em", textTransform: "uppercase",
-                fontWeight: 600, backdropFilter: "blur(6px)",
-              }}>
-                Unavailable
-              </div>
+              Unavailable
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Available pill */}
-          {product.in_stock && (
-            <div style={{
-              position: "absolute", top: "10px", right: "10px",
-              display: "flex", alignItems: "center", gap: "5px",
-              background: "rgba(255,255,255,0.88)",
-              border: `1px solid #3a6a3a55`,
-              padding: "3px 9px", backdropFilter: "blur(6px)",
-            }}>
-              <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#3a6a3a" }} />
-              <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: "#3a6a3a" }}>
-                Available
-              </span>
-            </div>
-          )}
+        {/* Available pill */}
+        {product.in_stock && (
+          <div style={{
+            position: "absolute", top: "10px", right: "10px",
+            display: "flex", alignItems: "center", gap: "5px",
+            background: "rgba(255,255,255,0.88)",
+            border: `1px solid #3a6a3a55`,
+            padding: "3px 9px", backdropFilter: "blur(6px)",
+          }}>
+            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#3a6a3a" }} />
+            <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: "#3a6a3a" }}>
+              Available
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: "18px 20px 22px", display: "flex", flexDirection: "column", flex: 1 }}>
+        <div className="lxs-card-brand" style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>
+          {product.attributes?.brand}
         </div>
-
-        {/* Body */}
-        <div style={{ padding: "18px 20px 22px", display: "flex", flexDirection: "column", flex: 1 }}>
-          <div className="lxs-card-brand" style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>
-            {product.attributes?.brand}
+        <div className="lxs-card-title" style={{ fontFamily: PLAYFAIR, fontSize: "19px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "5px" }}>
+          {product.title}
+        </div>
+        <div className="lxs-card-sub" style={{ fontSize: "10.5px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.04em", marginBottom: "13px" }}>
+          {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
+        </div>
+        <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }} />
+        <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+          <div className="lxs-card-price" style={{
+            fontSize: product.contact_for_pricing ? "10px" : "15px",
+            fontWeight: product.contact_for_pricing ? 400 : 500,
+            color: product.contact_for_pricing ? t.gold : t.text,
+            letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em",
+          }}>
+            {product.contact_for_pricing ? "Contact Us For Pricing" : product.price !== null ? fmt(product.price) : "—"}
           </div>
-          <div className="lxs-card-title" style={{ fontFamily: PLAYFAIR, fontSize: "19px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "5px" }}>
-            {product.title}
-          </div>
-          <div className="lxs-card-sub" style={{ fontSize: "10.5px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.04em", marginBottom: "13px" }}>
-            {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
-          </div>
-          <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }} />
-          <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <div className="lxs-card-price" style={{
-              fontSize: product.contact_for_pricing ? "10px" : "15px",
-              fontWeight: product.contact_for_pricing ? 400 : 500,
-              color: product.contact_for_pricing ? t.gold : t.text,
-              letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em",
-            }}>
-              {product.contact_for_pricing ? "Contact Us For Pricing" : product.price !== null ? fmt(product.price) : "—"}
-            </div>
-            <div className="lxs-card-view-btn" style={{
-              fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500,
-              color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px",
-              opacity: hov ? 1 : 0.65, transition: "opacity 0.2s",
-            }}>
-              View Details
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+            {/* Heart / Wishlist */}
+            <button
+              onClick={handleHeartClick}
+              title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: "2px", display: "flex", alignItems: "center", color: wishlisted ? "#c0392b" : t.textMuted, opacity: hov || wishlisted ? 1 : 0.55, transition: "all 0.2s" }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill={wishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </button>
+            {/* CTA */}
+            {product.contact_for_pricing ? (
+              <button
+                onClick={handleViewDetails}
+                style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}
+              >
+                View Details
+              </button>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                style={{
+                  background: addedToCart ? t.gold : "transparent",
+                  border: `1px solid ${t.gold}`,
+                  color: addedToCart ? "#fff" : t.gold,
+                  fontSize: "8px", letterSpacing: "0.12em", textTransform: "uppercase",
+                  fontWeight: 600, padding: "5px 10px", cursor: "pointer",
+                  transition: "all 0.2s", whiteSpace: "nowrap",
+                }}
+              >
+                {addedToCart ? "Added ✓" : "Add to Cart"}
+              </button>
+            )}
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 

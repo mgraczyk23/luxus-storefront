@@ -12,6 +12,7 @@ export type MappedProduct = {
   subtitle: string | null
   brand: string | null
   sku: string | null
+  variant_id: string | null
   price: number | null
   contact_for_pricing: boolean
   in_stock: boolean
@@ -139,6 +140,7 @@ export function mapMedusaProduct(p: any): MappedProduct {
     subtitle:           p.subtitle ?? null,
     brand:              brand.display,
     sku:                p.variants?.[0]?.sku ?? null,
+    variant_id:         p.variants?.[0]?.id ?? null,
     price:              p.variants?.[0]?.prices?.[0]?.amount
                           ? p.variants[0].prices[0].amount / 100
                           : null,

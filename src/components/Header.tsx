@@ -6,6 +6,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import { useAuth } from '@/context/AuthContext'
+import { useCart } from '@/context/CartContext'
 
 function getActivePage(pathname: string): string {
   if (pathname === '/') return 'home'
@@ -24,12 +25,13 @@ function getActivePage(pathname: string): string {
 }
 
 // ── Mobile Nav ─────────────────────────────────────────────────────────────
-function MobileNav({ cartCount }: { cartCount: number }) {
+function MobileNav() {
   const [open, setOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
   const { isLoggedIn, customer, signOut } = useAuth()
+  const { cartCount } = useCart()
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -188,11 +190,12 @@ function MobileNav({ cartCount }: { cartCount: number }) {
 }
 
 // ── Desktop Header ─────────────────────────────────────────────────────────
-export default function Header({ cartCount = 0 }: { cartCount?: number }) {
+export default function Header() {
   const { t } = useTheme()
   const pathname = usePathname()
   const activePage = getActivePage(pathname)
   const { isLoggedIn, customer } = useAuth()
+  const { cartCount } = useCart()
 
   const [scrolled, setScrolled] = useState(false)
   const [shopByOpen, setShopByOpen] = useState(false)
@@ -340,7 +343,7 @@ export default function Header({ cartCount = 0 }: { cartCount?: number }) {
         </div>
       </header>
 
-      <MobileNav cartCount={cartCount} />
+      <MobileNav />
     </>
   )
 }
