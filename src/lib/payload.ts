@@ -375,6 +375,66 @@ export async function getBrands(opts: { featuredOnly?: boolean; hubOnly?: boolea
   }
 }
 
+export type PayloadBrandForSearch = PayloadBrand & {
+  modelSeries: { id: string; name: string; description: string | null }[]
+}
+
+export async function getBrandsForSearch(): Promise<PayloadBrandForSearch[]> {
+  try {
+    const params = new URLSearchParams()
+    params.set('limit', '200')
+    params.set('depth', '2')
+    params.set('sort', 'name')
+    const res = await fetch(`${PAYLOAD_URL}/api/brands?${params}`, {
+      next: { revalidate: 300, tags: ['brands'] },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return (data.docs ?? []).map((b: any) => ({
+      ...mapBrandBase(b),
+      modelSeries: (b.modelSeries ?? []).map((m: any) => ({
+        id:          String(m.id ?? Math.random()),
+        name:        m.name ?? '',
+        description: typeof m.description === 'string' ? m.description : null,
+      })),
+    }))
+  } catch { return [] }
+}
+
+export type PayloadResourcePageSummary = {
+  id:        string
+  title:     string
+  slug:      string
+  excerpt:   string | null
+  brandName: string
+  brandSlug: string
+}
+
+export async function getAllResourcePagesForSearch(): Promise<PayloadResourcePageSummary[]> {
+  try {
+    const params = new URLSearchParams()
+    params.set('limit', '500')
+    params.set('where[status][equals]', 'published')
+    params.set('depth', '1')
+    params.set('sort', 'title')
+    const res = await fetch(`${PAYLOAD_URL}/api/resource-pages?${params}`, {
+      next: { revalidate: 300, tags: ['resource-pages'] },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    return (data.docs ?? [])
+      .filter((d: any) => d.brand?.slug)
+      .map((d: any) => ({
+        id:        String(d.id),
+        title:     d.title ?? '',
+        slug:      d.slug ?? '',
+        excerpt:   d.excerpt ?? null,
+        brandName: d.brand?.name ?? '',
+        brandSlug: d.brand?.slug ?? '',
+      }))
+  } catch { return [] }
+}
+
 export async function getBrand(slug: string): Promise<PayloadBrandFull | null> {
   try {
     const params = new URLSearchParams()

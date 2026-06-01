@@ -1,4 +1,4 @@
-import { getBrands } from "@/lib/payload"
+import { getBrands, getBrandsForSearch, getAllResourcePagesForSearch } from "@/lib/payload"
 import ResourcesHubPage from "./ResourcesHubPage"
 import type { Metadata } from "next"
 
@@ -10,6 +10,10 @@ export const metadata: Metadata = {
 export const revalidate = 300
 
 export default async function Page() {
-  const brands = await getBrands({ hubOnly: true }).catch(() => [])
-  return <ResourcesHubPage brands={brands} />
+  const [brands, brandsForSearch, resourcePages] = await Promise.all([
+    getBrands({ hubOnly: true }).catch(() => []),
+    getBrandsForSearch().catch(() => []),
+    getAllResourcePagesForSearch().catch(() => []),
+  ])
+  return <ResourcesHubPage brands={brands} brandsForSearch={brandsForSearch} resourcePages={resourcePages} />
 }

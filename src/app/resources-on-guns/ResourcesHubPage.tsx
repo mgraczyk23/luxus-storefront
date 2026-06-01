@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
-import { imageUrl, type PayloadBrand } from '@/lib/payload'
+import { imageUrl, type PayloadBrand, type PayloadBrandForSearch, type PayloadResourcePageSummary } from '@/lib/payload'
 
 function BrandCard({ brand }: { brand: PayloadBrand }) {
   const { t } = useTheme()
@@ -75,18 +75,62 @@ function BrandCard({ brand }: { brand: PayloadBrand }) {
   )
 }
 
-export default function ResourcesHubPage({ brands }: { brands: PayloadBrand[] }) {
+type SearchResult =
+  | { type: 'brand';   brand: PayloadBrand }
+  | { type: 'series';  seriesName: string; brandName: string; brandSlug: string }
+  | { type: 'page';    title: string; excerpt: string | null; brandName: string; brandSlug: string; slug: string }
+
+export default function ResourcesHubPage({
+  brands,
+  brandsForSearch = [],
+  resourcePages = [],
+}: {
+  brands: PayloadBrand[]
+  brandsForSearch?: PayloadBrandForSearch[]
+  resourcePages?: PayloadResourcePageSummary[]
+}) {
   const { t } = useTheme()
   const [searchQuery, setSearchQuery] = useState('')
 
   const q = searchQuery.trim().toLowerCase()
-  const filteredBrands = q
-    ? brands.filter(b =>
-        b.name?.toLowerCase().includes(q) ||
-        b.origin?.toLowerCase().includes(q) ||
-        b.tagline?.toLowerCase().includes(q)
-      )
-    : brands
+
+  const searchResults: SearchResult[] = q ? (() => {
+    const results: SearchResult[] = []
+    const seen = new Set<string>()
+
+    // Brand matches
+    for (const b of brandsForSearch) {
+      if (b.name?.toLowerCase().includes(q) || b.origin?.toLowerCase().includes(q) || b.tagline?.toLowerCase().includes(q) || b.description?.toLowerCase().includes(q)) {
+        const key = `brand:${b.id}`
+        if (!seen.has(key)) { seen.add(key); results.push({ type: 'brand', brand: b }) }
+      }
+      // Model series matches → link to brand profile
+      for (const m of b.modelSeries ?? []) {
+        if (m.name?.toLowerCase().includes(q) || m.description?.toLowerCase().includes(q)) {
+          const key = `series:${b.slug}:${m.name}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            // Also add the brand if not already added
+            const bKey = `brand:${b.id}`
+            if (!seen.has(bKey)) { seen.add(bKey); results.push({ type: 'brand', brand: b }) }
+            results.push({ type: 'series', seriesName: m.name, brandName: b.name, brandSlug: b.slug })
+          }
+        }
+      }
+    }
+
+    // Resource page matches
+    for (const p of resourcePages) {
+      if (p.title?.toLowerCase().includes(q) || p.excerpt?.toLowerCase().includes(q) || p.brandName?.toLowerCase().includes(q)) {
+        const key = `page:${p.id}`
+        if (!seen.has(key)) { seen.add(key); results.push({ type: 'page', title: p.title, excerpt: p.excerpt, brandName: p.brandName, brandSlug: p.brandSlug, slug: p.slug }) }
+      }
+    }
+
+    return results
+  })() : []
+
+  const filteredBrands = q ? [] : brands
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh' }}>
@@ -123,9 +167,89 @@ export default function ResourcesHubPage({ brands }: { brands: PayloadBrand[] })
         </div>
       </div>
 
-      {/* ── Brand grid ───────────────────────────────────────────────────── */}
+      {/* ── Brand grid / Search results ──────────────────────────────────── */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '64px 24px 80px' }}>
-        {brands.length > 0 ? (
+        {q ? (
+          /* ── Search results ── */
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '32px' }}>
+              <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px', fontWeight: 400, color: t.text, margin: 0 }}>
+                Results for &ldquo;{searchQuery}&rdquo;
+              </h2>
+              <span style={{ fontSize: '11px', color: t.textDim, fontWeight: 300 }}>
+                <span style={{ color: t.text, fontWeight: 400 }}>{searchResults.length}</span> {searchResults.length === 1 ? 'result' : 'results'}
+              </span>
+            </div>
+            {searchResults.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', border: `1px solid ${t.border}` }}>
+                {searchResults.map((r, i) => {
+                  if (r.type === 'brand') {
+                    return (
+                      <Link key={`b-${r.brand.id}`} href={`/resources-on-guns/${r.brand.slug}`} style={{ textDecoration: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', background: '#fff', borderBottom: i < searchResults.length - 1 ? `1px solid ${t.border}` : 'none', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#fafafa')}
+                          onMouseLeave={e => (e.currentTarget.style.background = '#fff')}>
+                          <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: t.gold, flexShrink: 0 }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '3px' }}>Brand Profile</div>
+                            <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '17px', fontWeight: 400, color: t.text }}>{r.brand.name}</div>
+                            {(r.brand.origin || r.brand.foundingYear) && (
+                              <div style={{ fontSize: '11px', color: t.textMuted, fontWeight: 300, marginTop: '2px' }}>
+                                {[r.brand.foundingYear ? `Est. ${r.brand.foundingYear}` : null, r.brand.origin].filter(Boolean).join(' · ')}
+                              </div>
+                            )}
+                          </div>
+                          <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ color: t.textDim, flexShrink: 0 }}><path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                      </Link>
+                    )
+                  }
+                  if (r.type === 'series') {
+                    return (
+                      <Link key={`s-${r.brandSlug}-${r.seriesName}`} href={`/resources-on-guns/${r.brandSlug}`} style={{ textDecoration: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', background: '#fff', borderBottom: i < searchResults.length - 1 ? `1px solid ${t.border}` : 'none', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#fafafa')}
+                          onMouseLeave={e => (e.currentTarget.style.background = '#fff')}>
+                          <div style={{ width: '8px', height: '8px', borderRadius: '2px', border: `1.5px solid ${t.gold}`, flexShrink: 0 }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '3px' }}>Model Series — {r.brandName}</div>
+                            <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '17px', fontWeight: 400, color: t.text }}>{r.seriesName}</div>
+                          </div>
+                          <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ color: t.textDim, flexShrink: 0 }}><path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                      </Link>
+                    )
+                  }
+                  // type === 'page'
+                  return (
+                    <Link key={`p-${r.slug}`} href={`/resources-on-guns/${r.brandSlug}/${r.slug}`} style={{ textDecoration: 'none' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', background: '#fff', borderBottom: i < searchResults.length - 1 ? `1px solid ${t.border}` : 'none', transition: 'background 0.15s' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#fafafa')}
+                        onMouseLeave={e => (e.currentTarget.style.background = '#fff')}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '1px', background: t.border, flexShrink: 0 }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '3px' }}>Reference Page — {r.brandName}</div>
+                          <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '17px', fontWeight: 400, color: t.text }}>{r.title}</div>
+                          {r.excerpt && <div style={{ fontSize: '11px', color: t.textMuted, fontWeight: 300, marginTop: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.excerpt}</div>}
+                        </div>
+                        <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ color: t.textDim, flexShrink: 0 }}><path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '22px', color: t.textDim, fontWeight: 300, marginBottom: '16px' }}>
+                  No results found for &ldquo;{searchQuery}&rdquo;
+                </div>
+                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: `1px solid ${t.border}`, padding: '8px 20px', cursor: 'pointer', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.textMuted, fontFamily: 'var(--font-inter)' }}>
+                  Clear search
+                </button>
+              </div>
+            )}
+          </div>
+        ) : brands.length > 0 ? (
           <>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '40px' }}>
               <div>
@@ -133,27 +257,16 @@ export default function ResourcesHubPage({ brands }: { brands: PayloadBrand[] })
                   Manufacturer Profiles
                 </div>
                 <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px', fontWeight: 400, color: t.text, margin: 0 }}>
-                  {q ? `Results for "${searchQuery}"` : 'Featured Manufacturers'}
+                  Featured Manufacturers
                 </h2>
               </div>
               <span style={{ fontSize: '11px', color: t.textDim, fontWeight: 300 }}>
-                <span style={{ color: t.text, fontWeight: 400 }}>{filteredBrands.length}</span> {filteredBrands.length === 1 ? 'profile' : 'profiles'}
+                <span style={{ color: t.text, fontWeight: 400 }}>{brands.length}</span> {brands.length === 1 ? 'profile' : 'profiles'}
               </span>
             </div>
-            {filteredBrands.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
-                {filteredBrands.map(b => <BrandCard key={b.id} brand={b} />)}
-              </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '22px', color: t.textDim, fontWeight: 300, marginBottom: '16px' }}>
-                  No profiles found for &ldquo;{searchQuery}&rdquo;
-                </div>
-                <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: `1px solid ${t.border}`, padding: '8px 20px', cursor: 'pointer', fontSize: '10px', letterSpacing: '0.14em', textTransform: 'uppercase', color: t.textMuted, fontFamily: 'var(--font-inter)' }}>
-                  Clear search
-                </button>
-              </div>
-            )}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
+              {brands.map(b => <BrandCard key={b.id} brand={b} />)}
+            </div>
           </>
         ) : (
           <div style={{ textAlign: 'center', padding: '80px 0' }}>
