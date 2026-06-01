@@ -100,6 +100,7 @@ a {
 
   [style*="padding: 0 40px"],
   [style*="padding: 0px 40px"]                            { padding-left: 18px !important; padding-right: 18px !important; }
+  [style*="padding: 10px 40px"]                           { padding-left: 18px !important; padding-right: 18px !important; }
   [style*="padding: 14px 40px"]                           { padding: 14px 18px !important; }
   [style*="padding: 36px 40px"],
   [style*="padding: 36px 40px 28px"]                      { padding: 36px 18px 28px !important; }
@@ -108,12 +109,16 @@ a {
   [style*="padding: 52px 40px 40px"]                      { padding: 44px 18px 32px !important; }
   [style*="padding: 52px 40px 48px"]                      { padding: 44px 18px 36px !important; }
   [style*="padding: 52px 40px 52px"]                      { padding: 44px 18px !important; }
+  [style*="padding: 60px 40px"]                           { padding: 48px 18px !important; }
   [style*="padding: 64px 40px"]                           { padding: 56px 18px !important; }
   [style*="padding: 72px 40px"],
   [style*="padding: 72px 40px 0"]                         { padding: 56px 18px 0 !important; }
   [style*="padding: 80px 40px"]                           { padding: 56px 18px !important; }
   [style*="padding: 96px 40px"]                           { padding: 64px 18px !important; }
   [style*="padding: 80px 72px"]                           { padding: 48px 24px !important; }
+
+  /* Related card price row — reset truncation so price is visible in column layout */
+  .lxs-related-price-row > span                           { white-space: normal !important; overflow: visible !important; min-width: unset !important; width: 100%; }
 
   [style*="grid-template-columns: 1fr 1fr"]               { grid-template-columns: 1fr !important; gap: 32px !important; }
   [style*="grid-template-columns: 1fr 1.2fr"],
