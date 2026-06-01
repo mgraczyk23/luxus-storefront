@@ -93,6 +93,10 @@ export default function ResourcesHubPage({
   const [searchQuery, setSearchQuery] = useState('')
 
   const q = searchQuery.trim().toLowerCase()
+  const qNorm = q.replace(/[-./\s]+/g, "")
+  const norm = (s: string) => s.toLowerCase().replace(/[-./\s]+/g, "")
+  const matchQ = (s: string | null | undefined) =>
+    !!s && (s.toLowerCase().includes(q) || (qNorm.length >= 2 && norm(s).includes(qNorm)))
 
   const searchResults: SearchResult[] = q ? (() => {
     const results: SearchResult[] = []
@@ -100,13 +104,13 @@ export default function ResourcesHubPage({
 
     // Brand matches
     for (const b of brandsForSearch) {
-      if (b.name?.toLowerCase().includes(q) || b.origin?.toLowerCase().includes(q) || b.tagline?.toLowerCase().includes(q) || b.description?.toLowerCase().includes(q)) {
+      if (matchQ(b.name) || matchQ(b.origin) || matchQ(b.tagline) || matchQ(b.description)) {
         const key = `brand:${b.id}`
         if (!seen.has(key)) { seen.add(key); results.push({ type: 'brand', brand: b }) }
       }
       // Model series matches → link to brand profile
       for (const m of b.modelSeries ?? []) {
-        if (m.name?.toLowerCase().includes(q) || m.description?.toLowerCase().includes(q)) {
+        if (matchQ(m.name) || matchQ(m.description)) {
           const key = `series:${b.slug}:${m.name}`
           if (!seen.has(key)) {
             seen.add(key)
@@ -121,7 +125,7 @@ export default function ResourcesHubPage({
 
     // Resource page matches
     for (const p of resourcePages) {
-      if (p.title?.toLowerCase().includes(q) || p.excerpt?.toLowerCase().includes(q) || p.brandName?.toLowerCase().includes(q)) {
+      if (matchQ(p.title) || matchQ(p.excerpt) || matchQ(p.brandName)) {
         const key = `page:${p.id}`
         if (!seen.has(key)) { seen.add(key); results.push({ type: 'page', title: p.title, excerpt: p.excerpt, brandName: p.brandName, brandSlug: p.brandSlug, slug: p.slug }) }
       }

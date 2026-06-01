@@ -213,14 +213,16 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
   const rest     = allPosts.filter((p) => p.id !== featured?.id)
 
   const q = searchQuery.trim().toLowerCase()
+  // Normalize: strip hyphens/dots/slashes so "ar-15" and "ar15" both match
+  const qNorm = q.replace(/[-./\s]+/g, "")
+  const norm = (s: string) => s.toLowerCase().replace(/[-./\s]+/g, "")
+
   const filtered = rest.filter((p) => {
     if (activeCategory !== "All" && p.category !== activeCategory) return false
     if (!q) return true
-    return (
-      p.title?.toLowerCase().includes(q) ||
-      p.excerpt?.toLowerCase().includes(q) ||
-      p.category?.toLowerCase().includes(q)
-    )
+    const matchRaw = p.title?.toLowerCase().includes(q) || p.excerpt?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q)
+    const matchNorm = qNorm.length >= 2 && (norm(p.title ?? "").includes(qNorm) || norm(p.excerpt ?? "").includes(qNorm))
+    return matchRaw || matchNorm
   })
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE)
