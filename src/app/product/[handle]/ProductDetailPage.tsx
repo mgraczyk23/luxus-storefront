@@ -109,7 +109,7 @@ function RelatedCard({ product }: { product: MappedProduct }) {
         </div>
         <div style={{ height: "1px", background: t.border, marginBottom: "12px", marginTop: "auto" }} />
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-          <span style={{ fontSize: product.contact_for_pricing ? "10px" : "14px", fontWeight: 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.03em" : "0.01em" }}>
+          <span style={{ fontSize: product.contact_for_pricing ? "9.5px" : "14px", fontWeight: 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.03em" : "0.01em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0, flexShrink: 1 }}>
             {product.contact_for_pricing ? "Contact For Pricing" : product.price !== null ? fmt(product.price) : "—"}
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
