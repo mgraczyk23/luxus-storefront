@@ -398,7 +398,7 @@ function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }
       }}
     >
       {label}
-      <span onClick={onRemove} style={{ display: "flex", alignItems: "center", opacity: hov ? 1 : 0.6, transition: "opacity 0.18s" }}>
+      <span onClick={e => { e.stopPropagation(); onRemove() }} style={{ display: "flex", alignItems: "center", padding: "4px", margin: "-4px", opacity: hov ? 1 : 0.6, transition: "opacity 0.18s" }}>
         <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
           <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
         </svg>
@@ -599,9 +599,9 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   }
 
   const clearSearch = () => {
-    const p = new URLSearchParams(window.location.search)
-    p.delete('q')
-    router.replace(`/shop${p.toString() ? '?' + p.toString() : ''}`, { scroll: false })
+    const url = new URL(window.location.href)
+    url.searchParams.delete('q')
+    window.location.href = url.toString()
   }
 
   const removePill = (pill: { key: string; value: string }) => {
@@ -733,7 +733,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
                 {q ? `Results for "${q}"` : "All Firearms"}
               </h1>
               {q && (
-                <button onClick={() => clearSearch()} style={{ marginTop: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, fontFamily: "'Inter',sans-serif", fontWeight: 500, padding: 0, display: "flex", alignItems: "center", gap: "5px" }}
+                <button onClick={() => clearSearch()} style={{ marginTop: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, fontFamily: "'Inter',sans-serif", fontWeight: 500, padding: "6px 0", display: "flex", alignItems: "center", gap: "5px" }}
                   onMouseEnter={e => e.currentTarget.style.color = t.gold}
                   onMouseLeave={e => e.currentTarget.style.color = t.textMuted}>
                   <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1 1L8 8M8 1L1 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/></svg>
