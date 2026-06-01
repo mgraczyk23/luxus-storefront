@@ -344,7 +344,7 @@ export default function ProductDetailPage({
       </div>
 
       {/* ── Product hero ────────────────────────────────────────────────── */}
-      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "52px 40px 0" }}>
+      <div className="lxs-pdp-section-wrap" style={{ maxWidth: "1440px", margin: "0 auto", padding: "52px 40px 0" }}>
         <div className="lxs-pdp-hero" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "64px", alignItems: "start" }}>
 
           {/* LEFT: Gallery */}
@@ -707,7 +707,7 @@ export default function ProductDetailPage({
 
       {/* ── Detail tabs ──────────────────────────────────────────────────── */}
       {visibleTabs.length > 0 && (
-        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "64px 40px 0" }}>
+        <div className="lxs-pdp-section-wrap" style={{ maxWidth: "1440px", margin: "0 auto", padding: "64px 40px 0" }}>
           {/* Tab bar */}
           <div style={{ display: "flex", borderBottom: `1px solid ${t.border}`, marginBottom: "44px", overflowX: "auto" }}>
             {visibleTabs.map(tab => (
@@ -795,7 +795,7 @@ export default function ProductDetailPage({
 
       {/* ── Inquiry form ─────────────────────────────────────────────────── */}
       <section style={{ margin: "80px 0 0", background: "#f3f3f5", borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}` }}>
-        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "80px 40px" }}>
+        <div className="lxs-pdp-section-wrap" style={{ maxWidth: "1440px", margin: "0 auto", padding: "80px 40px" }}>
           <div className="lxs-pdp-inquiry" style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: "80px", alignItems: "start" }}>
 
             {/* Copy */}
@@ -840,7 +840,7 @@ export default function ProductDetailPage({
                   </p>
                 </div>
               ) : (
-                <div style={{ background: "#fff", border: `1px solid ${t.border}`, padding: "36px" }}>
+                <div className="lxs-pdp-form-box" style={{ background: "#fff", border: `1px solid ${t.border}`, padding: "36px" }}>
                   <div style={{ background: "#fafafa", border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}50`, padding: "10px 14px", marginBottom: "24px", display: "flex", alignItems: "center", gap: "10px" }}>
                     <span style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textDim, fontWeight: 500 }}>Re:</span>
                     <span style={{ fontSize: "11.5px", color: t.text, fontWeight: 300 }}>{product.brand ? `${product.brand}, ` : ""}{product.title}</span>
@@ -906,7 +906,7 @@ export default function ProductDetailPage({
 
       {/* ── Related products ─────────────────────────────────────────────── */}
       {relatedProducts.length > 0 && (
-        <section style={{ padding: "80px 40px 96px" }}>
+        <section className="lxs-pdp-section-wrap" style={{ padding: "80px 40px 96px" }}>
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "44px" }}>
               <div>
