@@ -621,6 +621,11 @@ export default function HomePage({
           <div style={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: "12px" }}>
             {brands.map(b => <BrandTile key={b.slug} brand={b} />)}
           </div>
+          <div style={{ textAlign: "center", marginTop: "28px" }}>
+            <Link href="/shop/brands" style={{ fontFamily: "'Inter',sans-serif", fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.gold, textDecoration: "none", fontWeight: 500 }}>
+              View All Brands →
+            </Link>
+          </div>
         </div>
       </section>
 

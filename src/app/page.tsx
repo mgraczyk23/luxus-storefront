@@ -74,6 +74,7 @@ export default async function Home() {
 
   const brands = Object.entries(brandCountMap)
     .sort((a, b) => b[1] - a[1])
+    .slice(0, 8)
     .map(([name]) => ({ name, slug: toSlug(name) }))
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
