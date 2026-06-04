@@ -138,39 +138,18 @@ function ProductCard({ product }: { product: MappedProduct }) {
           </div>
         )}
 
-        {/* Unavailable overlay */}
-        {!product.in_stock && (
-          <div style={{
-            position: "absolute", inset: 0,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: "rgba(11,10,9,0.32)",
-          }}>
-            <div style={{
-              background: "rgba(255,255,255,0.92)",
-              border: `1px solid ${t.gold}`,
-              color: t.gold, padding: "7px 22px",
-              fontSize: "10px", letterSpacing: "0.32em", textTransform: "uppercase",
-              fontWeight: 600, backdropFilter: "blur(6px)",
-            }}>
-              Unavailable
-            </div>
-          </div>
-        )}
-
-        {/* Available pill */}
-        {product.in_stock && (
-          <div style={{
-            position: "absolute", top: "10px", right: "10px",
-            display: "flex", alignItems: "center",
-            background: "rgba(255,255,255,0.88)",
-            border: `1px solid #3a6a3a55`,
-            padding: "3px 9px", backdropFilter: "blur(6px)",
-          }}>
-            <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: "#3a6a3a" }}>
-              Available
-            </span>
-          </div>
-        )}
+        {/* Availability badge */}
+        <div style={{
+          position: "absolute", top: "10px", right: "10px",
+          display: "flex", alignItems: "center",
+          background: "rgba(255,255,255,0.88)",
+          border: `1px solid ${product.in_stock ? "#3a6a3a55" : "#6a3a3a55"}`,
+          padding: "3px 9px", backdropFilter: "blur(6px)",
+        }}>
+          <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: product.in_stock ? "#3a6a3a" : "#6a3a3a" }}>
+            {product.in_stock ? "Available" : "Unavailable"}
+          </span>
+        </div>
       </div>
 
       {/* Body */}
@@ -185,15 +164,17 @@ function ProductCard({ product }: { product: MappedProduct }) {
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
         </div>
         <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }} />
-        <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-          <div className="lxs-card-price" style={{
-            fontSize: product.contact_for_pricing ? "10px" : "15px",
-            fontWeight: product.contact_for_pricing ? 400 : 500,
-            color: product.contact_for_pricing ? t.gold : t.text,
-            letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em",
-          }}>
-            {product.contact_for_pricing ? "Contact Us For Pricing" : product.price !== null ? fmt(product.price) : "—"}
-          </div>
+        <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: product.in_stock ? "space-between" : "flex-end", gap: "8px" }}>
+          {product.in_stock && (
+            <div className="lxs-card-price" style={{
+              fontSize: product.contact_for_pricing ? "10px" : "15px",
+              fontWeight: product.contact_for_pricing ? 400 : 500,
+              color: product.contact_for_pricing ? t.gold : t.text,
+              letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em",
+            }}>
+              {product.contact_for_pricing ? "Contact Us For Pricing" : product.price !== null ? fmt(product.price) : "—"}
+            </div>
+          )}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
             {/* Heart / Wishlist */}
             <button
@@ -206,7 +187,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
               </svg>
             </button>
             {/* CTA */}
-            {product.contact_for_pricing ? (
+            {!product.in_stock || product.contact_for_pricing ? (
               <button
                 onClick={handleViewDetails}
                 style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}

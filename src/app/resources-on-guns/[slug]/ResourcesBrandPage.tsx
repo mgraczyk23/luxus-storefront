@@ -504,19 +504,12 @@ function ProductCard({ product }: { product: MappedProduct }) {
           </div>
         )}
 
-        {!product.in_stock && (
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(11,10,9,0.32)' }}>
-            <div style={{ background: 'rgba(255,255,255,0.92)', border: `1px solid ${t.gold}`, color: t.gold, padding: '6px 16px', fontSize: '9px', letterSpacing: '0.28em', textTransform: 'uppercase', fontWeight: 600 }}>
-              Unavailable
-            </div>
-          </div>
-        )}
-
-        {product.in_stock && (
-          <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.88)', border: '1px solid #3a6a3a55', padding: '3px 8px' }}>
-            <span style={{ fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: '#3a6a3a' }}>Available</span>
-          </div>
-        )}
+        {/* Availability badge */}
+        <div style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.88)', border: `1px solid ${product.in_stock ? '#3a6a3a55' : '#6a3a3a55'}`, padding: '3px 8px', backdropFilter: 'blur(6px)' }}>
+          <span style={{ fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: product.in_stock ? '#3a6a3a' : '#6a3a3a' }}>
+            {product.in_stock ? 'Available' : 'Unavailable'}
+          </span>
+        </div>
       </div>
 
       {/* Body */}
@@ -531,16 +524,18 @@ function ProductCard({ product }: { product: MappedProduct }) {
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(' · ')}
         </div>
         <div style={{ height: '1px', background: t.border, marginBottom: '10px', marginTop: 'auto' }} />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-          <div style={{
-            fontSize: product.contact_for_pricing ? '9px' : '14px',
-            fontWeight: product.contact_for_pricing ? 400 : 500,
-            color: product.contact_for_pricing ? t.gold : t.text,
-            letterSpacing: product.contact_for_pricing ? '0.04em' : '0.01em',
-            lineHeight: 1.3,
-          }}>
-            {product.contact_for_pricing ? 'Contact Us For Pricing' : product.price !== null ? fmt(product.price) : '—'}
-          </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: product.in_stock ? 'space-between' : 'flex-end', gap: '8px' }}>
+          {product.in_stock && (
+            <div style={{
+              fontSize: product.contact_for_pricing ? '9px' : '14px',
+              fontWeight: product.contact_for_pricing ? 400 : 500,
+              color: product.contact_for_pricing ? t.gold : t.text,
+              letterSpacing: product.contact_for_pricing ? '0.04em' : '0.01em',
+              lineHeight: 1.3,
+            }}>
+              {product.contact_for_pricing ? 'Contact Us For Pricing' : product.price !== null ? fmt(product.price) : '—'}
+            </div>
+          )}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             <button
               onClick={handleHeartClick}
@@ -551,7 +546,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </button>
-            {product.contact_for_pricing ? (
+            {!product.in_stock || product.contact_for_pricing ? (
               <button
                 onClick={handleViewDetails}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: '1px', opacity: hov ? 1 : 0.65, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}

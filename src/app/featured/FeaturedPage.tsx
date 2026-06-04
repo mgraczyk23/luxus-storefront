@@ -51,13 +51,19 @@ function ProductCard({ product }: { product: MappedProduct }) {
       style={{ background: hov ? t.bgCardHover : t.bgCard, border: `1px solid ${hov ? t.gold + "55" : t.border}`, borderRadius: "1px", overflow: "hidden", transition: "all 0.28s ease", transform: hov ? "translateY(-3px)" : "none", boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1)` : "0 2px 8px rgba(0,0,0,0.04)", cursor: "pointer", display: "flex", flexDirection: "column", fontFamily: "var(--font-inter)" }}>
       <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#f5f5f6", flexShrink: 0 }}>
         {product.thumbnail
-          ? <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain" }} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"/>
-          : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}><svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{ opacity: 0.15 }}><rect x="4" y="12" width="32" height="20" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M12 12V10C12 8.9 12.9 8 14 8H26C27.1 8 28 8.9 28 10V12" stroke="currentColor" strokeWidth="1.5"/></svg></div>}
-        {product.details?.primary_category && (
+          ? <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"/>
+          : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }}><svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{ opacity: 0.15 }}><rect x="4" y="12" width="32" height="20" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M12 12V10C12 8.9 12.9 8 14 8H26C27.1 8 28 8.9 28 10V12" stroke="currentColor" strokeWidth="1.5"/></svg></div>}
+        {product.details?.primary_category && product.in_stock && (
           <div style={{ position: "absolute", top: "10px", left: "10px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}50`, padding: "3px 9px", fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold }}>
             {product.details.primary_category}
           </div>
         )}
+        {/* Availability badge */}
+        <div style={{ position: "absolute", top: "10px", right: "10px", display: "flex", alignItems: "center", background: "rgba(255,255,255,0.88)", border: `1px solid ${product.in_stock ? "#3a6a3a55" : "#6a3a3a55"}`, padding: "3px 9px", backdropFilter: "blur(6px)" }}>
+          <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: product.in_stock ? "#3a6a3a" : "#6a3a3a" }}>
+            {product.in_stock ? "Available" : "Unavailable"}
+          </span>
+        </div>
       </div>
       <div style={{ padding: "18px 20px 22px", display: "flex", flexDirection: "column", flex: 1 }}>
         <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>
@@ -70,10 +76,12 @@ function ProductCard({ product }: { product: MappedProduct }) {
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
         </div>
         <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }}/>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-          <div style={{ fontSize: product.contact_for_pricing ? "10px" : "15px", fontWeight: product.contact_for_pricing ? 400 : 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em" }}>
-            {product.contact_for_pricing ? "Contact for Pricing" : (product.price ? fmt(product.price) : "—")}
-          </div>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: product.in_stock ? "space-between" : "flex-end", gap: "8px" }}>
+          {product.in_stock && (
+            <div style={{ fontSize: product.contact_for_pricing ? "10px" : "15px", fontWeight: product.contact_for_pricing ? 400 : 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em" }}>
+              {product.contact_for_pricing ? "Contact for Pricing" : (product.price ? fmt(product.price) : "—")}
+            </div>
+          )}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
             <button
               onClick={handleHeartClick}
@@ -84,7 +92,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </button>
-            {product.contact_for_pricing ? (
+            {!product.in_stock || product.contact_for_pricing ? (
               <button
                 onClick={handleViewDetails}
                 style={{ background: "none", border: "none", cursor: "pointer", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}
