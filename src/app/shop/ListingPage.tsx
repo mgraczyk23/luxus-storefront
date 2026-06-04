@@ -29,6 +29,7 @@ type Filters = {
   barrel_length: string[]
   priceMin:      number
   priceMax:      number
+  stockStatus:   'all' | 'in_stock' | 'out_of_stock'
 }
 
 type Breadcrumb = { label: string; href?: string }
@@ -436,6 +437,7 @@ export default function ListingPage({
     barrel_length: searchParams.getAll('barrel_length'),
     priceMin:      Number(searchParams.get('priceMin') ?? PRICE_FLOOR),
     priceMax:      Number(searchParams.get('priceMax') ?? PRICE_MAX),
+    stockStatus:   (searchParams.get('stock') as 'all' | 'in_stock' | 'out_of_stock') ?? 'all',
   }))
   const [sort, setSort] = useState(() => searchParams.get('sort') ?? 'newest')
   const [page, setPage] = useState(() => Number(searchParams.get('page') ?? 1))
@@ -467,6 +469,7 @@ export default function ListingPage({
     if (page > 1) p.set('page', String(page))
     if (filters.priceMin > PRICE_FLOOR) p.set('priceMin', String(filters.priceMin))
     if (filters.priceMax < PRICE_MAX) p.set('priceMax', String(filters.priceMax))
+    if (filters.stockStatus !== 'all') p.set('stock', filters.stockStatus)
     const qs = p.toString()
     router.replace(`${basePath}${qs ? '?' + qs : ''}`, { scroll: false })
   }, [filters, sort, page]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -519,6 +522,8 @@ export default function ListingPage({
     if (!p.contact_for_pricing && p.price !== null) {
       if (p.price < filters.priceMin || p.price > filters.priceMax) return false
     }
+    if (filters.stockStatus === 'in_stock'     && !p.in_stock) return false
+    if (filters.stockStatus === 'out_of_stock' &&  p.in_stock) return false
     return true
   }), [products, filters])
 
@@ -548,7 +553,7 @@ export default function ListingPage({
 
   const clearAll = () => {
     setPage(1)
-    setFilters({ categories: [], brand: [], model: [], caliber: [], action: [], barrel_length: [], priceMin: PRICE_FLOOR, priceMax: PRICE_MAX })
+    setFilters({ categories: [], brand: [], model: [], caliber: [], action: [], barrel_length: [], priceMin: PRICE_FLOOR, priceMax: PRICE_MAX, stockStatus: 'all' })
   }
 
   const removePill = (pill: { key: string; value: string }) => {
@@ -641,6 +646,22 @@ export default function ListingPage({
           priceMin={filters.priceMin} priceMax={filters.priceMax}
           onChange={(mn, mx) => { setPage(1); setFilters(prev => ({ ...prev, priceMin: mn, priceMax: mx })) }}
         />
+      </FilterSection>
+
+      <FilterSection title="Availability" defaultOpen={true}>
+        {([
+          { value: 'all',           label: 'All Items' },
+          { value: 'in_stock',      label: 'Available' },
+          { value: 'out_of_stock',  label: 'Unavailable' },
+        ] as const).map(opt => (
+          <CheckboxItem
+            key={opt.value}
+            label={opt.label}
+            checked={filters.stockStatus === opt.value}
+            onChange={() => { setPage(1); setFilters(prev => ({ ...prev, stockStatus: opt.value })) }}
+            count={opt.value === 'all' ? undefined : products.filter(p => opt.value === 'in_stock' ? p.in_stock : !p.in_stock).length}
+          />
+        ))}
       </FilterSection>
     </div>
   )
