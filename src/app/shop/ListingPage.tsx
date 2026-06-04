@@ -483,7 +483,7 @@ export default function ListingPage({
     return () => document.removeEventListener('mousedown', handler)
   }, [sortOpen])
 
-  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax'>, value: string) => {
+  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax' | 'stockStatus'>, value: string) => {
     setPage(1)
     setFilters(prev => ({
       ...prev,

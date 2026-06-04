@@ -489,7 +489,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   }, [sortOpen])
 
   // ── Filter helpers ──────────────────────────────────────────────────────────
-  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax'>, value: string) => {
+  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax' | 'stockStatus'>, value: string) => {
     setPage(1)
     setFilters(prev => ({
       ...prev,
