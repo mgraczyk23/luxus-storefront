@@ -53,7 +53,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
-export const revalidate = 60
+export const revalidate = false
+
+export async function generateStaticParams() {
+  try {
+    const res = await getProducts({ limit: "500", fields: "id,*attribute_values,*attribute_values.attribute_type" })
+    const slugs = new Set<string>()
+    for (const p of (res.products ?? [])) {
+      for (const av of (p.attribute_values ?? [])) {
+        if (av.attribute_type?.slug === 'brand' && av.value) slugs.add(toSlug(String(av.value).trim()))
+      }
+    }
+    return [...slugs].map(slug => ({ slug }))
+  } catch { return [] }
+}
 
 function Loading() {
   return (

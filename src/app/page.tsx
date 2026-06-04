@@ -3,7 +3,7 @@ import { mapMedusaProduct } from "@/lib/medusa"
 import { getPosts, getHeroSlides, getShopTileImages, imageUrl } from "@/lib/payload"
 import HomePage from "@/components/home/HomePage"
 
-export const revalidate = 60
+export const revalidate = false
 
 // Shared fields string — use * prefix (not +) so URLSearchParams encodes it as %2A,
 // which Medusa decodes back to * and expands the relation correctly.
@@ -39,7 +39,7 @@ export default async function Home() {
     getCollections(),
     getCategories(),
     // Fetch product→category+brand associations to sort categories and derive live brand list
-    getProducts({ limit: "500", fields: "id,*categories,*attribute_values,*attribute_values.attribute_type" }),
+    getProducts({ limit: "200", fields: "id,*categories,*attribute_values,*attribute_values.attribute_type" }),
     getPosts({ limit: 6, noContent: true }),
     getHeroSlides(),
     getShopTileImages(),

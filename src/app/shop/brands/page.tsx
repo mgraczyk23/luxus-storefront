@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "Browse all firearm brands at the Luxus Collection.",
 }
 
-export const revalidate = 60
+export const revalidate = false
 
 function toSlug(str: string) {
   return str

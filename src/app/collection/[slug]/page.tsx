@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { getProducts, getCollection } from "@/lib/api"
+import { getProducts, getCollection, getCollections } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
@@ -37,7 +37,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
-export const revalidate = 60
+export const revalidate = false
+
+export async function generateStaticParams() {
+  try {
+    const res = await getCollections()
+    return (res.collections ?? []).map((c: any) => ({ slug: c.handle }))
+  } catch { return [] }
+}
 
 function Loading() {
   return (

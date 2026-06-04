@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { notFound } from "next/navigation"
-import { getProducts } from "@/lib/api"
+import { getProducts, getCategories } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
@@ -45,7 +45,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
-export const revalidate = 60
+export const revalidate = false
+
+export async function generateStaticParams() {
+  try {
+    const res = await getCategories()
+    return (res.product_categories ?? []).map((c: any) => ({ slug: toSlug(c.name) }))
+  } catch { return [] }
+}
 
 function Loading() {
   return (

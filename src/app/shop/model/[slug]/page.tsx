@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 }
 
-export const revalidate = 60
+export const revalidate = false
 
 function Loading() {
   return (

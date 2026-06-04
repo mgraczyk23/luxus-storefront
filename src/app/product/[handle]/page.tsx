@@ -6,7 +6,14 @@ import { getSiteSettings } from "@/lib/payload"
 import ProductDetailPage from "./ProductDetailPage"
 import type { Metadata } from "next"
 
-export const revalidate = 60
+export const revalidate = false
+
+export async function generateStaticParams() {
+  try {
+    const res = await getProducts({ limit: "500", fields: "id,handle" })
+    return (res.products ?? []).map((p: any) => ({ handle: p.handle }))
+  } catch { return [] }
+}
 
 const RELATED_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,+metadata,*attribute_values,*attribute_values.attribute_type"
 

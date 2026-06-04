@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Browse all collections at the Luxus Collection.",
 }
 
-export const revalidate = 60
+export const revalidate = false
 
 export default async function CollectionsDirectory() {
   const [collectionsRes, tileImagesRes, countRes] = await Promise.allSettled([

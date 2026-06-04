@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Browse the Luxus Collection — the world's finest production and custom pistols.",
 }
 
-export const revalidate = 60
+export const revalidate = false
 
 const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*tags,*type"
 const PAGE_SIZE = 100
