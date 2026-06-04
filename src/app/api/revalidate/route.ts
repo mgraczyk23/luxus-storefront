@@ -1,8 +1,8 @@
 import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 
-const STATIC_TAGS = new Set(['site-settings', 'posts', 'comments', 'subscribers', 'products', 'hero-slides', 'about-page', 'consignment-page', 'faq-page', 'contact-page', 'support-page', 'featured-page', 'brands', 'shop-tile-images', 'policy-shipping', 'policy-privacy', 'policy-terms'])
-const DYNAMIC_PREFIXES = ['brand-', 'resource-brand-', 'resource-page-']
+const STATIC_TAGS = new Set(['site-settings', 'posts', 'comments', 'subscribers', 'products', 'hero-slides', 'about-page', 'consignment-page', 'faq', 'contact-page', 'support-page', 'featured-page', 'brands', 'shop-tile-images', 'policy-shipping', 'policy-privacy', 'policy-terms', 'resource-pages'])
+const DYNAMIC_PREFIXES = ['brand-', 'resource-brand-', 'resource-page-', 'post-']
 
 function isAllowedTag(tag: string): boolean {
   if (STATIC_TAGS.has(tag)) return true
