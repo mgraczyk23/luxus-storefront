@@ -806,9 +806,11 @@ export default function ListingPage({
           )}
 
           {/* Pagination */}
-          {totalPages > 1 && (
+          {totalPages > 1 && (() => {
+            const goToPage = (n: number) => { setPage(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+            return (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "28px", flexWrap: "nowrap" }}>
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              <button onClick={() => goToPage(Math.max(1, page - 1))} disabled={page === 1}
                 style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === 1 ? t.border + "50" : t.border}`, cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
                 <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
@@ -816,18 +818,19 @@ export default function ListingPage({
                 n === '...' ? (
                   <span key={`el-${idx}`} style={{ width: "24px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", color: t.textDim, flexShrink: 0 }}>…</span>
                 ) : (
-                  <button key={n} onClick={() => setPage(n as number)}
+                  <button key={n} onClick={() => goToPage(n as number)}
                     style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? "#fff" : t.textMuted, fontSize: "11px", fontFamily: "'Inter',sans-serif", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s", borderRadius: "1px" }}>
                     {n}
                   </button>
                 )
               )}
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              <button onClick={() => goToPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}
                 style={{ width: "36px", height: "36px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === totalPages ? t.border + "50" : t.border}`, cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s", borderRadius: "1px" }}>
                 <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
             </div>
-          )}
+            )
+          })()}
         </div>
       </div>
 
