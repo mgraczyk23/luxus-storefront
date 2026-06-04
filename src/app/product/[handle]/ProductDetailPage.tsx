@@ -10,6 +10,7 @@ import type { MappedProduct } from '@/lib/medusa'
 import type { SiteSettings } from '@/lib/payload'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
+import ContactAvailabilityModal from '@/components/ContactAvailabilityModal'
 
 const PLAYFAIR = "var(--font-playfair), serif"
 
@@ -166,6 +167,7 @@ export default function ProductDetailPage({
   useEffect(() => { setWishlisted(isWishlisted(product.handle)) }, [product.handle])
   const [contactModalOpen, setContactModalOpen] = useState(false)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
+  const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     message: `I'm interested in the ${product.title} and would like more information.`,
@@ -302,10 +304,17 @@ export default function ProductDetailPage({
             )}
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "14px", flexShrink: 0 }}>
-            <span style={{ fontFamily: "'Inter',sans-serif", fontSize: "16px", fontWeight: 500, color: product.contact_for_pricing ? t.gold : t.text }}>
-              {product.contact_for_pricing ? "Contact For Pricing" : product.price !== null ? fmt(product.price) : ""}
-            </span>
-            {product.contact_for_pricing ? (
+            {product.in_stock && (
+              <span style={{ fontFamily: "'Inter',sans-serif", fontSize: "16px", fontWeight: 500, color: product.contact_for_pricing ? t.gold : t.text }}>
+                {product.contact_for_pricing ? "Contact For Pricing" : product.price !== null ? fmt(product.price) : ""}
+              </span>
+            )}
+            {!product.in_stock ? (
+              <button onClick={() => setAvailabilityModalOpen(true)}
+                style={{ padding: "9px 22px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
+                Contact for Availability
+              </button>
+            ) : product.contact_for_pricing ? (
               <button onClick={() => { setContactModalContext('pricing'); setContactModalOpen(true) }}
                 style={{ padding: "9px 22px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
                 Contact for Pricing
@@ -513,31 +522,49 @@ export default function ProductDetailPage({
             {/* Divider */}
             <div style={{ height: "1px", background: `linear-gradient(to right, ${t.gold}50, transparent)`, marginBottom: "24px" }} />
 
-            {/* Price */}
-            <div style={{ marginBottom: "28px" }}>
-              {product.contact_for_pricing ? (
-                <div>
-                  <div style={{ fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 400, marginBottom: "4px" }}>Pricing</div>
-                  <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(22px,2.4vw,30px)", fontWeight: 300, color: t.gold, letterSpacing: "0.02em" }}>
-                    Contact Us For Pricing
+            {/* Price — hidden when unavailable */}
+            {product.in_stock && (
+              <div style={{ marginBottom: "28px" }}>
+                {product.contact_for_pricing ? (
+                  <div>
+                    <div style={{ fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 400, marginBottom: "4px" }}>Pricing</div>
+                    <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(22px,2.4vw,30px)", fontWeight: 300, color: t.gold, letterSpacing: "0.02em" }}>
+                      Contact Us For Pricing
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 400, marginBottom: "4px" }}>Price</div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-                    <span style={{ fontFamily: PLAYFAIR, fontSize: "clamp(32px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1, letterSpacing: "0.01em" }}>
-                      {product.price !== null ? fmt(product.price) : "—"}
-                    </span>
-                    <span style={{ fontSize: "10px", color: t.textDim, letterSpacing: "0.06em", fontWeight: 300 }}>USD</span>
+                ) : (
+                  <div>
+                    <div style={{ fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 400, marginBottom: "4px" }}>Price</div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                      <span style={{ fontFamily: PLAYFAIR, fontSize: "clamp(32px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1, letterSpacing: "0.01em" }}>
+                        {product.price !== null ? fmt(product.price) : "—"}
+                      </span>
+                      <span style={{ fontSize: "10px", color: t.textDim, letterSpacing: "0.06em", fontWeight: 300 }}>USD</span>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* CTA buttons */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
-              {product.contact_for_pricing ? (
+              {!product.in_stock ? (
+                <>
+                  <button onClick={() => setAvailabilityModalOpen(true)}
+                    style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
+                    onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5C2 2.67 2.67 2 3.5 2H10.5C11.33 2 12 2.67 12 3.5V8.5C12 9.33 11.33 10 10.5 10H5L2 12.5V3.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /></svg>
+                    Contact for Availability
+                  </button>
+                  <button onClick={() => { setContactModalContext('question'); setContactModalOpen(true) }}
+                    style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.border}`, color: t.text, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = t.gold + "70"; e.currentTarget.style.color = t.gold }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.text }}>
+                    Request More Information
+                  </button>
+                </>
+              ) : product.contact_for_pricing ? (
                 <>
                   <button onClick={() => { setContactModalContext('pricing'); setContactModalOpen(true) }}
                     style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
@@ -557,12 +584,12 @@ export default function ProductDetailPage({
               ) : (
                 <>
                   <button
-                    onClick={() => { if (product.in_stock) { addItem(product); setAddedToCart(true); setTimeout(() => setAddedToCart(false), 1800) } }}
-                    style={{ padding: "15px 32px", background: addedToCart ? "#5a9a5a" : product.in_stock ? t.gold : t.gold + "55", border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: product.in_stock ? "pointer" : "not-allowed", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
-                    onMouseEnter={e => { if (product.in_stock && !addedToCart) { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" } }}
-                    onMouseLeave={e => { if (product.in_stock && !addedToCart) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
+                    onClick={() => { addItem(product); setAddedToCart(true); setTimeout(() => setAddedToCart(false), 1800) }}
+                    style={{ padding: "15px 32px", background: addedToCart ? "#5a9a5a" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { if (!addedToCart) { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" } }}
+                    onMouseLeave={e => { if (!addedToCart) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
                     <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><path d="M1 1H2.5L4 9H10.5L12.5 3.5H3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="5" cy="11.5" r="0.8" fill="currentColor" /><circle cx="10" cy="11.5" r="0.8" fill="currentColor" /></svg>
-                    {addedToCart ? "Added to Cart ✓" : product.in_stock ? "Add to Cart" : "Unavailable"}
+                    {addedToCart ? "Added to Cart ✓" : "Add to Cart"}
                   </button>
                   <button onClick={() => setOfferModalOpen(true)}
                     style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
@@ -1082,6 +1109,15 @@ export default function ProductDetailPage({
           listedPrice={product.price}
           contactForPricing={product.contact_for_pricing}
           onClose={() => setOfferModalOpen(false)}
+        />
+      )}
+
+      {/* ── Contact for Availability modal ──────────────────────────────── */}
+      {availabilityModalOpen && (
+        <ContactAvailabilityModal
+          productTitle={product.title}
+          productHandle={product.handle}
+          onClose={() => setAvailabilityModalOpen(false)}
         />
       )}
     </div>
