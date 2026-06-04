@@ -147,7 +147,7 @@ export function mapMedusaProduct(p: any): MappedProduct {
     contact_for_pricing: p.metadata?.contact_for_pricing === "true",
     in_stock:           p.variants?.[0]?.manage_inventory === false
                           ? true
-                          : (p.variants?.[0]?.inventory_quantity ?? 1) > 0,
+                          : (p.variants?.[0]?.inventory_quantity ?? 0) > 0,
     images:             p.images?.map((i: { url: string }) => i.url) ?? [],
     thumbnail:          p.thumbnail ?? null,
     categories:         p.categories?.map((c: { name: string }) => c.name) ?? [],

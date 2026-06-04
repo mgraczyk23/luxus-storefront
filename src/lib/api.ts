@@ -24,7 +24,7 @@ export function getProducts(params?: Record<string, string>) {
 
 export function getProduct(handle: string) {
   return storeFetch<{ products: any[] }>(
-    `/store/products?handle=${encodeURIComponent(handle)}&fields=*variants,*variants.prices,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*tags,*type`
+    `/store/products?handle=${encodeURIComponent(handle)}&fields=*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*tags,*type`
   )
 }
 
