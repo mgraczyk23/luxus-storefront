@@ -659,12 +659,22 @@ function mapResourcePage(doc: any): PayloadResourcePage {
 
 /* ── About Page ──────────────────────────────────────────────────────────── */
 
+export type AboutGalleryItem = {
+  id:      string
+  image:   PayloadImage
+  title:   string | null
+  caption: string | null
+}
+
 export type AboutPageImages = {
   heroImage:       PayloadImage | null
   storyImageMain:  PayloadImage | null
   storyImageLeft:  PayloadImage | null
   storyImageRight: PayloadImage | null
   valuesImage:     PayloadImage | null
+  galleryHeading:  string | null
+  galleryIntro:    string | null
+  gallery:         AboutGalleryItem[]
 }
 
 export type AboutPageText = {
@@ -707,6 +717,7 @@ export async function getAboutPageImages(): Promise<AboutPageImages> {
   const empty: AboutPageImages = {
     heroImage: null, storyImageMain: null,
     storyImageLeft: null, storyImageRight: null, valuesImage: null,
+    galleryHeading: null, galleryIntro: null, gallery: [],
   }
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/about-page?depth=1`, {
@@ -720,6 +731,16 @@ export async function getAboutPageImages(): Promise<AboutPageImages> {
       storyImageLeft:  d.storyImageLeft  ?? null,
       storyImageRight: d.storyImageRight ?? null,
       valuesImage:     d.valuesImage     ?? null,
+      galleryHeading:  d.galleryHeading  ?? null,
+      galleryIntro:    d.galleryIntro    ?? null,
+      gallery: (d.gallery ?? [])
+        .filter((item: any) => item?.image)
+        .map((item: any): AboutGalleryItem => ({
+          id:      String(item.id ?? Math.random()),
+          image:   item.image,
+          title:   item.title   ?? null,
+          caption: item.caption ?? null,
+        })),
     }
   } catch {
     return empty

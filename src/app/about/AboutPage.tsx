@@ -4,7 +4,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import { imageUrl } from '@/lib/payload'
-import type { AboutPageImages, AboutPageText, PayloadBrand } from '@/lib/payload'
+import type { AboutPageImages, AboutPageText, AboutGalleryItem, PayloadBrand } from '@/lib/payload'
+import { useState } from 'react'
 
 function ImgBox({ style = {}, index = 0 }: { style?: React.CSSProperties; index?: number }) {
   const { t } = useTheme()
@@ -21,10 +22,10 @@ function ImgBox({ style = {}, index = 0 }: { style?: React.CSSProperties; index?
   )
 }
 
-function Eyebrow({ label }: { label: string }) {
+function Eyebrow({ label, center = false }: { label: string; center?: boolean }) {
   const { t } = useTheme()
   return (
-    <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px" }}>
+    <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px", justifyContent: center ? "center" : "flex-start" }}>
       <div style={{ width:"18px",height:"1px",background:t.gold }}/>
       <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500,fontFamily:"var(--font-inter)" }}>{label}</span>
     </div>
@@ -40,6 +41,45 @@ function ValueCard({ number, title, body }: { number: string; title: string; bod
       <div style={{ fontFamily:"var(--font-playfair)",fontSize:"44px",fontWeight:300,color:t.gold,lineHeight:1,marginBottom:"18px",opacity:0.5 }}>{number}</div>
       <div style={{ fontSize:"8.5px",letterSpacing:"0.2em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"10px",fontFamily:"var(--font-inter)" }}>{title}</div>
       <p style={{ fontSize:"13px",fontWeight:300,color:t.textMuted,lineHeight:1.82,letterSpacing:"0.015em" }}>{body}</p>
+    </div>
+  )
+}
+
+function GalleryItem({ item }: { item: AboutGalleryItem }) {
+  const { t } = useTheme()
+  const [hov, setHov] = useState(false)
+  const src = imageUrl(item.image)
+  return (
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{ position:"relative", overflow:"hidden", border:`1px solid ${t.border}`, aspectRatio:"4/3", cursor: item.title || item.caption ? "default" : undefined }}
+    >
+      {src
+        ? <Image src={src} alt={item.image.alt || item.title || "Heritage piece"} fill style={{ objectFit:"cover", transition:"transform 0.5s ease", transform: hov ? "scale(1.04)" : "scale(1)" }} sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw" />
+        : <div style={{ width:"100%",height:"100%",background:t.bgSurface }} />
+      }
+      {/* Caption overlay on hover */}
+      {(item.title || item.caption) && (
+        <div style={{
+          position:"absolute", inset:0, background:"rgba(10,9,8,0.62)",
+          display:"flex", flexDirection:"column", justifyContent:"flex-end",
+          padding:"20px 22px",
+          opacity: hov ? 1 : 0,
+          transition:"opacity 0.28s ease",
+        }}>
+          {item.title && (
+            <div style={{ fontFamily:"var(--font-playfair)", fontSize:"16px", fontWeight:400, color:"#fff", lineHeight:1.25, marginBottom: item.caption ? "6px" : 0 }}>
+              {item.title}
+            </div>
+          )}
+          {item.caption && (
+            <div style={{ fontSize:"11.5px", fontWeight:300, color:"rgba(255,255,255,0.75)", lineHeight:1.6, letterSpacing:"0.02em" }}>
+              {item.caption}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -72,7 +112,7 @@ function BrandTile({ name, origin, description, logo, slug }: { name: string; or
 }
 
 export default function AboutPage({
-  images = { heroImage: null, storyImageMain: null, storyImageLeft: null, storyImageRight: null, valuesImage: null },
+  images = { heroImage: null, storyImageMain: null, storyImageLeft: null, storyImageRight: null, valuesImage: null, galleryHeading: null, galleryIntro: null, gallery: [] },
   text = {},
   brands = [],
   settings,
@@ -402,6 +442,33 @@ export default function AboutPage({
           </div>
         </div>
       </section>
+
+      {/* HERITAGE GALLERY */}
+      {images.gallery.length > 0 && (
+        <section style={{ padding:"96px 40px",borderTop:`1px solid ${t.border}` }}>
+          <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
+            {/* Heading */}
+            <div style={{ textAlign:"center",marginBottom:"64px" }}>
+              <Eyebrow label="Heritage" center />
+              <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(28px,3vw,44px)",fontWeight:300,color:t.text,lineHeight:1.1,letterSpacing:"0.01em",marginBottom:"16px" }}>
+                {images.galleryHeading ?? "From the Vault"}
+              </h2>
+              {images.galleryIntro && (
+                <p style={{ fontSize:"15px",fontWeight:300,color:t.textMuted,lineHeight:1.8,maxWidth:"560px",margin:"0 auto",letterSpacing:"0.02em" }}>
+                  {images.galleryIntro}
+                </p>
+              )}
+            </div>
+
+            {/* Grid */}
+            <div className="lxs-about-gallery">
+              {images.gallery.map((item) => (
+                <GalleryItem key={item.id} item={item} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* FFL COMPLIANCE */}
       <section style={{ padding:"96px 40px" }}>

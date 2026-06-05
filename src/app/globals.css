@@ -475,6 +475,7 @@ a {
 /* About */
 .lxs-about-hero       { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
 .lxs-about-story      { display: grid; grid-template-columns: 1fr 1.2fr; gap: 100px; align-items: start; }
+.lxs-about-gallery    { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .lxs-about-values     { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .lxs-about-mission    { display: grid; grid-template-columns: 1fr 1.2fr; gap: 80px; align-items: start; }
 .lxs-about-curation   { display: grid; grid-template-columns: 1.1fr 1fr; gap: 100px; align-items: center; }
@@ -565,6 +566,7 @@ a {
   .lxs-about-hero       { grid-template-columns: 1fr; gap: 40px; }
   .lxs-about-story      { grid-template-columns: 1fr; gap: 40px; }
   .lxs-about-story-images { position: static !important; top: auto !important; }
+  .lxs-about-gallery    { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .lxs-about-values     { grid-template-columns: 1fr 1fr; }
   .lxs-about-mission    { grid-template-columns: 1fr; gap: 40px; }
   .lxs-about-curation   { grid-template-columns: 1fr; gap: 40px; }
