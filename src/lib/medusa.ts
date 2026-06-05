@@ -35,6 +35,8 @@ export type MappedProduct = {
     caliber: string | null
     action: string | null
     barrel_length: string | null
+    frame_color: string | null
+    magazine_capacity: string | null
   }
   // attribute_lists: full arrays for filter matching (always string[])
   attribute_lists: {
@@ -43,6 +45,8 @@ export type MappedProduct = {
     caliber: string[]
     action: string[]
     barrel_length: string[]
+    frame_color: string[]
+    magazine_capacity: string[]
   }
   details: {
     primary_category: string | null
@@ -127,11 +131,13 @@ function readAttr(val: any): { display: string | null; list: string[] } {
 export function mapMedusaProduct(p: any): MappedProduct {
   const attrMap = buildAttrMap(p)
 
-  const brand        = pickAttr(attrMap, "brand",         p.metadata?.brand)
-  const model        = pickAttr(attrMap, "model",         p.metadata?.model)
-  const caliber      = pickAttr(attrMap, "caliber",       p.metadata?.caliber)
-  const action       = pickAttr(attrMap, "action",        p.metadata?.action)
-  const barrel_length = pickAttr(attrMap, "barrel-length", p.metadata?.barrel_length)
+  const brand             = pickAttr(attrMap, "brand",             p.metadata?.brand)
+  const model             = pickAttr(attrMap, "model",             p.metadata?.model)
+  const caliber           = pickAttr(attrMap, "caliber",           p.metadata?.caliber)
+  const action            = pickAttr(attrMap, "action",            p.metadata?.action)
+  const barrel_length     = pickAttr(attrMap, "barrel-length",     p.metadata?.barrel_length)
+  const frame_color       = pickAttr(attrMap, "frame-color",       p.metadata?.frame_color)
+  const magazine_capacity = pickAttr(attrMap, "magazine-capacity", p.metadata?.magazine_capacity)
 
   return {
     id:                 p.id,
@@ -161,18 +167,22 @@ export function mapMedusaProduct(p: any): MappedProduct {
     specifications:     p.metadata?.specifications ?? {},
     in_the_box:         p.metadata?.in_the_box ?? [],
     attributes: {
-      brand:         brand.display,
-      model:         model.display,
-      caliber:       caliber.display,
-      action:        action.display,
-      barrel_length: barrel_length.display,
+      brand:             brand.display,
+      model:             model.display,
+      caliber:           caliber.display,
+      action:            action.display,
+      barrel_length:     barrel_length.display,
+      frame_color:       frame_color.display,
+      magazine_capacity: magazine_capacity.display,
     },
     attribute_lists: {
-      brand:         brand.list,
-      model:         model.list,
-      caliber:       caliber.list,
-      action:        action.list,
-      barrel_length: barrel_length.list,
+      brand:             brand.list,
+      model:             model.list,
+      caliber:           caliber.list,
+      action:            action.list,
+      barrel_length:     barrel_length.list,
+      frame_color:       frame_color.list,
+      magazine_capacity: magazine_capacity.list,
     },
     details: {
       primary_category: p.metadata?.primary_category ?? null,

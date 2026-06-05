@@ -244,10 +244,13 @@ export default function ProductDetailPage({
 
   // Build spec table: attribute-derived rows first, then any explicit metadata specs
   const baseSpecs: Record<string, string> = {}
-  if (product.attributes?.caliber)       baseSpecs["Caliber"]       = product.attributes.caliber
-  if (product.attributes?.action)        baseSpecs["Action"]         = product.attributes.action
-  if (product.attributes?.barrel_length) baseSpecs["Barrel Length"]  = product.attributes.barrel_length
-  if (product.attributes?.model)         baseSpecs["Model"]          = product.attributes.model
+  if (product.attributes?.brand)             baseSpecs["Brand"]             = product.attributes.brand
+  if (product.attributes?.model)             baseSpecs["Model"]             = product.attributes.model
+  if (product.attributes?.caliber)           baseSpecs["Caliber"]           = product.attributes.caliber
+  if (product.attributes?.action)            baseSpecs["Action"]            = product.attributes.action
+  if (product.attributes?.barrel_length)     baseSpecs["Barrel Length"]     = product.attributes.barrel_length
+  if (product.attributes?.frame_color)       baseSpecs["Frame Color"]       = product.attributes.frame_color
+  if (product.attributes?.magazine_capacity) baseSpecs["Magazine Capacity"] = product.attributes.magazine_capacity
   const specEntries = Object.entries({ ...baseSpecs, ...(product.specifications ?? {}) })
 
   const hasTabs = {
