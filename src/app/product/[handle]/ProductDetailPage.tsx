@@ -332,7 +332,7 @@ export default function ProductDetailPage({
 
       {/* ── Page title ──────────────────────────────────────────────────── */}
       <div style={{ paddingTop: "68px", background: t.bgSurface }}>
-        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "20px 40px 16px" }}>
+        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "10px 40px 8px" }}>
           <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3.2vw,46px)", fontWeight: 300, color: t.text, lineHeight: 1.08, letterSpacing: "0.01em", margin: 0 }}>
             {product.title}
           </h1>
