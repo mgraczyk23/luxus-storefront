@@ -27,7 +27,7 @@ async function getAllProducts() {
     )
     for (const page of pages) raw.push(...(page.products ?? []))
   }
-  return raw.map(mapMedusaProduct).filter(p => p.tags.includes('Modern Firearms'))
+  return raw.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden && p.tags.includes('Modern Firearms'))
 }
 
 export default async function ModernFirearmsPage() {

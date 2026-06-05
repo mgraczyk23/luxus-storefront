@@ -51,9 +51,10 @@ export type MappedProduct = {
   details: {
     primary_category: string | null
   }
-  tags:       string[]   // raw tag values, e.g. ["Featured"]
-  product_type: string | null  // raw product type value, e.g. "Collectibles", "Modern", "Firearm"
-  is_firearm: boolean    // true when product type === "Firearm"
+  tags:               string[]
+  product_type:       string | null
+  is_backroom_hidden: boolean  // true when either backroom flag is set — filtered from all public pages
+  is_firearm:         boolean
   seo_meta_title: string | null
   seo_meta_description: string | null
 }
@@ -188,9 +189,10 @@ export function mapMedusaProduct(p: any): MappedProduct {
     details: {
       primary_category: p.metadata?.primary_category ?? null,
     },
-    tags:         (p.tags ?? []).map((t: { value: string }) => t.value),
-    product_type: p.type?.value ?? null,
-    is_firearm:   p.type?.value?.toLowerCase() === "firearm",
+    tags:               (p.tags ?? []).map((t: { value: string }) => t.value),
+    product_type:       p.type?.value ?? null,
+    is_backroom_hidden: p.metadata?.backroom_hidden === "true",
+    is_firearm:         p.type?.value?.toLowerCase() === "firearm",
     seo_meta_title:       null,
     seo_meta_description: null,
   }

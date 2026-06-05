@@ -21,7 +21,7 @@ async function getAllProducts() {
     )
     for (const page of pages) raw.push(...(page.products ?? []))
   }
-  return raw.map(mapMedusaProduct)
+  return raw.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

@@ -29,7 +29,7 @@ async function getAllProducts(): Promise<ReturnType<typeof mapMedusaProduct>[]> 
     for (const page of pages) raw.push(...(page.products ?? []))
   }
 
-  return raw.map(mapMedusaProduct)
+  return raw.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
 }
 
 function ShopLoading() {

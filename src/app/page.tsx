@@ -79,7 +79,7 @@ export default async function Home() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawProducts = productsRes.status === "fulfilled" ? (productsRes.value.products ?? []) : []
-  const products = rawProducts.map(mapMedusaProduct)
+  const products = rawProducts.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
 
   const allCollections: { id: string; title?: string; name?: string }[] =
     collectionsRes.status === "fulfilled" ? (collectionsRes.value.collections ?? []) : []
@@ -97,7 +97,7 @@ export default async function Home() {
       fields: PRODUCT_FIELDS,
     }).catch(() => null)
     if (tagRes?.products?.length) {
-      featuredProducts = tagRes.products.map(mapMedusaProduct)
+      featuredProducts = tagRes.products.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
     }
   }
   if (featuredProducts === products.slice(0, 4)) {
@@ -113,7 +113,7 @@ export default async function Home() {
         fields: PRODUCT_FIELDS,
       }).catch(() => null)
       if (colRes?.products?.length) {
-        featuredProducts = colRes.products.map(mapMedusaProduct)
+        featuredProducts = colRes.products.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
       }
     }
   }

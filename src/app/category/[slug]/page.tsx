@@ -25,7 +25,7 @@ async function getAllProducts() {
     )
     for (const page of pages) raw.push(...(page.products ?? []))
   }
-  return raw.map(mapMedusaProduct)
+  return raw.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
 }
 
 function getCategoryName(slug: string, products: ReturnType<typeof mapMedusaProduct>[]) {

@@ -50,7 +50,7 @@ export default async function Page() {
     return true
   })
 
-  const products = merged.map(mapMedusaProduct)
+  const products = merged.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
 
   return <FeaturedPage settings={settings} text={text} products={products} classifieds={classifieds} />
 }
