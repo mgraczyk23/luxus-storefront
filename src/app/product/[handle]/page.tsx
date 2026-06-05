@@ -9,8 +9,10 @@ import type { Metadata } from "next"
 export const revalidate = false
 
 export async function generateStaticParams() {
+  // Pre-build only the 50 most recent products at deploy time — keeps build fast.
+  // All other product pages render on first visit and are then cached indefinitely.
   try {
-    const res = await getProducts({ limit: "500", fields: "id,handle" })
+    const res = await getProducts({ limit: "50", fields: "id,handle" })
     return (res.products ?? []).map((p: any) => ({ handle: p.handle }))
   } catch { return [] }
 }
