@@ -331,7 +331,7 @@ export default function ProductDetailPage({
       </div>
 
       {/* ── Page title ──────────────────────────────────────────────────── */}
-      <div style={{ paddingTop: "68px", background: t.bgSurface }}>
+      <div style={{ background: t.bgSurface }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "10px 40px 8px" }}>
           <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3.2vw,46px)", fontWeight: 300, color: t.text, lineHeight: 1.08, letterSpacing: "0.01em", margin: 0 }}>
             {product.title}
@@ -340,7 +340,7 @@ export default function ProductDetailPage({
       </div>
 
       {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
-      <div style={{ background: t.bgSurface, borderBottom: `1px solid ${t.border}` }}>
+      <div style={{ background: t.bgSurface, borderBottom: `1px solid ${t.border}`, paddingTop: "2px" }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "14px 40px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           {[
             { label: "Home", href: "/" },
