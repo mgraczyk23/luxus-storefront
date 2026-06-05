@@ -332,15 +332,7 @@ export default function ProductDetailPage({
 
       {/* ── Page title ──────────────────────────────────────────────────── */}
       <div style={{ paddingTop: "68px", background: t.bgSurface }}>
-        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "28px 40px 20px" }}>
-          {product.brand && (
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
-              <div style={{ width: "16px", height: "1px", background: t.gold }} />
-              <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
-                {product.brand}
-              </span>
-            </div>
-          )}
+        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "20px 40px 16px" }}>
           <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3.2vw,46px)", fontWeight: 300, color: t.text, lineHeight: 1.08, letterSpacing: "0.01em", margin: 0 }}>
             {product.title}
           </h1>
@@ -477,14 +469,20 @@ export default function ProductDetailPage({
           {/* RIGHT: Info */}
           <div ref={infoPanelRef} style={{ minWidth: 0 }}>
 
-            {/* SKU */}
-            {product.sku && (
-              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "14px" }}>
+            {/* Brand + SKU */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ width: "16px", height: "1px", background: t.gold }} />
+                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
+                  {product.brand}
+                </span>
+              </div>
+              {product.sku && (
                 <span style={{ fontSize: "9.5px", color: t.textDim, letterSpacing: "0.06em", fontWeight: 300 }}>
                   SKU: {product.sku}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Subtitle */}
             {product.subtitle && (
