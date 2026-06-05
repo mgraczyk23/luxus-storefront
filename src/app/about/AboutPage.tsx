@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import { imageUrl } from '@/lib/payload'
 import type { AboutPageImages, AboutPageText, AboutGalleryItem, PayloadBrand } from '@/lib/payload'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function ImgBox({ style = {}, index = 0 }: { style?: React.CSSProperties; index?: number }) {
   const { t } = useTheme()
@@ -45,42 +45,141 @@ function ValueCard({ number, title, body }: { number: string; title: string; bod
   )
 }
 
-function GalleryItem({ item }: { item: AboutGalleryItem }) {
+function GallerySection({ items }: { items: AboutGalleryItem[] }) {
   const { t } = useTheme()
-  const [hov, setHov] = useState(false)
-  const src = imageUrl(item.image)
+  const [lightbox, setLightbox] = useState<number | null>(null)
+  const [hov, setHov] = useState<number | null>(null)
+
+  const open  = (i: number) => setLightbox(i)
+  const close = () => setLightbox(null)
+  const prev  = () => setLightbox(i => i !== null ? (i - 1 + items.length) % items.length : null)
+  const next  = () => setLightbox(i => i !== null ? (i + 1) % items.length : null)
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (lightbox === null) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape")     setLightbox(null)
+      if (e.key === "ArrowLeft")  setLightbox(i => i !== null ? (i - 1 + items.length) % items.length : null)
+      if (e.key === "ArrowRight") setLightbox(i => i !== null ? (i + 1) % items.length : null)
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [lightbox, items.length])
+
+  const active = lightbox !== null ? items[lightbox] : null
+
   return (
-    <div
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      style={{ position:"relative", overflow:"hidden", border:`1px solid ${t.border}`, aspectRatio:"4/3", cursor: item.title || item.caption ? "default" : undefined }}
-    >
-      {src
-        ? <Image src={src} alt={item.image.alt || item.title || "Heritage piece"} fill style={{ objectFit:"cover", transition:"transform 0.5s ease", transform: hov ? "scale(1.04)" : "scale(1)" }} sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw" />
-        : <div style={{ width:"100%",height:"100%",background:t.bgSurface }} />
-      }
-      {/* Caption overlay on hover */}
-      {(item.title || item.caption) && (
-        <div style={{
-          position:"absolute", inset:0, background:"rgba(10,9,8,0.62)",
-          display:"flex", flexDirection:"column", justifyContent:"flex-end",
-          padding:"20px 22px",
-          opacity: hov ? 1 : 0,
-          transition:"opacity 0.28s ease",
-        }}>
-          {item.title && (
-            <div style={{ fontFamily:"var(--font-playfair)", fontSize:"16px", fontWeight:400, color:"#fff", lineHeight:1.25, marginBottom: item.caption ? "6px" : 0 }}>
-              {item.title}
+    <>
+      {/* Grid */}
+      <div className="lxs-about-gallery">
+        {items.map((item, i) => {
+          const src = imageUrl(item.image)
+          const isHov = hov === i
+          return (
+            <div
+              key={item.id}
+              onClick={() => open(i)}
+              onMouseEnter={() => setHov(i)}
+              onMouseLeave={() => setHov(null)}
+              style={{ position:"relative", overflow:"hidden", border:`1px solid ${t.border}`, aspectRatio:"4/3", cursor:"zoom-in" }}
+            >
+              {src
+                ? <Image src={src} alt={item.image.alt || item.title || "Heritage piece"} fill style={{ objectFit:"cover", transition:"transform 0.5s ease", transform: isHov ? "scale(1.04)" : "scale(1)" }} sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 33vw" />
+                : <div style={{ width:"100%", height:"100%", background:t.bgSurface }} />
+              }
+              {/* Hover caption */}
+              {(item.title || item.caption) && (
+                <div style={{ position:"absolute", inset:0, background:"rgba(10,9,8,0.62)", display:"flex", flexDirection:"column", justifyContent:"flex-end", padding:"20px 22px", opacity: isHov ? 1 : 0, transition:"opacity 0.28s ease", pointerEvents:"none" }}>
+                  {item.title && <div style={{ fontFamily:"var(--font-playfair)", fontSize:"16px", fontWeight:400, color:"#fff", lineHeight:1.25, marginBottom: item.caption ? "6px" : 0 }}>{item.title}</div>}
+                  {item.caption && <div style={{ fontSize:"11.5px", fontWeight:300, color:"rgba(255,255,255,0.75)", lineHeight:1.6, letterSpacing:"0.02em" }}>{item.caption}</div>}
+                </div>
+              )}
+              {/* Zoom icon */}
+              <div style={{ position:"absolute", top:"12px", right:"12px", opacity: isHov ? 1 : 0, transition:"opacity 0.2s", pointerEvents:"none" }}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ color:"#fff", filter:"drop-shadow(0 1px 2px rgba(0,0,0,0.5))" }}>
+                  <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.4"/>
+                  <path d="M13 13L17 17" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                  <path d="M6.5 8.5H10.5M8.5 6.5V10.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                </svg>
+              </div>
             </div>
-          )}
-          {item.caption && (
-            <div style={{ fontSize:"11.5px", fontWeight:300, color:"rgba(255,255,255,0.75)", lineHeight:1.6, letterSpacing:"0.02em" }}>
-              {item.caption}
+          )
+        })}
+      </div>
+
+      {/* Lightbox */}
+      {lightbox !== null && active && (
+        <div
+          onClick={close}
+          style={{ position:"fixed", inset:0, zIndex:10000, background:"rgba(8,7,6,0.92)", backdropFilter:"blur(12px)", display:"flex", alignItems:"center", justifyContent:"center", padding:"20px" }}
+        >
+          {/* Image container */}
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{ position:"relative", maxWidth:"min(92vw, 1200px)", maxHeight:"88vh", width:"100%", display:"flex", flexDirection:"column", alignItems:"center" }}
+          >
+            <div style={{ position:"relative", width:"100%", maxHeight:"80vh", aspectRatio:"auto" }}>
+              {imageUrl(active.image) && (
+                <Image
+                  key={lightbox}
+                  src={imageUrl(active.image)!}
+                  alt={active.image.alt || active.title || "Heritage piece"}
+                  width={active.image.width ?? 1200}
+                  height={active.image.height ?? 900}
+                  style={{ objectFit:"contain", maxHeight:"80vh", width:"100%", height:"auto" }}
+                  sizes="92vw"
+                />
+              )}
             </div>
+
+            {/* Caption */}
+            {(active.title || active.caption) && (
+              <div style={{ marginTop:"16px", textAlign:"center", maxWidth:"600px" }}>
+                {active.title && <div style={{ fontFamily:"var(--font-playfair)", fontSize:"18px", fontWeight:400, color:"#fff", marginBottom: active.caption ? "6px" : 0 }}>{active.title}</div>}
+                {active.caption && <div style={{ fontSize:"12px", fontWeight:300, color:"rgba(255,255,255,0.65)", letterSpacing:"0.03em", lineHeight:1.6 }}>{active.caption}</div>}
+              </div>
+            )}
+
+            {/* Counter */}
+            <div style={{ marginTop:"12px", fontSize:"10px", letterSpacing:"0.18em", color:"rgba(255,255,255,0.35)", fontFamily:"var(--font-inter)" }}>
+              {lightbox + 1} / {items.length}
+            </div>
+          </div>
+
+          {/* Prev */}
+          {items.length > 1 && (
+            <button onClick={e => { e.stopPropagation(); prev() }}
+              style={{ position:"fixed", left:"20px", top:"50%", transform:"translateY(-50%)", background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.18)", color:"#fff", width:"44px", height:"44px", borderRadius:"50%", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"background 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.18)"}
+              onMouseLeave={e => e.currentTarget.style.background="rgba(255,255,255,0.08)"}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
           )}
+
+          {/* Next */}
+          {items.length > 1 && (
+            <button onClick={e => { e.stopPropagation(); next() }}
+              style={{ position:"fixed", right:"20px", top:"50%", transform:"translateY(-50%)", background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.18)", color:"#fff", width:"44px", height:"44px", borderRadius:"50%", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"background 0.15s" }}
+              onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.18)"}
+              onMouseLeave={e => e.currentTarget.style.background="rgba(255,255,255,0.08)"}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+          )}
+
+          {/* Close */}
+          <button onClick={close}
+            style={{ position:"fixed", top:"20px", right:"20px", background:"rgba(255,255,255,0.08)", border:"1px solid rgba(255,255,255,0.18)", color:"#fff", width:"40px", height:"40px", borderRadius:"50%", cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", transition:"background 0.15s" }}
+            onMouseEnter={e => e.currentTarget.style.background="rgba(255,255,255,0.18)"}
+            onMouseLeave={e => e.currentTarget.style.background="rgba(255,255,255,0.08)"}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+          </button>
         </div>
       )}
-    </div>
+    </>
   )
 }
 
@@ -460,12 +559,8 @@ export default function AboutPage({
               )}
             </div>
 
-            {/* Grid */}
-            <div className="lxs-about-gallery">
-              {images.gallery.map((item) => (
-                <GalleryItem key={item.id} item={item} />
-              ))}
-            </div>
+            {/* Grid + lightbox */}
+            <GallerySection items={images.gallery} />
           </div>
         </section>
       )}
