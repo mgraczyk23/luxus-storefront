@@ -564,6 +564,7 @@ a {
 
   .lxs-about-hero       { grid-template-columns: 1fr; gap: 40px; }
   .lxs-about-story      { grid-template-columns: 1fr; gap: 40px; }
+  .lxs-about-story-images { position: static !important; top: auto !important; }
   .lxs-about-values     { grid-template-columns: 1fr 1fr; }
   .lxs-about-mission    { grid-template-columns: 1fr; gap: 40px; }
   .lxs-about-curation   { grid-template-columns: 1fr; gap: 40px; }

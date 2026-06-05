@@ -216,23 +216,23 @@ export default function AboutPage({
       <section style={{ padding:"96px 40px" }}>
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div className="lxs-about-story">
-            <div style={{ position:"sticky",top:"96px",display:"flex",flexDirection:"column",gap:"14px" }}>
-              <div style={{ position:"relative",height:"320px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+            <div className="lxs-about-story-images" style={{ position:"sticky",top:"96px",display:"flex",flexDirection:"column",gap:"14px" }}>
+              <div style={{ position:"relative",aspectRatio:"4/3",border:`1px solid ${t.border}`,overflow:"hidden" }}>
                 {images.storyImageMain
                   ? <Image src={imageUrl(images.storyImageMain)!} alt={images.storyImageMain.alt || "Our story"} fill style={{ objectFit:"cover" }} sizes="(max-width:768px) 100vw, 40vw" />
                   : <ImgBox index={1} style={{ width:"100%",height:"100%" }}/>
                 }
               </div>
               <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:"14px" }}>
-                <div style={{ position:"relative",height:"180px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+                <div style={{ position:"relative",aspectRatio:"4/3",border:`1px solid ${t.border}`,overflow:"hidden" }}>
                   {images.storyImageLeft
-                    ? <Image src={imageUrl(images.storyImageLeft)!} alt={images.storyImageLeft.alt || ""} fill style={{ objectFit:"cover" }} sizes="20vw" />
+                    ? <Image src={imageUrl(images.storyImageLeft)!} alt={images.storyImageLeft.alt || ""} fill style={{ objectFit:"cover" }} sizes="(max-width:768px) 50vw, 20vw" />
                     : <ImgBox index={2} style={{ width:"100%",height:"100%" }}/>
                   }
                 </div>
-                <div style={{ position:"relative",height:"180px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+                <div style={{ position:"relative",aspectRatio:"4/3",border:`1px solid ${t.border}`,overflow:"hidden" }}>
                   {images.storyImageRight
-                    ? <Image src={imageUrl(images.storyImageRight)!} alt={images.storyImageRight.alt || ""} fill style={{ objectFit:"cover" }} sizes="20vw" />
+                    ? <Image src={imageUrl(images.storyImageRight)!} alt={images.storyImageRight.alt || ""} fill style={{ objectFit:"cover" }} sizes="(max-width:768px) 50vw, 20vw" />
                     : <ImgBox index={3} style={{ width:"100%",height:"100%" }}/>
                   }
                 </div>
@@ -348,7 +348,7 @@ export default function AboutPage({
                 ))}
               </div>
             </div>
-            <div style={{ position:"relative",aspectRatio:"1/1",maxHeight:"500px",border:`1px solid ${t.border}`,overflow:"hidden" }}>
+            <div style={{ position:"relative",aspectRatio:"4/3",border:`1px solid ${t.border}`,overflow:"hidden" }}>
               {images.valuesImage
                 ? <Image src={imageUrl(images.valuesImage)!} alt={images.valuesImage.alt || "Curation standards"} fill style={{ objectFit:"cover" }} sizes="(max-width:768px) 100vw, 40vw" />
                 : <ImgBox index={4} style={{ width:"100%",height:"100%" }}/>
