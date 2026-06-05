@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart } from '@/context/CartContext'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
@@ -436,7 +435,6 @@ const fmt = (n: number) =>
 function ProductCard({ product }: { product: MappedProduct }) {
   const { t } = useTheme()
   const { addItem } = useCart()
-  const router = useRouter()
   const [hov, setHov] = useState(false)
   const [wishlisted, setWishlisted] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)

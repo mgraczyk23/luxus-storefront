@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart } from '@/context/CartContext'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
@@ -129,7 +128,7 @@ function ProductCard({ product, small = false }: {
   const [hov, setHov] = useState(false)
   const [wishlisted, setWishlisted] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
-  const router = useRouter()
+
 
   useEffect(() => { setWishlisted(isWishlisted(product.handle)) }, [product.handle])
 
@@ -553,7 +552,7 @@ export default function HomePage({
   const [tab, setTab] = useState<"collections" | "categories">("collections")
   const [email, setEmail] = useState("")
   const [nlStatus, setNlStatus] = useState<"idle" | "submitting" | "success" | "duplicate" | "error">("idle")
-  const router = useRouter()
+
 
   const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL ?? "https://api.luxus-collection.com/cms"
 

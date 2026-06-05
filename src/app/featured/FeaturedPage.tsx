@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart } from '@/context/CartContext'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
@@ -20,7 +19,7 @@ const CONDITION_LABELS: Record<string, string> = {
 function ProductCard({ product }: { product: MappedProduct }) {
   const { t } = useTheme()
   const { addItem } = useCart()
-  const router = useRouter()
+
   const [hov, setHov] = useState(false)
   const [wishlisted, setWishlisted] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
