@@ -456,14 +456,8 @@ function ProductCard({ product }: { product: MappedProduct }) {
     setTimeout(() => setAddedToCart(false), 1800)
   }
 
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    router.push(`/product/${product.handle}`)
-  }
-
   return (
-    <div
-      onClick={() => router.push(`/product/${product.handle}`)}
+    <Link href={`/product/${product.handle}`}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
@@ -474,6 +468,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
         transform: hov ? 'translateY(-4px)' : 'translateY(0)',
         boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1),0 0 0 1px ${t.gold}25` : '0 2px 8px rgba(0,0,0,0.05)',
         cursor: 'pointer', fontFamily: 'var(--font-inter)',
+        textDecoration: 'none', color: 'inherit',
         display: 'flex', flexDirection: 'column', flex: 1, height: '100%',
       }}
     >
@@ -547,12 +542,11 @@ function ProductCard({ product }: { product: MappedProduct }) {
               </svg>
             </button>
             {!product.in_stock || product.contact_for_pricing ? (
-              <button
-                onClick={handleViewDetails}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: '1px', opacity: hov ? 1 : 0.65, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}
+              <span
+                style={{ cursor: 'pointer', fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: '1px', opacity: hov ? 1 : 0.65, transition: 'opacity 0.2s', whiteSpace: 'nowrap' }}
               >
                 View Details
-              </button>
+              </span>
             ) : (
               <button
                 onClick={handleAddToCart}
@@ -571,7 +565,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

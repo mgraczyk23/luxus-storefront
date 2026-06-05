@@ -90,20 +90,16 @@ function ProductCard({ product }: { product: MappedProduct }) {
     setTimeout(() => setAddedToCart(false), 1800)
   }
 
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    router.push(`/product/${product.handle}`)
-  }
 
   return (
-    <div
-      onClick={() => router.push(`/product/${product.handle}`)}
+    <Link href={`/product/${product.handle}`}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
         background: hov ? t.bgCardHover : t.bgCard,
         border: `1px solid ${hov ? t.gold + "55" : t.border}`,
         borderRadius: "1px", overflow: "hidden",
+        textDecoration: "none", color: "inherit",
         transition: "all 0.28s ease",
         transform: hov ? "translateY(-4px)" : "translateY(0)",
         boxShadow: hov
@@ -190,12 +186,11 @@ function ProductCard({ product }: { product: MappedProduct }) {
             </button>
             {/* CTA */}
             {!product.in_stock || product.contact_for_pricing ? (
-              <button
-                onClick={handleViewDetails}
-                style={{ background: "none", border: "none", cursor: "pointer", padding: "2px 0", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}
+              <span
+                style={{ cursor: "pointer", padding: "2px 0", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}
               >
                 View Details
-              </button>
+              </span>
             ) : (
               <button
                 onClick={handleAddToCart}
@@ -214,7 +209,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 

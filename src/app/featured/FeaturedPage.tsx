@@ -40,15 +40,10 @@ function ProductCard({ product }: { product: MappedProduct }) {
     setTimeout(() => setAddedToCart(false), 1800)
   }
 
-  const handleViewDetails = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    router.push(`/product/${product.handle}`)
-  }
-
   return (
-    <div onClick={() => router.push(`/product/${product.handle}`)}
+    <Link href={`/product/${product.handle}`}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{ background: hov ? t.bgCardHover : t.bgCard, border: `1px solid ${hov ? t.gold + "55" : t.border}`, borderRadius: "1px", overflow: "hidden", transition: "all 0.28s ease", transform: hov ? "translateY(-3px)" : "none", boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1)` : "0 2px 8px rgba(0,0,0,0.04)", cursor: "pointer", display: "flex", flexDirection: "column", fontFamily: "var(--font-inter)" }}>
+      style={{ background: hov ? t.bgCardHover : t.bgCard, border: `1px solid ${hov ? t.gold + "55" : t.border}`, borderRadius: "1px", overflow: "hidden", transition: "all 0.28s ease", transform: hov ? "translateY(-3px)" : "none", boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1)` : "0 2px 8px rgba(0,0,0,0.04)", cursor: "pointer", display: "flex", flexDirection: "column", fontFamily: "var(--font-inter)", textDecoration: "none", color: "inherit" }}>
       <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#f5f5f6", flexShrink: 0 }}>
         {product.thumbnail
           ? <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"/>
@@ -93,12 +88,11 @@ function ProductCard({ product }: { product: MappedProduct }) {
               </svg>
             </button>
             {!product.in_stock || product.contact_for_pricing ? (
-              <button
-                onClick={handleViewDetails}
-                style={{ background: "none", border: "none", cursor: "pointer", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}
+              <span
+                style={{ cursor: "pointer", fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: t.gold, borderBottom: `1px solid ${t.gold}55`, paddingBottom: "1px", opacity: hov ? 1 : 0.65, transition: "opacity 0.2s" }}
               >
                 View Details
-              </button>
+              </span>
             ) : (
               <button
                 onClick={handleAddToCart}
@@ -117,7 +111,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
 
