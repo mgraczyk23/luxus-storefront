@@ -5,7 +5,7 @@ import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
 
 function toSlug(str: string) {

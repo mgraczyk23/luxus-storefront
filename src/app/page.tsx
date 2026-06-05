@@ -7,7 +7,7 @@ export const revalidate = false
 
 // Shared fields string — use * prefix (not +) so URLSearchParams encodes it as %2A,
 // which Medusa decodes back to * and expands the relation correctly.
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,+metadata,*attribute_values,*attribute_values.attribute_type,*tags,*type"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,+metadata,*tags,*type"
 
 const FALLBACK_HERO = {
   label: "Featured Piece",
@@ -39,7 +39,7 @@ export default async function Home() {
     getCollections(),
     getCategories(),
     // Fetch product→category+brand associations to sort categories and derive live brand list
-    getProducts({ limit: "200", fields: "id,*categories,*attribute_values,*attribute_values.attribute_type" }),
+    getProducts({ limit: "200", fields: "id,*categories" }),
     getPosts({ limit: 6, noContent: true }),
     getHeroSlides(),
     getShopTileImages(),

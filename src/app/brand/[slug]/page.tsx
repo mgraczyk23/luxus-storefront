@@ -4,7 +4,7 @@ import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
 
 // Treats "&" and "and" as equivalent so "Smith & Wesson" and
@@ -57,7 +57,7 @@ export const revalidate = false
 
 export async function generateStaticParams() {
   try {
-    const res = await getProducts({ limit: "500", fields: "id,*attribute_values,*attribute_values.attribute_type" })
+    const res = await getProducts({ limit: "500", fields: "id" })
     const slugs = new Set<string>()
     for (const p of (res.products ?? [])) {
       for (const av of (p.attribute_values ?? [])) {

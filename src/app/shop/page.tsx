@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export const revalidate = false
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*tags,*type"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*tags,*type"
 const PAGE_SIZE = 100
 
 async function getAllProducts(): Promise<ReturnType<typeof mapMedusaProduct>[]> {

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Browse collectible and vintage firearms curated by the Luxus Collection.",
 }
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*tags"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*tags"
 const PAGE_SIZE = 100
 
 async function getAllProducts() {
