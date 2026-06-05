@@ -740,7 +740,7 @@ export default function ProductDetailPage({
       {visibleTabs.length > 0 && (
         <div className="lxs-pdp-section-wrap" style={{ maxWidth: "1440px", margin: "0 auto", padding: "64px 40px 0" }}>
           {/* Tab bar */}
-          <div style={{ display: "flex", borderBottom: `1px solid ${t.border}`, marginBottom: "44px", overflowX: "hidden" }}>
+          <div style={{ display: "flex", borderBottom: `1px solid ${t.border}`, marginBottom: "44px", overflow: "hidden" }}>
             {visibleTabs.map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)}
                 style={{
