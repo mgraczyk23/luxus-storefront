@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 
 // Include tags and type so mapMedusaProduct can populate is_firearm and tags[]
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,+metadata,*tags,*type"
+const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,+metadata,*tags,*type"
 
 export default async function Page() {
   const [settingsRes, textRes, classifiedsRes, tagsRes] = await Promise.allSettled([
