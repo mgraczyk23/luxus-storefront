@@ -1,8 +1,11 @@
 import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
+import { warmCache, TAG_PAGES } from "@/lib/warm-cache"
 
-const STATIC_TAGS = new Set(['site-settings', 'posts', 'comments', 'subscribers', 'products', 'hero-slides', 'about-page', 'consignment-page', 'faq', 'contact-page', 'support-page', 'featured-page', 'brands', 'shop-tile-images', 'policy-shipping', 'policy-privacy', 'policy-terms', 'resource-pages'])
-const DYNAMIC_PREFIXES = ['brand-', 'resource-brand-', 'resource-page-', 'post-']
+const STATIC_TAGS = new Set(
+  Object.keys(TAG_PAGES).filter(k => !k.endsWith("-"))
+)
+const DYNAMIC_PREFIXES = Object.keys(TAG_PAGES).filter(k => k.endsWith("-"))
 
 function isAllowedTag(tag: string): boolean {
   if (STATIC_TAGS.has(tag)) return true
@@ -24,23 +27,9 @@ export async function GET(req: NextRequest) {
   }
 
   revalidateTag(tag, {})
-
-  // Warm key pages after product revalidations
-  if (tag === "products") warmCache().catch(() => {})
+  warmCache(tag).catch(() => {})
 
   return NextResponse.json({ revalidated: true, tag, ts: Date.now() })
-}
-
-// Pre-warm the most-visited pages after a revalidation so regeneration
-// happens in the background before users arrive, not on their request.
-async function warmCache() {
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dev.luxus-collection.com"
-  await Promise.allSettled([
-    fetch(`${origin}/shop`,                        { cache: "no-store" }),
-    fetch(`${origin}/`,                            { cache: "no-store" }),
-    fetch(`${origin}/shop/collectible-firearms`,   { cache: "no-store" }),
-    fetch(`${origin}/shop/modern-firearms`,        { cache: "no-store" }),
-  ])
 }
 
 // POST — called by Medusa webhooks / product changes
@@ -49,9 +38,7 @@ export async function POST(req: NextRequest) {
 
   revalidateTag("products", {})
   revalidatePath("/", "layout")
-
-  // Trigger background cache warming — don't await, respond immediately
-  warmCache().catch(() => {})
+  warmCache("products").catch(() => {})
 
   return NextResponse.json({ revalidated: true })
 }

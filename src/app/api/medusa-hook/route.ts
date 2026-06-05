@@ -1,5 +1,6 @@
 import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
+import { warmCache } from "@/lib/warm-cache"
 
 // Medusa webhook endpoint — called automatically when products are
 // created, updated, or deleted in the Medusa admin.
@@ -54,14 +55,7 @@ export async function POST(req: NextRequest) {
 
   revalidateTag("products", { expire: 0 })
   revalidatePath("/", "layout")
-
-  // Warm key pages in the background so regeneration happens before users arrive
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dev.luxus-collection.com"
-  Promise.allSettled([
-    fetch(`${origin}/shop`,                      { cache: "no-store" }),
-    fetch(`${origin}/`,                          { cache: "no-store" }),
-    fetch(`${origin}/shop/collectible-firearms`, { cache: "no-store" }),
-  ]).catch(() => {})
+  warmCache("products").catch(() => {})
 
   return NextResponse.json({ revalidated: true, event: eventName })
 }
