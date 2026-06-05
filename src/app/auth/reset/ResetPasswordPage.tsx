@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "var(--font-inter)" }}>
       <style>{`input::placeholder { color: ${t.textDim}; }`}</style>
 
-      <div style={{ paddingTop: "68px", minHeight: "calc(100vh - 68px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "68px 40px 40px" }}>
+      <div style={{ minHeight: "calc(100vh - 68px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 40px 40px" }}>
         <div style={{ width: "100%", maxWidth: "420px" }}>
 
           {/* Header */}
