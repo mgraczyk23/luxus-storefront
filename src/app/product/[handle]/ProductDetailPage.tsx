@@ -150,10 +150,12 @@ export default function ProductDetailPage({
   product,
   relatedProducts,
   settings,
+  serverSpecs,
 }: {
   product: MappedProduct
   relatedProducts: MappedProduct[]
   settings?: SiteSettings
+  serverSpecs?: Record<string, string> | null
 }) {
   const { t } = useTheme()
   const { addItem } = useCart()
@@ -242,7 +244,9 @@ export default function ProductDetailPage({
   const images = product.images.length > 0 ? product.images : []
   const hasImages = images.length > 0
 
-  // Build spec table: attribute-derived rows first, then any explicit metadata specs
+  // Build spec table: prefer server-fetched specs (from /specs endpoint — includes product_spec
+  // table fields: Overall Length, Weight, Frame Material, Grips, Sights, Finish, Optics Ready,
+  // plus all attribute-derived rows). Fall back to attribute + metadata values.
   const baseSpecs: Record<string, string> = {}
   if (product.attributes?.brand)             baseSpecs["Brand"]             = product.attributes.brand
   if (product.attributes?.model)             baseSpecs["Model"]             = product.attributes.model
@@ -251,7 +255,9 @@ export default function ProductDetailPage({
   if (product.attributes?.barrel_length)     baseSpecs["Barrel Length"]     = product.attributes.barrel_length
   if (product.attributes?.frame_color)       baseSpecs["Frame Color"]       = product.attributes.frame_color
   if (product.attributes?.magazine_capacity) baseSpecs["Magazine Capacity"] = product.attributes.magazine_capacity
-  const specEntries = Object.entries({ ...baseSpecs, ...(product.specifications ?? {}) })
+  const specEntries = serverSpecs
+    ? Object.entries(serverSpecs)
+    : Object.entries({ ...baseSpecs, ...(product.specifications ?? {}) })
 
   const hasTabs = {
     overview: !!(product.overview || (product.highlights?.length > 0)),

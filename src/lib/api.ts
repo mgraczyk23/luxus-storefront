@@ -31,7 +31,7 @@ export function getProduct(handle: string) {
 // ── Custom module endpoints ───────────────────────────────────────────────────
 
 export function getProductSpecs(productId: string) {
-  return storeFetch<{ specs: { label: string; value: string }[] | null }>(
+  return storeFetch<{ specs: Record<string, string> | null }>(
     `/store/products/${productId}/specs`
   )
 }
