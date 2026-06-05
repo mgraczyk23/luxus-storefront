@@ -551,8 +551,8 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
       }
       if (filters.stockStatus === 'in_stock'    && !p.in_stock) return false
       if (filters.stockStatus === 'out_of_stock' && p.in_stock) return false
-      if (filters.firearmType === 'collectible' && p.product_type !== 'Collectibles') return false
-      if (filters.firearmType === 'modern'      && p.product_type !== 'Modern')       return false
+      if (filters.firearmType === 'collectible' && !p.tags.includes('Collectibles Firearms')) return false
+      if (filters.firearmType === 'modern'      && !p.tags.includes('Modern Firearms'))       return false
       return true
     })
   }, [products, filters, q, searchHandles, searchDone])
@@ -703,7 +703,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
             label={opt.label}
             checked={filters.firearmType === opt.value}
             onChange={() => { setPage(1); setFilters(prev => ({ ...prev, firearmType: opt.value })) }}
-            count={opt.value === 'all' ? undefined : products.filter(p => opt.value === 'collectible' ? p.product_type === 'Collectibles' : p.product_type === 'Modern').length}
+            count={opt.value === 'all' ? undefined : products.filter(p => opt.value === 'collectible' ? p.tags.includes('Collectibles Firearms') : p.tags.includes('Modern Firearms')).length}
           />
         ))}
       </FilterSection>

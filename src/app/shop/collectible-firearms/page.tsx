@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   description: "Browse collectible and vintage firearms curated by the Luxus Collection.",
 }
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*type"
+const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type,*tags"
 const PAGE_SIZE = 100
 
 async function getAllProducts() {
@@ -27,7 +27,7 @@ async function getAllProducts() {
     )
     for (const page of pages) raw.push(...(page.products ?? []))
   }
-  return raw.map(mapMedusaProduct).filter(p => p.product_type === "Collectibles")
+  return raw.map(mapMedusaProduct).filter(p => p.tags.includes('Collectibles Firearms'))
 }
 
 export default async function CollectibleFirearmsPage() {
