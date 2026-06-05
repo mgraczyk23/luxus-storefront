@@ -282,7 +282,7 @@ export default function AboutPage({
 
       {/* HERO */}
       <div style={{ position:"relative",minHeight:"72vh",display:"flex",alignItems:"center",overflow:"hidden" }}>
-        <div style={{ position:"absolute",inset:0,background:"radial-gradient(ellipse at 65% 50%,#f5edd8,#f0e8d0 60%,#ebebee 100%)" }}/>
+        <div style={{ position:"absolute",inset:0,background:"radial-gradient(ellipse at 65% 50%,#f2f2f5,#ececef 60%,#e6e6ea 100%)" }}/>
         <div style={{ position:"absolute",bottom:0,right:0,width:"50%",height:"60%",background:`radial-gradient(ellipse at bottom right,${t.gold}0d,transparent 65%)` }}/>
         <div style={{ position:"absolute",left:"50%",top:"10%",bottom:"10%",width:"1px",background:`linear-gradient(to bottom,transparent,${t.gold}28,transparent)` }}/>
 
