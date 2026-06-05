@@ -24,7 +24,23 @@ export async function GET(req: NextRequest) {
   }
 
   revalidateTag(tag, {})
+
+  // Warm key pages after product revalidations
+  if (tag === "products") warmCache().catch(() => {})
+
   return NextResponse.json({ revalidated: true, tag, ts: Date.now() })
+}
+
+// Pre-warm the most-visited pages after a revalidation so regeneration
+// happens in the background before users arrive, not on their request.
+async function warmCache() {
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dev.luxus-collection.com"
+  await Promise.allSettled([
+    fetch(`${origin}/shop`,                        { cache: "no-store" }),
+    fetch(`${origin}/`,                            { cache: "no-store" }),
+    fetch(`${origin}/shop/collectible-firearms`,   { cache: "no-store" }),
+    fetch(`${origin}/shop/modern-firearms`,        { cache: "no-store" }),
+  ])
 }
 
 // POST — called by Medusa webhooks / product changes
@@ -33,6 +49,9 @@ export async function POST(req: NextRequest) {
 
   revalidateTag("products", {})
   revalidatePath("/", "layout")
+
+  // Trigger background cache warming — don't await, respond immediately
+  warmCache().catch(() => {})
 
   return NextResponse.json({ revalidated: true })
 }

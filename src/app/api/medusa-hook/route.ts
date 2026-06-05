@@ -55,5 +55,13 @@ export async function POST(req: NextRequest) {
   revalidateTag("products", { expire: 0 })
   revalidatePath("/", "layout")
 
+  // Warm key pages in the background so regeneration happens before users arrive
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dev.luxus-collection.com"
+  Promise.allSettled([
+    fetch(`${origin}/shop`,                      { cache: "no-store" }),
+    fetch(`${origin}/`,                          { cache: "no-store" }),
+    fetch(`${origin}/shop/collectible-firearms`, { cache: "no-store" }),
+  ]).catch(() => {})
+
   return NextResponse.json({ revalidated: true, event: eventName })
 }
