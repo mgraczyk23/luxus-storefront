@@ -232,7 +232,7 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "var(--font-inter)" }}>
 
       {/* ── Page banner ── */}
-      <div style={{ paddingTop: "68px" }}>
+      <div>
         <div style={{ background: `linear-gradient(to bottom,${t.bgSurface},${t.bg})`, borderBottom: `1px solid ${t.border}`, padding: "48px 40px 0" }}>
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             {/* Breadcrumb */}
