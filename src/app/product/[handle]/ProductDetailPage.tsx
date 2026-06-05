@@ -330,8 +330,25 @@ export default function ProductDetailPage({
         </div>
       </div>
 
+      {/* ── Page title ──────────────────────────────────────────────────── */}
+      <div style={{ paddingTop: "68px", background: t.bgSurface }}>
+        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "28px 40px 20px" }}>
+          {product.brand && (
+            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+              <div style={{ width: "16px", height: "1px", background: t.gold }} />
+              <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
+                {product.brand}
+              </span>
+            </div>
+          )}
+          <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3.2vw,46px)", fontWeight: 300, color: t.text, lineHeight: 1.08, letterSpacing: "0.01em", margin: 0 }}>
+            {product.title}
+          </h1>
+        </div>
+      </div>
+
       {/* ── Breadcrumb ──────────────────────────────────────────────────── */}
-      <div style={{ paddingTop: "68px", background: t.bgSurface, borderBottom: `1px solid ${t.border}` }}>
+      <div style={{ background: t.bgSurface, borderBottom: `1px solid ${t.border}` }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "14px 40px", display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           {[
             { label: "Home", href: "/" },
@@ -460,25 +477,14 @@ export default function ProductDetailPage({
           {/* RIGHT: Info */}
           <div ref={infoPanelRef} style={{ minWidth: 0 }}>
 
-            {/* Brand + SKU */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ width: "16px", height: "1px", background: t.gold }} />
-                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
-                  {product.brand}
-                </span>
-              </div>
-              {product.sku && (
+            {/* SKU */}
+            {product.sku && (
+              <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "14px" }}>
                 <span style={{ fontSize: "9.5px", color: t.textDim, letterSpacing: "0.06em", fontWeight: 300 }}>
                   SKU: {product.sku}
                 </span>
-              )}
-            </div>
-
-            {/* Title */}
-            <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3.2vw,46px)", fontWeight: 300, color: t.text, lineHeight: 1.08, letterSpacing: "0.01em", marginBottom: "10px" }}>
-              {product.title}
-            </h1>
+              </div>
+            )}
 
             {/* Subtitle */}
             {product.subtitle && (
