@@ -8,6 +8,7 @@ import { useCart } from '@/context/CartContext'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import type { MappedProduct } from '@/lib/medusa'
 import type { HeroSlidesData } from '@/lib/payload'
+import type { GunBrokerListing } from '@/lib/gunbroker'
 import HeroSection from './HeroSection'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
@@ -35,17 +36,7 @@ function toSlug(str: string) {
     .replace(/^-|-$/g, '')
 }
 
-type Auction = {
-  id: number
-  title: string
-  thumbnail: string | null
-  currentBid: number
-  bidCount: number
-  timeLeft: string
-  buyNowPrice: number | null
-  reserveMet: boolean | null
-  gunBrokerUrl: string
-}
+type Auction = GunBrokerListing
 
 type Article = {
   id: string
@@ -57,19 +48,7 @@ type Article = {
   img?: string | null
 }
 
-/* ── Static mock data ─────────────────────────────────────────────────── */
-
 type BrandItem = { name: string; slug: string }
-
-const MOCK_AUCTIONS: Auction[] = [
-  { id: 1086459123, title: "Wilson Combat Bill Wilson Carry .45 ACP",  thumbnail: null, currentBid: 2850, bidCount: 14, timeLeft: "2d 14h", buyNowPrice: 3995, reserveMet: true,  gunBrokerUrl: "https://www.gunbroker.com/item/1086459123" },
-  { id: 1086459124, title: "Korth Sky Marshal 9mm, Engraved Edition",  thumbnail: null, currentBid: 4200, bidCount: 9,  timeLeft: "1d 06h", buyNowPrice: null, reserveMet: false, gunBrokerUrl: "https://www.gunbroker.com/item/1086459124" },
-  { id: 1086459125, title: "Colt Python 6-inch, 1981 Production",      thumbnail: null, currentBid: 3475, bidCount: 22, timeLeft: "4d 22h", buyNowPrice: 4250, reserveMet: true,  gunBrokerUrl: "https://www.gunbroker.com/item/1086459125" },
-  { id: 1086459126, title: "Nighthawk Custom President, Damascus",     thumbnail: null, currentBid: 6100, bidCount: 5,  timeLeft: "5h 42m", buyNowPrice: null, reserveMet: true,  gunBrokerUrl: "https://www.gunbroker.com/item/1086459126" },
-  { id: 1086459127, title: "Cabot Guns S100 Mirror Polish",            thumbnail: null, currentBid: 7250, bidCount: 11, timeLeft: "3d 18h", buyNowPrice: 8900, reserveMet: true,  gunBrokerUrl: "https://www.gunbroker.com/item/1086459127" },
-  { id: 1086459128, title: "SIG Sauer P210 Target, Swiss Production",  thumbnail: null, currentBid: 1675, bidCount: 3,  timeLeft: "6d 02h", buyNowPrice: 2199, reserveMet: false, gunBrokerUrl: "https://www.gunbroker.com/item/1086459128" },
-  { id: 1086459129, title: "Korth Mongoose .44 Magnum, Stainless",     thumbnail: null, currentBid: 5800, bidCount: 17, timeLeft: "9h 18m", buyNowPrice: null, reserveMet: true,  gunBrokerUrl: "https://www.gunbroker.com/item/1086459129" },
-]
 
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 
@@ -552,6 +531,14 @@ export default function HomePage({
   const [tab, setTab] = useState<"collections" | "categories">("collections")
   const [email, setEmail] = useState("")
   const [nlStatus, setNlStatus] = useState<"idle" | "submitting" | "success" | "duplicate" | "error">("idle")
+  const [auctions, setAuctions] = useState<Auction[]>([])
+
+  useEffect(() => {
+    fetch('/api/gunbroker/listings')
+      .then(r => r.ok ? r.json() : { listings: [] })
+      .then(d => setAuctions(d.listings ?? []))
+      .catch(() => {})
+  }, [])
 
 
   const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL ?? "https://api.luxus-collection.com/cms"
@@ -702,44 +689,41 @@ export default function HomePage({
       )}
 
       {/* ══════════════════════════════════════════════════════════════ */}
-      {/* LIVE GUNBROKER AUCTIONS                                        */}
+      {/* LIVE GUNBROKER AUCTIONS — hidden when no active listings       */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section className="lxs-home-section">
-        <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
-            <SectionHead eyebrow="Live at Auction" title="Currently on GunBroker" />
-            <a
-              href="https://www.gunbroker.com/All/search?Sort=13&Keywords=Luxus%20Collection"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
-              onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
-              onMouseLeave={e => (e.currentTarget.style.color = t.gold)}
-            >
-              View All on GunBroker
-              <svg width="10" height="10" viewBox="0 0 11 11" fill="none">
-                <path d="M3 1H10V8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M10 1L4.5 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                <path d="M1 4V10H7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </a>
+      {auctions.length > 0 && (
+        <section className="lxs-home-section">
+          <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+              <SectionHead eyebrow="Live at Auction" title="Currently on GunBroker" />
+              <a
+                href={auctions[0]?.gunBrokerUrl?.includes('sandbox')
+                  ? 'https://www.sandbox.gunbroker.com/All/search?Sort=13&Keywords=Luxus%20Collection'
+                  : 'https://www.gunbroker.com/All/search?Sort=13&Keywords=Luxus%20Collection'}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
+                onMouseLeave={e => (e.currentTarget.style.color = t.gold)}
+              >
+                View All on GunBroker
+                <svg width="10" height="10" viewBox="0 0 11 11" fill="none">
+                  <path d="M3 1H10V8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M10 1L4.5 6.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                  <path d="M1 4V10H7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+            <div className="lxs-auction-grid" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "18px" }}>
+              {auctions.map(a => (
+                <div key={a.id} style={{ flex: "0 1 calc(25% - 13.5px)", minWidth: "240px", maxWidth: "calc(25% - 13.5px)", display: "grid" }}>
+                  <AuctionCard auction={a} />
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="lxs-auction-grid" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "18px" }}>
-            {MOCK_AUCTIONS.map(a => (
-              <div key={a.id} style={{ flex: "0 1 calc(25% - 13.5px)", minWidth: "240px", maxWidth: "calc(25% - 13.5px)", display: "grid" }}>
-                <AuctionCard auction={a} />
-              </div>
-            ))}
-          </div>
-          <div style={{ marginTop: "32px", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}>
-            <div style={{ width: "20px", height: "1px", background: t.border }} />
-            <span style={{ fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 400 }}>
-              Test data · Live GunBroker integration coming soon
-            </span>
-            <div style={{ width: "20px", height: "1px", background: t.border }} />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* FROM THE BLOG                                                  */}
