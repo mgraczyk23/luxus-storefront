@@ -416,6 +416,7 @@ a {
 
 /* ── Homepage layout — class-based (no inline, fully responsive) ─────── */
 .lxs-hero-intro-grid   { display: grid; grid-template-columns: 1.05fr 1fr; gap: 72px; align-items: center; }
+.lxs-hero-featured-wrap { min-height: 300px; }
 .lxs-hero-brand-intro  { padding: 84px 40px 64px; }
 .lxs-hero-tagline      { margin-bottom: 56px; }
 .lxs-home-section      { padding: 96px 40px; }
@@ -436,15 +437,16 @@ a {
 }
 
 @media (max-width: 860px) {
-  .lxs-hero-intro-grid   { grid-template-columns: 1fr; gap: 40px; }
-  .lxs-hero-brand-intro  { padding: 56px 24px 48px; }
-  .lxs-hero-tagline      { margin-bottom: 36px; }
+  .lxs-hero-intro-grid   { grid-template-columns: 1fr; gap: 24px; }
+  .lxs-hero-brand-intro  { padding: 48px 24px 40px; }
+  .lxs-hero-tagline      { margin-bottom: 28px; }
+  .lxs-hero-featured-wrap { min-height: 0; }
 }
 
 @media (max-width: 640px) {
-  .lxs-hero-intro-grid   { gap: 28px; }
-  .lxs-hero-brand-intro  { padding: 40px 18px 36px; }
-  .lxs-hero-tagline      { margin-bottom: 28px; }
+  .lxs-hero-intro-grid   { gap: 16px; }
+  .lxs-hero-brand-intro  { padding: 36px 18px 28px; }
+  .lxs-hero-tagline      { margin-bottom: 22px; }
 }
 
 @media (max-width: 640px) {

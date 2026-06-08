@@ -233,7 +233,7 @@ export default function HeroSection({
             </div>
 
             {/* Right: featured images slider */}
-            <div style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center", minHeight: "300px" }}>
+            <div className="lxs-hero-featured-wrap" style={{ position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}>
               <div style={{
                 position: "relative",
                 width: "min(100%, 460px)",
