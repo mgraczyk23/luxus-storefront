@@ -694,7 +694,7 @@ export default function HomePage({
               <a
                 href={auctions[0]?.gunBrokerUrl?.includes('sandbox')
                   ? 'https://www.sandbox.gunbroker.com/All/search?Sort=13&Keywords=Luxus%20Collection'
-                  : 'https://www.gunbroker.com/All/search?Sort=13&Keywords=Luxus%20Collection'}
+                  : 'https://www.gunbroker.com/all/search?includesellers=1167422'}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
