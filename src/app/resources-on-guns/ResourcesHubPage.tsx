@@ -78,6 +78,7 @@ function BrandCard({ brand }: { brand: PayloadBrand }) {
 type SearchResult =
   | { type: 'brand';   brand: PayloadBrand }
   | { type: 'series';  seriesName: string; brandName: string; brandSlug: string }
+  | { type: 'catalog'; title: string; brandName: string; brandSlug: string }
   | { type: 'page';    title: string; excerpt: string | null; brandName: string; brandSlug: string; slug: string }
 
 export default function ResourcesHubPage({
@@ -114,10 +115,21 @@ export default function ResourcesHubPage({
           const key = `series:${b.slug}:${m.name}`
           if (!seen.has(key)) {
             seen.add(key)
-            // Also add the brand if not already added
             const bKey = `brand:${b.id}`
             if (!seen.has(bKey)) { seen.add(bKey); results.push({ type: 'brand', brand: b }) }
             results.push({ type: 'series', seriesName: m.name, brandName: b.name, brandSlug: b.slug })
+          }
+        }
+      }
+      // Catalog matches → link to brand profile
+      for (const c of b.catalogs ?? []) {
+        if (matchQ(c.title)) {
+          const key = `catalog:${b.slug}:${c.id}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            const bKey = `brand:${b.id}`
+            if (!seen.has(bKey)) { seen.add(bKey); results.push({ type: 'brand', brand: b }) }
+            results.push({ type: 'catalog', title: c.title, brandName: b.name, brandSlug: b.slug })
           }
         }
       }
@@ -218,6 +230,26 @@ export default function ResourcesHubPage({
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '3px' }}>Model Series — {r.brandName}</div>
                             <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '17px', fontWeight: 400, color: t.text }}>{r.seriesName}</div>
+                          </div>
+                          <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ color: t.textDim, flexShrink: 0 }}><path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                        </div>
+                      </Link>
+                    )
+                  }
+                  if (r.type === 'catalog') {
+                    return (
+                      <Link key={`cat-${r.brandSlug}-${r.title}`} href={`/resources-on-guns/${r.brandSlug}`} style={{ textDecoration: 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '16px 20px', background: '#fff', borderBottom: i < searchResults.length - 1 ? `1px solid ${t.border}` : 'none', transition: 'background 0.15s' }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#fafafa')}
+                          onMouseLeave={e => (e.currentTarget.style.background = '#fff')}>
+                          <svg width="11" height="13" viewBox="0 0 11 13" fill="none" style={{ flexShrink: 0, color: t.textDim }}>
+                            <path d="M1 1h6l3 3v8H1V1z" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+                            <path d="M7 1v3h3" stroke="currentColor" strokeWidth="1.2"/>
+                            <path d="M2.5 6.5h6M2.5 8.5h4" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round"/>
+                          </svg>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.textDim, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '3px' }}>Product Catalog — {r.brandName}</div>
+                            <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '17px', fontWeight: 400, color: t.text }}>{r.title}</div>
                           </div>
                           <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ color: t.textDim, flexShrink: 0 }}><path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         </div>

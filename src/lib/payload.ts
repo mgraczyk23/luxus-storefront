@@ -422,6 +422,7 @@ export async function getBrands(opts: { featuredOnly?: boolean; hubOnly?: boolea
 
 export type PayloadBrandForSearch = PayloadBrand & {
   modelSeries: { id: string; name: string; description: string | null }[]
+  catalogs:    { id: string; title: string }[]
 }
 
 export async function getBrandsForSearch(): Promise<PayloadBrandForSearch[]> {
@@ -441,6 +442,10 @@ export async function getBrandsForSearch(): Promise<PayloadBrandForSearch[]> {
         id:          String(m.id ?? Math.random()),
         name:        m.name ?? '',
         description: typeof m.description === 'string' ? m.description : null,
+      })),
+      catalogs: (b.catalogs ?? []).map((c: any) => ({
+        id:    String(c.id ?? Math.random()),
+        title: c.title ?? '',
       })),
     }))
   } catch { return [] }
