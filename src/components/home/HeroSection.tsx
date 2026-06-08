@@ -238,7 +238,7 @@ export default function HeroSection({
                 position: "relative",
                 width: "min(100%, 460px)",
                 aspectRatio: "5/3",
-                background: "#1a1a1e",
+                background: t.bg,
                 overflow: "hidden",
               }}>
                 {featuredImages.length > 0 ? (
@@ -251,7 +251,7 @@ export default function HeroSection({
                           opacity: i === featuredSlide ? 1 : 0,
                           transition: "opacity 1s ease",
                           background: `url("${img.imageUrl}") center/contain no-repeat`,
-                          backgroundColor: "#1a1a1e",
+                          backgroundColor: t.bg,
                         }}
                       />
                     ))}
@@ -260,10 +260,9 @@ export default function HeroSection({
                     {featuredImages[featuredSlide]?.caption && (
                       <div style={{
                         position: "absolute", bottom: 0, left: 0, right: 0,
-                        padding: "20px 18px 12px",
-                        background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%)",
+                        padding: "8px 12px",
                         fontSize: "11px", letterSpacing: "0.18em", textTransform: "uppercase",
-                        color: "rgba(255,255,255,0.75)", textAlign: "center",
+                        color: t.textMuted, textAlign: "center",
                       }}>
                         {featuredImages[featuredSlide].caption}
                       </div>
@@ -286,7 +285,7 @@ export default function HeroSection({
                               borderRadius: "3px",
                               border: "none",
                               cursor: "pointer",
-                              background: i === featuredSlide ? t.gold : "rgba(255,255,255,0.35)",
+                              background: i === featuredSlide ? t.gold : "rgba(0,0,0,0.2)",
                               transition: "all 0.35s ease",
                               padding: 0,
                             }}
@@ -316,7 +315,7 @@ export default function HeroSection({
                       <rect x="30" y="58" width="240" height="34" rx="3" fill="url(#luxBarrel)" />
                       <rect x="30" y="56" width="240" height="3" fill={t.gold} opacity="0.7" />
                       <path d="M82 92 L240 92 L235 122 L200 122 L196 138 L170 138 L166 122 L150 122 L150 116 L130 116 L130 122 L98 122 Z" fill="#4a4a4a" />
-                      <ellipse cx="158" cy="120" rx="14" ry="9" fill="#1a1a1e" />
+                      <ellipse cx="158" cy="120" rx="14" ry="9" fill={t.bg} />
                       <path d="M82 92 L138 92 L150 168 L96 168 Z" fill="url(#luxGrip)" />
                       <g opacity="0.35" stroke={t.gold} strokeWidth="0.4">
                         {[0,1,2,3,4,5].map(i => <line key={i} x1={102 + i*7} y1="105" x2={92 + i*7} y2="160" />)}
@@ -327,7 +326,7 @@ export default function HeroSection({
                     <div style={{
                       position: "absolute", bottom: "12px", left: 0, right: 0, textAlign: "center",
                       fontSize: "9px", letterSpacing: "0.28em", textTransform: "uppercase",
-                      color: "rgba(255,255,255,0.3)", fontWeight: 500,
+                      color: t.textDim, fontWeight: 500,
                     }}>
                       Featured Piece · Upload images in CMS
                     </div>
