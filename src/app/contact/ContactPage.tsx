@@ -293,6 +293,12 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
                 <div style={{ width:"14px",height:"1px",background:t.gold }}/>Location
               </div>
               <MapEmbed address={address} />
+              <div style={{ marginTop:"12px", padding:"10px 14px", background:"#faf9f6", border:`1px solid ${t.border}`, borderLeft:`2px solid ${t.gold}` }}>
+                <div style={{ fontSize:"8px", letterSpacing:"0.2em", textTransform:"uppercase", color:t.gold, fontWeight:500, marginBottom:"4px", fontFamily:"var(--font-inter)" }}>By Appointment Only</div>
+                <p style={{ fontSize:"12px", fontWeight:300, color:t.textDim, lineHeight:1.65, margin:0, fontFamily:"var(--font-inter)" }}>
+                  Our showroom is open by appointment only. Please call or email us to schedule a visit and we will be happy to arrange a time that works for you.
+                </p>
+              </div>
             </div>
             <div style={{ background:"#fff",border:`1px solid ${t.border}`,borderLeft:`2px solid ${t.gold}40`,padding:"20px 22px" }}>
               <div style={{ fontSize:"8px",letterSpacing:"0.22em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px" }}>Business Hours</div>
