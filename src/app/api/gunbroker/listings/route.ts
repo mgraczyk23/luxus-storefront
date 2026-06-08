@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getSellerListings } from '@/lib/gunbroker'
 
-// Cache the edge response for 5 minutes so the GunBroker API isn't hammered
-// on every page load, but auction data stays reasonably fresh.
-export const revalidate = 300
+// force-dynamic so this route always runs fresh — the GunBroker fetch inside
+// getSellerListings already has next: { revalidate: 300 } for a 5-min fetch cache.
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
