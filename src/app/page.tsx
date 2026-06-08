@@ -59,7 +59,8 @@ export default async function Home() {
       }
       // Brand counts from metadata.brand (synced by syncAttributeMetadata on every save)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const brand = ((p as any).metadata?.brand as string | undefined)?.trim()
+      const rawBrand = (p as any).metadata?.brand
+      const brand = typeof rawBrand === 'string' ? rawBrand.trim() : undefined
       if (brand) brandCountMap[brand] = (brandCountMap[brand] ?? 0) + 1
     }
   }
