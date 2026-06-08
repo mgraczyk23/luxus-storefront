@@ -728,21 +728,23 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* FROM THE BLOG                                                  */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <section className="lxs-home-section">
-        <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
-            <SectionHead eyebrow="Editorial" title="From The Blog" />
-            <Link href="/articles" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
-              onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
-              onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
-              All Articles
-            </Link>
+      {articles.length > 0 && (
+        <section className="lxs-home-section">
+          <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+              <SectionHead eyebrow="Editorial" title="From The Blog" />
+              <Link href="/articles" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
+                onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
+                onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
+                All Articles
+              </Link>
+            </div>
+            <div className="lxs-home-article-grid" style={{ display: "grid" }}>
+              {articles.map(a => <ArticleCard key={a.id} article={a} />)}
+            </div>
           </div>
-          <div className="lxs-home-article-grid" style={{ display: "grid" }}>
-            {articles.map(a => <ArticleCard key={a.id} article={a} />)}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* NEWSLETTER                                                     */}

@@ -419,18 +419,18 @@ a {
 .lxs-hero-featured-wrap { min-height: 300px; }
 .lxs-hero-brand-intro  { padding: 84px 40px 64px; }
 .lxs-hero-tagline      { margin-bottom: 56px; }
-.lxs-home-section      { padding: 96px 40px; }
-.lxs-home-newsletter   { padding: 80px 40px; }
-.lxs-home-hero-grid    { padding: 80px 40px 60px; grid-template-columns: 1fr 1fr; gap: 80px; }
+.lxs-home-section      { padding: 72px 40px; }
+.lxs-home-newsletter   { padding: 64px 40px; }
+.lxs-home-hero-grid    { padding: 64px 40px 48px; grid-template-columns: 1fr 1fr; gap: 80px; }
 .lxs-home-product-grid { grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .lxs-home-collec-grid  { grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .lxs-home-article-grid { grid-template-columns: repeat(3, 1fr); gap: 44px; }
 .lxs-home-brand-tile   { width: 168px; height: 78px; }
 
 @media (max-width: 1024px) {
-  .lxs-home-section      { padding: 72px 24px; }
-  .lxs-home-newsletter   { padding: 64px 24px; }
-  .lxs-home-hero-grid    { padding: 60px 24px 48px; gap: 40px; }
+  .lxs-home-section      { padding: 56px 24px; }
+  .lxs-home-newsletter   { padding: 52px 24px; }
+  .lxs-home-hero-grid    { padding: 48px 24px 40px; gap: 40px; }
   .lxs-home-product-grid { grid-template-columns: repeat(2, 1fr); }
   .lxs-home-collec-grid  { grid-template-columns: repeat(2, 1fr); }
   .lxs-home-article-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
