@@ -268,7 +268,7 @@ function AuctionCard({ auction }: { auction: Auction }) {
     >
       <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0 }}>
         {auction.thumbnail ? (
-          <Image src={auction.thumbnail} alt={auction.title} fill style={{ objectFit: "contain" }} sizes="25vw" />
+          <img src={auction.thumbnail} alt={auction.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
         ) : (
           <ImgBox style={{ width: "100%", height: "100%" }} />
         )}
