@@ -44,7 +44,9 @@ export async function GET() {
     })
     authStatus = authRes.status
     authBody = await authRes.json()
-    token = (authBody as Record<string, string>)?.AccessToken ?? ''
+    // Sandbox returns camelCase accessToken; production returns PascalCase AccessToken
+    const b = authBody as Record<string, string>
+    token = b?.AccessToken ?? b?.accessToken ?? ''
   } catch (e) {
     return NextResponse.json({ config, authError: String(e) })
   }
