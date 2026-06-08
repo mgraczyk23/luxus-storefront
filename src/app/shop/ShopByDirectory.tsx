@@ -35,9 +35,9 @@ function DirectoryCard({ item, isBrand }: { item: DirectoryItem; isBrand: boolea
           el.style.boxShadow = ''
         }}
       >
-        {/* Image area — square so it scales correctly at all breakpoints */}
+        {/* Image area — 4:3 for collection/category/model (suits iPhone landscape photos); square for brand logos */}
         <div style={{
-          aspectRatio: '1 / 1',
+          aspectRatio: isBrand ? '1 / 1' : '4 / 3',
           width: '100%',
           position: 'relative',
           overflow: 'hidden',
