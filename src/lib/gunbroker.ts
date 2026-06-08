@@ -97,7 +97,7 @@ function mapItem(it: Record<string, unknown>): GunBrokerListing {
 }
 
 async function fetchListings(token: string, limit: number): Promise<GunBrokerListing[]> {
-  const res = await fetch(`${BASE}/ItemsSelling?PageSize=${limit}&PageIndex=0`, {
+  const res = await fetch(`${BASE}/ItemsSelling?PageSize=${limit}&PageIndex=1`, {
     headers: {
       'X-DevKey':     DEV_KEY,
       'X-AccessToken': token,
@@ -118,7 +118,7 @@ export async function getSellerListings(limit = 8): Promise<GunBrokerListing[]> 
   if (!token) return []
 
   try {
-    const res = await fetch(`${BASE}/ItemsSelling?PageSize=${limit}&PageIndex=0`, {
+    const res = await fetch(`${BASE}/ItemsSelling?PageSize=${limit}&PageIndex=1`, {
       headers: {
         'X-DevKey':      DEV_KEY,
         'X-AccessToken': token,

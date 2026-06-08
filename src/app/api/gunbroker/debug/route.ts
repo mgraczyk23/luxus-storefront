@@ -57,9 +57,9 @@ export async function GET() {
 
   // 2. Fetch listings
   const endpoints = [
-    `/ItemsSelling?PageSize=8&PageIndex=0`,
-    `/Items/Selling?PageSize=8&PageIndex=0`,
-    `/Items?SellerName=${encodeURIComponent(process.env.GUNBROKER_USERNAME!)}&PageSize=8&PageIndex=0`,
+    `/ItemsSelling?PageSize=8&PageIndex=1`,
+    `/Items/Selling?PageSize=8&PageIndex=1`,
+    `/Items?SellerName=${encodeURIComponent(process.env.GUNBROKER_USERNAME!)}&PageSize=8&PageIndex=1`,
   ]
 
   const results: Record<string, unknown> = {}
