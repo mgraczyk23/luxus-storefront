@@ -114,7 +114,7 @@ async function fetchListings(token: string, limit: number): Promise<GunBrokerLis
   if (!res.ok) return []
   const data = await res.json()
   const items = (data.results ?? data.Results ?? []) as Record<string, unknown>[]
-  return items.map(mapItem)
+  return items.map(mapItem).filter(l => l.timeLeft !== 'Ended')
 }
 
 export async function getSellerListings(limit = 8): Promise<GunBrokerListing[]> {
@@ -144,7 +144,7 @@ export async function getSellerListings(limit = 8): Promise<GunBrokerListing[]> 
     if (!res.ok) return []
     const data = await res.json()
     const items = (data.results ?? data.Results ?? []) as Record<string, unknown>[]
-    return items.map(mapItem)
+    return items.map(mapItem).filter(l => l.timeLeft !== 'Ended')
   } catch {
     return []
   }
