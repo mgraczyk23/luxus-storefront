@@ -25,7 +25,7 @@ const playfair = Playfair_Display({
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
-  const faviconUrl = imageUrl(settings.branding?.favicon ?? null)
+  const faviconUrl = imageUrl(settings.branding?.favicon ?? null) ?? '/favicon.ico'
 
   return {
     title: {
@@ -38,13 +38,11 @@ export async function generateMetadata(): Promise<Metadata> {
       siteName: "Luxus Collection",
       type: "website",
     },
-    ...(faviconUrl && {
-      icons: {
-        icon:      faviconUrl,
-        shortcut:  faviconUrl,
-        apple:     faviconUrl,
-      },
-    }),
+    icons: {
+      icon:     faviconUrl,
+      shortcut: faviconUrl,
+      apple:    faviconUrl,
+    },
   }
 }
 
