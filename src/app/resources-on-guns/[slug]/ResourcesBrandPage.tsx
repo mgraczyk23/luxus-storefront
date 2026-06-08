@@ -626,7 +626,7 @@ export default function ResourcesBrandPage({
         <div style={{ position: 'absolute', inset: 0, background: heroUrl ? 'linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.58) 100%)' : 'none' }} />
         <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', padding: '0 24px 44px', textAlign: 'center' }}>
           {logoUrl && (
-            <div style={{ width: '110px', height: '110px', position: 'relative', marginBottom: '14px', filter: heroUrl ? 'brightness(0) invert(1)' : undefined }}>
+            <div style={{ width: 'clamp(140px, 16vw, 220px)', height: 'clamp(140px, 16vw, 220px)', position: 'relative', marginBottom: '14px', filter: heroUrl ? 'brightness(0) invert(1)' : undefined }}>
               <Image src={logoUrl} alt={brandName} fill style={{ objectFit: 'contain' }} />
             </div>
           )}
