@@ -268,23 +268,56 @@ export type HeroSlide = {
   imageUrl?: string
 }
 
-export async function getHeroSlides(): Promise<HeroSlide[]> {
+export type HeroFeaturedImage = {
+  imageUrl: string
+  caption:  string | null
+}
+
+export type HeroSlidesData = {
+  slides:         HeroSlide[]
+  wordmark:       string
+  tagline:        string
+  introBody:      string
+  featuredImages: HeroFeaturedImage[]
+}
+
+const HERO_DEFAULT: HeroSlidesData = {
+  slides:         [],
+  wordmark:       'Luxus Collection',
+  tagline:        'The Forefront of Exclusive Firearms',
+  introBody:      '',
+  featuredImages: [],
+}
+
+export async function getHeroSlides(): Promise<HeroSlidesData> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/hero-slides?depth=1`, {
       next: { revalidate: false, tags: ['hero-slides'] },
     })
-    if (!res.ok) return []
+    if (!res.ok) return HERO_DEFAULT
     const data = await res.json()
     const slides: any[] = data?.slides ?? []
-    return slides
-      .filter((s: any) => s.enabled !== false)
-      .map((s: any) => ({
-        kicker:   s.kicker   ?? '',
-        caption:  s.caption  ?? '',
-        imageUrl: imageUrl(s.image) ?? undefined,
-      }))
+    const featured: any[] = data?.featuredImages ?? []
+    return {
+      slides: slides
+        .filter((s: any) => s.enabled !== false)
+        .map((s: any) => ({
+          kicker:   s.kicker   ?? '',
+          caption:  s.caption  ?? '',
+          imageUrl: imageUrl(s.image) ?? undefined,
+        })),
+      wordmark:       data?.wordmark  ?? HERO_DEFAULT.wordmark,
+      tagline:        data?.tagline   ?? HERO_DEFAULT.tagline,
+      introBody:      data?.introBody ?? '',
+      featuredImages: featured
+        .map((fi: any) => ({
+          imageUrl: imageUrl(fi.image) ?? '',
+          caption:  fi.caption ?? null,
+        }))
+        .filter(fi => fi.imageUrl),
+    }
   } catch {
-    return []
+    return HERO_DEFAULT
   }
 }
 

@@ -181,12 +181,14 @@ export default async function Home() {
       }))
     : []
 
-  const heroSlides = heroSlidesRes.status === "fulfilled" ? heroSlidesRes.value : []
+  const heroData = heroSlidesRes.status === "fulfilled" ? heroSlidesRes.value : {
+    slides: [], wordmark: 'Luxus Collection', tagline: 'The Forefront of Exclusive Firearms', introBody: '', featuredImages: [],
+  }
 
   return (
     <HomePage
       heroProduct={heroProduct}
-      heroSlides={heroSlides}
+      heroData={heroData}
       featuredProducts={featuredProducts}
       newArrivals={newArrivals.length > 0 ? newArrivals : products.slice(0, 4)}
       collections={displayCollections}

@@ -7,7 +7,7 @@ import { useTheme } from '@/context/ThemeContext'
 import { useCart } from '@/context/CartContext'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import type { MappedProduct } from '@/lib/medusa'
-import type { HeroSlide } from '@/lib/payload'
+import type { HeroSlidesData } from '@/lib/payload'
 import HeroSection from './HeroSection'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
@@ -531,7 +531,7 @@ function BrowseScroll({
 
 export default function HomePage({
   heroProduct,
-  heroSlides = [],
+  heroData,
   featuredProducts,
   newArrivals,
   collections,
@@ -540,7 +540,7 @@ export default function HomePage({
   brands = [],
 }: {
   heroProduct: HeroProduct
-  heroSlides?: HeroSlide[]
+  heroData?: HeroSlidesData
   featuredProducts: MappedProduct[]
   newArrivals: MappedProduct[]
   collections: ShopItem[]
@@ -591,7 +591,7 @@ export default function HomePage({
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* HERO                                                           */}
       {/* ══════════════════════════════════════════════════════════════ */}
-      <HeroSection slides={heroSlides.length > 0 ? heroSlides : undefined} />
+      <HeroSection heroData={heroData} />
 
       {/* ══════════════════════════════════════════════════════════════ */}
       {/* FEATURED COLLECTION                                            */}
