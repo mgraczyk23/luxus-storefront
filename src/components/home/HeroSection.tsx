@@ -74,7 +74,7 @@ export default function HeroSection({
                 opacity: active ? 1 : 0,
                 transition: "opacity 1.1s ease",
                 background: slide.imageUrl
-                  ? `url(${slide.imageUrl}) center/cover no-repeat`
+                  ? `url("${slide.imageUrl}") center/cover no-repeat`
                   : `linear-gradient(135deg, ${a} 0%, ${b} 100%)`,
               }}
             >

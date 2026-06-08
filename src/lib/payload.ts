@@ -11,8 +11,8 @@ export type PayloadImage = {
 
 export function imageUrl(img: PayloadImage | null | undefined): string | null {
   if (!img) return null
-  if (img.url.startsWith("http")) return img.url
-  return `${PAYLOAD_URL}${img.url}`
+  const url = img.url.startsWith("http") ? img.url : `${PAYLOAD_URL}${img.url}`
+  return url.replace(/ /g, "%20")
 }
 
 export type PayloadPost = {
