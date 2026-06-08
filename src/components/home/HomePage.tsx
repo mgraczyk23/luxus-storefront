@@ -302,7 +302,7 @@ function AuctionCard({ auction }: { auction: Auction }) {
         <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "12px" }}>
           <div>
             <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "3px" }}>
-              {auction.reserveMet === false ? "Current Bid · Reserve not met" : "Current Bid"}
+              {auction.bidCount === 0 ? "Starting Bid" : auction.reserveMet === false ? "Current Bid · Reserve not met" : "Current Bid"}
             </div>
             <div style={{ fontSize: "20px", fontWeight: 500, color: t.text, letterSpacing: "0.01em" }}>
               {fmt(auction.currentBid)}

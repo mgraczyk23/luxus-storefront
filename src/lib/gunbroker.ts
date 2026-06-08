@@ -76,15 +76,21 @@ function formatTimeLeft(iso: string): string {
 
 function mapItem(it: Record<string, unknown>): GunBrokerListing {
   const id = (it.ItemID ?? it.itemID) as number
-  const endDate = (it.EndingDate ?? it.endingDate ?? '') as string
+  // ItemsSelling uses endingDateTimeUTC; Items search uses endingDate
+  const endDate = (it.endingDateTimeUTC ?? it.EndingDateTimeUTC ?? it.endingDate ?? it.EndingDate ?? '') as string
   const hasBuyNow = !!(it.HasBuyNow ?? it.hasBuyNow)
+
+  // currentBid is 0 when no bids have been placed; fall back to startingBid / minimumBid
+  const rawBid = (it.currentBid ?? it.CurrentBid ?? it.BidPrice ?? it.bidPrice ?? 0) as number
+  const startingBid = (it.startingBid ?? it.StartingBid ?? it.minimumBid ?? it.MinimumBid ?? it.Price ?? it.price ?? 0) as number
+  const bidCount = (it.Bids ?? it.bids ?? it.BidCount ?? it.bidCount ?? 0) as number
 
   return {
     id,
     title:       (it.Title ?? it.title ?? '') as string,
     thumbnail:   (it.ThumbnailURL ?? it.thumbnailURL ?? it.PictureURL ?? null) as string | null,
-    currentBid:  (it.BidPrice ?? it.bidPrice ?? it.Price ?? it.price ?? 0) as number,
-    bidCount:    (it.Bids ?? it.bids ?? it.BidCount ?? it.bidCount ?? 0) as number,
+    currentBid:  rawBid > 0 ? rawBid : startingBid,
+    bidCount,
     timeLeft:    endDate ? formatTimeLeft(endDate) : '—',
     buyNowPrice: hasBuyNow
       ? ((it.BuyNowPrice ?? it.buyNowPrice ?? it.BuyPrice ?? null) as number | null)
