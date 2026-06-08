@@ -365,6 +365,12 @@ export type PayloadTimelineItem = {
   image: PayloadImage | null
 }
 
+export type PayloadCatalog = {
+  id:    string
+  title: string
+  file:  PayloadImage | null
+}
+
 export type PayloadBrandFull = PayloadBrand & {
   heroImage:      PayloadImage | null
   tagline:        string | null
@@ -373,6 +379,7 @@ export type PayloadBrandFull = PayloadBrand & {
   modelSeries:    PayloadModelSeries[]
   gallery:        PayloadGalleryItem[]
   timeline:       PayloadTimelineItem[]
+  catalogs:       PayloadCatalog[]
   seoTitle:       string | null
   seoDescription: string | null
 }
@@ -515,6 +522,11 @@ export async function getBrand(slug: string): Promise<PayloadBrandFull | null> {
         title: t.title,
         body:  t.body  ?? null,
         image: t.image ?? null,
+      })),
+      catalogs: (b.catalogs ?? []).map((c: any) => ({
+        id:    String(c.id),
+        title: c.title,
+        file:  c.file ?? null,
       })),
       seoTitle:       b.seoTitle       ?? null,
       seoDescription: b.seoDescription ?? null,

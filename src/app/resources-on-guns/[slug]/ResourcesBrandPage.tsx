@@ -10,7 +10,7 @@ import {
   parseLexical, imageUrl,
   type PayloadBrandFull, type PayloadPost, type PayloadResourcePage,
   type PayloadModelSeries, type PayloadGalleryItem, type PayloadTimelineItem,
-  type LexNode, type LexInline,
+  type PayloadCatalog, type LexNode, type LexInline,
 } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
 
@@ -583,6 +583,9 @@ export default function ResourcesBrandPage({
 }) {
   const { t } = useTheme()
 
+  const RESOURCES_PER_PAGE = 9
+  const [resourcePage, setResourcePage] = useState(1)
+
   const heroUrl      = imageUrl(brand?.heroImage)
   const logoUrl      = imageUrl(brand?.logo)
   const histNodes    = parseLexical(brand?.history)
@@ -594,6 +597,14 @@ export default function ResourcesBrandPage({
   const modelSeries  = brand?.modelSeries ?? []
   const gallery      = (brand?.gallery ?? []).filter(g => g.image)
   const timeline     = brand?.timeline ?? []
+  const catalogs     = brand?.catalogs ?? []
+  const hasCatalogs  = catalogs.length > 0
+
+  const resourcePageCount   = Math.ceil(resourcePages.length / RESOURCES_PER_PAGE)
+  const pagedResources      = resourcePages.slice(
+    (resourcePage - 1) * RESOURCES_PER_PAGE,
+    resourcePage * RESOURCES_PER_PAGE,
+  )
 
   return (
     <div style={{ background: t.bg, minHeight: '100vh' }}>
@@ -687,7 +698,66 @@ export default function ResourcesBrandPage({
           <section className="rp-section">
             <SectionHead eyebrow={brandName} title="Models & Reference Pages" />
             <div className="rp-resource-grid">
-              {resourcePages.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
+              {pagedResources.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
+            </div>
+            {resourcePageCount > 1 && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '32px', flexWrap: 'wrap' }}>
+                {Array.from({ length: resourcePageCount }, (_, i) => i + 1).map(n => (
+                  <button
+                    key={n}
+                    onClick={() => setResourcePage(n)}
+                    style={{
+                      width: '36px', height: '36px',
+                      border: `1px solid ${n === resourcePage ? t.gold : t.border}`,
+                      background: n === resourcePage ? t.gold : 'transparent',
+                      color: n === resourcePage ? '#fff' : t.text,
+                      fontFamily: 'var(--font-inter)', fontSize: '12px', fontWeight: 500,
+                      cursor: 'pointer', letterSpacing: '0.03em',
+                      transition: 'border-color 0.15s, background 0.15s',
+                    }}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* ── Product Catalogs ─────────────────────────────────────────── */}
+        {hasCatalogs && (
+          <section className="rp-section">
+            <SectionHead eyebrow={brandName} title="Product Catalogs" />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              {catalogs.map(cat => {
+                const href = cat.file ? imageUrl(cat.file) ?? '#' : '#'
+                return (
+                  <a
+                    key={cat.id}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '10px',
+                      padding: '12px 20px',
+                      border: `1px solid ${t.border}`,
+                      color: t.text,
+                      fontFamily: 'var(--font-inter)', fontSize: '11px', fontWeight: 500,
+                      letterSpacing: '0.06em', textTransform: 'uppercase', textDecoration: 'none',
+                      transition: 'border-color 0.2s, color 0.2s',
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = t.gold; (e.currentTarget as HTMLAnchorElement).style.color = t.gold }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = t.border; (e.currentTarget as HTMLAnchorElement).style.color = t.text }}
+                  >
+                    <svg width="14" height="16" viewBox="0 0 14 16" fill="none" style={{ flexShrink: 0 }}>
+                      <path d="M1 1h8l4 4v10H1V1z" stroke="currentColor" strokeWidth="1.2" fill="none"/>
+                      <path d="M9 1v4h4" stroke="currentColor" strokeWidth="1.2"/>
+                      <path d="M3 8h8M3 11h5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+                    </svg>
+                    {cat.title}
+                  </a>
+                )
+              })}
             </div>
           </section>
         )}
