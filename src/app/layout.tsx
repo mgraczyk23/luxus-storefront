@@ -7,7 +7,7 @@ import { CartProvider } from "@/context/CartContext"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import AnnouncementBar from "@/components/AnnouncementBar"
-import { getSiteSettings } from "@/lib/payload"
+import { getSiteSettings, imageUrl } from "@/lib/payload"
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,23 +23,37 @@ const playfair = Playfair_Display({
   weight: ["400", "500", "600", "700"],
 })
 
-export const metadata: Metadata = {
-  title: {
-    default: "Luxus Collection — Fine Firearms",
-    template: "%s | Luxus Collection",
-  },
-  description: "A boutique destination for the serious collector. Curating the world's finest production and custom pistols.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://luxus-collection.com"),
-  openGraph: {
-    siteName: "Luxus Collection",
-    type: "website",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSiteSettings()
+  const faviconUrl = imageUrl(settings.branding?.favicon ?? null)
+
+  return {
+    title: {
+      default: "Luxus Collection — Fine Firearms",
+      template: "%s | Luxus Collection",
+    },
+    description: "A boutique destination for the serious collector. Curating the world's finest production and custom pistols.",
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://luxus-collection.com"),
+    openGraph: {
+      siteName: "Luxus Collection",
+      type: "website",
+    },
+    ...(faviconUrl && {
+      icons: {
+        icon:      faviconUrl,
+        shortcut:  faviconUrl,
+        apple:     faviconUrl,
+      },
+    }),
+  }
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSiteSettings()
   const ann = settings.announcement
   const annActive = ann.enabled && !!ann.message
+  const logoUrl = imageUrl(settings.branding?.logo ?? null) ?? undefined
+
   return (
     <html
       lang="en"
@@ -51,11 +65,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <AuthProvider>
             <CartProvider>
               {annActive && <AnnouncementBar message={ann.message!} link={ann.link} />}
-              <Header />
+              <Header logoUrl={logoUrl} />
               <main style={{ paddingTop: "calc(68px + var(--ann-h, 0px))" }}>
                 {children}
               </main>
-              <Footer settings={settings} />
+              <Footer settings={settings} logoUrl={logoUrl} />
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>

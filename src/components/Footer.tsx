@@ -29,9 +29,10 @@ const FOOTER_LINKS = {
   ],
 }
 
-export default function Footer({ settings }: { settings: SiteSettings }) {
+export default function Footer({ settings, logoUrl }: { settings: SiteSettings; logoUrl?: string }) {
   const { t } = useTheme()
   const { contact, social, footer = {} } = settings
+  const logoSrc = logoUrl ?? '/logo.webp'
   const blurb         = footer.blurb         ?? "A boutique destination for the serious collector, curating the world's finest production and custom pistols since 2026."
   const copyrightLine = footer.copyrightLine  ?? "© 2026 Luxus Collection LLC · luxus-collection.com · All Rights Reserved"
   const legalLine     = footer.legalLine      ?? "All transactions conducted in full compliance with federal, state, and local firearms laws. FFL transfers required. Licensed Federal Firearms Dealer · License #1-59-XXX-XX-XX-55688."
@@ -60,7 +61,7 @@ export default function Footer({ settings }: { settings: SiteSettings }) {
           {/* ── Brand column ─────────────────────────────────────────── */}
           <div className="lxs-footer-brand">
             <div className="lxs-footer-brand-logo" style={{ marginBottom: "20px" }}>
-              <Image src="/logo.webp" alt="Luxus Collection" width={224} height={56}
+              <Image src={logoSrc} alt="Luxus Collection" width={224} height={56}
                 style={{ height: "56px", width: "auto", display: "block", filter: "brightness(0.68) saturate(1.1)" }}/>
             </div>
             <p className="lxs-footer-brand-blurb" style={{ fontSize: "12px", fontWeight: 300, lineHeight: 1.85, color: "#525258", maxWidth: "260px", margin: 0 }}>

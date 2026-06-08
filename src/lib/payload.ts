@@ -131,6 +131,10 @@ export async function createComment(data: {
 /* ── Site Settings ───────────────────────────────────────────────────────── */
 
 export type SiteSettings = {
+  branding: {
+    logo?:    PayloadImage | null
+    favicon?: PayloadImage | null
+  }
   contact: {
     phone:         string
     phoneTollFree: string
@@ -185,6 +189,7 @@ export type SiteSettings = {
 }
 
 const SETTINGS_FALLBACK: SiteSettings = {
+  branding: {},
   contact: {
     phone:         '(941) 253-3660',
     phoneTollFree: '(833) 486-6659',

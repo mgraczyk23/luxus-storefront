@@ -90,7 +90,7 @@ function getActivePage(pathname: string): string {
 }
 
 // ── Mobile Nav ─────────────────────────────────────────────────────────────
-function MobileNav() {
+function MobileNav({ logoUrl }: { logoUrl?: string }) {
   const [open, setOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -234,7 +234,7 @@ function MobileNav() {
           onClick={e => { if ((e.target as HTMLElement).classList.contains('lxs-mnav-backdrop')) setOpen(false) }}>
           <div className="lxs-mnav-panel" style={{ background: T.bg, color: T.text, borderLeft: `1px solid ${T.border}` }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "18px 22px", borderBottom: `1px solid ${T.border}` }}>
-              <Image src="/logo.webp" alt="Luxus Collection" width={144} height={36}
+              <Image src={logoUrl ?? "/logo.webp"} alt="Luxus Collection" width={144} height={36}
                 style={{ height: "36px", width: "auto", filter: "brightness(0.68) saturate(1.1)" }}/>
               <button onClick={() => setOpen(false)} aria-label="Close menu"
                 style={{ width: "40px", height: "40px", background: "none", border: `1px solid ${T.border}`, color: T.muted, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}>
@@ -274,7 +274,7 @@ function MobileNav() {
 }
 
 // ── Desktop Header ─────────────────────────────────────────────────────────
-export default function Header() {
+export default function Header({ logoUrl }: { logoUrl?: string }) {
   const { t } = useTheme()
   const pathname = usePathname()
   const activePage = getActivePage(pathname)
@@ -333,7 +333,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link href="/" style={{ flexShrink: 0 }}>
-            <Image src="/logo.webp" alt="Luxus Collection" width={168} height={42} priority
+            <Image src={logoUrl ?? "/logo.webp"} alt="Luxus Collection" width={168} height={42} priority
               style={{ height: "42px", width: "auto", display: "block", filter: "brightness(0.68) saturate(1.1)" }}/>
           </Link>
 
@@ -513,7 +513,7 @@ export default function Header() {
         </div>
       </header>
 
-      <MobileNav />
+      <MobileNav logoUrl={logoUrl} />
     </>
   )
 }
