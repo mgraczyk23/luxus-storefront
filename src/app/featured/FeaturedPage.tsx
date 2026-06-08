@@ -48,7 +48,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
           ? <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"/>
           : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }}><svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{ opacity: 0.15 }}><rect x="4" y="12" width="32" height="20" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M12 12V10C12 8.9 12.9 8 14 8H26C27.1 8 28 8.9 28 10V12" stroke="currentColor" strokeWidth="1.5"/></svg></div>}
         {product.details?.primary_category && product.in_stock && (
-          <div style={{ position: "absolute", top: "10px", left: "10px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}50`, padding: "3px 9px", fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold }}>
+          <div className="lxs-card-badge-cat" style={{ position: "absolute", top: "10px", left: "10px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}50`, padding: "3px 9px", fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold }}>
             {product.details.primary_category}
           </div>
         )}
@@ -60,19 +60,19 @@ function ProductCard({ product }: { product: MappedProduct }) {
         </div>
       </div>
       <div style={{ padding: "18px 20px 22px", display: "flex", flexDirection: "column", flex: 1 }}>
-        <div style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>
+        <div className="lxs-card-brand" style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>
           {product.attributes?.brand ?? "Luxus Collection"}
         </div>
-        <div style={{ fontFamily: PLAYFAIR, fontSize: "18px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "5px" }}>
+        <div className="lxs-card-title" style={{ fontFamily: PLAYFAIR, fontSize: "18px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "5px" }}>
           {product.title}
         </div>
-        <div style={{ fontSize: "10.5px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.04em", marginBottom: "14px" }}>
+        <div className="lxs-card-sub" style={{ fontSize: "10.5px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.04em", marginBottom: "14px" }}>
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
         </div>
         <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }}/>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: product.in_stock ? "space-between" : "flex-end", gap: "8px" }}>
+        <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: product.in_stock ? "space-between" : "flex-end", gap: "8px" }}>
           {product.in_stock && (
-            <div style={{ fontSize: product.contact_for_pricing ? "10px" : "15px", fontWeight: product.contact_for_pricing ? 400 : 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em" }}>
+            <div className="lxs-card-price" style={{ fontSize: product.contact_for_pricing ? "10px" : "15px", fontWeight: product.contact_for_pricing ? 400 : 500, color: product.contact_for_pricing ? t.gold : t.text, letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em" }}>
               {product.contact_for_pricing ? "Contact for Pricing" : (product.price ? fmt(product.price) : "—")}
             </div>
           )}

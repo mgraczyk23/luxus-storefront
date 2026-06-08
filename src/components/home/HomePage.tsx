@@ -177,7 +177,7 @@ function ProductCard({ product, small = false }: {
           <ImgBox style={{ width: "100%", height: "100%", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} />
         )}
         {product.details?.primary_category && product.in_stock && (
-          <div style={{
+          <div className="lxs-card-badge-cat" style={{
             position: "absolute", top: "10px", left: "10px",
             background: "rgba(255,255,255,0.88)",
             border: `1px solid ${t.gold}50`, padding: "3px 9px",
@@ -213,7 +213,7 @@ function ProductCard({ product, small = false }: {
         <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }} />
         <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: product.in_stock ? "space-between" : "flex-end", gap: "8px" }}>
           {product.in_stock && (
-            <div style={{
+            <div className="lxs-card-price" style={{
               fontSize: product.contact_for_pricing ? "10px" : (small ? "13px" : "15px"),
               fontWeight: product.contact_for_pricing ? 400 : 500,
               color: product.contact_for_pricing ? t.gold : t.text,

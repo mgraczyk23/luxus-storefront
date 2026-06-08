@@ -487,7 +487,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
         )}
 
         {product.details?.primary_category && product.in_stock && (
-          <div style={{
+          <div className="lxs-card-badge-cat" style={{
             position: 'absolute', top: '8px', left: '8px',
             background: 'rgba(255,255,255,0.88)', border: `1px solid ${t.gold}50`,
             padding: '3px 8px', fontSize: '8px', letterSpacing: '0.14em',
@@ -507,19 +507,19 @@ function ProductCard({ product }: { product: MappedProduct }) {
 
       {/* Body */}
       <div style={{ padding: '14px 16px 18px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontWeight: 500, marginBottom: '4px' }}>
+        <div className="lxs-card-brand" style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontWeight: 500, marginBottom: '4px' }}>
           {product.attributes?.brand}
         </div>
-        <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '16px', fontWeight: 400, color: t.text, lineHeight: 1.25, marginBottom: '4px' }}>
+        <div className="lxs-card-title" style={{ fontFamily: 'var(--font-playfair)', fontSize: '16px', fontWeight: 400, color: t.text, lineHeight: 1.25, marginBottom: '4px' }}>
           {product.title}
         </div>
-        <div style={{ fontSize: '10px', color: '#525258', fontWeight: 300, letterSpacing: '0.03em', marginBottom: '10px' }}>
+        <div className="lxs-card-sub" style={{ fontSize: '10px', color: '#525258', fontWeight: 300, letterSpacing: '0.03em', marginBottom: '10px' }}>
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(' · ')}
         </div>
         <div style={{ height: '1px', background: t.border, marginBottom: '10px', marginTop: 'auto' }} />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: product.in_stock ? 'space-between' : 'flex-end', gap: '8px' }}>
+        <div className="lxs-card-price-row" style={{ display: 'flex', alignItems: 'center', justifyContent: product.in_stock ? 'space-between' : 'flex-end', gap: '8px' }}>
           {product.in_stock && (
-            <div style={{
+            <div className="lxs-card-price" style={{
               fontSize: product.contact_for_pricing ? '9px' : '14px',
               fontWeight: product.contact_for_pricing ? 400 : 500,
               color: product.contact_for_pricing ? t.gold : t.text,
