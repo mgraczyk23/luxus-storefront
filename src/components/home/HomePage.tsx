@@ -375,7 +375,8 @@ function CategoryTile({ item, href }: { item: ShopItem; href: string }) {
       style={{
         position: "relative", borderRadius: "1px", overflow: "hidden",
         cursor: "pointer", border: `1px solid ${hov ? t.gold + "50" : t.border}`,
-        transition: "border-color 0.24s", textDecoration: "none", display: "block",
+        transition: "border-color 0.24s", textDecoration: "none",
+        display: "flex", flexDirection: "column",
       }}
     >
       <div style={{ position: "relative", height: "130px", overflow: "hidden", background: t.bgSurface }}>
@@ -384,7 +385,7 @@ function CategoryTile({ item, href }: { item: ShopItem; href: string }) {
           : <ImgBox style={{ height: "130px", transform: hov ? "scale(1.04)" : "scale(1)", transition: "transform 0.4s ease" }} />
         }
       </div>
-      <div style={{ padding: "8px 14px 12px", background: t.bg, borderTop: `1px solid ${t.border}` }}>
+      <div style={{ padding: "8px 14px 12px", background: t.bg, borderTop: `1px solid ${t.border}`, flex: 1 }}>
         <div style={{ fontFamily: PLAYFAIR, fontSize: "15px", fontWeight: 400, color: t.text, letterSpacing: "0.02em" }}>
           {item.name}
         </div>
