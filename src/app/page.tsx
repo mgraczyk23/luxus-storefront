@@ -39,7 +39,7 @@ export default async function Home() {
     getCollections(),
     getCategories(),
     // Fetch product→category+brand associations to sort categories and derive live brand list
-    getProducts({ limit: "200", fields: "id,*categories" }),
+    getProducts({ limit: "200", fields: "id,*categories,+metadata" }),
     getPosts({ limit: 6, noContent: true }),
     getHeroSlides(),
     getShopTileImages(),
@@ -57,14 +57,10 @@ export default async function Home() {
         const id = (c as any).id as string | undefined
         if (id) catCountMap[id] = (catCountMap[id] ?? 0) + 1
       }
-      // Brand counts from attribute_values
+      // Brand counts from metadata.brand (synced by syncAttributeMetadata on every save)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      for (const av of (p.attribute_values ?? [])) {
-        if ((av as any).attribute_type?.slug === 'brand' && (av as any).value) {
-          const brand = String((av as any).value).trim()
-          if (brand) brandCountMap[brand] = (brandCountMap[brand] ?? 0) + 1
-        }
-      }
+      const brand = ((p as any).metadata?.brand as string | undefined)?.trim()
+      if (brand) brandCountMap[brand] = (brandCountMap[brand] ?? 0) + 1
     }
   }
 
