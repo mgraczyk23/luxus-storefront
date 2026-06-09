@@ -13,6 +13,7 @@ export type CartItem = {
   price: number
   thumbnail: string | null
   quantity: number
+  variant_id: string | null
 }
 
 type CartContextType = {
@@ -66,6 +67,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             price: product.price!,
             thumbnail: product.thumbnail,
             quantity: 1,
+            variant_id: product.variant_id ?? null,
           }]
       writeCart(next)
       return next

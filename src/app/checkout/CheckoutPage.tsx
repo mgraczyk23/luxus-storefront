@@ -7,22 +7,22 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart, type CartItem } from '@/context/CartContext'
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
+const MEDUSA_PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
+const US_REGION_ID = 'reg_01KRM4PNPXXVRHKQP5NN4XFMQX'
 
-type Rates = {
-  shippingCost: number
-  shippingLabel: string
-  taxRate: number
-  taxRateDisplay: string | null
-  taxApplies: boolean
+const medusaHeaders = {
+  'Content-Type': 'application/json',
+  'x-publishable-api-key': MEDUSA_PK,
 }
 
-function genRef() {
-  const ts = Date.now().toString(36).toUpperCase()
-  const rand = Math.random().toString(36).slice(2, 6).toUpperCase()
-  return `LXS-${ts}-${rand}`
-}
+// Format cents from Medusa into display dollars
+const fmtCents = (cents: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(cents / 100)
+
+// Format dollars (for local cart item prices which are already in dollars)
+const fmtDollars = (n: number) =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n)
 
 type PaymentMethod = 'card' | 'wire'
 
@@ -40,6 +40,17 @@ type FormData = {
 const EMPTY: FormData = {
   firstName: '', lastName: '', email: '', phone: '',
   fflDealerName: '', fflDealerCity: '', fflDealerState: '', notes: '',
+}
+
+type MedusaCart = {
+  id: string
+  item_subtotal: number
+  shipping_subtotal: number
+  tax_total: number
+  total: number
+  subtotal: number
+  shipping_options?: Array<{ id: string; name: string; amount: number }>
+  payment_collection?: { id: string; payment_sessions?: Array<{ id: string; data: Record<string, any> }> }
 }
 
 function SectionHead({ title }: { title: string }) {
@@ -75,8 +86,7 @@ function Field({
         onBlur={e => { setTouched(true); e.currentTarget.style.borderColor = error ? '#e09080' : t.border }}
         placeholder={placeholder}
         style={{
-          padding: '11px 13px',
-          border: `1px solid ${showErr ? '#e09080' : t.border}`,
+          padding: '11px 13px', border: `1px solid ${showErr ? '#e09080' : t.border}`,
           background: '#fff', fontSize: '13px', fontFamily: 'var(--font-inter)',
           color: t.text, fontWeight: 300, outline: 'none', width: '100%', boxSizing: 'border-box',
         }}
@@ -102,7 +112,7 @@ function CartItemRow({ item }: { item: CartItem }) {
         <div style={{ fontSize: '12px', fontWeight: 300, color: t.text, lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
         {item.quantity > 1 && <div style={{ fontSize: '10.5px', color: t.textMuted, marginTop: '2px' }}>×{item.quantity}</div>}
       </div>
-      <div style={{ fontSize: '13px', fontWeight: 400, color: t.text, flexShrink: 0 }}>{fmt(item.price * item.quantity)}</div>
+      <div style={{ fontSize: '13px', fontWeight: 400, color: t.text, flexShrink: 0 }}>{fmtDollars(item.price * item.quantity)}</div>
     </div>
   )
 }
@@ -134,39 +144,110 @@ function PaymentMethodSelector({ value, onChange }: { value: PaymentMethod; onCh
   )
 }
 
+async function medusaFetch(path: string, options: RequestInit = {}) {
+  const res = await fetch(`${MEDUSA_URL}${path}`, {
+    ...options,
+    headers: { ...medusaHeaders, ...(options.headers ?? {}) },
+  })
+  return res.json()
+}
+
 export default function CheckoutPage() {
   const { t } = useTheme()
   const { cartItems, clearCart } = useCart()
   const router = useRouter()
   const searchParams = useSearchParams()
+
   const [form, setForm] = useState<FormData>(EMPTY)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
-  const orderRefRef = useRef('')
-  const [rates, setRates] = useState<Rates>({ shippingCost: 0, shippingLabel: 'Shipping', taxRate: 0, taxRateDisplay: null, taxApplies: false })
-  const ratesDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Show error returned from Elavon's declined redirect
+  // Medusa cart state
+  const [medusaCart, setMedusaCart] = useState<MedusaCart | null>(null)
+  const [medusaCartLoading, setMedusaCartLoading] = useState(true)
+  const [shippingOptionId, setShippingOptionId] = useState<string | null>(null)
+  const addressDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Show error from Elavon declined redirect
   useEffect(() => {
     const declined = searchParams.get('declined')
     if (declined) setErrorMsg(`Payment declined: ${declined}`)
   }, [searchParams])
 
-  // Fetch shipping + tax rates whenever FFL state changes
+  // Create Medusa cart on mount
   useEffect(() => {
-    if (ratesDebounceRef.current) clearTimeout(ratesDebounceRef.current)
-    ratesDebounceRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`/api/checkout/rates?state=${encodeURIComponent(form.fflDealerState.trim())}`)
-        if (res.ok) setRates(await res.json())
-      } catch { /* non-fatal */ }
-    }, 400)
-  }, [form.fflDealerState])
+    if (cartItems.length === 0) { setMedusaCartLoading(false); return }
+    let cancelled = false
 
-  const subtotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0)
-  const taxAmount = Math.round(subtotal * rates.taxRate * 100) / 100
-  const orderTotal = subtotal + rates.shippingCost + taxAmount
+    async function initCart() {
+      setMedusaCartLoading(true)
+      try {
+        // Create cart with line items
+        const items = cartItems
+          .filter(i => i.variant_id)
+          .map(i => ({ variant_id: i.variant_id!, quantity: i.quantity }))
+
+        const cartData = await medusaFetch('/store/carts', {
+          method: 'POST',
+          body: JSON.stringify({ region_id: US_REGION_ID, items }),
+        })
+
+        if (cancelled || !cartData.cart) return
+        const cartId = cartData.cart.id
+
+        // Get and auto-apply shipping option
+        const optData = await medusaFetch(`/store/shipping-options?cart_id=${cartId}`)
+        const opts = optData.shipping_options ?? []
+        let appliedCart = cartData.cart
+
+        if (opts.length > 0) {
+          const optId = opts[0].id
+          if (!cancelled) setShippingOptionId(optId)
+          const shippingData = await medusaFetch(`/store/carts/${cartId}/shipping-methods`, {
+            method: 'POST',
+            body: JSON.stringify({ option_id: optId }),
+          })
+          if (shippingData.cart) appliedCart = shippingData.cart
+        }
+
+        if (!cancelled) setMedusaCart(appliedCart)
+      } catch (err) {
+        console.error('[checkout] cart init failed:', err)
+      } finally {
+        if (!cancelled) setMedusaCartLoading(false)
+      }
+    }
+
+    initCart()
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])  // Only run once on mount — cartItems are already loaded from localStorage
+
+  // Update cart shipping address when FFL state changes (triggers Medusa tax recalculation)
+  useEffect(() => {
+    if (!medusaCart?.id || !form.fflDealerState.trim()) return
+    if (addressDebounceRef.current) clearTimeout(addressDebounceRef.current)
+    addressDebounceRef.current = setTimeout(async () => {
+      try {
+        const updatedData = await medusaFetch(`/store/carts/${medusaCart.id}`, {
+          method: 'POST',
+          body: JSON.stringify({
+            shipping_address: {
+              first_name: form.fflDealerName.trim() || 'FFL',
+              last_name: 'Dealer',
+              address_1: form.fflDealerCity.trim() || 'City',
+              city: form.fflDealerCity.trim() || 'City',
+              country_code: 'us',
+              province: form.fflDealerState.trim().toLowerCase(),
+              postal_code: '00000',
+            },
+          }),
+        })
+        if (updatedData.cart) setMedusaCart(updatedData.cart)
+      } catch { /* non-fatal */ }
+    }, 500)
+  }, [form.fflDealerState, form.fflDealerName, form.fflDealerCity, medusaCart?.id])
 
   const setField = useCallback((k: keyof FormData, v: string) => {
     setForm(prev => ({ ...prev, [k]: v }))
@@ -184,99 +265,136 @@ export default function CheckoutPage() {
     if (fieldErrors.lastName) return 'Last name is required'
     if (fieldErrors.email) return 'Valid email address is required'
     if (cartItems.length === 0) return 'Your cart is empty'
+    if (!medusaCart?.id) return 'Cart is still loading — please wait a moment'
     return null
   }
 
-  const pendingPayload = () => ({
-    phone: form.phone.trim(),
-    fflDealerName: form.fflDealerName.trim(),
-    fflDealerCity: form.fflDealerCity.trim(),
-    fflDealerState: form.fflDealerState.trim(),
+  const cartMeta = () => ({
+    ffl_dealer_name: form.fflDealerName.trim(),
+    ffl_dealer_city: form.fflDealerCity.trim(),
+    ffl_dealer_state: form.fflDealerState.trim().toUpperCase(),
     notes: form.notes.trim(),
-    items: cartItems.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
+    customer_phone: form.phone.trim(),
   })
+
+  // Ensure cart has latest email + FFL metadata before paying
+  async function prepareCart() {
+    if (!medusaCart?.id) throw new Error('No cart')
+    const data = await medusaFetch(`/store/carts/${medusaCart.id}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        email: form.email.trim(),
+        metadata: cartMeta(),
+        shipping_address: form.fflDealerState.trim() ? {
+          first_name: form.fflDealerName.trim() || 'FFL',
+          last_name: 'Dealer',
+          address_1: form.fflDealerCity.trim() || 'City',
+          city: form.fflDealerCity.trim() || 'City',
+          country_code: 'us',
+          province: form.fflDealerState.trim().toLowerCase(),
+          postal_code: '00000',
+        } : undefined,
+      }),
+    })
+    if (data.cart) setMedusaCart(data.cart)
+    return data.cart ?? medusaCart
+  }
+
+  async function ensurePaymentCollection(cartId: string, providerId: string) {
+    // Create payment collection
+    const pcData = await medusaFetch('/store/payment-collections', {
+      method: 'POST',
+      body: JSON.stringify({ cart_id: cartId }),
+    })
+    const pcId = pcData.payment_collection?.id
+    if (!pcId) throw new Error('Could not create payment collection')
+
+    // Initiate payment session
+    const sessionData = await medusaFetch(`/store/payment-collections/${pcId}/payment-sessions`, {
+      method: 'POST',
+      body: JSON.stringify({
+        provider_id: providerId,
+        data: providerId === 'pp_elavon_elavon'
+          ? { return_url: `${window.location.origin}/api/elavon/complete` }
+          : {},
+      }),
+    })
+    return sessionData.payment_collection
+  }
 
   const handleCardPay = async () => {
     const err = validate()
     if (err) { setErrorMsg(err); return }
-
     setStatus('loading')
     setErrorMsg('')
-    orderRefRef.current = genRef()
-
-    // Store order details in cookie — recovered by /api/elavon/complete after redirect back
-    try {
-      const encoded = btoa(JSON.stringify(pendingPayload()))
-      document.cookie = `lxs_pending=${encoded}; path=/; max-age=3600; SameSite=Lax`
-    } catch { /* non-fatal */ }
 
     try {
-      const returnUrl = `${window.location.origin}/api/elavon/complete`
-      const tokenRes = await fetch('/api/elavon/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: orderTotal,
-          invoiceRef: orderRefRef.current,
-          firstName: form.firstName.trim(),
-          lastName: form.lastName.trim(),
-          email: form.email.trim(),
-          returnUrl,
-        }),
-      })
+      const cart = await prepareCart()
+      const pc = await ensurePaymentCollection(cart.id, 'pp_elavon_elavon')
+      const session = pc?.payment_sessions?.[0]
+      const hostedUrl = session?.data?.hostedUrl as string | undefined
 
-      const tokenData = await tokenRes.json()
-      if (!tokenRes.ok || !tokenData.hostedUrl) {
+      if (!hostedUrl) {
         setStatus('error')
-        setErrorMsg(tokenData.error ?? 'Could not initialize payment. Please try again.')
+        setErrorMsg('Could not initialize payment. Please try again.')
         return
       }
 
-      // Clear cart before leaving — order ref is stored with Elavon
+      // Save cart ID so the callback can complete it
+      document.cookie = `lxs_cart=${cart.id}; path=/; max-age=3600; SameSite=Lax`
       clearCart()
-
-      // Redirect to Elavon's hosted payments page
-      window.location.href = tokenData.hostedUrl
-    } catch {
+      window.location.href = hostedUrl
+    } catch (e: any) {
       setStatus('error')
-      setErrorMsg('Network error. Please check your connection and try again.')
+      setErrorMsg(e?.message ?? 'Network error. Please try again.')
     }
   }
 
   const handleWireOrder = async () => {
     const err = validate()
     if (err) { setErrorMsg(err); return }
-
     setStatus('loading')
     setErrorMsg('')
-    orderRefRef.current = genRef()
 
     try {
-      const res = await fetch('/api/checkout/wire', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderRef: orderRefRef.current,
-          amount: orderTotal,
-          firstName: form.firstName.trim(),
-          lastName: form.lastName.trim(),
-          email: form.email.trim(),
-          ...pendingPayload(),
-        }),
-      })
+      const cart = await prepareCart()
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
+      // Initiate manual payment session + complete cart → creates Medusa order
+      await ensurePaymentCollection(cart.id, 'pp_system_default')
+      const completeData = await medusaFetch(`/store/carts/${cart.id}/complete`, { method: 'POST' })
+
+      if (completeData.type !== 'order') {
         setStatus('error')
-        setErrorMsg(data.error ?? 'Could not submit order. Please try again.')
+        setErrorMsg(completeData.error?.message ?? 'Order could not be completed. Please try again.')
         return
       }
 
+      const order = completeData.order
+
+      // Send wire instructions email via existing route
+      await fetch('/api/checkout/wire', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: order.id,
+          orderRef: String(order.display_id ?? order.id),
+          email: form.email.trim(),
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          amount: (order.total ?? 0) / 100,
+          items: cartItems.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
+          fflDealerName: form.fflDealerName.trim(),
+          fflDealerCity: form.fflDealerCity.trim(),
+          fflDealerState: form.fflDealerState.trim(),
+          notes: form.notes.trim(),
+        }),
+      }).catch(() => { /* email failure non-fatal */ })
+
       clearCart()
-      router.push(`/order-confirmation?ref=${encodeURIComponent(orderRefRef.current)}&name=${encodeURIComponent(form.firstName.trim())}&method=wire`)
-    } catch {
+      router.push(`/order-confirmation?ref=${order.display_id ?? order.id}&name=${encodeURIComponent(form.firstName.trim())}&method=wire`)
+    } catch (e: any) {
       setStatus('error')
-      setErrorMsg('Network error. Please check your connection and try again.')
+      setErrorMsg(e?.message ?? 'Network error. Please try again.')
     }
   }
 
@@ -296,6 +414,14 @@ export default function CheckoutPage() {
     )
   }
 
+  // Totals: prefer Medusa cart values, fall back to local calculation while cart loads
+  const localSubtotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0) * 100 // in cents
+  const subtotalCents = medusaCart?.item_subtotal ?? medusaCart?.subtotal ?? localSubtotal
+  const shippingCents = medusaCart?.shipping_subtotal ?? 0
+  const taxCents = medusaCart?.tax_total ?? 0
+  const totalCents = medusaCart?.total ?? (subtotalCents + shippingCents + taxCents)
+
+  const fflState = form.fflDealerState.trim().toUpperCase()
   const isLoading = status === 'loading'
 
   return (
@@ -396,32 +522,41 @@ export default function CheckoutPage() {
                 {cartItems.map(item => <CartItemRow key={item.id} item={item} />)}
               </div>
 
+              {/* Totals — sourced from Medusa cart */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '16px', borderTop: `1px solid ${t.border}`, marginBottom: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>Subtotal</span>
-                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>{fmt(subtotal)}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>
-                    {rates.shippingLabel || 'Shipping'}
-                  </span>
                   <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>
-                    {rates.shippingCost > 0 ? fmt(rates.shippingCost) : '—'}
+                    {medusaCartLoading ? '—' : fmtCents(subtotalCents)}
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>Shipping</span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>
+                    {medusaCartLoading ? '—' : shippingCents > 0 ? fmtCents(shippingCents) : shippingOptionId ? 'Included' : '—'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>
-                    {rates.taxApplies ? `Tax (${rates.taxRateDisplay})` : 'Tax'}
+                    {taxCents > 0 ? `Tax (FL 7%)` : 'Tax'}
                   </span>
                   <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>
-                    {rates.taxApplies ? fmt(taxAmount) : form.fflDealerState.trim() ? 'None' : 'Enter FFL state'}
+                    {medusaCartLoading
+                      ? '—'
+                      : taxCents > 0
+                      ? fmtCents(taxCents)
+                      : fflState
+                      ? 'None'
+                      : 'Enter FFL state'}
                   </span>
                 </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '14px 0', borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}`, marginBottom: '24px' }}>
                 <span style={{ fontFamily: 'var(--font-playfair)', fontSize: '16px', fontWeight: 400, color: t.text }}>Total</span>
-                <span style={{ fontFamily: 'var(--font-playfair)', fontSize: '24px', fontWeight: 300, color: t.text }}>{fmt(orderTotal)}</span>
+                <span style={{ fontFamily: 'var(--font-playfair)', fontSize: '24px', fontWeight: 300, color: t.text }}>
+                  {medusaCartLoading ? '…' : fmtCents(totalCents)}
+                </span>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
@@ -447,50 +582,36 @@ export default function CheckoutPage() {
 
               {errorMsg && (
                 <div style={{ padding: '12px 14px', background: '#fff5f5', border: '1px solid #fcc', marginBottom: '16px' }}>
-                  <p style={{ fontSize: '11.5px', color: '#b05040', margin: 0, lineHeight: 1.5, fontWeight: 300 }}>{errorMsg}</p>
+                  <p style={{ fontSize: '11.5px', color: '#c0392b', margin: 0, lineHeight: 1.5, fontFamily: 'var(--font-inter)' }}>{errorMsg}</p>
                 </div>
               )}
 
               <button
                 onClick={handleSubmit}
-                disabled={isLoading}
-                style={{ width: '100%', padding: '15px', background: isLoading ? t.textDim : t.gold, color: '#fff', border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-inter)', fontWeight: 600, borderRadius: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'background 0.2s' }}
+                disabled={isLoading || medusaCartLoading}
+                style={{
+                  width: '100%', padding: '16px', background: isLoading ? t.gold + 'aa' : t.gold,
+                  border: 'none', cursor: isLoading || medusaCartLoading ? 'not-allowed' : 'pointer',
+                  fontSize: '9.5px', letterSpacing: '0.2em', textTransform: 'uppercase', fontWeight: 500,
+                  color: '#fff', fontFamily: 'var(--font-inter)', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', gap: '10px', transition: 'opacity 0.15s',
+                }}
               >
-                {isLoading ? (
-                  <>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ animation: 'lxs-spin 1s linear infinite' }}>
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="60" strokeDashoffset="20" strokeLinecap="round"/>
-                    </svg>
-                    {paymentMethod === 'card' ? 'Redirecting to payment…' : 'Submitting order…'}
-                  </>
-                ) : paymentMethod === 'wire' ? (
-                  <>
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 0.5L10 3V6.5C10 9 8 10.8 5.5 11.5C3 10.8 1 9 1 6.5V3L5.5 0.5Z" stroke="currentColor" strokeWidth="0.9" strokeLinejoin="round"/></svg>
-                    Submit Order — Wire / Check
-                  </>
-                ) : (
-                  <>
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none"><path d="M5.5 0.5L10 3V6.5C10 9 8 10.8 5.5 11.5C3 10.8 1 9 1 6.5V3L5.5 0.5Z" stroke="currentColor" strokeWidth="0.9" strokeLinejoin="round"/></svg>
-                    Proceed to Secure Payment
-                  </>
+                {isLoading && (
+                  <span style={{ width: '14px', height: '14px', border: '1.5px solid #fff4', borderTopColor: '#fff', borderRadius: '50%', animation: 'lxs-spin 0.8s linear infinite', display: 'inline-block' }} />
                 )}
+                {medusaCartLoading
+                  ? 'Loading...'
+                  : isLoading
+                  ? 'Processing...'
+                  : paymentMethod === 'wire'
+                  ? 'Place Order — Wire / Check'
+                  : 'Continue to Payment'}
               </button>
 
-              <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {(paymentMethod === 'card' ? [
-                  'Payment processed by Elavon Converge — PCI compliant',
-                  'Card details entered on Elavon\'s encrypted page',
-                  'Visa · Mastercard · American Express · Discover',
-                ] : [
-                  'Order held 5 business days pending payment',
-                  'Wire instructions emailed to you immediately',
-                  'Questions? Call (941) 253-3660',
-                ]).map(label => (
-                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><circle cx="4.5" cy="4.5" r="4" stroke="currentColor" strokeWidth="0.8"/><path d="M2.5 4.5L3.8 5.8L6.5 3" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                    <span style={{ fontSize: '10px', color: t.textDim, fontWeight: 300 }}>{label}</span>
-                  </div>
-                ))}
+              <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="6.5" rx="1" stroke="#999" strokeWidth="1"/><path d="M3.5 5V3.5a2.5 2.5 0 0 1 5 0V5" stroke="#999" strokeWidth="1"/></svg>
+                <span style={{ fontSize: '9.5px', color: t.textDim, fontWeight: 300 }}>SSL Encrypted · TLS 1.3</span>
               </div>
             </div>
 

@@ -11,6 +11,7 @@ export default function OrderConfirmationPage() {
   const name = params.get('name') ?? ''
   const method = params.get('method') ?? 'card'
   const isWire = method === 'wire'
+  const hasWarn = params.get('warn') === '1'
 
   return (
     <div style={{ background: t.bg, minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
@@ -43,6 +44,15 @@ export default function OrderConfirmationPage() {
             ? 'Your order has been received. Wire transfer instructions have been sent to your email. Your order is held for 5 business days pending receipt of funds.'
             : 'Your payment has been approved and your order is confirmed. We will contact you within one business day to arrange FFL transfer and shipping details.'}
         </p>
+
+        {hasWarn && (
+          <div style={{ padding: '14px 18px', background: '#fff8f0', border: '1px solid #f0c080', marginBottom: '20px', textAlign: 'left' }}>
+            <p style={{ fontSize: '12px', color: '#8b5e00', lineHeight: 1.6, margin: 0, fontFamily: 'var(--font-inter)' }}>
+              Your payment was approved — please save your reference below. Our team will confirm your order by email within one business day. If you don&apos;t hear from us, contact{' '}
+              <a href="mailto:sales@luxus-collection.com" style={{ color: '#8b5e00' }}>sales@luxus-collection.com</a>.
+            </p>
+          </div>
+        )}
 
         {ref && (
           <div style={{ padding: '16px 20px', background: '#fafaf8', border: `1px solid ${t.border}`, marginBottom: '28px', display: 'inline-block' }}>

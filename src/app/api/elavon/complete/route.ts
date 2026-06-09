@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
+const MEDUSA_PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
+const ELAVON_PROXY_SECRET = process.env.ELAVON_PROXY_SECRET ?? ''
 const FROM = 'Luxus Collection <noreply@luxus-collection.com>'
 const SALES = 'sales@luxus-collection.com'
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }).format(n)
 
 function emailWrap(content: string) {
   return `<!DOCTYPE html>
@@ -42,78 +45,89 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(`${origin}/checkout?error=bad_response`)
   }
 
-  const sslResult       = fields.ssl_result ?? ''
-  const orderRef        = fields.ssl_invoice_number ?? ''
-  const approvalCode    = fields.ssl_approval_code ?? ''
-  const txnId           = fields.ssl_txn_id ?? ''
-  const rawAmount       = fields.ssl_amount ?? '0'
-  const amount          = parseFloat(rawAmount.replace(/,/g, ''))
-  const firstName       = fields.ssl_first_name ?? ''
-  const lastName        = fields.ssl_last_name ?? ''
-  const email           = fields.ssl_email ?? ''
-  const resultMessage   = fields.ssl_result_message ?? ''
+  const sslResult     = fields.ssl_result ?? ''
+  const approvalCode  = fields.ssl_approval_code ?? ''
+  const txnId         = fields.ssl_txn_id ?? ''
+  const rawAmount     = fields.ssl_amount ?? '0'
+  const amount        = parseFloat(rawAmount.replace(/,/g, ''))
+  const firstName     = fields.ssl_first_name ?? ''
+  const lastName      = fields.ssl_last_name ?? ''
+  const email         = fields.ssl_email ?? ''
+  const resultMessage = fields.ssl_result_message ?? ''
 
-  // Recover order details from cookie (set by checkout page before redirect)
-  let pendingOrder: {
-    phone?: string
-    fflDealerName?: string
-    fflDealerCity?: string
-    fflDealerState?: string
-    notes?: string
-    items?: Array<{ title: string; quantity: number; price: number }>
-  } = {}
-
-  try {
-    const raw = req.cookies.get('lxs_pending')?.value
-    if (raw) pendingOrder = JSON.parse(Buffer.from(raw, 'base64').toString('utf-8'))
-  } catch { /* cookie missing or malformed — proceed without extra details */ }
-
-  // Declined or error
+  // Declined or error — redirect back to checkout
   if (sslResult !== '0') {
     const msg = resultMessage || 'Payment was declined. Please try again or use a different card.'
     const res = NextResponse.redirect(`${origin}/checkout?declined=${encodeURIComponent(msg)}`)
-    res.cookies.delete('lxs_pending')
+    res.cookies.delete('lxs_cart')
     return res
   }
 
-  // ── Approved ────────────────────────────────────────────────────────────────
-  const { phone = '', fflDealerName = '', fflDealerCity = '', fflDealerState = '', notes = '', items = [] } = pendingOrder
-  const fflLine = [fflDealerName, fflDealerCity, fflDealerState].filter(Boolean).join(', ')
+  // ── Approved — finalize via Medusa ──────────────────────────────────────────
+  const cartId = req.cookies.get('lxs_cart')?.value
+  if (!cartId) {
+    // Cookie missing — unusual but not necessarily an error (browser may have cleared cookies)
+    console.warn('[elavon/complete] lxs_cart cookie missing after approved payment')
+    return NextResponse.redirect(
+      `${origin}/order-confirmation?ref=unknown&name=${encodeURIComponent(firstName)}&method=card`
+    )
+  }
 
-  const itemRowsHtml = items.map(i => `
-    <tr>
-      <td style="padding:8px 16px;font-size:12px;color:#1a1a1a;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8">${i.title.replace(/</g, '&lt;')}</td>
-      <td style="padding:8px 16px;font-size:12px;color:#1a1a1a;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8;text-align:center">${i.quantity}</td>
-      <td style="padding:8px 16px;font-size:12px;color:#1a1a1a;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8;text-align:right">${fmt(i.price * i.quantity)}</td>
-    </tr>`).join('')
+  // Call Medusa to update payment session and complete the cart → creates a Medusa order
+  let orderId: string | undefined
+  let displayId: string | number | undefined
 
-  const itemsBlock = items.length > 0 ? `
-    <div style="padding:20px 28px 4px">
-      <p style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;margin:0 0 12px">Items Ordered</p>
-      <table style="width:100%;border-collapse:collapse">
-        <tr>
-          <th style="padding:8px 16px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;border-bottom:1px solid #e8e4df;text-align:left">Item</th>
-          <th style="padding:8px 16px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;border-bottom:1px solid #e8e4df;text-align:center">Qty</th>
-          <th style="padding:8px 16px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;border-bottom:1px solid #e8e4df;text-align:right">Price</th>
-        </tr>
-        ${itemRowsHtml}
-      </table>
-    </div>
-    <div style="padding:12px 28px 24px;text-align:right">
-      <span style="font-size:15px;font-weight:500;color:#1a1a1a;font-family:Georgia,serif">Total: ${fmt(amount)}</span>
-    </div>` : ''
+  try {
+    const finalizeRes = await fetch(`${MEDUSA_URL}/store/elavon/finalize`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-publishable-api-key': MEDUSA_PK,
+        'x-elavon-proxy-secret': ELAVON_PROXY_SECRET,
+      },
+      body: JSON.stringify({
+        cartId,
+        ssl_result: sslResult,
+        ssl_txn_id: txnId,
+        ssl_approval_code: approvalCode,
+        ssl_amount: rawAmount,
+        ssl_result_message: resultMessage,
+      }),
+    })
 
-  // Sales email
-  const salesFields = [
-    ['Order Reference', orderRef],
+    const finalizeData = await finalizeRes.json()
+
+    if (!finalizeRes.ok || finalizeData.error) {
+      console.error('[elavon/complete] finalize failed:', finalizeData.error)
+      // Payment WAS approved by Elavon — flag for follow-up rather than showing an error
+      const res = NextResponse.redirect(
+        `${origin}/order-confirmation?ref=${encodeURIComponent(approvalCode || cartId)}&name=${encodeURIComponent(firstName)}&method=card&warn=1`
+      )
+      res.cookies.delete('lxs_cart')
+      return res
+    }
+
+    orderId   = finalizeData.orderId
+    displayId = finalizeData.displayId
+  } catch (err) {
+    console.error('[elavon/complete] finalize fetch error:', err)
+    const res = NextResponse.redirect(
+      `${origin}/order-confirmation?ref=${encodeURIComponent(approvalCode || cartId)}&name=${encodeURIComponent(firstName)}&method=card&warn=1`
+    )
+    res.cookies.delete('lxs_cart')
+    return res
+  }
+
+  const orderRef = String(displayId ?? orderId ?? cartId)
+
+  // ── Send emails (non-blocking — order is already in Medusa) ─────────────────
+  const salesRows = [
+    ['Medusa Order', `#${orderRef}`],
     ['Approval Code', approvalCode],
     ['Transaction ID', txnId],
     ['Total Charged', fmt(amount)],
     ['Customer', `${firstName} ${lastName}`],
     ['Email', email],
-    ['Phone', phone || '—'],
-    ['FFL Dealer', fflLine || '—'],
-    ['Notes', notes || '—'],
   ].map(([label, value]) => `
     <tr>
       <td style="padding:9px 16px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;white-space:nowrap;border-bottom:1px solid #f0ede8;vertical-align:top;width:160px">${label}</td>
@@ -123,25 +137,13 @@ export async function POST(req: NextRequest) {
   const salesHtml = emailWrap(`
     <div style="background:#1a1a1a;padding:20px 28px">
       <span style="font-size:9px;letter-spacing:0.26em;text-transform:uppercase;color:#c9a96e;font-family:Arial,sans-serif;font-weight:500">Luxus Collection</span>
-      <span style="font-size:11px;color:#c9a96e;font-family:Arial,sans-serif;margin-left:16px;font-weight:500">NEW ORDER — ${orderRef}</span>
+      <span style="font-size:11px;color:#c9a96e;font-family:Arial,sans-serif;margin-left:16px;font-weight:500">NEW ORDER — #${orderRef}</span>
     </div>
     <div style="padding:28px 28px 8px">
       <h2 style="font-size:22px;font-weight:400;color:#1a1a1a;margin:0 0 4px;font-family:Georgia,serif">Order Approved</h2>
-      <p style="font-size:12px;color:#9e9994;font-family:Arial,sans-serif;margin:0 0 24px">Payment approved via Elavon Converge Hosted Payments. Contact customer to arrange FFL transfer and shipping.</p>
+      <p style="font-size:12px;color:#9e9994;font-family:Arial,sans-serif;margin:0 0 24px">Payment approved via Elavon Converge. Full order details in Medusa Admin. Contact customer to arrange FFL transfer and shipping.</p>
     </div>
-    <table style="width:100%;border-collapse:collapse">${salesFields}</table>
-    ${itemsBlock}`)
-
-  // Customer email
-  const fflSection = fflLine ? `
-    <div style="margin:0 28px 20px;padding:14px 16px;background:#f5f3ef;border-left:2px solid #c9a96e">
-      <p style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#c9a96e;font-family:Arial,sans-serif;font-weight:500;margin:0 0 5px">FFL Transfer Dealer</p>
-      <p style="font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;margin:0">${fflLine.replace(/</g, '&lt;')}</p>
-      <p style="font-size:11px;color:#9e9994;font-family:Arial,sans-serif;margin:6px 0 0">We will ship directly to this dealer. They will contact you when your firearm arrives for pickup.</p>
-    </div>` : `
-    <div style="margin:0 28px 20px;padding:14px 16px;background:#f5f3ef;border-left:2px solid #c9a96e">
-      <p style="font-size:11px;color:#9e9994;font-family:Arial,sans-serif;margin:0">We will contact you to confirm your FFL transfer dealer before shipping.</p>
-    </div>`
+    <table style="width:100%;border-collapse:collapse">${salesRows}</table>`)
 
   const customerHtml = emailWrap(`
     <div style="background:#1a1a1a;padding:20px 28px">
@@ -155,37 +157,32 @@ export async function POST(req: NextRequest) {
     <table style="width:100%;border-collapse:collapse">
       <tr>
         <td style="padding:9px 16px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8;width:160px">Order Reference</td>
-        <td style="padding:9px 16px;font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8;font-weight:500;letter-spacing:0.05em">${orderRef}</td>
+        <td style="padding:9px 16px;font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8;font-weight:500;letter-spacing:0.05em">#${orderRef}</td>
       </tr>
       <tr>
         <td style="padding:9px 16px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8;width:160px">Total Charged</td>
         <td style="padding:9px 16px;font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;border-bottom:1px solid #f0ede8">${fmt(amount)}</td>
       </tr>
     </table>
-    ${itemsBlock}
-    ${fflSection}
-    <div style="padding:0 28px 28px">
-      <p style="font-size:11px;color:#9e9994;font-family:Arial,sans-serif;line-height:1.7;margin:0">We will be in touch within one business day to confirm shipping details.</p>
+    <div style="margin:20px 28px;padding:14px 16px;background:#f5f3ef;border-left:2px solid #c9a96e">
+      <p style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#c9a96e;font-family:Arial,sans-serif;font-weight:500;margin:0 0 5px">Next Steps</p>
+      <p style="font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;margin:0 0 6px">We will contact you within one business day to confirm your FFL transfer dealer and arrange shipping.</p>
+      <p style="font-size:11px;color:#9e9994;font-family:Arial,sans-serif;margin:0">All firearms require FFL transfer to a licensed dealer near you.</p>
     </div>`)
 
-  // Fire emails (non-blocking — order is already approved)
-  const emailPromises = [
-    sendEmail(SALES, `New Order ${orderRef} — ${firstName} ${lastName} — ${fmt(amount)}`, salesHtml, email),
-  ]
-  if (email) {
-    emailPromises.push(sendEmail(email, `Order Confirmed — ${orderRef}`, customerHtml, SALES))
-  }
-  await Promise.allSettled(emailPromises)
+  await Promise.allSettled([
+    sendEmail(SALES, `New Order #${orderRef} — ${firstName} ${lastName} — ${fmt(amount)}`, salesHtml, email || undefined),
+    ...(email ? [sendEmail(email, `Order Confirmed — #${orderRef}`, customerHtml, SALES)] : []),
+  ])
 
-  // Clear pending cookie and redirect to confirmation
   const res = NextResponse.redirect(
     `${origin}/order-confirmation?ref=${encodeURIComponent(orderRef)}&name=${encodeURIComponent(firstName)}&method=card`
   )
-  res.cookies.delete('lxs_pending')
+  res.cookies.delete('lxs_cart')
   return res
 }
 
-// Some versions of Elavon use GET for the return — handle both
+// Elavon may POST or GET for the return URL — handle both
 export async function GET(req: NextRequest) {
   return POST(req)
 }
