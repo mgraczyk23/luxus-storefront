@@ -29,6 +29,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Payment not configured' }, { status: 500 })
   }
 
+  // Diagnostic: log credential shapes (never values) to help debug 401s
+  console.log('[elavon/token] env:', process.env.ELAVON_ENV ?? '(not set)')
+  console.log('[elavon/token] merchantId len:', merchantId.length, 'starts:', merchantId.slice(0, 2))
+  console.log('[elavon/token] userId len:', userId.length, 'starts:', userId.slice(0, 2))
+  console.log('[elavon/token] pin len:', pin.length)
+  console.log('[elavon/token] endpoint:', BASE)
+
   const params = new URLSearchParams({
     ssl_merchant_id: merchantId,
     ssl_user_id: userId,
