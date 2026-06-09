@@ -120,7 +120,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
       }}
     >
       {/* Image */}
-      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#f0f0f0" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#ffffff" }}>
         {product.thumbnail ? (
           <Image
             src={product.thumbnail}

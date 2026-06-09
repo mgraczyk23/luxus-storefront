@@ -43,7 +43,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
     <Link href={`/product/${product.handle}`}
       onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
       style={{ background: hov ? t.bgCardHover : t.bgCard, border: `1px solid ${hov ? t.gold + "55" : t.border}`, borderRadius: "1px", overflow: "hidden", transition: "all 0.28s ease", transform: hov ? "translateY(-3px)" : "none", boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.1)` : "0 2px 8px rgba(0,0,0,0.04)", cursor: "pointer", display: "flex", flexDirection: "column", fontFamily: "var(--font-inter)", textDecoration: "none", color: "inherit" }}>
-      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#f5f5f6", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#ffffff", flexShrink: 0 }}>
         {product.thumbnail
           ? <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"/>
           : <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }}><svg width="40" height="40" viewBox="0 0 40 40" fill="none" style={{ opacity: 0.15 }}><rect x="4" y="12" width="32" height="20" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M12 12V10C12 8.9 12.9 8 14 8H26C27.1 8 28 8.9 28 10V12" stroke="currentColor" strokeWidth="1.5"/></svg></div>}

@@ -89,7 +89,7 @@ function RelatedCard({ product }: { product: MappedProduct }) {
         display: "flex", flexDirection: "column", height: "100%",
       }}
     >
-      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#f0f0f0", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", background: "#ffffff", flexShrink: 0 }}>
         {product.thumbnail ? (
           <Image src={product.thumbnail} alt={product.title} fill style={{ objectFit: "contain" }}
             sizes="(max-width: 640px) 50vw, 25vw" />
@@ -241,7 +241,7 @@ export default function ProductDetailPage({
     })
   }
 
-  const images = product.images.length > 0 ? product.images : []
+  const images = product.images.filter(url => url !== product.thumbnail)
   const hasImages = images.length > 0
 
   // Build spec table: prefer server-fetched specs (from /specs endpoint — includes product_spec
@@ -385,7 +385,7 @@ export default function ProductDetailPage({
                 border: `1px solid ${t.border}`,
                 cursor: hasImages ? "zoom-in" : "default",
                 overflow: "hidden", marginBottom: "12px",
-                background: "#f0f0f0",
+                background: "#ffffff",
               }}
             >
               {hasImages && images[activeImg] ? (

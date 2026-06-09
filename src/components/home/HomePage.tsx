@@ -143,7 +143,7 @@ function ProductCard({ product, small = false }: {
         display: "flex", flexDirection: "column",
       }}
     >
-      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#ffffff" }}>
         {product.thumbnail ? (
           <Image
             src={product.thumbnail}
@@ -266,7 +266,7 @@ function AuctionCard({ auction }: { auction: Auction }) {
         textDecoration: "none", color: "inherit",
       }}
     >
-      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0 }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#ffffff" }}>
         {auction.thumbnail ? (
           <img src={auction.thumbnail} alt={auction.title} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain" }} />
         ) : (
