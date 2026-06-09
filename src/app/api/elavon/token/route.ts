@@ -9,15 +9,17 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
 
-  const { amount, invoiceRef, firstName, lastName, email } = body as {
+  const { amount, invoiceRef, firstName, lastName, email, returnUrl } = body as {
     amount: number
     invoiceRef: string
     firstName: string
     lastName: string
     email: string
+    returnUrl: string
   }
 
   if (!amount || amount <= 0) return NextResponse.json({ error: 'Invalid amount' }, { status: 400 })
+  if (!returnUrl) return NextResponse.json({ error: 'returnUrl required' }, { status: 400 })
 
   const merchantId = process.env.ELAVON_MERCHANT_ID
   const userId = process.env.ELAVON_USER_ID
@@ -37,7 +39,8 @@ export async function POST(req: NextRequest) {
     ssl_first_name: firstName,
     ssl_last_name: lastName,
     ssl_email: email,
-    ssl_show_form: 'false',
+    ssl_return_url: returnUrl,
+    ssl_show_form: 'true',
   })
 
   const res = await fetch(`${BASE}/transaction_token`, {
@@ -48,7 +51,6 @@ export async function POST(req: NextRequest) {
 
   const text = await res.text()
 
-  // Response is either a raw token string or key=value pairs
   if (text.includes('ssl_result=1') || text.includes('ssl_result_message')) {
     const parsed = Object.fromEntries(new URLSearchParams(text))
     const msg = parsed.ssl_result_message ?? 'Token request failed'
@@ -56,7 +58,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 502 })
   }
 
-  // Extract token — may be plain string or encoded as ssl_txn_auth_token=xxx
+  // Response is a raw token string or encoded as ssl_txn_auth_token=xxx
   let token = text.trim()
   if (token.includes('=')) {
     token = new URLSearchParams(token).get('ssl_txn_auth_token') ?? token
@@ -64,5 +66,5 @@ export async function POST(req: NextRequest) {
 
   if (!token) return NextResponse.json({ error: 'No token returned' }, { status: 502 })
 
-  return NextResponse.json({ token })
+  return NextResponse.json({ token, hostedUrl: `${BASE}/${token}` })
 }

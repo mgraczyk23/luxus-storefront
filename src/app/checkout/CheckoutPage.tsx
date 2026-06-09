@@ -1,26 +1,11 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import Script from 'next/script'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart, type CartItem } from '@/context/CartContext'
-
-declare global {
-  interface Window {
-    ConvergeLightbox?: {
-      open: (opts: {
-        ssl_txn_auth_token: string
-        onError: (err: string) => void
-        onCancelled: () => void
-        onDeclined: (r: Record<string, string>) => void
-        onApproval: (r: Record<string, string>) => void
-      }) => void
-    }
-  }
-}
 
 const fmt = (n: number) =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
@@ -105,9 +90,7 @@ function CartItemRow({ item }: { item: CartItem }) {
         <div style={{ width: '52px', height: '52px', flexShrink: 0, border: `1px solid ${t.border}`, background: '#f5f5f5' }} />
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {item.brand && (
-          <div style={{ fontSize: '8px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.gold, fontWeight: 500 }}>{item.brand}</div>
-        )}
+        {item.brand && <div style={{ fontSize: '8px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.gold, fontWeight: 500 }}>{item.brand}</div>}
         <div style={{ fontSize: '12px', fontWeight: 300, color: t.text, lineHeight: 1.35, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
         {item.quantity > 1 && <div style={{ fontSize: '10.5px', color: t.textMuted, marginTop: '2px' }}>×{item.quantity}</div>}
       </div>
@@ -118,59 +101,20 @@ function CartItemRow({ item }: { item: CartItem }) {
 
 function PaymentMethodSelector({ value, onChange }: { value: PaymentMethod; onChange: (m: PaymentMethod) => void }) {
   const { t } = useTheme()
-  const options: { id: PaymentMethod; label: string; sub: string; icon: React.ReactNode }[] = [
-    {
-      id: 'card',
-      label: 'Credit / Debit Card',
-      sub: 'Visa · Mastercard · Amex · Discover',
-      icon: (
-        <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-          <rect x="0.5" y="0.5" width="17" height="13" rx="1.5" stroke="currentColor" strokeWidth="1"/>
-          <path d="M0.5 4H17.5" stroke="currentColor" strokeWidth="1.2"/>
-          <rect x="2" y="7.5" width="4" height="2" rx="0.5" fill="currentColor"/>
-        </svg>
-      ),
-    },
-    {
-      id: 'wire',
-      label: 'Wire Transfer or Check',
-      sub: 'Instructions emailed · Order held 5 business days',
-      icon: (
-        <svg width="18" height="14" viewBox="0 0 18 14" fill="none">
-          <rect x="0.5" y="0.5" width="17" height="13" rx="1.5" stroke="currentColor" strokeWidth="1"/>
-          <path d="M3 5h4M3 7h6M3 9h3" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/>
-          <path d="M12 4l2.5 3L12 10" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
-    },
+  const options: { id: PaymentMethod; label: string; sub: string }[] = [
+    { id: 'card', label: 'Credit / Debit Card', sub: 'Visa · Mastercard · Amex · Discover' },
+    { id: 'wire', label: 'Wire Transfer or Check', sub: 'Instructions emailed · Order held 5 business days' },
   ]
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
       {options.map(opt => {
         const active = value === opt.id
         return (
-          <button
-            key={opt.id}
-            type="button"
-            onClick={() => onChange(opt.id)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '14px',
-              padding: '14px 16px', border: `1px solid ${active ? t.gold : t.border}`,
-              background: active ? `${t.gold}08` : '#fff',
-              cursor: 'pointer', textAlign: 'left', width: '100%',
-              transition: 'border-color 0.15s, background 0.15s',
-            }}
-          >
-            <div style={{
-              width: '18px', height: '18px', borderRadius: '50%',
-              border: `1.5px solid ${active ? t.gold : t.border}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0, background: active ? t.gold : 'transparent',
-              transition: 'all 0.15s',
-            }}>
+          <button key={opt.id} type="button" onClick={() => onChange(opt.id)}
+            style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', border: `1px solid ${active ? t.gold : t.border}`, background: active ? `${t.gold}08` : '#fff', cursor: 'pointer', textAlign: 'left', width: '100%', transition: 'border-color 0.15s' }}>
+            <div style={{ width: '18px', height: '18px', borderRadius: '50%', border: `1.5px solid ${active ? t.gold : t.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: active ? t.gold : 'transparent', transition: 'all 0.15s' }}>
               {active && <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#fff' }} />}
             </div>
-            <span style={{ color: active ? t.gold : t.textDim, flexShrink: 0 }}>{opt.icon}</span>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: '12px', fontWeight: 500, color: t.text, fontFamily: 'var(--font-inter)', marginBottom: '2px' }}>{opt.label}</div>
               <div style={{ fontSize: '10px', fontWeight: 300, color: t.textMuted, fontFamily: 'var(--font-inter)' }}>{opt.sub}</div>
@@ -186,13 +130,18 @@ export default function CheckoutPage() {
   const { t } = useTheme()
   const { cartItems, clearCart } = useCart()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [form, setForm] = useState<FormData>(EMPTY)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
-  const [scriptLoaded, setScriptLoaded] = useState(false)
-  const [scriptFailed, setScriptFailed] = useState(false)
   const orderRefRef = useRef('')
+
+  // Show error returned from Elavon's declined redirect
+  useEffect(() => {
+    const declined = searchParams.get('declined')
+    if (declined) setErrorMsg(`Payment declined: ${declined}`)
+  }, [searchParams])
 
   const subtotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0)
 
@@ -215,12 +164,7 @@ export default function CheckoutPage() {
     return null
   }
 
-  const orderPayload = () => ({
-    orderRef: orderRefRef.current,
-    amount: subtotal,
-    firstName: form.firstName.trim(),
-    lastName: form.lastName.trim(),
-    email: form.email.trim(),
+  const pendingPayload = () => ({
     phone: form.phone.trim(),
     fflDealerName: form.fflDealerName.trim(),
     fflDealerCity: form.fflDealerCity.trim(),
@@ -228,6 +172,53 @@ export default function CheckoutPage() {
     notes: form.notes.trim(),
     items: cartItems.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
   })
+
+  const handleCardPay = async () => {
+    const err = validate()
+    if (err) { setErrorMsg(err); return }
+
+    setStatus('loading')
+    setErrorMsg('')
+    orderRefRef.current = genRef()
+
+    // Store order details in cookie — recovered by /api/elavon/complete after redirect back
+    try {
+      const encoded = btoa(JSON.stringify(pendingPayload()))
+      document.cookie = `lxs_pending=${encoded}; path=/; max-age=3600; SameSite=Lax`
+    } catch { /* non-fatal */ }
+
+    try {
+      const returnUrl = `${window.location.origin}/api/elavon/complete`
+      const tokenRes = await fetch('/api/elavon/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: subtotal,
+          invoiceRef: orderRefRef.current,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          email: form.email.trim(),
+          returnUrl,
+        }),
+      })
+
+      const tokenData = await tokenRes.json()
+      if (!tokenRes.ok || !tokenData.hostedUrl) {
+        setStatus('error')
+        setErrorMsg(tokenData.error ?? 'Could not initialize payment. Please try again.')
+        return
+      }
+
+      // Clear cart before leaving — order ref is stored with Elavon
+      clearCart()
+
+      // Redirect to Elavon's hosted payments page
+      window.location.href = tokenData.hostedUrl
+    } catch {
+      setStatus('error')
+      setErrorMsg('Network error. Please check your connection and try again.')
+    }
+  }
 
   const handleWireOrder = async () => {
     const err = validate()
@@ -241,7 +232,14 @@ export default function CheckoutPage() {
       const res = await fetch('/api/checkout/wire', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderPayload()),
+        body: JSON.stringify({
+          orderRef: orderRefRef.current,
+          amount: subtotal,
+          firstName: form.firstName.trim(),
+          lastName: form.lastName.trim(),
+          email: form.email.trim(),
+          ...pendingPayload(),
+        }),
       })
 
       if (!res.ok) {
@@ -259,85 +257,6 @@ export default function CheckoutPage() {
     }
   }
 
-  const handleCardPay = async () => {
-    const err = validate()
-    if (err) { setErrorMsg(err); return }
-    if (scriptFailed) {
-      setErrorMsg('Could not reach Elavon\'s payment servers. Please check your internet connection and refresh.')
-      return
-    }
-    if (!window.ConvergeLightbox) {
-      const domain = typeof window !== 'undefined' ? window.location.hostname : 'this domain'
-      setErrorMsg(`Payment form blocked: "${domain}" is not in your Elavon Valid API Domains list. Log into your Elavon account, add this domain, then refresh.`)
-      return
-    }
-
-    setStatus('loading')
-    setErrorMsg('')
-    orderRefRef.current = genRef()
-
-    try {
-      const tokenRes = await fetch('/api/elavon/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: subtotal,
-          invoiceRef: orderRefRef.current,
-          firstName: form.firstName.trim(),
-          lastName: form.lastName.trim(),
-          email: form.email.trim(),
-        }),
-      })
-
-      const tokenData = await tokenRes.json()
-      if (!tokenRes.ok || !tokenData.token) {
-        setStatus('error')
-        setErrorMsg(tokenData.error ?? 'Could not initialize payment. Please try again.')
-        return
-      }
-
-      setStatus('idle')
-
-      window.ConvergeLightbox.open({
-        ssl_txn_auth_token: tokenData.token,
-
-        onError: (errMsg) => {
-          setStatus('error')
-          setErrorMsg(`Payment error: ${errMsg}`)
-        },
-
-        onCancelled: () => {
-          setStatus('idle')
-        },
-
-        onDeclined: (response) => {
-          setStatus('error')
-          setErrorMsg(response.ssl_result_message
-            ? `Payment declined: ${response.ssl_result_message}`
-            : 'Your card was declined. Please try a different card.')
-        },
-
-        onApproval: async (response) => {
-          await fetch('/api/elavon/notify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...orderPayload(),
-              approvalCode: response.ssl_approval_code ?? '',
-              txnId: response.ssl_txn_id ?? '',
-            }),
-          }).catch(() => {})
-
-          clearCart()
-          router.push(`/order-confirmation?ref=${encodeURIComponent(orderRefRef.current)}&name=${encodeURIComponent(form.firstName.trim())}&method=card`)
-        },
-      })
-    } catch {
-      setStatus('error')
-      setErrorMsg('Network error. Please check your connection and try again.')
-    }
-  }
-
   const handleSubmit = () => {
     if (paymentMethod === 'wire') handleWireOrder()
     else handleCardPay()
@@ -348,26 +267,16 @@ export default function CheckoutPage() {
       <div style={{ background: t.bg, minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontFamily: 'var(--font-playfair)', fontSize: '28px', fontWeight: 300, color: t.text, marginBottom: '12px' }}>Your cart is empty</div>
-          <Link href="/shop" style={{ fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontWeight: 500 }}>
-            Browse Collection →
-          </Link>
+          <Link href="/shop" style={{ fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.gold, textDecoration: 'none', fontWeight: 500 }}>Browse Collection →</Link>
         </div>
       </div>
     )
   }
 
   const isLoading = status === 'loading'
-  const cardReady = true // script load is checked at click time; don't gate the button
 
   return (
     <>
-      <Script
-        src="https://api.convergepay.com/hosted-payments/Lightbox.js"
-        onLoad={() => setScriptLoaded(true)}
-        onError={() => setScriptFailed(true)}
-        strategy="afterInteractive"
-      />
-
       <style>{`
         .lxs-co-grid { display: grid; grid-template-columns: 1fr 400px; gap: 48px; align-items: start; }
         .lxs-co-sticky { position: sticky; top: 96px; }
@@ -414,21 +323,16 @@ export default function CheckoutPage() {
             {/* ── Left: Form ── */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
 
-              {/* Contact */}
               <section>
                 <SectionHead title="Contact Information" />
                 <div className="lxs-co-contact">
-                  <Field label="First Name" name="firstName" value={form.firstName} onChange={setField} required
-                    error={fieldErrors.firstName} />
-                  <Field label="Last Name" name="lastName" value={form.lastName} onChange={setField} required
-                    error={fieldErrors.lastName} />
-                  <Field label="Email Address" name="email" value={form.email} onChange={setField} required type="email"
-                    error={fieldErrors.email} />
+                  <Field label="First Name" name="firstName" value={form.firstName} onChange={setField} required error={fieldErrors.firstName} />
+                  <Field label="Last Name" name="lastName" value={form.lastName} onChange={setField} required error={fieldErrors.lastName} />
+                  <Field label="Email Address" name="email" value={form.email} onChange={setField} required type="email" error={fieldErrors.email} />
                   <Field label="Phone Number" name="phone" value={form.phone} onChange={setField} placeholder="Optional" />
                 </div>
               </section>
 
-              {/* FFL */}
               <section>
                 <SectionHead title="FFL Transfer Dealer" />
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start', padding: '14px 16px', background: '#fafaf8', border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}50`, marginBottom: '16px' }}>
@@ -447,7 +351,6 @@ export default function CheckoutPage() {
                 </div>
               </section>
 
-              {/* Notes */}
               <section>
                 <SectionHead title="Order Notes" />
                 <textarea
@@ -462,7 +365,7 @@ export default function CheckoutPage() {
               </section>
             </div>
 
-            {/* ── Right: Order Summary ── */}
+            {/* ── Right: Summary ── */}
             <div className="lxs-co-sticky" style={{ background: '#fff', border: `1px solid ${t.border}`, padding: '28px' }}>
               <SectionHead title="Order Summary" />
 
@@ -471,11 +374,7 @@ export default function CheckoutPage() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '16px', borderTop: `1px solid ${t.border}`, marginBottom: '8px' }}>
-                {[
-                  ['Subtotal', fmt(subtotal)],
-                  ['Shipping', 'Invoiced after order'],
-                  ['Tax', 'Calculated at transfer'],
-                ].map(([label, val]) => (
+                {[['Subtotal', fmt(subtotal)], ['Shipping', 'Invoiced after order'], ['Tax', 'Calculated at transfer']].map(([label, val]) => (
                   <div key={label} style={{ display: 'flex', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>{label}</span>
                     <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>{val}</span>
@@ -488,19 +387,23 @@ export default function CheckoutPage() {
                 <span style={{ fontFamily: 'var(--font-playfair)', fontSize: '24px', fontWeight: 300, color: t.text }}>{fmt(subtotal)}</span>
               </div>
 
-              {/* Payment method */}
               <div style={{ marginBottom: '20px' }}>
-                <div style={{ fontSize: '8.5px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.textDim, fontWeight: 500, marginBottom: '12px', fontFamily: 'var(--font-inter)' }}>
-                  Payment Method
-                </div>
+                <div style={{ fontSize: '8.5px', letterSpacing: '0.18em', textTransform: 'uppercase', color: t.textDim, fontWeight: 500, marginBottom: '12px', fontFamily: 'var(--font-inter)' }}>Payment Method</div>
                 <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
               </div>
 
-              {/* Wire note */}
+              {paymentMethod === 'card' && (
+                <div style={{ padding: '11px 13px', background: '#fafaf8', border: `1px solid ${t.border}`, marginBottom: '16px' }}>
+                  <p style={{ fontSize: '11px', fontWeight: 300, color: t.textMuted, lineHeight: 1.55, margin: 0 }}>
+                    You will be redirected to Elavon&apos;s secure payment page. After payment you will return here automatically.
+                  </p>
+                </div>
+              )}
+
               {paymentMethod === 'wire' && (
-                <div style={{ padding: '12px 14px', background: '#faf9f5', border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}50`, marginBottom: '16px' }}>
-                  <p style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted, lineHeight: 1.55, margin: 0 }}>
-                    Wire instructions will be emailed to you immediately. Your order is held for <strong>5 business days</strong> pending receipt of funds.
+                <div style={{ padding: '11px 13px', background: '#fafaf8', border: `1px solid ${t.border}`, borderLeft: `2px solid ${t.gold}50`, marginBottom: '16px' }}>
+                  <p style={{ fontSize: '11px', fontWeight: 300, color: t.textMuted, lineHeight: 1.55, margin: 0 }}>
+                    Wire instructions will be emailed immediately. Order held <strong>5 business days</strong> pending receipt of funds.
                   </p>
                 </div>
               )}
@@ -514,23 +417,14 @@ export default function CheckoutPage() {
               <button
                 onClick={handleSubmit}
                 disabled={isLoading}
-                style={{
-                  width: '100%', padding: '15px',
-                  background: isLoading ? t.textDim : t.gold,
-                  color: '#fff', border: 'none',
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
-                  fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase',
-                  fontFamily: 'var(--font-inter)', fontWeight: 600, borderRadius: '1px',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  transition: 'background 0.2s',
-                }}
+                style={{ width: '100%', padding: '15px', background: isLoading ? t.textDim : t.gold, color: '#fff', border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer', fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-inter)', fontWeight: 600, borderRadius: '1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'background 0.2s' }}
               >
                 {isLoading ? (
                   <>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ animation: 'lxs-spin 1s linear infinite' }}>
                       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="60" strokeDashoffset="20" strokeLinecap="round"/>
                     </svg>
-                    Processing...
+                    {paymentMethod === 'card' ? 'Redirecting to payment…' : 'Submitting order…'}
                   </>
                 ) : paymentMethod === 'wire' ? (
                   <>
@@ -547,19 +441,16 @@ export default function CheckoutPage() {
 
               <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 {(paymentMethod === 'card' ? [
-                  'Secured by Elavon Converge — PCI SAQ A',
+                  'Payment processed by Elavon Converge — PCI compliant',
                   'Card details entered on Elavon\'s encrypted page',
                   'Visa · Mastercard · American Express · Discover',
                 ] : [
-                  'Order held for 5 business days pending payment',
+                  'Order held 5 business days pending payment',
                   'Wire instructions emailed to you immediately',
                   'Questions? Call (941) 253-3660',
                 ]).map(label => (
                   <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
-                      <circle cx="4.5" cy="4.5" r="4" stroke="currentColor" strokeWidth="0.8"/>
-                      <path d="M2.5 4.5L3.8 5.8L6.5 3" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none"><circle cx="4.5" cy="4.5" r="4" stroke="currentColor" strokeWidth="0.8"/><path d="M2.5 4.5L3.8 5.8L6.5 3" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round"/></svg>
                     <span style={{ fontSize: '10px', color: t.textDim, fontWeight: 300 }}>{label}</span>
                   </div>
                 ))}
