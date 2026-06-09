@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     const code = res.status
     console.error(`[elavon/token] HTTP ${code} — response:`, text.slice(0, 300))
     const label = code === 401 ? 'Payment credentials rejected (401)' : `Payment server error (${code})`
-    return NextResponse.json({ error: label }, { status: 502 })
+    return NextResponse.json({ error: label, debug_elavon_response: text.slice(0, 500), debug_http_status: code }, { status: 502 })
   }
 
   // Key=value error response from Elavon
