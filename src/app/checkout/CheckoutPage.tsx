@@ -8,7 +8,15 @@ import { useTheme } from '@/context/ThemeContext'
 import { useCart, type CartItem } from '@/context/CartContext'
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
+  new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+
+type Rates = {
+  shippingCost: number
+  shippingLabel: string
+  taxRate: number
+  taxRateDisplay: string | null
+  taxApplies: boolean
+}
 
 function genRef() {
   const ts = Date.now().toString(36).toUpperCase()
@@ -136,6 +144,8 @@ export default function CheckoutPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const orderRefRef = useRef('')
+  const [rates, setRates] = useState<Rates>({ shippingCost: 0, shippingLabel: 'Shipping', taxRate: 0, taxRateDisplay: null, taxApplies: false })
+  const ratesDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Show error returned from Elavon's declined redirect
   useEffect(() => {
@@ -143,7 +153,20 @@ export default function CheckoutPage() {
     if (declined) setErrorMsg(`Payment declined: ${declined}`)
   }, [searchParams])
 
+  // Fetch shipping + tax rates whenever FFL state changes
+  useEffect(() => {
+    if (ratesDebounceRef.current) clearTimeout(ratesDebounceRef.current)
+    ratesDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/checkout/rates?state=${encodeURIComponent(form.fflDealerState.trim())}`)
+        if (res.ok) setRates(await res.json())
+      } catch { /* non-fatal */ }
+    }, 400)
+  }, [form.fflDealerState])
+
   const subtotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0)
+  const taxAmount = Math.round(subtotal * rates.taxRate * 100) / 100
+  const orderTotal = subtotal + rates.shippingCost + taxAmount
 
   const setField = useCallback((k: keyof FormData, v: string) => {
     setForm(prev => ({ ...prev, [k]: v }))
@@ -193,7 +216,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: subtotal,
+          amount: orderTotal,
           invoiceRef: orderRefRef.current,
           firstName: form.firstName.trim(),
           lastName: form.lastName.trim(),
@@ -234,7 +257,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           orderRef: orderRefRef.current,
-          amount: subtotal,
+          amount: orderTotal,
           firstName: form.firstName.trim(),
           lastName: form.lastName.trim(),
           email: form.email.trim(),
@@ -374,17 +397,31 @@ export default function CheckoutPage() {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '16px', borderTop: `1px solid ${t.border}`, marginBottom: '8px' }}>
-                {[['Subtotal', fmt(subtotal)], ['Shipping', 'Invoiced after order'], ['Tax', 'Calculated at transfer']].map(([label, val]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>{label}</span>
-                    <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>{val}</span>
-                  </div>
-                ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>Subtotal</span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>{fmt(subtotal)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>
+                    {rates.shippingLabel || 'Shipping'}
+                  </span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>
+                    {rates.shippingCost > 0 ? fmt(rates.shippingCost) : '—'}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>
+                    {rates.taxApplies ? `Tax (${rates.taxRateDisplay})` : 'Tax'}
+                  </span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>
+                    {rates.taxApplies ? fmt(taxAmount) : form.fflDealerState.trim() ? 'None' : 'Enter FFL state'}
+                  </span>
+                </div>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', padding: '14px 0', borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}`, marginBottom: '24px' }}>
                 <span style={{ fontFamily: 'var(--font-playfair)', fontSize: '16px', fontWeight: 400, color: t.text }}>Total</span>
-                <span style={{ fontFamily: 'var(--font-playfair)', fontSize: '24px', fontWeight: 300, color: t.text }}>{fmt(subtotal)}</span>
+                <span style={{ fontFamily: 'var(--font-playfair)', fontSize: '24px', fontWeight: 300, color: t.text }}>{fmt(orderTotal)}</span>
               </div>
 
               <div style={{ marginBottom: '20px' }}>
