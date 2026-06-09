@@ -261,7 +261,10 @@ export default function CheckoutPage() {
   const handleCardPay = async () => {
     const err = validate()
     if (err) { setErrorMsg(err); return }
-    if (!window.ConvergeLightbox) { setErrorMsg('Payment form not loaded. Please refresh and try again.'); return }
+    if (!window.ConvergeLightbox) {
+      setErrorMsg('Payment form could not load. Please ensure your browser allows scripts from convergepay.com, then refresh and try again.')
+      return
+    }
 
     setStatus('loading')
     setErrorMsg('')
@@ -348,7 +351,7 @@ export default function CheckoutPage() {
   }
 
   const isLoading = status === 'loading'
-  const cardReady = paymentMethod === 'card' ? scriptLoaded : true
+  const cardReady = true // script load is checked at click time; don't gate the button
 
   return (
     <>
@@ -503,16 +506,16 @@ export default function CheckoutPage() {
 
               <button
                 onClick={handleSubmit}
-                disabled={isLoading || !cardReady}
+                disabled={isLoading}
                 style={{
                   width: '100%', padding: '15px',
                   background: isLoading ? t.textDim : t.gold,
                   color: '#fff', border: 'none',
-                  cursor: isLoading || !cardReady ? 'not-allowed' : 'pointer',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
                   fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase',
                   fontFamily: 'var(--font-inter)', fontWeight: 600, borderRadius: '1px',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                  transition: 'background 0.2s', opacity: !cardReady ? 0.6 : 1,
+                  transition: 'background 0.2s',
                 }}
               >
                 {isLoading ? (
