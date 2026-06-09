@@ -43,18 +43,33 @@ export async function POST(req: NextRequest) {
     ssl_show_form: 'true',
   })
 
-  const res = await fetch(`${BASE}/transaction_token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString(),
-  })
+  let res: Response
+  let text: string
+  try {
+    res = await fetch(`${BASE}/transaction_token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    })
+    text = await res.text()
+  } catch (err) {
+    console.error('[elavon/token] network error:', err)
+    return NextResponse.json({ error: 'Could not reach payment servers' }, { status: 502 })
+  }
 
-  const text = await res.text()
+  // HTML response = Elavon returned an error page (e.g. 401 bad credentials, 404, 500)
+  if (!res.ok || text.trimStart().startsWith('<')) {
+    const code = res.status
+    console.error(`[elavon/token] HTTP ${code} — response:`, text.slice(0, 300))
+    const label = code === 401 ? 'Payment credentials rejected (401)' : `Payment server error (${code})`
+    return NextResponse.json({ error: label }, { status: 502 })
+  }
 
-  if (text.includes('ssl_result=1') || text.includes('ssl_result_message')) {
+  // Key=value error response from Elavon
+  if (text.includes('ssl_result_message')) {
     const parsed = Object.fromEntries(new URLSearchParams(text))
     const msg = parsed.ssl_result_message ?? 'Token request failed'
-    console.error('[elavon/token] error:', msg)
+    console.error('[elavon/token] error response:', msg)
     return NextResponse.json({ error: msg }, { status: 502 })
   }
 
