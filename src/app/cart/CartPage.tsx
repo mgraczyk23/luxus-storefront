@@ -186,22 +186,12 @@ function OrderSummary({ items }: { items: CartItem[] }) {
         <span style={{ fontFamily: "var(--font-playfair)", fontSize: "26px", fontWeight: 300, color: t.text }}>{fmt(subtotal)}</span>
       </div>
 
-      {/* Checkout coming soon notice */}
-      <div style={{ background: "#fafaf8", border: `1px solid ${t.gold}30`, padding: "14px 16px", marginBottom: "16px" }}>
-        <div style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>Secure Checkout</div>
-        <p style={{ fontSize: "11.5px", fontWeight: 300, color: t.textMuted, lineHeight: 1.6, margin: 0 }}>
-          Online checkout is coming soon. To purchase, please{" "}
-          <Link href="/contact" style={{ color: t.gold, textDecoration: "none", borderBottom: `1px solid ${t.gold}50` }}>contact us</Link>
-          {" "}or call us directly and we will process your order.
-        </p>
-      </div>
-
       <Link
-        href="/contact"
+        href="/checkout"
         style={{ width: "100%", padding: "15px", background: t.gold, color: "#fff", textDecoration: "none", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, borderRadius: "1px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
       >
-        Contact Us to Order
-        <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4H9M6 1L9 4L6 7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        <svg width="11" height="12" viewBox="0 0 11 12" fill="none"><path d="M5.5 0.5L10 3V6.5C10 9 8 10.8 5.5 11.5C3 10.8 1 9 1 6.5V3L5.5 0.5Z" stroke="currentColor" strokeWidth="0.9" strokeLinejoin="round"/></svg>
+        Proceed to Checkout
       </Link>
 
       {/* Trust badges */}
