@@ -191,6 +191,7 @@ export default function CheckoutPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
   const [scriptLoaded, setScriptLoaded] = useState(false)
+  const [scriptFailed, setScriptFailed] = useState(false)
   const orderRefRef = useRef('')
 
   const subtotal = cartItems.reduce((s, i) => s + i.price * i.quantity, 0)
@@ -261,8 +262,13 @@ export default function CheckoutPage() {
   const handleCardPay = async () => {
     const err = validate()
     if (err) { setErrorMsg(err); return }
+    if (scriptFailed) {
+      setErrorMsg('Could not reach Elavon\'s payment servers. Please check your internet connection and refresh.')
+      return
+    }
     if (!window.ConvergeLightbox) {
-      setErrorMsg('Payment form could not load. Please ensure your browser allows scripts from convergepay.com, then refresh and try again.')
+      const domain = typeof window !== 'undefined' ? window.location.hostname : 'this domain'
+      setErrorMsg(`Payment form blocked: "${domain}" is not in your Elavon Valid API Domains list. Log into your Elavon account, add this domain, then refresh.`)
       return
     }
 
@@ -358,6 +364,7 @@ export default function CheckoutPage() {
       <Script
         src="https://api.convergepay.com/hosted-payments/Lightbox.js"
         onLoad={() => setScriptLoaded(true)}
+        onError={() => setScriptFailed(true)}
         strategy="afterInteractive"
       />
 
