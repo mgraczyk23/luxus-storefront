@@ -187,6 +187,11 @@ export type SiteSettings = {
     copyrightLine?: string
     legalLine?:     string
   }
+  analytics: {
+    googleAnalyticsId?:  string
+    hotjarId?:           string
+    semrushVerification?: string
+  }
 }
 
 const SETTINGS_FALLBACK: SiteSettings = {
@@ -215,6 +220,7 @@ const SETTINGS_FALLBACK: SiteSettings = {
   },
   announcement: { enabled: false },
   footer: {},
+  analytics: {},
 }
 
 export async function getSiteSettings(): Promise<SiteSettings> {

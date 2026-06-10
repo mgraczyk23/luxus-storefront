@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
+import Script from "next/script"
 import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
 import { AuthProvider } from "@/context/AuthContext"
@@ -26,6 +27,7 @@ const playfair = Playfair_Display({
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
   const faviconUrl = imageUrl(settings.branding?.favicon ?? null) ?? '/favicon.ico'
+  const semrush = settings.analytics?.semrushVerification
 
   return {
     title: {
@@ -43,6 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: faviconUrl,
       apple:    faviconUrl,
     },
+    ...(semrush ? { other: { 'semrush-site-verification': semrush } } : {}),
   }
 }
 
@@ -51,6 +54,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ann = settings.announcement
   const annActive = ann.enabled && !!ann.message
   const logoUrl = imageUrl(settings.branding?.logo ?? null) ?? undefined
+  const gaId     = settings.analytics?.googleAnalyticsId?.trim() || null
+  const hjId     = settings.analytics?.hotjarId?.trim() || null
 
   return (
     <html
@@ -71,6 +76,33 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>
+
+        {/* Google Analytics 4 */}
+        {gaId && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+            <Script id="ga4-init" strategy="afterInteractive">{`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${gaId}');
+            `}</Script>
+          </>
+        )}
+
+        {/* Hotjar */}
+        {hjId && (
+          <Script id="hotjar-init" strategy="afterInteractive">{`
+            (function(h,o,t,j,a,r){
+              h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+              h._hjSettings={hjid:${hjId},hjsv:6};
+              a=o.getElementsByTagName('head')[0];
+              r=o.createElement('script');r.async=1;
+              r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+              a.appendChild(r);
+            })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+          `}</Script>
+        )}
       </body>
     </html>
   )
