@@ -1,12 +1,16 @@
 import { Suspense } from "react"
 import { getProducts } from "@/lib/api"
-import { mapMedusaProduct } from "@/lib/medusa"
+import { mapMedusaProduct, } from "@/lib/medusa"
 import ShopPage from "./ShopPage"
 import type { Metadata } from "next"
+import { getPageSeo } from "@/lib/payload"
 
-export const metadata: Metadata = {
-  title: "All Firearms",
-  description: "Browse the Luxus Collection — the world's finest production and custom pistols.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.shop?.title       || "All Firearms",
+    description: seo.shop?.description || "Browse the Luxus Collection — the world's finest production and custom pistols.",
+  }
 }
 
 export const revalidate = false

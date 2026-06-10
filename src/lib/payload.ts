@@ -1259,3 +1259,33 @@ export function parseLexical(content: any): LexNode[] {
     return []
   })
 }
+
+/* ── Page SEO ─────────────────────────────────────────────────────────────── */
+
+type PageSeoGroup = { title?: string | null; description?: string | null }
+
+export type PageSeoData = {
+  home?:        PageSeoGroup
+  shop?:        PageSeoGroup
+  about?:       PageSeoGroup
+  contact?:     PageSeoGroup
+  support?:     PageSeoGroup
+  faq?:         PageSeoGroup
+  consignment?: PageSeoGroup
+  articles?:    PageSeoGroup
+  brands?:      PageSeoGroup
+  categories?:  PageSeoGroup
+  collections?: PageSeoGroup
+}
+
+export async function getPageSeo(): Promise<PageSeoData> {
+  try {
+    const res = await fetch(`${PAYLOAD_URL}/api/globals/page-seo`, {
+      next: { tags: ['page-seo'], revalidate: false },
+    })
+    if (!res.ok) return {}
+    return await res.json()
+  } catch {
+    return {}
+  }
+}

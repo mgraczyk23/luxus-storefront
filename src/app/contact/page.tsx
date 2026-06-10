@@ -1,12 +1,15 @@
 import type { Metadata } from "next"
-import { getSiteSettings, getContactPageText } from "@/lib/payload"
+import { getSiteSettings, getContactPageText, getPageSeo } from "@/lib/payload"
 import ContactPage from "./ContactPage"
 
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Reach out to the Luxus Collection team — product inquiries, consignment, press, and more. Personal response guaranteed.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.contact?.title       || "Contact Us",
+    description: seo.contact?.description || "Reach out to the Luxus Collection team — product inquiries, consignment, press, and more. Personal response guaranteed.",
+  }
 }
 
 export default async function Page() {

@@ -72,9 +72,42 @@ export default async function ProductPage(
 
   const serverSpecs = specsRes?.specs ?? null
 
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const inStock = product.in_stock || product.contact_for_pricing
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.short_description || product.overview?.slice(0, 200) || undefined,
+    url: `${SITE}/product/${product.handle}`,
+    image: product.thumbnail ? [product.thumbnail] : undefined,
+    brand: product.attributes.brand
+      ? { '@type': 'Brand', name: product.attributes.brand }
+      : undefined,
+    sku: product.id,
+    offers: {
+      '@type': 'Offer',
+      url: `${SITE}/product/${product.handle}`,
+      priceCurrency: 'USD',
+      ...(product.price && !product.contact_for_pricing
+        ? { price: (product.price / 100).toFixed(2) }
+        : {}),
+      availability: inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      seller: { '@type': 'Organization', name: 'Luxus Collection' },
+    },
+  }
+
   return (
-    <Suspense>
-      <ProductDetailPage product={product} relatedProducts={relatedProducts} settings={settings} serverSpecs={serverSpecs} />
-    </Suspense>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <Suspense>
+        <ProductDetailPage product={product} relatedProducts={relatedProducts} settings={settings} serverSpecs={serverSpecs} />
+      </Suspense>
+    </>
   )
 }

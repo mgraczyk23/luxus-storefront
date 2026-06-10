@@ -1,12 +1,15 @@
 import type { Metadata } from "next"
-import { getFaqItems, getSiteSettings } from "@/lib/payload"
+import { getFaqItems, getSiteSettings, getPageSeo } from "@/lib/payload"
 import FAQPage from "./FAQPage"
 
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: "FAQ",
-  description: "Frequently asked questions about ordering, FFL transfers, shipping, payments, and consignment at Luxus Collection.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.faq?.title       || "FAQ",
+    description: seo.faq?.description || "Frequently asked questions about ordering, FFL transfers, shipping, payments, and consignment at Luxus Collection.",
+  }
 }
 
 export default async function Page() {

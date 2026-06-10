@@ -1,12 +1,15 @@
 import type { Metadata } from "next"
-import { getConsignmentPageText, getSiteSettings } from "@/lib/payload"
+import { getConsignmentPageText, getSiteSettings, getPageSeo } from "@/lib/payload"
 import ConsignmentPage from "./ConsignmentPage"
 
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: "Consignment & Private Sales",
-  description: "Consign a fine firearm through Luxus Collection or sell outright. Personal response within 3 business days.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.consignment?.title       || "Consignment & Private Sales",
+    description: seo.consignment?.description || "Consign a fine firearm through Luxus Collection or sell outright. Personal response within 3 business days.",
+  }
 }
 
 export default async function Page() {
