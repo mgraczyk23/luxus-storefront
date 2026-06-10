@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSiteSettings } from '@/lib/payload'
+import { fetchRestrictions, checkState } from '@/lib/state-restrictions'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
 const FROM = 'Luxus Collection <noreply@luxus-collection.com>'
@@ -86,6 +87,13 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null) as WireBody | null
   if (!body) return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
   if (!RESEND_API_KEY) return NextResponse.json({ error: 'Email not configured' }, { status: 500 })
+
+  // Server-side state restriction check (blanket ban safety net)
+  if (body.buyerState) {
+    const restrictions = await fetchRestrictions()
+    const check = checkState(body.buyerState, restrictions, {})
+    if (!check.ok) return NextResponse.json({ error: check.reason }, { status: 403 })
+  }
 
   const settings = await getSiteSettings()
   const banking = settings.banking

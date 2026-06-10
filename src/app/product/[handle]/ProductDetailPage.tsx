@@ -9,6 +9,7 @@ import { useCart } from '@/context/CartContext'
 import type { MappedProduct } from '@/lib/medusa'
 import type { SiteSettings } from '@/lib/payload'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
+import { fetchRestrictions, checkState, type StateRestriction, type RestrictionCheckResult } from '@/lib/state-restrictions'
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 import ContactAvailabilityModal from '@/components/ContactAvailabilityModal'
 
@@ -170,6 +171,21 @@ export default function ProductDetailPage({
   const [contactModalOpen, setContactModalOpen] = useState(false)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
   const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
+
+  // State restrictions
+  const [buyerState,       setBuyerState]       = useState("")
+  const [restrictions,     setRestrictions]     = useState<StateRestriction[]>([])
+  const [restrictionCheck, setRestrictionCheck] = useState<RestrictionCheckResult>({ ok: true })
+
+  useEffect(() => { fetchRestrictions().then(setRestrictions) }, [])
+
+  useEffect(() => {
+    const meta: Record<string, string | undefined> = {
+      has_threaded_barrel:        product.shipping_flags.has_threaded_barrel        ? "true" : "false",
+      has_high_capacity_magazine: product.shipping_flags.has_high_capacity_magazine ? "true" : "false",
+    }
+    setRestrictionCheck(checkState(buyerState, restrictions, meta))
+  }, [buyerState, restrictions, product.shipping_flags])
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     message: `I'm interested in the ${product.title} and would like more information.`,
@@ -559,6 +575,39 @@ export default function ProductDetailPage({
               </div>
             )}
 
+            {/* State restriction check */}
+            <div style={{ marginBottom: "16px" }}>
+              <div style={{ fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }}>Your State</div>
+              <select
+                value={buyerState}
+                onChange={e => setBuyerState(e.target.value)}
+                style={{ width: "100%", padding: "10px 12px", background: "#fff", border: `1px solid ${t.border}`, color: buyerState ? t.text : t.textDim, fontSize: "13px", fontFamily: "var(--font-inter)", fontWeight: 300, outline: "none", cursor: "pointer", appearance: "none", WebkitAppearance: "none" }}
+              >
+                <option value="">Select your state to check shipping eligibility…</option>
+                {[["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],["DC","Washington D.C."]].map(([code, name]) => (
+                  <option key={code} value={code}>{code} — {name}</option>
+                ))}
+              </select>
+              {buyerState && !restrictionCheck.ok && (
+                <div style={{ marginTop: "10px", padding: "12px 14px", background: "#fff5f5", border: "1px solid #e8b4b4", borderLeft: "3px solid #c05050", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}><circle cx="8" cy="8" r="7" stroke="#c05050" strokeWidth="1.2"/><path d="M8 4.5V8.5" stroke="#c05050" strokeWidth="1.4" strokeLinecap="round"/><circle cx="8" cy="11" r="0.8" fill="#c05050"/></svg>
+                  <span style={{ fontSize: "12px", fontWeight: 300, color: "#9a3030", lineHeight: 1.7 }}>{restrictionCheck.reason}</span>
+                </div>
+              )}
+              {buyerState && restrictionCheck.ok && 'warning' in restrictionCheck && restrictionCheck.warning && (
+                <div style={{ marginTop: "10px", padding: "12px 14px", background: "#fffbf0", border: "1px solid #e8d080", borderLeft: "3px solid #c9a93e", display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}><path d="M8 1.5L14.5 13H1.5L8 1.5Z" stroke="#c9a93e" strokeWidth="1.2" strokeLinejoin="round"/><path d="M8 6V9.5" stroke="#c9a93e" strokeWidth="1.4" strokeLinecap="round"/><circle cx="8" cy="11.5" r="0.8" fill="#c9a93e"/></svg>
+                  <span style={{ fontSize: "12px", fontWeight: 300, color: "#7a6010", lineHeight: 1.7 }}>{restrictionCheck.warning}</span>
+                </div>
+              )}
+              {buyerState && restrictionCheck.ok && !('warning' in restrictionCheck && restrictionCheck.warning) && (
+                <div style={{ marginTop: "8px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="#4a8a4a" strokeWidth="1.1"/><path d="M4 6.5L5.8 8.5L9 5" stroke="#4a8a4a" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <span style={{ fontSize: "11px", color: "#4a8a4a", fontWeight: 400 }}>Ships to {buyerState}</span>
+                </div>
+              )}
+            </div>
+
             {/* CTA buttons */}
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
               {!product.in_stock ? (
@@ -597,17 +646,20 @@ export default function ProductDetailPage({
               ) : (
                 <>
                   <button
-                    onClick={() => { addItem(product); setAddedToCart(true); setTimeout(() => setAddedToCart(false), 1800) }}
-                    style={{ padding: "15px 32px", background: addedToCart ? "#5a9a5a" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
-                    onMouseEnter={e => { if (!addedToCart) { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" } }}
-                    onMouseLeave={e => { if (!addedToCart) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
+                    disabled={!restrictionCheck.ok}
+                    onClick={() => { if (restrictionCheck.ok) { addItem(product); setAddedToCart(true); setTimeout(() => setAddedToCart(false), 1800) } }}
+                    style={{ padding: "15px 32px", background: !restrictionCheck.ok ? "#d0d0d4" : addedToCart ? "#5a9a5a" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: !restrictionCheck.ok ? "not-allowed" : "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { if (!addedToCart && restrictionCheck.ok) { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" } }}
+                    onMouseLeave={e => { if (!addedToCart && restrictionCheck.ok) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
                     <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><path d="M1 1H2.5L4 9H10.5L12.5 3.5H3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="5" cy="11.5" r="0.8" fill="currentColor" /><circle cx="10" cy="11.5" r="0.8" fill="currentColor" /></svg>
                     {addedToCart ? "Added to Cart ✓" : "Add to Cart"}
                   </button>
-                  <button onClick={() => setOfferModalOpen(true)}
-                    style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
-                    onMouseEnter={e => { e.currentTarget.style.background = t.gold + "10"; e.currentTarget.style.transform = "translateY(-1px)" }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "none" }}>
+                  <button
+                    disabled={!restrictionCheck.ok}
+                    onClick={() => { if (restrictionCheck.ok) setOfferModalOpen(true) }}
+                    style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${!restrictionCheck.ok ? t.border : t.gold}`, color: !restrictionCheck.ok ? t.textDim : t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: !restrictionCheck.ok ? "not-allowed" : "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { if (restrictionCheck.ok) { e.currentTarget.style.background = t.gold + "10"; e.currentTarget.style.transform = "translateY(-1px)" } }}
+                    onMouseLeave={e => { if (restrictionCheck.ok) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "none" } }}>
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L8.1 4.7L12 5.2L9.25 7.9L10 12L6.5 10.1L3 12L3.75 7.9L1 5.2L4.9 4.7L6.5 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" /></svg>
                     Make an Offer
                   </button>

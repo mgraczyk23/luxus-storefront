@@ -57,6 +57,11 @@ export type MappedProduct = {
   is_firearm:         boolean
   seo_meta_title: string | null
   seo_meta_description: string | null
+  // Raw shipping restriction flags set in the product admin widget
+  shipping_flags: {
+    has_threaded_barrel:        boolean
+    has_high_capacity_magazine: boolean
+  }
 }
 
 // Build a map of attribute_type.slug → values[] from the attribute_values module.
@@ -195,5 +200,9 @@ export function mapMedusaProduct(p: any): MappedProduct {
     is_firearm:         p.type?.value?.toLowerCase() === "firearm",
     seo_meta_title:       null,
     seo_meta_description: null,
+    shipping_flags: {
+      has_threaded_barrel:        p.metadata?.has_threaded_barrel        === "true",
+      has_high_capacity_magazine: p.metadata?.has_high_capacity_magazine === "true",
+    },
   }
 }

@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart, type CartItem } from '@/context/CartContext'
 import FflSelector from '@/components/FflSelector'
+import { fetchRestrictions, checkState, type StateRestriction } from '@/lib/state-restrictions'
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
 const MEDUSA_PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
@@ -176,6 +177,9 @@ export default function CheckoutPage() {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const [restrictions, setRestrictions] = useState<StateRestriction[]>([])
+
+  useEffect(() => { fetchRestrictions().then(setRestrictions) }, [])
 
   // Medusa cart state
   const [medusaCart, setMedusaCart] = useState<MedusaCart | null>(null)
@@ -298,6 +302,10 @@ export default function CheckoutPage() {
     if (fflIsManual && fieldErrors.fflDealerCity) return 'FFL dealer city is required'
     if (fflIsManual && fieldErrors.fflDealerState) return 'FFL dealer state is required'
     if (fflIsManual && fieldErrors.fflDealerZip) return 'FFL dealer ZIP is required'
+    if (form.buyerState.trim()) {
+      const stateCheck = checkState(form.buyerState.trim(), restrictions, {})
+      if (!stateCheck.ok) return stateCheck.reason
+    }
     if (cartItems.length === 0) return 'Your cart is empty'
     if (!medusaCart?.id) return 'Cart is still loading — please wait a moment'
     return null
