@@ -76,7 +76,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          mailbox: 'info',
+          mailbox: 'sales',
           subject: `Contact Form: ${form.topic} — ${form.firstName} ${form.lastName}`,
           ...form,
           newsletter: undefined,
