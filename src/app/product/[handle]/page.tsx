@@ -74,17 +74,59 @@ export default async function ProductPage(
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
   const inStock = product.in_stock || product.contact_for_pricing
-  const jsonLd = {
+
+  // Build additionalProperty array from firearms attributes and specs
+  const additionalProps: Array<{ '@type': string; name: string; value: string }> = []
+  const addProp = (name: string, value: string | null | undefined) => {
+    if (value) additionalProps.push({ '@type': 'PropertyValue', name, value })
+  }
+  addProp('Caliber', product.attributes.caliber)
+  addProp('Action', product.attributes.action)
+  addProp('Barrel Length', product.attributes.barrel_length)
+  addProp('Frame Color', product.attributes.frame_color)
+  if (serverSpecs) {
+    addProp('Finish', serverSpecs.finish)
+    addProp('Sights', serverSpecs.sights)
+    addProp('Overall Length', serverSpecs.overall_length)
+    addProp('Grip', serverSpecs.grip)
+    addProp('Frame Material', serverSpecs.frame_material)
+  }
+
+  // Parse weight into QuantitativeValue (units: ONZ = ounces, as most firearm specs use oz)
+  let weightSpec: { '@type': string; value: string; unitCode: string } | undefined
+  if (serverSpecs?.weight) {
+    const m = serverSpecs.weight.match(/[\d.]+/)
+    if (m) weightSpec = { '@type': 'QuantitativeValue', value: m[0], unitCode: 'ONZ' }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const primaryCat = (raw as any).categories?.[0]
+
+  // Product images — use all available images, fall back to thumbnail
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rawImages: string[] = ((raw as any).images ?? []).map((img: any) => img.url).filter(Boolean)
+  const images = rawImages.length > 0 ? rawImages : (product.thumbnail ? [product.thumbnail] : undefined)
+
+  const productJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
     description: product.short_description || product.overview?.slice(0, 200) || undefined,
     url: `${SITE}/product/${product.handle}`,
-    image: product.thumbnail ? [product.thumbnail] : undefined,
+    image: images,
     brand: product.attributes.brand
       ? { '@type': 'Brand', name: product.attributes.brand }
       : undefined,
+    manufacturer: product.attributes.brand
+      ? { '@type': 'Organization', name: product.attributes.brand }
+      : undefined,
     sku: product.id,
+    color: product.attributes.frame_color || undefined,
+    material: serverSpecs?.frame_material || undefined,
+    weight: weightSpec,
+    category: primaryCat?.name || undefined,
+    itemCondition: 'https://schema.org/NewCondition',
+    additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
     offers: {
       '@type': 'Offer',
       url: `${SITE}/product/${product.handle}`,
@@ -99,12 +141,26 @@ export default async function ProductPage(
     },
   }
 
+  // BreadcrumbList for navigation path context
+  const breadcrumbItems = [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
+    { '@type': 'ListItem', position: 2, name: 'Shop', item: `${SITE}/shop` },
+  ]
+  if (primaryCat?.name && primaryCat?.handle) {
+    breadcrumbItems.push({ '@type': 'ListItem', position: 3, name: primaryCat.name, item: `${SITE}/category/${primaryCat.handle}` })
+  }
+  breadcrumbItems.push({ '@type': 'ListItem', position: breadcrumbItems.length + 1, name: product.title, item: `${SITE}/product/${product.handle}` })
+
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: breadcrumbItems,
+  }
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <Suspense>
         <ProductDetailPage product={product} relatedProducts={relatedProducts} settings={settings} serverSpecs={serverSpecs} />
       </Suspense>

@@ -1,6 +1,6 @@
 import { getProducts, getCollections, getCategories, getProductTags } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getPosts, getHeroSlides, getShopTileImages, imageUrl } from "@/lib/payload"
+import { getPosts, getHeroSlides, getShopTileImages, imageUrl, getSiteSettings } from "@/lib/payload"
 import HomePage from "@/components/home/HomePage"
 
 export const revalidate = false
@@ -34,7 +34,7 @@ const FALLBACK_CATEGORIES = [
 ]
 
 export default async function Home() {
-  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes, heroSlidesRes, tileImagesRes, tagsRes] = await Promise.allSettled([
+  const [productsRes, collectionsRes, categoriesRes, catCountRes, articlesRes, heroSlidesRes, tileImagesRes, tagsRes, settingsRes] = await Promise.allSettled([
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
@@ -44,6 +44,7 @@ export default async function Home() {
     getHeroSlides(),
     getShopTileImages(),
     getProductTags(),
+    getSiteSettings(),
   ])
 
   // Build count maps from the combined product fetch
@@ -185,16 +186,66 @@ export default async function Home() {
     slides: [], wordmark: 'Luxus Collection', tagline: 'The Forefront of Exclusive Firearms', introBody: '', featuredImages: [],
   }
 
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const settings = settingsRes.status === 'fulfilled' ? settingsRes.value : null
+  const orgName = settings?.branding?.legalName || 'Luxus Collection'
+  const orgLogoUrl = settings ? imageUrl(settings.branding.logo) : null
+  const sameAs = settings
+    ? [
+        settings.social.facebook,
+        settings.social.instagram,
+        settings.social.twitter,
+        settings.social.youtube,
+        settings.social.linkedin,
+      ].filter(Boolean)
+    : []
+
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Luxus Collection',
+    url: SITE,
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: { '@type': 'EntryPoint', urlTemplate: `${SITE}/shop?q={search_term_string}` },
+      'query-input': 'required name=search_term_string',
+    },
+  }
+
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Luxus Collection',
+    legalName: orgName,
+    url: SITE,
+    ...(orgLogoUrl ? { logo: { '@type': 'ImageObject', url: orgLogoUrl } } : {}),
+    telephone: settings?.contact.phone || '(941) 253-3660',
+    email: settings?.contact.emailInfo || 'info@luxus-collection.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: settings?.address.line1 || '1199 N Beneva Rd',
+      addressLocality: settings?.address.city || 'Sarasota',
+      addressRegion: settings?.address.state || 'FL',
+      postalCode: settings?.address.zip || '34232',
+      addressCountry: 'US',
+    },
+    ...(sameAs.length > 0 ? { sameAs } : {}),
+  }
+
   return (
-    <HomePage
-      heroProduct={heroProduct}
-      heroData={heroData}
-      featuredProducts={featuredProducts}
-      newArrivals={newArrivals.length > 0 ? newArrivals : products.slice(0, 4)}
-      collections={displayCollections}
-      categories={displayCategories}
-      articles={articles}
-      brands={brands}
-    />
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+      <HomePage
+        heroProduct={heroProduct}
+        heroData={heroData}
+        featuredProducts={featuredProducts}
+        newArrivals={newArrivals.length > 0 ? newArrivals : products.slice(0, 4)}
+        collections={displayCollections}
+        categories={displayCategories}
+        articles={articles}
+        brands={brands}
+      />
+    </>
   )
 }

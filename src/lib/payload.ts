@@ -132,8 +132,9 @@ export async function createComment(data: {
 
 export type SiteSettings = {
   branding: {
-    logo?:    PayloadImage | null
-    favicon?: PayloadImage | null
+    logo?:      PayloadImage | null
+    favicon?:   PayloadImage | null
+    legalName?: string
   }
   contact: {
     phone:         string
