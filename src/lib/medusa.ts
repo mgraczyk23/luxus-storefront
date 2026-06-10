@@ -61,6 +61,7 @@ export type MappedProduct = {
   shipping_flags: {
     has_threaded_barrel:        boolean
     has_high_capacity_magazine: boolean
+    magazine_capacity:          number | null
   }
 }
 
@@ -203,6 +204,7 @@ export function mapMedusaProduct(p: any): MappedProduct {
     shipping_flags: {
       has_threaded_barrel:        p.metadata?.has_threaded_barrel        === "true",
       has_high_capacity_magazine: p.metadata?.has_high_capacity_magazine === "true",
+      magazine_capacity:          p.metadata?.magazine_capacity ? parseInt(p.metadata.magazine_capacity as string, 10) : null,
     },
   }
 }
