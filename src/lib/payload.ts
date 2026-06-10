@@ -189,7 +189,7 @@ export type SiteSettings = {
   }
   analytics: {
     googleAnalyticsId?:  string
-    hotjarId?:           string
+    postHogApiKey?:      string
     semrushVerification?: string
   }
 }

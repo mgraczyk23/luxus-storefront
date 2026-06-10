@@ -54,8 +54,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ann = settings.announcement
   const annActive = ann.enabled && !!ann.message
   const logoUrl = imageUrl(settings.branding?.logo ?? null) ?? undefined
-  const gaId     = settings.analytics?.googleAnalyticsId?.trim() || null
-  const hjId     = settings.analytics?.hotjarId?.trim() || null
+  const gaId   = settings.analytics?.googleAnalyticsId?.trim() || null
+  const phKey  = settings.analytics?.postHogApiKey?.trim() || null
 
   return (
     <html
@@ -90,17 +90,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </>
         )}
 
-        {/* Hotjar */}
-        {hjId && (
-          <Script id="hotjar-init" strategy="afterInteractive">{`
-            (function(h,o,t,j,a,r){
-              h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-              h._hjSettings={hjid:${hjId},hjsv:6};
-              a=o.getElementsByTagName('head')[0];
-              r=o.createElement('script');r.async=1;
-              r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-              a.appendChild(r);
-            })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+        {/* PostHog */}
+        {phKey && (
+          <Script id="posthog-init" strategy="afterInteractive">{`
+            !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.people.toString(20)+" (stub)"},o="init be qs fs gs rq on once off identify createAlias alias set_config register register_once unregister opt_out_capturing has_opted_out_capturing opt_in_capturing reset isFeatureEnabled onFeatureFlags getFeatureFlag getFeatureFlagPayload reloadFeatureFlags group updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures getActiveMatchingSurveys getSurveys getNextSurveyStep onSessionId setPersonPropertiesForFlags".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||(window.posthog=[]));
+            posthog.init('${phKey}', { api_host: 'https://us.i.posthog.com', person_profiles: 'identified_only' });
           `}</Script>
         )}
       </body>
