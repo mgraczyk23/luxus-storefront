@@ -1,35 +1,98 @@
 'use client'
 
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useAuth } from '@/context/AuthContext'
+import { getOrderById, type LxsOrder } from '@/lib/auth'
 import type { SiteSettings } from '@/lib/payload'
 
 const invFmt = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 }).format(n || 0)
 
-const MOCK_ORDERS = [
-  { id: "LXC-109842", date: "May 14, 2026", status: "In Transit",
-    items: [{ title: "Nighthawk Custom Agent", brand: "Nighthawk Custom", caliber: ".45 ACP", serial: "NHC-2026-04412", price: 3499 }],
-    subtotal: 3499, tax: 0, shipping: 0, total: 3499,
-    ffl: "Ace Gun Shop, Nashville TN", tracking: "786192847365",
-    soldTo: { name: "James Whitfield", line1: "4221 Granny White Pike", line2: "Nashville, TN 37204", email: "james@example.com", phone: "(615) 555-0142" },
-    shipTo: { name: "Ace Gun Shop (FFL)", line1: "612 Bransford Ave", line2: "Nashville, TN 37204", phone: "(615) 555-0188", license: "1-62-XXX-XX-XX-XXXXX" } },
-  { id: "LXC-098311", date: "Apr 2, 2026", status: "Delivered",
-    items: [{ title: "SIG Sauer P210 Legend", brand: "SIG Sauer", caliber: "9mm", serial: "P210-LEG-018734", price: 2199 }],
-    subtotal: 2199, tax: 0, shipping: 0, total: 2199,
-    ffl: "Premier Arms, Franklin TN", tracking: "786192847200",
-    soldTo: { name: "James Whitfield", line1: "4221 Granny White Pike", line2: "Nashville, TN 37204", email: "james@example.com", phone: "(615) 555-0142" },
-    shipTo: { name: "Premier Arms (FFL)", line1: "1224 Murfreesboro Rd", line2: "Franklin, TN 37064", phone: "(615) 555-0212", license: "1-62-XXX-XX-XX-XXXXX" } },
-  { id: "LXC-087104", date: "Feb 18, 2026", status: "Delivered",
-    items: [{ title: "Colt Python 6-inch", brand: "Colt", caliber: ".357 Magnum", serial: "PY-622-009881", price: 1899 }],
-    subtotal: 1899, tax: 0, shipping: 0, total: 1899,
-    ffl: "Ace Gun Shop, Nashville TN", tracking: "786192846901",
-    soldTo: { name: "James Whitfield", line1: "4221 Granny White Pike", line2: "Nashville, TN 37204", email: "james@example.com", phone: "(615) 555-0142" },
-    shipTo: { name: "Ace Gun Shop (FFL)", line1: "612 Bransford Ave", line2: "Nashville, TN 37204", phone: "(615) 555-0188", license: "1-62-XXX-XX-XX-XXXXX" } },
-]
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+
+function lxcId(order: LxsOrder) {
+  return `LXC-${String(order.display_id).padStart(6, '0')}`
+}
+
+function fflLine(order: LxsOrder): string {
+  const name  = order.metadata?.ffl_dealer_name ?? order.shipping_address?.first_name ?? ''
+  const city  = order.metadata?.ffl_dealer_city  ?? order.shipping_address?.city       ?? ''
+  const state = order.metadata?.ffl_dealer_state ?? (order.shipping_address?.province?.toUpperCase()) ?? ''
+  return [name, [city, state].filter(Boolean).join(', ')].filter(Boolean).join(' — ')
+}
+
+function statusLabel(status: string) {
+  const map: Record<string, string> = {
+    pending: 'Pending', completed: 'Delivered', canceled: 'Canceled',
+    requires_action: 'Action Required', archived: 'Archived',
+  }
+  return map[status] ?? status.charAt(0).toUpperCase() + status.slice(1)
+}
 
 export default function InvoicePage({ orderId, settings }: { orderId: string; settings?: SiteSettings }) {
-  const order = MOCK_ORDERS.find(o => o.id === orderId) || MOCK_ORDERS[0]
+  const router  = useRouter()
+  const { customer, token, isLoading: authLoading } = useAuth()
+  const [order,   setOrder]   = useState<LxsOrder | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    if (authLoading) return
+    if (!token) { router.replace('/auth'); return }
+    getOrderById(orderId, token).then(o => {
+      if (!o) setNotFound(true)
+      else setOrder(o)
+      setLoading(false)
+    })
+  }, [orderId, token, authLoading, router])
+
   const backdrop = "#eceaea"
+
+  if (loading || authLoading) {
+    return (
+      <div style={{ background: backdrop, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-inter)", fontSize: "11px", color: "#707076", letterSpacing: "0.1em" }}>
+        Loading invoice…
+      </div>
+    )
+  }
+
+  if (notFound || !order) {
+    return (
+      <div style={{ background: backdrop, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-inter)", textAlign: "center" }}>
+        <div>
+          <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", color: "#1a1a1a", marginBottom: "10px" }}>Invoice Not Found</div>
+          <p style={{ fontSize: "12px", color: "#707076", marginBottom: "20px" }}>This invoice may not be available or you may not have access to it.</p>
+          <Link href="/account" style={{ fontSize: "9.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: "#7e5e10", textDecoration: "none", borderBottom: "1px solid #7e5e1050" }}>← Back to Account</Link>
+        </div>
+      </div>
+    )
+  }
+
+  const displayId = lxcId(order)
+  const fflInfo   = fflLine(order)
+
+  const soldToName  = customer ? `${customer.first_name} ${customer.last_name}`.trim() : (order.email ?? '—')
+  const soldToPhone = order.metadata?.customer_phone ?? customer?.phone ?? ''
+  const soldToEmail = order.email ?? customer?.email ?? ''
+
+  const fflName  = order.metadata?.ffl_dealer_name ?? order.shipping_address?.first_name ?? '—'
+  const fflCity  = order.metadata?.ffl_dealer_city  ?? order.shipping_address?.city       ?? ''
+  const fflState = order.metadata?.ffl_dealer_state ?? (order.shipping_address?.province?.toUpperCase()) ?? ''
+  const fflCityState = [fflCity, fflState].filter(Boolean).join(', ')
+
+  const notes = order.metadata?.notes ?? ''
+
+  const subtotalCents  = order.subtotal      ?? 0
+  const taxCents       = order.tax_total     ?? 0
+  const shippingCents  = order.shipping_total ?? 0
+  const totalCents     = order.total         ?? 0
+
+  const paymentProvider = order.payment_collections?.[0]?.payments?.[0]?.provider_id ?? ''
+  const isWire = paymentProvider === 'pp_system_default'
+  const paymentMethod = isWire ? 'Wire / Check' : 'Credit / Debit Card'
 
   return (
     <div className="lxs-invoice-root" style={{ background: backdrop, minHeight: "100vh", padding: "32px 16px 80px", fontFamily: "var(--font-inter)" }}>
@@ -202,12 +265,6 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
       <div className="inv-toolbar">
         <Link href="/account" className="inv-back">← Back to Account</Link>
         <div className="inv-actions">
-          <button className="inv-btn inv-btn-secondary" onClick={() => window.history.back()}>
-            <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-              <path d="M9 1L3 6.5L9 12" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-            Back
-          </button>
           <button className="inv-btn inv-btn-primary" onClick={() => window.print()}>
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M3 1H11V4H3V1Z" stroke="currentColor" strokeWidth="1.2"/>
@@ -229,7 +286,8 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
             <div className="inv-meta">
               {settings?.address.line1 ?? "1199 N Beneva Rd"}<br/>
               {settings?.address.city ?? "Sarasota"}, {settings?.address.state ?? "FL"} {settings?.address.zip ?? "34232"}<br/>
-              <a href={`tel:${(settings?.contact.phone ?? "(941) 253-3660").replace(/\D/g,'')}`}>{settings?.contact.phone ?? "(941) 253-3660"}</a> · <a href={`tel:${(settings?.contact.phoneTollFree ?? "(833) 486-6659").replace(/\D/g,'')}`}>{settings?.contact.phoneTollFree ?? "(833) 486-6659"}</a>
+              <a href={`tel:${(settings?.contact.phone ?? "(941) 253-3660").replace(/\D/g,'')}`}>{settings?.contact.phone ?? "(941) 253-3660"}</a>
+              {settings?.contact.phoneTollFree && <> · <a href={`tel:${settings.contact.phoneTollFree.replace(/\D/g,'')}`}>{settings.contact.phoneTollFree}</a></>}
             </div>
           </div>
           <div className="inv-title-block">
@@ -239,35 +297,44 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
         </header>
 
         <section className="inv-meta-strip">
-          <div><div className="inv-label">Invoice #</div><div className="inv-value">{order.id}</div></div>
-          <div><div className="inv-label">Date</div><div className="inv-value">{order.date}</div></div>
-          <div><div className="inv-label">Status</div><div className="inv-value inv-gold" style={{ fontWeight: 600 }}>{order.status}</div></div>
+          <div><div className="inv-label">Invoice #</div><div className="inv-value">{displayId}</div></div>
+          <div><div className="inv-label">Date</div><div className="inv-value">{fmtDate(order.created_at)}</div></div>
+          <div><div className="inv-label">Status</div><div className="inv-value inv-gold" style={{ fontWeight: 600 }}>{statusLabel(order.status)}</div></div>
         </section>
 
         <section className="inv-parties">
           <div className="inv-party">
             <div className="inv-label">Sold To</div>
-            <div className="inv-party-name">{order.soldTo.name}</div>
-            <div className="inv-sub">{order.soldTo.line1}<br/>{order.soldTo.line2}<br/>{order.soldTo.phone}<br/>{order.soldTo.email}</div>
+            <div className="inv-party-name">{soldToName}</div>
+            <div className="inv-sub">
+              {soldToEmail && <>{soldToEmail}<br/></>}
+              {soldToPhone && <>{soldToPhone}</>}
+            </div>
           </div>
           <div className="inv-party">
-            <div className="inv-label">Ship To (FFL)</div>
-            <div className="inv-party-name">{order.shipTo.name}</div>
-            <div className="inv-sub">{order.shipTo.line1}<br/>{order.shipTo.line2}<br/>{order.shipTo.phone}<br/>FFL License: {order.shipTo.license}</div>
+            <div className="inv-label">Ship To (FFL Dealer)</div>
+            <div className="inv-party-name">{fflName || '—'}</div>
+            <div className="inv-sub">
+              {fflCityState && <>{fflCityState}<br/></>}
+              FFL Transfer — dealer will contact you upon arrival
+            </div>
           </div>
         </section>
 
-        <section className="inv-comments">
-          <strong>Comments or Special Instructions:</strong><br/>
-          Sale will become final only upon full payment and physical delivery to FFL, at the Ship To address. Luxus Collection, LLC does not warrant product compliance with local or state laws. Retailers must ensure all products sold are compliant with local, state, and federal regulations.
-        </section>
+        {(notes || true) && (
+          <section className="inv-comments">
+            <strong>Comments or Special Instructions:</strong><br/>
+            {notes ? <>{notes}<br/></> : null}
+            Sale will become final only upon full payment and physical delivery to FFL, at the Ship To address. Luxus Collection, LLC does not warrant product compliance with local or state laws. Retailers must ensure all products sold are compliant with local, state, and federal regulations.
+          </section>
+        )}
 
         <section className="inv-orderbar">
-          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Order #</div><div>{order.id}</div></div>
-          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Buyer</div><div>{order.soldTo.name}</div></div>
-          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Shipped Via</div><div>UPS</div></div>
+          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Order #</div><div>{displayId}</div></div>
+          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Buyer</div><div>{soldToName}</div></div>
+          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Shipped Via</div><div>FedEx</div></div>
           <div className="inv-orderbar-cell"><div className="inv-orderbar-head">F.O.B. Point</div><div style={{ fontSize: "10px", lineHeight: 1.4 }}>FFL provided by client prior to shipping</div></div>
-          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Terms</div><div>Due on Receipt</div></div>
+          <div className="inv-orderbar-cell"><div className="inv-orderbar-head">Terms</div><div>{isWire ? 'Wire / Check' : 'Paid by Card'}</div></div>
         </section>
 
         <table className="inv-table">
@@ -281,17 +348,19 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
           </thead>
           <tbody>
             {order.items.map((item, i) => (
-              <tr key={i}>
-                <td className="center">1</td>
+              <tr key={item.id ?? i}>
+                <td className="center">{item.quantity}</td>
                 <td>
                   <div className="inv-item-title">{item.title}</div>
-                  <div className="inv-item-meta">
-                    <strong>{item.brand}</strong> · {item.caliber}<br/>
-                    Serial: {item.serial || "—"}
-                  </div>
+                  {item.variant?.product?.brand && (
+                    <div className="inv-item-meta">
+                      <strong>{item.variant.product.brand}</strong>
+                      {item.variant.product.attributes?.caliber && <> · {item.variant.product.attributes.caliber}</>}
+                    </div>
+                  )}
                 </td>
-                <td className="right price">{invFmt(item.price)}</td>
-                <td className="right total">{invFmt(item.price)}</td>
+                <td className="right price">{invFmt(item.unit_price / 100)}</td>
+                <td className="right total">{invFmt((item.unit_price * item.quantity) / 100)}</td>
               </tr>
             ))}
           </tbody>
@@ -299,10 +368,10 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
 
         <section className="inv-totals">
           <div className="inv-totals-box">
-            <div className="inv-totals-row"><span className="lbl">Subtotal</span><span>{invFmt(order.subtotal)}</span></div>
-            <div className="inv-totals-row"><span className="lbl">Sales Tax</span><span>{order.tax ? invFmt(order.tax) : "—"}</span></div>
-            <div className="inv-totals-row"><span className="lbl">Shipping &amp; Handling</span><span>{order.shipping ? invFmt(order.shipping) : "Included"}</span></div>
-            <div className="inv-totals-row total"><span className="lbl">Total Due</span><span className="val">{invFmt(order.total)}</span></div>
+            <div className="inv-totals-row"><span className="lbl">Subtotal</span><span>{invFmt(subtotalCents / 100)}</span></div>
+            <div className="inv-totals-row"><span className="lbl">Sales Tax</span><span>{taxCents ? invFmt(taxCents / 100) : "—"}</span></div>
+            <div className="inv-totals-row"><span className="lbl">Shipping &amp; Handling</span><span>{shippingCents ? invFmt(shippingCents / 100) : "Included"}</span></div>
+            <div className="inv-totals-row total"><span className="lbl">Total Due</span><span className="val">{invFmt(totalCents / 100)}</span></div>
           </div>
         </section>
 
@@ -314,7 +383,7 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
           <div>
             <h4>Make Checks Payable To</h4>
             <div className="row"><span className="k">Payable to</span><span className="v">Luxus Collection, LLC</span></div>
-            <div className="row"><span className="k">Mail to</span><span className="v" style={{ maxWidth: "180px" }}>1199 N Beneva Rd<br/>Sarasota, FL 34232</span></div>
+            <div className="row"><span className="k">Mail to</span><span className="v" style={{ maxWidth: "180px" }}>{settings?.address.line1 ?? "1199 N Beneva Rd"}<br/>{settings?.address.city ?? "Sarasota"}, {settings?.address.state ?? "FL"} {settings?.address.zip ?? "34232"}</span></div>
           </div>
           <div>
             <h4>Wire Transfer</h4>
@@ -322,7 +391,7 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
             <div className="row"><span className="k">ABA Routing</span><span className="v">263191387</span></div>
             <div className="row"><span className="k">For Credit To</span><span className="v">Luxus Capital, LLC</span></div>
             <div className="row"><span className="k">Account No.</span><span className="v">1100009085694</span></div>
-            <div className="row"><span className="k">Location</span><span className="v">Sarasota, FL</span></div>
+            <div className="row"><span className="k">Memo</span><span className="v">{displayId}</span></div>
           </div>
         </section>
 
@@ -330,7 +399,7 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
           <div className="inv-footer-title">Shipping Policy</div>
           Risk of loss and title for all merchandise pass to the Buyer upon our delivery to the carrier. Any claims for damage or loss in transit must be filed by the Buyer with the carrier. To arrange alternative shipping or supplemental insurance, please contact us for written approval prior to shipment.
           <div style={{ marginTop: "14px", textAlign: "center", color: "#a0a0a4", letterSpacing: "0.18em", textTransform: "uppercase", fontSize: "8.5px" }}>
-            End of Invoice
+            End of Invoice — {displayId}
           </div>
         </footer>
       </article>

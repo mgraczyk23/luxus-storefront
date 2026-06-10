@@ -16,22 +16,44 @@ export type LxsCustomer = {
   created_at: string
 }
 
+export type LxsAddress = {
+  first_name?:  string
+  last_name?:   string
+  address_1?:   string
+  address_2?:   string
+  city?:        string
+  province?:    string
+  postal_code?: string
+  country_code?: string
+  phone?:       string
+}
+
 export type LxsOrder = {
-  id:         string
-  display_id: number
-  status:     string
-  created_at: string
-  total:      number          // in cents
-  items:      LxsOrderItem[]
-  fulfillments: { tracking_links: { tracking_number: string }[] }[]
+  id:               string
+  display_id:       number
+  status:           string
+  created_at:       string
+  total:            number          // in cents
+  subtotal:         number
+  tax_total:        number
+  shipping_total:   number
+  email?:           string
+  items:            LxsOrderItem[]
+  fulfillments:     { tracking_links: { tracking_number: string }[] }[]
+  shipping_address?: LxsAddress
+  billing_address?:  LxsAddress
+  metadata?:        Record<string, string>
+  payment_collections?: Array<{
+    payments?: Array<{ provider_id?: string; data?: Record<string, unknown> }>
+  }>
 }
 
 export type LxsOrderItem = {
-  id:        string
-  title:     string
-  quantity:  number
+  id:         string
+  title:      string
+  quantity:   number
   unit_price: number
-  thumbnail: string | null
+  thumbnail:  string | null
   variant?: { product?: { brand?: string; attributes?: { caliber?: string } } }
 }
 
@@ -101,6 +123,15 @@ export async function getCustomerOrders(token: string): Promise<LxsOrder[]> {
   })
   if (!res.ok) return []
   return (await res.json()).orders ?? []
+}
+
+export async function getOrderById(orderId: string, token: string): Promise<LxsOrder | null> {
+  const fields = "+shipping_address,+billing_address,+tax_total,+shipping_total,+subtotal,+email,+metadata,+payment_collections"
+  const res = await fetch(`${BACKEND}/store/orders/${orderId}?fields=${encodeURIComponent(fields)}`, {
+    headers: h(token), cache: "no-store",
+  })
+  if (!res.ok) return null
+  return (await res.json()).order ?? null
 }
 
 // ── Wishlist (localStorage) ──────────────────────────────────────────────────
