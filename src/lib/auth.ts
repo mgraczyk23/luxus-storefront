@@ -118,7 +118,7 @@ export async function updateCustomer(
 // ── Orders ───────────────────────────────────────────────────────────────────
 
 export async function getCustomerOrders(token: string): Promise<LxsOrder[]> {
-  const res = await fetch(`${BACKEND}/store/orders?limit=50`, {
+  const res = await fetch(`${BACKEND}/store/orders/by-email`, {
     headers: h(token), cache: "no-store",
   })
   if (!res.ok) return []
