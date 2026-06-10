@@ -176,9 +176,6 @@ export default function ProductDetailPage({
   const [buyerState,           setBuyerState]           = useState("")
   const [restrictions,         setRestrictions]         = useState<StateRestriction[]>([])
   const [restrictionCheck,     setRestrictionCheck]     = useState<RestrictionCheckResult>({ ok: true })
-  const [magWarningModal,      setMagWarningModal]      = useState(false)
-  const [magWarningAcknowledged, setMagWarningAcknowledged] = useState(false)
-
   useEffect(() => { fetchRestrictions().then(setRestrictions) }, [])
 
   useEffect(() => {
@@ -189,20 +186,11 @@ export default function ProductDetailPage({
                                     ? String(product.shipping_flags.magazine_capacity)
                                     : undefined,
     }
-    const result = checkState(buyerState, restrictions, meta, product.categories)
-    setRestrictionCheck(result)
-    // Reset acknowledgment and open modal when a new magazine warning fires
-    if (result.ok && 'warning' in result && result.warning) {
-      setMagWarningAcknowledged(false)
-      setMagWarningModal(true)
-    } else {
-      setMagWarningAcknowledged(false)
-      setMagWarningModal(false)
-    }
+    setRestrictionCheck(checkState(buyerState, restrictions, meta, product.categories))
   }, [buyerState, restrictions, product.shipping_flags])
 
   const hasMagWarning   = restrictionCheck.ok && 'warning' in restrictionCheck && !!restrictionCheck.warning
-  const ctasBlocked     = !restrictionCheck.ok || (hasMagWarning && !magWarningAcknowledged)
+  const ctasBlocked     = !restrictionCheck.ok
   const magWarningText  = hasMagWarning ? (restrictionCheck as { ok: true; warning: string }).warning : ""
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
@@ -1212,42 +1200,6 @@ export default function ProductDetailPage({
       )}
 
       {/* ── Magazine warning acknowledgment modal ───────────────────────── */}
-      {magWarningModal && !magWarningAcknowledged && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 10001, background: "rgba(8,7,6,0.82)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
-          <div style={{ width: "100%", maxWidth: "480px", background: "#fff", border: `1px solid ${t.border}`, borderTop: "3px solid #c9a93e", boxShadow: "0 30px 80px rgba(0,0,0,0.18)", padding: "40px 44px 36px", fontFamily: "'Inter',sans-serif" }}>
-            {/* Warning icon */}
-            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fef9ec", border: "1.5px solid #c9a93e", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a93e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-
-            {/* Title */}
-            <h3 style={{ fontSize: 20, fontWeight: 600, color: "#1a1a1a", margin: "0 0 10px", fontFamily: "'Inter',sans-serif", lineHeight: 1.2 }}>
-              Magazine Shipping Notice
-            </h3>
-
-            {/* Message */}
-            <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, margin: "0 0 10px", fontFamily: "'Inter',sans-serif" }}>
-              {magWarningText || "This firearm ships with magazines that exceed the legal capacity limit in your state."}
-            </p>
-            <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Inter',sans-serif" }}>
-              <strong style={{ color: "#1a1a1a" }}>We will ship the firearm without the magazines.</strong> The firearm itself may be legally purchased and transferred through a licensed FFL dealer in your state.
-            </p>
-
-            {/* Acknowledge button */}
-            <button
-              onClick={() => { setMagWarningAcknowledged(true); setMagWarningModal(false) }}
-              style={{ width: "100%", padding: "15px 24px", background: "#c9a93e", border: "none", color: "#fff", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 700, cursor: "pointer", borderRadius: "1px" }}
-              onMouseEnter={e => { e.currentTarget.style.background = t.goldLight }}
-              onMouseLeave={e => { e.currentTarget.style.background = "#c9a93e" }}>
-              I Understand — Continue
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
