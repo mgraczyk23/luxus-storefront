@@ -13,11 +13,21 @@ type WireBody = {
   firstName: string
   lastName: string
   email: string
-  phone: string
-  fflDealerName: string
-  fflDealerCity: string
-  fflDealerState: string
-  notes: string
+  phone?: string
+  buyerPhone?: string
+  buyerAddress1?: string
+  buyerCity?: string
+  buyerState?: string
+  buyerZip?: string
+  fflDealerName?: string
+  fflDealerAddress1?: string
+  fflDealerCity?: string
+  fflDealerState?: string
+  fflDealerZip?: string
+  fflContactName?: string
+  fflContactPhone?: string
+  fflContactEmail?: string
+  notes?: string
   items: OrderItem[]
 }
 
@@ -80,8 +90,15 @@ export async function POST(req: NextRequest) {
   const settings = await getSiteSettings()
   const banking = settings.banking
 
+  const phone = body.buyerPhone || body.phone || ''
   const itemRows = itemRowsHtml(body.items)
-  const fflLine = [body.fflDealerName, body.fflDealerCity, body.fflDealerState].filter(Boolean).join(', ')
+
+  const buyerAddrLine = [body.buyerAddress1, body.buyerCity, body.buyerState, body.buyerZip].filter(Boolean).join(', ')
+
+  const fflNameLine = body.fflDealerName || ''
+  const fflAddrLine = [body.fflDealerAddress1, body.fflDealerCity, body.fflDealerState, body.fflDealerZip].filter(Boolean).join(', ')
+  const fflContactParts = [body.fflContactName, body.fflContactPhone, body.fflContactEmail].filter(Boolean)
+  const fflContactLine = fflContactParts.join(' · ')
 
   // ── Sales notification ──────────────────────────────────────────────────────
   const salesFields = [
@@ -90,8 +107,11 @@ export async function POST(req: NextRequest) {
     ['Amount Due', fmt(body.amount)],
     ['Customer', `${body.firstName} ${body.lastName}`],
     ['Email', body.email],
-    ['Phone', body.phone || '—'],
-    ['FFL Dealer', fflLine || '—'],
+    ['Phone', phone || '—'],
+    ['Buyer Address', buyerAddrLine || '—'],
+    ['FFL Dealer', fflNameLine || '—'],
+    ...(fflAddrLine ? [['FFL Address', fflAddrLine]] : []),
+    ...(fflContactLine ? [['FFL Contact', fflContactLine]] : []),
     ['Notes', body.notes || '—'],
   ].map(([label, value]) => `
     <tr>
@@ -125,10 +145,11 @@ export async function POST(req: NextRequest) {
       <td style="padding:9px 16px;font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;line-height:1.6;border-bottom:1px solid #f0ede8;font-weight:${label === 'Memo / Reference' ? '600' : '400'}">${String(value).replace(/</g, '&lt;')}</td>
     </tr>`).join('')
 
-  const fflSection = fflLine ? `
+  const fflSection = fflNameLine ? `
     <div style="margin:0 28px 20px;padding:14px 16px;background:#f5f3ef;border-left:2px solid #c9a96e">
       <p style="font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#c9a96e;font-family:Arial,sans-serif;font-weight:500;margin:0 0 5px">Your FFL Transfer Dealer</p>
-      <p style="font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;margin:0">${fflLine.replace(/</g, '&lt;')}</p>
+      <p style="font-size:13px;font-weight:500;color:#1a1a1a;font-family:Arial,sans-serif;margin:0 0 3px">${fflNameLine.replace(/</g, '&lt;')}</p>
+      ${fflAddrLine ? `<p style="font-size:12px;color:#555;font-family:Arial,sans-serif;margin:0">${fflAddrLine.replace(/</g, '&lt;')}</p>` : ''}
     </div>` : ''
 
   const customerHtml = emailWrap(`

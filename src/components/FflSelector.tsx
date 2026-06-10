@@ -5,8 +5,9 @@ import { useTheme } from '@/context/ThemeContext'
 import type { FflDealer } from '@/app/api/ffl-search/route'
 
 type Props = {
-  onSelect: (dealer: { name: string; city: string; state: string; zip: string; phone: string } | null) => void
-  selected: { name: string; city: string; state: string } | null
+  onSelect: (dealer: { name: string; address1: string; city: string; state: string; zip: string; phone: string } | null) => void
+  selected: { name: string; address1?: string; city: string; state: string; zip?: string } | null
+  onManualMode: (active: boolean) => void
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -15,7 +16,7 @@ const TYPE_LABELS: Record<string, string> = {
   "09": "Dealer",
 }
 
-export default function FflSelector({ onSelect, selected }: Props) {
+export default function FflSelector({ onSelect, selected, onManualMode }: Props) {
   const { t }   = useTheme()
   const [mode, setMode]     = useState<'search' | 'manual'>('search')
   const [query, setQuery]   = useState('')
@@ -59,7 +60,7 @@ export default function FflSelector({ onSelect, selected }: Props) {
   }
 
   const handleSelect = (d: FflDealer) => {
-    onSelect({ name: d.bizName, city: d.city, state: d.state, zip: d.zip5, phone: d.phone })
+    onSelect({ name: d.bizName, address1: d.street, city: d.city, state: d.state, zip: d.zip5, phone: d.phone })
     setResults([])
     setSearched(false)
   }
@@ -93,7 +94,9 @@ export default function FflSelector({ onSelect, selected }: Props) {
         <div>
           <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: '#4a8a4a', fontWeight: 600, marginBottom: '4px', fontFamily: 'var(--font-inter)' }}>FFL Dealer Selected</div>
           <div style={{ fontSize: '13px', fontWeight: 500, color: t.text, marginBottom: '2px' }}>{selected.name}</div>
-          <div style={{ fontSize: '11px', fontWeight: 300, color: t.textMuted }}>{selected.city}, {selected.state}</div>
+          <div style={{ fontSize: '11px', fontWeight: 300, color: t.textMuted }}>
+            {selected.address1 && <>{selected.address1}, </>}{selected.city}, {selected.state}{selected.zip && ` ${selected.zip}`}
+          </div>
         </div>
         <button onClick={handleClear} style={{ background: 'none', border: `1px solid #c8c8cc`, color: t.textMuted, padding: '5px 12px', fontSize: '9px', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'var(--font-inter)', cursor: 'pointer', fontWeight: 500, flexShrink: 0, whiteSpace: 'nowrap' }}
           onMouseEnter={e => e.currentTarget.style.borderColor = t.gold}
@@ -108,12 +111,11 @@ export default function FflSelector({ onSelect, selected }: Props) {
   if (mode === 'manual') {
     return (
       <div>
-        <button onClick={() => setMode('search')} style={{ background: 'none', border: 'none', color: t.gold, fontSize: '10.5px', fontFamily: 'var(--font-inter)', cursor: 'pointer', padding: '0 0 14px', fontWeight: 400, letterSpacing: '0.02em' }}>
+        <button onClick={() => { setMode('search'); onManualMode(false) }} style={{ background: 'none', border: 'none', color: t.gold, fontSize: '10.5px', fontFamily: 'var(--font-inter)', cursor: 'pointer', padding: '0 0 14px', fontWeight: 400, letterSpacing: '0.02em' }}>
           ← Search for dealer instead
         </button>
-        {/* Manual fields are exposed directly by parent — just signal no structured dealer */}
         <div style={{ fontSize: '11px', color: t.textMuted, fontWeight: 300, lineHeight: 1.6 }}>
-          Enter your FFL dealer's information below. We'll confirm their license before shipping.
+          Enter your FFL dealer&apos;s information below. We&apos;ll confirm their license before shipping.
         </div>
       </div>
     )
@@ -208,7 +210,7 @@ export default function FflSelector({ onSelect, selected }: Props) {
 
       {/* Manual fallback */}
       <div style={{ marginTop: '10px', textAlign: 'right' }}>
-        <button onClick={() => setMode('manual')} style={{ background: 'none', border: 'none', color: t.textMuted, fontSize: '10px', fontFamily: 'var(--font-inter)', cursor: 'pointer', padding: 0, fontWeight: 400, letterSpacing: '0.02em', textDecoration: 'underline', textDecorationColor: `${t.textMuted}60` }}>
+        <button onClick={() => { setMode('manual'); onManualMode(true) }} style={{ background: 'none', border: 'none', color: t.textMuted, fontSize: '10px', fontFamily: 'var(--font-inter)', cursor: 'pointer', padding: 0, fontWeight: 400, letterSpacing: '0.02em', textDecoration: 'underline', textDecorationColor: `${t.textMuted}60` }}>
           Can&apos;t find my dealer — enter manually
         </button>
       </div>

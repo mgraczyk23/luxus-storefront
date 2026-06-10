@@ -32,15 +32,27 @@ type FormData = {
   lastName: string
   email: string
   phone: string
+  buyerAddress1: string
+  buyerCity: string
+  buyerState: string
+  buyerZip: string
   fflDealerName: string
+  fflDealerAddress1: string
   fflDealerCity: string
   fflDealerState: string
+  fflDealerZip: string
+  fflContactName: string
+  fflContactPhone: string
+  fflContactEmail: string
   notes: string
 }
 
 const EMPTY: FormData = {
   firstName: '', lastName: '', email: '', phone: '',
-  fflDealerName: '', fflDealerCity: '', fflDealerState: '', notes: '',
+  buyerAddress1: '', buyerCity: '', buyerState: '', buyerZip: '',
+  fflDealerName: '', fflDealerAddress1: '', fflDealerCity: '', fflDealerState: '', fflDealerZip: '',
+  fflContactName: '', fflContactPhone: '', fflContactEmail: '',
+  notes: '',
 }
 
 type MedusaCart = {
@@ -160,6 +172,7 @@ export default function CheckoutPage() {
   const searchParams = useSearchParams()
 
   const [form, setForm] = useState<FormData>(EMPTY)
+  const [fflIsManual, setFflIsManual] = useState(false)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
@@ -237,18 +250,18 @@ export default function CheckoutPage() {
             shipping_address: {
               first_name: form.fflDealerName.trim() || 'FFL',
               last_name: 'Dealer',
-              address_1: form.fflDealerCity.trim() || 'City',
+              address_1: form.fflDealerAddress1.trim() || form.fflDealerCity.trim() || 'City',
               city: form.fflDealerCity.trim() || 'City',
               country_code: 'us',
               province: form.fflDealerState.trim().toLowerCase(),
-              postal_code: '00000',
+              postal_code: form.fflDealerZip.trim() || '00000',
             },
           }),
         })
         if (updatedData.cart) setMedusaCart(updatedData.cart)
       } catch { /* non-fatal */ }
     }, 500)
-  }, [form.fflDealerState, form.fflDealerName, form.fflDealerCity, medusaCart?.id])
+  }, [form.fflDealerState, form.fflDealerName, form.fflDealerAddress1, form.fflDealerCity, form.fflDealerZip, medusaCart?.id])
 
   const setField = useCallback((k: keyof FormData, v: string) => {
     setForm(prev => ({ ...prev, [k]: v }))
@@ -256,26 +269,56 @@ export default function CheckoutPage() {
   }, [])
 
   const fieldErrors = {
-    firstName: !form.firstName.trim() ? 'Required' : undefined,
-    lastName: !form.lastName.trim() ? 'Required' : undefined,
-    email: !form.email.trim() ? 'Required' : !form.email.includes('@') ? 'Enter a valid email' : undefined,
+    firstName:       !form.firstName.trim() ? 'Required' : undefined,
+    lastName:        !form.lastName.trim() ? 'Required' : undefined,
+    email:           !form.email.trim() ? 'Required' : !form.email.includes('@') ? 'Enter a valid email' : undefined,
+    phone:           !form.phone.trim() ? 'Required' : undefined,
+    buyerAddress1:   !form.buyerAddress1.trim() ? 'Required' : undefined,
+    buyerCity:       !form.buyerCity.trim() ? 'Required' : undefined,
+    buyerState:      !form.buyerState.trim() ? 'Required' : undefined,
+    buyerZip:        !form.buyerZip.trim() ? 'Required' : undefined,
+    fflDealerName:     fflIsManual && !form.fflDealerName.trim() ? 'Required' : undefined,
+    fflDealerAddress1: fflIsManual && !form.fflDealerAddress1.trim() ? 'Required' : undefined,
+    fflDealerCity:     fflIsManual && !form.fflDealerCity.trim() ? 'Required' : undefined,
+    fflDealerState:    fflIsManual && !form.fflDealerState.trim() ? 'Required' : undefined,
+    fflDealerZip:      fflIsManual && !form.fflDealerZip.trim() ? 'Required' : undefined,
   }
 
   const validate = () => {
     if (fieldErrors.firstName) return 'First name is required'
     if (fieldErrors.lastName) return 'Last name is required'
     if (fieldErrors.email) return 'Valid email address is required'
+    if (fieldErrors.phone) return 'Phone number is required'
+    if (fieldErrors.buyerAddress1) return 'Street address is required'
+    if (fieldErrors.buyerCity) return 'City is required'
+    if (fieldErrors.buyerState) return 'State is required'
+    if (fieldErrors.buyerZip) return 'ZIP code is required'
+    if (fflIsManual && fieldErrors.fflDealerName) return 'FFL dealer name is required'
+    if (fflIsManual && fieldErrors.fflDealerAddress1) return 'FFL dealer street address is required'
+    if (fflIsManual && fieldErrors.fflDealerCity) return 'FFL dealer city is required'
+    if (fflIsManual && fieldErrors.fflDealerState) return 'FFL dealer state is required'
+    if (fflIsManual && fieldErrors.fflDealerZip) return 'FFL dealer ZIP is required'
     if (cartItems.length === 0) return 'Your cart is empty'
     if (!medusaCart?.id) return 'Cart is still loading — please wait a moment'
     return null
   }
 
   const cartMeta = () => ({
-    ffl_dealer_name: form.fflDealerName.trim(),
-    ffl_dealer_city: form.fflDealerCity.trim(),
-    ffl_dealer_state: form.fflDealerState.trim().toUpperCase(),
-    notes: form.notes.trim(),
-    customer_phone: form.phone.trim(),
+    ffl_dealer_name:     form.fflDealerName.trim(),
+    ffl_dealer_address1: form.fflDealerAddress1.trim(),
+    ffl_dealer_city:     form.fflDealerCity.trim(),
+    ffl_dealer_state:    form.fflDealerState.trim().toUpperCase(),
+    ffl_dealer_zip:      form.fflDealerZip.trim(),
+    ffl_contact_name:    form.fflContactName.trim(),
+    ffl_contact_phone:   form.fflContactPhone.trim(),
+    ffl_contact_email:   form.fflContactEmail.trim(),
+    ffl_is_manual:       fflIsManual ? 'true' : 'false',
+    buyer_address1:      form.buyerAddress1.trim(),
+    buyer_city:          form.buyerCity.trim(),
+    buyer_state:         form.buyerState.trim().toUpperCase(),
+    buyer_zip:           form.buyerZip.trim(),
+    notes:               form.notes.trim(),
+    customer_phone:      form.phone.trim(),
   })
 
   // Ensure cart has latest email + FFL metadata before paying
@@ -286,14 +329,24 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         email: form.email.trim(),
         metadata: cartMeta(),
+        billing_address: {
+          first_name: form.firstName.trim(),
+          last_name: form.lastName.trim(),
+          address_1: form.buyerAddress1.trim(),
+          city: form.buyerCity.trim(),
+          country_code: 'us',
+          province: form.buyerState.trim().toLowerCase(),
+          postal_code: form.buyerZip.trim(),
+          phone: form.phone.trim(),
+        },
         shipping_address: form.fflDealerState.trim() ? {
           first_name: form.fflDealerName.trim() || 'FFL',
           last_name: 'Dealer',
-          address_1: form.fflDealerCity.trim() || 'City',
+          address_1: form.fflDealerAddress1.trim() || form.fflDealerCity.trim() || 'City',
           city: form.fflDealerCity.trim() || 'City',
           country_code: 'us',
           province: form.fflDealerState.trim().toLowerCase(),
-          postal_code: '00000',
+          postal_code: form.fflDealerZip.trim() || '00000',
         } : undefined,
       }),
     })
@@ -384,10 +437,20 @@ export default function CheckoutPage() {
           lastName: form.lastName.trim(),
           amount: (order.total ?? 0) / 100,
           items: cartItems.map(i => ({ title: i.title, quantity: i.quantity, price: i.price })),
-          fflDealerName: form.fflDealerName.trim(),
-          fflDealerCity: form.fflDealerCity.trim(),
-          fflDealerState: form.fflDealerState.trim(),
-          notes: form.notes.trim(),
+          fflDealerName:     form.fflDealerName.trim(),
+          fflDealerAddress1: form.fflDealerAddress1.trim(),
+          fflDealerCity:     form.fflDealerCity.trim(),
+          fflDealerState:    form.fflDealerState.trim(),
+          fflDealerZip:      form.fflDealerZip.trim(),
+          fflContactName:    form.fflContactName.trim(),
+          fflContactPhone:   form.fflContactPhone.trim(),
+          fflContactEmail:   form.fflContactEmail.trim(),
+          buyerPhone:        form.phone.trim(),
+          buyerAddress1:     form.buyerAddress1.trim(),
+          buyerCity:         form.buyerCity.trim(),
+          buyerState:        form.buyerState.trim(),
+          buyerZip:          form.buyerZip.trim(),
+          notes:             form.notes.trim(),
         }),
       }).catch(() => { /* email failure non-fatal */ })
 
@@ -431,6 +494,7 @@ export default function CheckoutPage() {
         .lxs-co-grid { display: grid; grid-template-columns: 1fr 400px; gap: 48px; align-items: start; }
         .lxs-co-sticky { position: sticky; top: 96px; }
         .lxs-co-contact { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .lxs-co-addr3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
         .lxs-co-ffl { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; }
         @keyframes lxs-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @media (max-width: 860px) {
@@ -439,6 +503,7 @@ export default function CheckoutPage() {
         }
         @media (max-width: 560px) {
           .lxs-co-contact { grid-template-columns: 1fr !important; }
+          .lxs-co-addr3 { grid-template-columns: 1fr !important; }
           .lxs-co-ffl { grid-template-columns: 1fr !important; }
           .lxs-co-banner { padding: 24px 20px 20px !important; }
           .lxs-co-main { padding: 32px 20px 64px !important; }
@@ -474,12 +539,20 @@ export default function CheckoutPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
 
               <section>
-                <SectionHead title="Contact Information" />
-                <div className="lxs-co-contact">
-                  <Field label="First Name" name="firstName" value={form.firstName} onChange={setField} required error={fieldErrors.firstName} />
-                  <Field label="Last Name" name="lastName" value={form.lastName} onChange={setField} required error={fieldErrors.lastName} />
-                  <Field label="Email Address" name="email" value={form.email} onChange={setField} required type="email" error={fieldErrors.email} />
-                  <Field label="Phone Number" name="phone" value={form.phone} onChange={setField} placeholder="Optional" />
+                <SectionHead title="Buyer Information" />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div className="lxs-co-contact">
+                    <Field label="First Name" name="firstName" value={form.firstName} onChange={setField} required error={fieldErrors.firstName} />
+                    <Field label="Last Name" name="lastName" value={form.lastName} onChange={setField} required error={fieldErrors.lastName} />
+                    <Field label="Email Address" name="email" value={form.email} onChange={setField} required type="email" error={fieldErrors.email} />
+                    <Field label="Phone Number" name="phone" value={form.phone} onChange={setField} required type="tel" error={fieldErrors.phone} />
+                  </div>
+                  <Field label="Street Address" name="buyerAddress1" value={form.buyerAddress1} onChange={setField} required error={fieldErrors.buyerAddress1} />
+                  <div className="lxs-co-addr3">
+                    <Field label="City" name="buyerCity" value={form.buyerCity} onChange={setField} required error={fieldErrors.buyerCity} />
+                    <Field label="State" name="buyerState" value={form.buyerState} onChange={setField} required placeholder="e.g. FL" error={fieldErrors.buyerState} />
+                    <Field label="ZIP Code" name="buyerZip" value={form.buyerZip} onChange={setField} required error={fieldErrors.buyerZip} />
+                  </div>
                 </div>
               </section>
 
@@ -495,25 +568,52 @@ export default function CheckoutPage() {
                   </p>
                 </div>
                 <FflSelector
-                  selected={form.fflDealerName ? { name: form.fflDealerName, city: form.fflDealerCity, state: form.fflDealerState } : null}
+                  selected={form.fflDealerName ? { name: form.fflDealerName, address1: form.fflDealerAddress1, city: form.fflDealerCity, state: form.fflDealerState, zip: form.fflDealerZip } : null}
+                  onManualMode={active => {
+                    setFflIsManual(active)
+                    if (!active) {
+                      setField('fflDealerName', '')
+                      setField('fflDealerAddress1', '')
+                      setField('fflDealerCity', '')
+                      setField('fflDealerState', '')
+                      setField('fflDealerZip', '')
+                    }
+                  }}
                   onSelect={dealer => {
                     if (dealer) {
-                      setField('fflDealerName',  dealer.name)
-                      setField('fflDealerCity',  dealer.city)
-                      setField('fflDealerState', dealer.state)
+                      setField('fflDealerName',     dealer.name)
+                      setField('fflDealerAddress1', dealer.address1)
+                      setField('fflDealerCity',     dealer.city)
+                      setField('fflDealerState',    dealer.state)
+                      setField('fflDealerZip',      dealer.zip)
+                      setFflIsManual(false)
                     } else {
-                      setField('fflDealerName',  '')
-                      setField('fflDealerCity',  '')
+                      setField('fflDealerName', '')
+                      setField('fflDealerAddress1', '')
+                      setField('fflDealerCity', '')
                       setField('fflDealerState', '')
+                      setField('fflDealerZip', '')
+                      setFflIsManual(false)
                     }
                   }}
                 />
-                {/* Manual entry fields shown when selector is in manual mode */}
-                {!form.fflDealerName && (
-                  <div className="lxs-co-ffl" style={{ marginTop: '12px' }}>
-                    <Field label="Dealer Name" name="fflDealerName" value={form.fflDealerName} onChange={setField} placeholder="e.g. Sarasota Firearms" />
-                    <Field label="City" name="fflDealerCity" value={form.fflDealerCity} onChange={setField} />
-                    <Field label="State" name="fflDealerState" value={form.fflDealerState} onChange={setField} placeholder="e.g. FL" />
+                {fflIsManual && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '16px' }}>
+                    <Field label="Dealer Name" name="fflDealerName" value={form.fflDealerName} onChange={setField} required error={fieldErrors.fflDealerName} placeholder="e.g. Sarasota Firearms" />
+                    <Field label="Street Address" name="fflDealerAddress1" value={form.fflDealerAddress1} onChange={setField} required error={fieldErrors.fflDealerAddress1} />
+                    <div className="lxs-co-addr3">
+                      <Field label="City" name="fflDealerCity" value={form.fflDealerCity} onChange={setField} required error={fieldErrors.fflDealerCity} />
+                      <Field label="State" name="fflDealerState" value={form.fflDealerState} onChange={setField} required error={fieldErrors.fflDealerState} placeholder="e.g. FL" />
+                      <Field label="ZIP Code" name="fflDealerZip" value={form.fflDealerZip} onChange={setField} required error={fieldErrors.fflDealerZip} />
+                    </div>
+                    <div style={{ fontSize: '8.5px', letterSpacing: '0.16em', textTransform: 'uppercase', color: t.textDim, fontWeight: 500, paddingTop: '2px' }}>
+                      Dealer Contact <span style={{ fontSize: '8px', color: t.textMuted, textTransform: 'none', letterSpacing: 'normal', fontWeight: 300 }}>— optional, helps speed up transfer</span>
+                    </div>
+                    <div className="lxs-co-addr3">
+                      <Field label="Contact Name" name="fflContactName" value={form.fflContactName} onChange={setField} />
+                      <Field label="Contact Phone" name="fflContactPhone" value={form.fflContactPhone} onChange={setField} type="tel" />
+                      <Field label="Contact Email" name="fflContactEmail" value={form.fflContactEmail} onChange={setField} type="email" />
+                    </div>
                   </div>
                 )}
               </section>
@@ -585,7 +685,7 @@ export default function CheckoutPage() {
               {paymentMethod === 'card' && (
                 <div style={{ padding: '11px 13px', background: '#fafaf8', border: `1px solid ${t.border}`, marginBottom: '16px' }}>
                   <p style={{ fontSize: '11px', fontWeight: 300, color: t.textMuted, lineHeight: 1.55, margin: 0 }}>
-                    You will be redirected to Elavon&apos;s secure payment page. After payment you will return here automatically.
+                    You will be redirected to Elavon&apos;s secure payment page to enter your card and billing details. The buyer information above is for FFL transfer records and will not be re-used by Elavon.
                   </p>
                 </div>
               )}
