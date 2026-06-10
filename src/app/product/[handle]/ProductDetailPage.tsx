@@ -173,9 +173,11 @@ export default function ProductDetailPage({
   const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
 
   // State restrictions
-  const [buyerState,       setBuyerState]       = useState("")
-  const [restrictions,     setRestrictions]     = useState<StateRestriction[]>([])
-  const [restrictionCheck, setRestrictionCheck] = useState<RestrictionCheckResult>({ ok: true })
+  const [buyerState,           setBuyerState]           = useState("")
+  const [restrictions,         setRestrictions]         = useState<StateRestriction[]>([])
+  const [restrictionCheck,     setRestrictionCheck]     = useState<RestrictionCheckResult>({ ok: true })
+  const [magWarningModal,      setMagWarningModal]      = useState(false)
+  const [magWarningAcknowledged, setMagWarningAcknowledged] = useState(false)
 
   useEffect(() => { fetchRestrictions().then(setRestrictions) }, [])
 
@@ -184,8 +186,21 @@ export default function ProductDetailPage({
       has_threaded_barrel:        product.shipping_flags.has_threaded_barrel        ? "true" : "false",
       has_high_capacity_magazine: product.shipping_flags.has_high_capacity_magazine ? "true" : "false",
     }
-    setRestrictionCheck(checkState(buyerState, restrictions, meta))
+    const result = checkState(buyerState, restrictions, meta)
+    setRestrictionCheck(result)
+    // Reset acknowledgment and open modal when a new magazine warning fires
+    if (result.ok && 'warning' in result && result.warning) {
+      setMagWarningAcknowledged(false)
+      setMagWarningModal(true)
+    } else {
+      setMagWarningAcknowledged(false)
+      setMagWarningModal(false)
+    }
   }, [buyerState, restrictions, product.shipping_flags])
+
+  const hasMagWarning   = restrictionCheck.ok && 'warning' in restrictionCheck && !!restrictionCheck.warning
+  const ctasBlocked     = !restrictionCheck.ok || (hasMagWarning && !magWarningAcknowledged)
+  const magWarningText  = hasMagWarning ? (restrictionCheck as { ok: true; warning: string }).warning : ""
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     message: `I'm interested in the ${product.title} and would like more information.`,
@@ -646,20 +661,20 @@ export default function ProductDetailPage({
               ) : (
                 <>
                   <button
-                    disabled={!restrictionCheck.ok}
-                    onClick={() => { if (restrictionCheck.ok) { addItem(product); setAddedToCart(true); setTimeout(() => setAddedToCart(false), 1800) } }}
-                    style={{ padding: "15px 32px", background: !restrictionCheck.ok ? "#d0d0d4" : addedToCart ? "#5a9a5a" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: !restrictionCheck.ok ? "not-allowed" : "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
-                    onMouseEnter={e => { if (!addedToCart && restrictionCheck.ok) { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" } }}
-                    onMouseLeave={e => { if (!addedToCart && restrictionCheck.ok) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
+                    disabled={ctasBlocked}
+                    onClick={() => { if (!ctasBlocked) { addItem(product); setAddedToCart(true); setTimeout(() => setAddedToCart(false), 1800) } }}
+                    style={{ padding: "15px 32px", background: ctasBlocked ? "#d0d0d4" : addedToCart ? "#5a9a5a" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: ctasBlocked ? "not-allowed" : "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { if (!addedToCart && !ctasBlocked) { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" } }}
+                    onMouseLeave={e => { if (!addedToCart && !ctasBlocked) { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" } }}>
                     <svg width="14" height="13" viewBox="0 0 14 13" fill="none"><path d="M1 1H2.5L4 9H10.5L12.5 3.5H3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /><circle cx="5" cy="11.5" r="0.8" fill="currentColor" /><circle cx="10" cy="11.5" r="0.8" fill="currentColor" /></svg>
                     {addedToCart ? "Added to Cart ✓" : "Add to Cart"}
                   </button>
                   <button
-                    disabled={!restrictionCheck.ok}
-                    onClick={() => { if (restrictionCheck.ok) setOfferModalOpen(true) }}
-                    style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${!restrictionCheck.ok ? t.border : t.gold}`, color: !restrictionCheck.ok ? t.textDim : t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: !restrictionCheck.ok ? "not-allowed" : "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
-                    onMouseEnter={e => { if (restrictionCheck.ok) { e.currentTarget.style.background = t.gold + "10"; e.currentTarget.style.transform = "translateY(-1px)" } }}
-                    onMouseLeave={e => { if (restrictionCheck.ok) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "none" } }}>
+                    disabled={ctasBlocked}
+                    onClick={() => { if (!ctasBlocked) setOfferModalOpen(true) }}
+                    style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${ctasBlocked ? t.border : t.gold}`, color: ctasBlocked ? t.textDim : t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: ctasBlocked ? "not-allowed" : "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
+                    onMouseEnter={e => { if (!ctasBlocked) { e.currentTarget.style.background = t.gold + "10"; e.currentTarget.style.transform = "translateY(-1px)" } }}
+                    onMouseLeave={e => { if (!ctasBlocked) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.transform = "none" } }}>
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L8.1 4.7L12 5.2L9.25 7.9L10 12L6.5 10.1L3 12L3.75 7.9L1 5.2L4.9 4.7L6.5 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" /></svg>
                     Make an Offer
                   </button>
@@ -1184,6 +1199,44 @@ export default function ProductDetailPage({
           productHandle={product.handle}
           onClose={() => setAvailabilityModalOpen(false)}
         />
+      )}
+
+      {/* ── Magazine warning acknowledgment modal ───────────────────────── */}
+      {magWarningModal && !magWarningAcknowledged && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 10001, background: "rgba(8,7,6,0.82)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+          <div style={{ width: "100%", maxWidth: "480px", background: "#fff", border: `1px solid ${t.border}`, borderTop: "3px solid #c9a93e", boxShadow: "0 30px 80px rgba(0,0,0,0.18)", padding: "40px 44px 36px", fontFamily: "'Inter',sans-serif" }}>
+            {/* Warning icon */}
+            <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#fef9ec", border: "1.5px solid #c9a93e", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 20 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9a93e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+
+            {/* Title */}
+            <h3 style={{ fontSize: 20, fontWeight: 600, color: "#1a1a1a", margin: "0 0 10px", fontFamily: "'Inter',sans-serif", lineHeight: 1.2 }}>
+              Magazine Shipping Notice
+            </h3>
+
+            {/* Message */}
+            <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, margin: "0 0 10px", fontFamily: "'Inter',sans-serif" }}>
+              {magWarningText || "This firearm ships with magazines that exceed the legal capacity limit in your state."}
+            </p>
+            <p style={{ fontSize: 14, color: "#555", lineHeight: 1.7, margin: "0 0 28px", fontFamily: "'Inter',sans-serif" }}>
+              <strong style={{ color: "#1a1a1a" }}>We will ship the firearm without the magazines.</strong> The firearm itself may be legally purchased and transferred through a licensed FFL dealer in your state.
+            </p>
+
+            {/* Acknowledge button */}
+            <button
+              onClick={() => { setMagWarningAcknowledged(true); setMagWarningModal(false) }}
+              style={{ width: "100%", padding: "15px 24px", background: "#c9a93e", border: "none", color: "#fff", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 700, cursor: "pointer", borderRadius: "1px" }}
+              onMouseEnter={e => { e.currentTarget.style.background = t.goldLight }}
+              onMouseLeave={e => { e.currentTarget.style.background = "#c9a93e" }}>
+              I Understand — Continue
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
