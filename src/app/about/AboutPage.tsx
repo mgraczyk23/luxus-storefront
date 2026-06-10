@@ -296,14 +296,6 @@ export default function AboutPage({
               <p style={{ fontSize:"15px",fontWeight:300,lineHeight:1.85,color:t.textMuted,maxWidth:"440px",letterSpacing:"0.025em" }}>
                 {c.heroDescription}
               </p>
-              <div style={{ display:"flex",gap:"40px",marginTop:"52px",paddingTop:"32px",borderTop:`1px solid ${t.border}` }}>
-                {c.stats.map(([n,l]) => (
-                  <div key={l}>
-                    <div style={{ fontFamily:"var(--font-playfair)",fontSize:"32px",fontWeight:300,color:t.gold,lineHeight:1,marginBottom:"4px" }}>{n}</div>
-                    <div style={{ fontSize:"8.5px",letterSpacing:"0.14em",textTransform:"uppercase",color:t.textMuted,fontWeight:400 }}>{l}</div>
-                  </div>
-                ))}
-              </div>
             </div>
 
             <div style={{ position:"relative" }}>
