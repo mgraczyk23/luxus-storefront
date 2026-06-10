@@ -17,12 +17,6 @@ function lxcId(order: LxsOrder) {
   return `LXC-${String(order.display_id).padStart(6, '0')}`
 }
 
-function fflLine(order: LxsOrder): string {
-  const name  = order.metadata?.ffl_dealer_name ?? order.shipping_address?.first_name ?? ''
-  const city  = order.metadata?.ffl_dealer_city  ?? order.shipping_address?.city       ?? ''
-  const state = order.metadata?.ffl_dealer_state ?? (order.shipping_address?.province?.toUpperCase()) ?? ''
-  return [name, [city, state].filter(Boolean).join(', ')].filter(Boolean).join(' — ')
-}
 
 function statusLabel(status: string) {
   const map: Record<string, string> = {
@@ -72,16 +66,25 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
   }
 
   const displayId = lxcId(order)
-  const fflInfo   = fflLine(order)
 
+  // Buyer / Sold To
   const soldToName  = customer ? `${customer.first_name} ${customer.last_name}`.trim() : (order.email ?? '—')
   const soldToPhone = order.metadata?.customer_phone ?? customer?.phone ?? ''
   const soldToEmail = order.email ?? customer?.email ?? ''
+  const soldToAddr1 = order.metadata?.buyer_address1 ?? order.billing_address?.address_1 ?? ''
+  const soldToCity  = order.metadata?.buyer_city      ?? order.billing_address?.city       ?? ''
+  const soldToState = order.metadata?.buyer_state     ?? (order.billing_address?.province?.toUpperCase()) ?? ''
+  const soldToZip   = order.metadata?.buyer_zip       ?? order.billing_address?.postal_code ?? ''
+  const soldToCityStateZip = [soldToCity, [soldToState, soldToZip].filter(Boolean).join(' ')].filter(Boolean).join(', ')
 
-  const fflName  = order.metadata?.ffl_dealer_name ?? order.shipping_address?.first_name ?? '—'
-  const fflCity  = order.metadata?.ffl_dealer_city  ?? order.shipping_address?.city       ?? ''
-  const fflState = order.metadata?.ffl_dealer_state ?? (order.shipping_address?.province?.toUpperCase()) ?? ''
-  const fflCityState = [fflCity, fflState].filter(Boolean).join(', ')
+  // FFL Dealer / Ship To
+  const fflName    = order.metadata?.ffl_dealer_name     ?? order.shipping_address?.first_name ?? '—'
+  const fflAddr1   = order.metadata?.ffl_dealer_address1 ?? ''
+  const fflCity    = order.metadata?.ffl_dealer_city     ?? order.shipping_address?.city       ?? ''
+  const fflState   = order.metadata?.ffl_dealer_state    ?? (order.shipping_address?.province?.toUpperCase()) ?? ''
+  const fflZip     = order.metadata?.ffl_dealer_zip      ?? ''
+  const fflCityStateZip = [fflCity, [fflState, fflZip].filter(Boolean).join(' ')].filter(Boolean).join(', ')
+  const fflContact = [order.metadata?.ffl_contact_name, order.metadata?.ffl_contact_phone, order.metadata?.ffl_contact_email].filter(Boolean).join(' · ')
 
   const notes = order.metadata?.notes ?? ''
 
@@ -308,14 +311,18 @@ export default function InvoicePage({ orderId, settings }: { orderId: string; se
             <div className="inv-party-name">{soldToName}</div>
             <div className="inv-sub">
               {soldToEmail && <>{soldToEmail}<br/></>}
-              {soldToPhone && <>{soldToPhone}</>}
+              {soldToPhone && <>{soldToPhone}<br/></>}
+              {soldToAddr1 && <>{soldToAddr1}<br/></>}
+              {soldToCityStateZip && <>{soldToCityStateZip}</>}
             </div>
           </div>
           <div className="inv-party">
             <div className="inv-label">Ship To (FFL Dealer)</div>
             <div className="inv-party-name">{fflName || '—'}</div>
             <div className="inv-sub">
-              {fflCityState && <>{fflCityState}<br/></>}
+              {fflAddr1 && <>{fflAddr1}<br/></>}
+              {fflCityStateZip && <>{fflCityStateZip}<br/></>}
+              {fflContact && <>{fflContact}<br/></>}
               FFL Transfer — dealer will contact you upon arrival
             </div>
           </div>
