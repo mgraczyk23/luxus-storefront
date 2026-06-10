@@ -2,26 +2,37 @@
  * import-ffl.mjs — Load ATF FFL database into Meilisearch
  *
  * Usage:
- *   node scripts/import-ffl.mjs /path/to/0626-ffl-list.txt
+ *   node scripts/import-ffl.mjs /path/to/FFL06102026.txt
  *
  * Download the file from: https://fflezcheck.atf.gov/FFLEzCheck/fflDownloadDisplay.action
  * (requires your ATF FFL login — run monthly to keep data current)
  *
- * Supports:
- *   - Fixed-width ASCII format (post Sep 2013)
- *   - Pipe-delimited format (pre Sep 2013 and some export variants)
+ * Official ATF fixed-width layout (1-indexed, 323 chars per record):
+ *   FFL Number          1–15   (15)  — region+dist+county+type+expiry+seq
+ *   License Name       16–65   (50)
+ *   Business Name      66–115  (50)
+ *   Premise Street    116–165  (50)
+ *   Premise City      166–195  (30)
+ *   Premise State     196–197   (2)
+ *   Premise Zip       198–206   (9)
+ *   Mailing Street    207–256  (50)
+ *   Mailing City      257–286  (30)
+ *   Mailing State     287–288   (2)
+ *   Mailing Zip       289–297   (9)
+ *   Voice Telephone   298–307  (10)
+ *   LOA Issue Date    308–315   (8)  MMDDYYYY
+ *   LOA Expiry Date   316–323   (8)  MMDDYYYY
  *
- * Only imports license types useful for customer transfers:
+ * Only imports license types useful for customer FFL transfers:
  *   01 - Dealer in Firearms (most common)
- *   02 - Pawnbroker
- *   09 - Dealer in Destructive Devices (includes some dealers)
+ *   02 - Pawnbroker in Firearms
  *
- * Env vars (reads from .env.local or process.env):
- *   MEILI_URL  or  NEXT_PUBLIC_MEILI_URL  (default: http://localhost:7700)
- *   MEILI_KEY  or  NEXT_PUBLIC_MEILI_SEARCH_KEY  or  MEILISEARCH_MASTER_KEY
+ * Env vars:
+ *   MEILI_URL  or  NEXT_PUBLIC_MEILI_URL       (default: http://localhost:7700)
+ *   MEILI_KEY  or  MEILISEARCH_MASTER_KEY  or  NEXT_PUBLIC_MEILI_SEARCH_KEY
  */
 
-import { readFileSync, existsSync } from "fs"
+import { existsSync } from "fs"
 import { createInterface } from "readline"
 import { createReadStream } from "fs"
 import path from "path"
@@ -38,13 +49,13 @@ const MEILI_KEY = process.env.MEILI_KEY
   ?? process.env.NEXT_PUBLIC_MEILI_SEARCH_KEY
   ?? ""
 
-const INDEX   = "ffls"
-const BATCH   = 1000
-const ALLOWED_TYPES = new Set(["01", "02", "09"])
+const INDEX         = "ffls"
+const BATCH         = 1000
+const ALLOWED_TYPES = new Set(["01", "02"])
 
 const filePath = process.argv[2]
 if (!filePath) {
-  console.error("Usage: node scripts/import-ffl.mjs /path/to/ffl-list.txt")
+  console.error("Usage: node scripts/import-ffl.mjs /path/to/FFL-list.txt")
   process.exit(1)
 }
 if (!existsSync(filePath)) {
@@ -52,94 +63,43 @@ if (!existsSync(filePath)) {
   process.exit(1)
 }
 
-// ── Fixed-width field spec ────────────────────────────────────────────────────
-// ATF format as of Sep 2013 (each field is right-padded with spaces)
-// Verified against actual ATF FFL file (FFL06102026.txt)
-const FIXED_FIELDS = [
-  ["licRegn",     1],
-  ["licDist",     2],
-  ["licCnty",     3],
-  ["licType",     2],
-  ["licXprdte",   2],  // 2-char coded expiry (e.g. "7D"), NOT 8
-  ["licSeqn",     5],
-  ["licName",    25],
-  ["bizName",    75],  // 75 chars, NOT 50
-  ["street",     50],
-  ["city",       30],  // 30 chars, NOT 25
-  ["state",       2],
-  ["zip",         9],
-  ["mailStreet", 50],
-  ["mailCity",   30],  // 30 chars, NOT 25
-  ["mailState",   2],
-  ["mailZip",     9],
-  ["phone",      10],
-  // Remaining bytes (16) are date metadata — ignored
-]
-
-const FIXED_WIDTH = FIXED_FIELDS.reduce((s, [, w]) => s + w, 0)  // 307
+// ── Parser — official ATF fixed-width layout (0-indexed) ─────────────────────
 
 function parseFixedLine(line) {
-  if (line.length < FIXED_WIDTH - 30) return null  // too short
-  let pos = 0
-  const obj = {}
-  for (const [name, width] of FIXED_FIELDS) {
-    obj[name] = line.slice(pos, pos + width).trim()
-    pos += width
-  }
-  return obj
-}
+  if (line.length < 306) return null   // must have at least through phone
 
-function parsePipeLine(line) {
-  const parts = line.split("|")
-  if (parts.length < 12) return null
+  const fflNum = line.slice(0, 15)     // chars 1–15
+
   return {
-    licRegn:    parts[0]?.trim() ?? "",
-    licDist:    parts[1]?.trim() ?? "",
-    licCnty:    parts[2]?.trim() ?? "",
-    licType:    parts[3]?.trim() ?? "",
-    licXprdte:  parts[4]?.trim() ?? "",
-    licSeqn:    parts[5]?.trim() ?? "",
-    licName:    parts[6]?.trim() ?? "",
-    bizName:    parts[7]?.trim() ?? "",
-    street:     parts[8]?.trim() ?? "",
-    city:       parts[9]?.trim() ?? "",
-    state:      parts[10]?.trim() ?? "",
-    zip:        parts[11]?.trim() ?? "",
-    mailStreet: parts[12]?.trim() ?? "",
-    mailCity:   parts[13]?.trim() ?? "",
-    mailState:  parts[14]?.trim() ?? "",
-    mailZip:    parts[15]?.trim() ?? "",
-    phone:      parts[16]?.trim() ?? "",
+    fflNum,
+    licType:    fflNum.slice(6, 8),    // chars 7–8 within FFL number = license type
+    licName:    line.slice(15, 65).trim(),   // chars 16–65
+    bizName:    line.slice(65, 115).trim(),  // chars 66–115
+    street:     line.slice(115, 165).trim(), // chars 116–165
+    city:       line.slice(165, 195).trim(), // chars 166–195
+    state:      line.slice(195, 197).trim(), // chars 196–197
+    zip:        line.slice(197, 206).trim(), // chars 198–206
+    phone:      line.slice(297, 307).trim(), // chars 298–307
   }
-}
-
-function parseLine(line, isPipe) {
-  return isPipe ? parsePipeLine(line) : parseFixedLine(line)
-}
-
-function makeId(r) {
-  return `${r.licRegn}-${r.licDist}-${r.licCnty}-${r.licType}-${r.licXprdte}-${r.licSeqn}`
 }
 
 function formatPhone(raw) {
   const d = raw.replace(/\D/g, "")
-  if (d.length === 10) return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`
+  if (d.length === 10) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`
   return raw
 }
 
 function toDoc(r) {
-  const zip5 = r.zip.slice(0, 5)
   return {
-    id:          makeId(r),
+    id:          r.fflNum,                   // raw 15-char FFL number as unique key
+    licenseNum:  r.fflNum,
     licenseType: r.licType,
-    licenseNum:  `${r.licRegn}-${r.licDist}-${r.licCnty}-${r.licType}-${r.licXprdte}-${r.licSeqn}`,
-    bizName:     r.bizName || r.licName,
+    bizName:     r.bizName || r.licName,     // fall back to license name if no trade name
     licName:     r.licName,
     street:      r.street,
     city:        r.city,
     state:       r.state,
-    zip:         r.zip,
-    zip5:        zip5,
+    zip5:        r.zip.slice(0, 5),
     phone:       formatPhone(r.phone),
   }
 }
@@ -163,7 +123,7 @@ async function meili(method, endpoint, body) {
 }
 
 async function waitForTask(taskUid) {
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < 180; i++) {
     const { status } = await meili("GET", `/tasks/${taskUid}`)
     if (status === "succeeded") return
     if (status === "failed") throw new Error(`Task ${taskUid} failed`)
@@ -172,10 +132,9 @@ async function waitForTask(taskUid) {
   throw new Error("Timed out waiting for task")
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// ── Setup ─────────────────────────────────────────────────────────────────────
 
 async function setupIndex() {
-  // Create or update index
   try {
     await meili("GET", `/indexes/${INDEX}`)
     console.log(`  ✓ Index '${INDEX}' already exists`)
@@ -185,26 +144,25 @@ async function setupIndex() {
     console.log(`  ✓ Created index '${INDEX}'`)
   }
 
-  // Configure searchable, filterable, sortable attributes
-  const { taskUid: t1 } = await meili("PATCH", `/indexes/${INDEX}/settings`, {
+  const { taskUid } = await meili("PATCH", `/indexes/${INDEX}/settings`, {
     searchableAttributes: ["bizName", "licName", "city", "state", "zip5", "street"],
     filterableAttributes: ["state", "licenseType", "zip5"],
-    sortableAttributes: ["bizName", "city"],
+    sortableAttributes:   ["bizName", "city"],
     typoTolerance: {
       enabled: true,
       minWordSizeForTypos: { oneTypo: 4, twoTypos: 8 },
     },
     pagination: { maxTotalHits: 500 },
   })
-  await waitForTask(t1)
+  await waitForTask(taskUid)
   console.log("  ✓ Index settings applied")
 }
+
+// ── Import ────────────────────────────────────────────────────────────────────
 
 async function importFile() {
   const rl = createInterface({ input: createReadStream(filePath), crlfDelay: Infinity })
 
-  let lineNo   = 0
-  let isPipe   = null
   let skipped  = 0
   let imported = 0
   let batch    = []
@@ -219,24 +177,13 @@ async function importFile() {
   }
 
   for await (const rawLine of rl) {
-    lineNo++
     const line = rawLine.replace(/\r$/, "")
     if (!line.trim()) continue
 
-    // Auto-detect format from first real line
-    if (isPipe === null) {
-      isPipe = line.includes("|")
-      console.log(`  Format detected: ${isPipe ? "pipe-delimited" : "fixed-width ASCII"}`)
-    }
-
-    const r = parseLine(line, isPipe)
-    if (!r) { skipped++; continue }
-
-    // Skip non-dealer license types
+    const r = parseFixedLine(line)
+    if (!r)                          { skipped++; continue }
     if (!ALLOWED_TYPES.has(r.licType)) { skipped++; continue }
-
-    // Skip records without a business location
-    if (!r.city || !r.state) { skipped++; continue }
+    if (!r.city || !r.state)         { skipped++; continue }
 
     batch.push(toDoc(r))
     if (batch.length >= BATCH) await flush()
@@ -245,6 +192,8 @@ async function importFile() {
   await flush()
   console.log(`\n  ✓ Done — ${imported.toLocaleString()} dealers imported, ${skipped.toLocaleString()} skipped`)
 }
+
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
   console.log(`Meilisearch: ${MEILI_URL}`)
@@ -256,7 +205,6 @@ async function main() {
   console.log("\nImporting FFL records…")
   await importFile()
 
-  // Show a quick count
   const stats = await meili("GET", `/indexes/${INDEX}/stats`)
   console.log(`\nIndex '${INDEX}': ${stats.numberOfDocuments.toLocaleString()} total documents`)
   console.log("\n✅ FFL import complete!")
