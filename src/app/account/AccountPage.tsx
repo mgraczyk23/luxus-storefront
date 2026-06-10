@@ -49,6 +49,8 @@ const TABS = [
     icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="1.5" width="11" height="11" rx="1" stroke="currentColor" strokeWidth="1"/><path d="M4 5H10M4 7.5H8M4 10H7" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round"/></svg> },
   { id: "wishlist", label: "Wishlist",
     icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 12C7 12 1 8 1 4C1 2.34 2.34 1 4 1C5.2 1 6.25 1.7 6.78 2.72C6.88 2.92 7.12 2.92 7.22 2.72C7.75 1.7 8.79 1 10 1C11.66 1 13 2.34 13 4C13 8 7 12 7 12Z" stroke="currentColor" strokeWidth="1"/></svg> },
+  { id: "offers",   label: "My Offers",
+    icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 2.5H12.5V9.5H7.5L5 12V9.5H1.5V2.5Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/></svg> },
   { id: "settings", label: "Account Details",
     icon: <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" strokeWidth="1"/><path d="M1.5 12.5C1.5 10.015 4.015 8 7 8C9.985 8 12.5 10.015 12.5 12.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/></svg> },
 ]
@@ -63,6 +65,8 @@ export default function AccountPage({ settings }: { settings?: SiteSettings }) {
   const [orders,        setOrders]        = useState<LxsOrder[]>([])
   const [ordersLoading, setOrdersLoading] = useState(false)
   const [wishlist,      setWishlist]      = useState<WishlistItem[]>([])
+  const [offers,        setOffers]        = useState<any[]>([])
+  const [offersLoading, setOffersLoading] = useState(false)
 
   // Profile edit state
   const [editMode,   setEditMode]   = useState(false)
@@ -89,6 +93,21 @@ export default function AccountPage({ settings }: { settings?: SiteSettings }) {
   useEffect(() => {
     if (tab === "wishlist") setWishlist(getWishlist())
   }, [tab])
+
+  // Fetch offers when tab switches to offers
+  useEffect(() => {
+    if (tab === "offers" && token && offers.length === 0) {
+      setOffersLoading(true)
+      const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
+      const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
+      fetch(`${MEDUSA_URL}/store/offers/mine`, {
+        headers: { 'Authorization': `Bearer ${token}`, 'x-publishable-api-key': PK },
+      })
+        .then(r => r.json())
+        .then(d => { setOffers(d.offers ?? []); setOffersLoading(false) })
+        .catch(() => setOffersLoading(false))
+    }
+  }, [tab, token, offers.length])
 
   // Pre-fill edit fields when entering edit mode
   useEffect(() => {
@@ -301,6 +320,84 @@ export default function AccountPage({ settings }: { settings?: SiteSettings }) {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── MY OFFERS ── */}
+        {tab === "offers" && (
+          <div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "28px" }}>
+              <div style={{ fontFamily: "var(--font-playfair)", fontSize: "24px", fontWeight: 400, color: t.text }}>My Offers</div>
+              {!offersLoading && <span style={{ fontSize: "11px", color: t.textDim, fontWeight: 300 }}><span style={{ color: t.text, fontWeight: 400 }}>{offers.length}</span> offers</span>}
+            </div>
+
+            {offersLoading ? (
+              <div style={{ padding: "60px 0", textAlign: "center", fontSize: "11px", color: t.textDim }}>Loading offers…</div>
+            ) : offers.length === 0 ? (
+              <div style={{ padding: "60px 0", textAlign: "center", border: `1px solid ${t.border}`, background: "#fafafa" }}>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", fontWeight: 400, color: t.text, marginBottom: "10px" }}>No offers yet</div>
+                <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, marginBottom: "20px" }}>When you submit an offer on a firearm, it will appear here with its current status.</p>
+                <Link href="/shop" style={{ fontSize: "9.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.gold, fontWeight: 600, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "2px" }}>Browse the Collection →</Link>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                {offers.map((offer: any) => {
+                  const OFFER_STATUS: Record<string, { label: string; bg: string }> = {
+                    pending:   { label: "Awaiting Response", bg: "#c09530" },
+                    countered: { label: "Counter Offer",     bg: "#3a6a8a" },
+                    accepted:  { label: "Accepted",          bg: "#4a8a4a" },
+                    declined:  { label: "Declined",          bg: "#8a4a4a" },
+                  }
+                  const s = OFFER_STATUS[offer.status] ?? { label: offer.status, bg: "#707076" }
+                  const amountDisplay = offer.counter_amount
+                    ? `${fmt(offer.counter_amount * 100)} (counter from ${fmt(offer.offer_amount * 100)})`
+                    : fmt(offer.offer_amount * 100)
+                  const tokenExpired = offer.checkout_token_expires_at && new Date(offer.checkout_token_expires_at) < new Date()
+
+                  return (
+                    <div key={offer.id} style={{ border: `1px solid ${t.border}`, background: "#fff" }}>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr auto", gap: "20px", padding: "18px 22px", alignItems: "center" }} className="lxs-order-head">
+                        <div>
+                          <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Item</div>
+                          <div style={{ fontFamily: "var(--font-playfair)", fontSize: "15px", fontWeight: 400, color: t.text, lineHeight: 1.3 }}>{offer.product_title}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Amount</div>
+                          <div style={{ fontSize: "13px", fontWeight: 300, color: t.text }}>{amountDisplay}</div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "4px" }}>Status</div>
+                          <span style={{ padding: "3px 10px", background: s.bg + "22", border: `1px solid ${s.bg}55`, fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: s.bg, fontWeight: 500 }}>{s.label}</span>
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+                          {offer.status === "accepted" && offer.checkout_token && !tokenExpired && (
+                            <Link href={`/checkout/offer/${offer.checkout_token}`}
+                              style={{ padding: "9px 18px", background: t.gold, color: "#fff", fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap", display: "block" }}>
+                              Complete Purchase →
+                            </Link>
+                          )}
+                          {offer.status === "accepted" && tokenExpired && (
+                            <span style={{ fontSize: "10.5px", color: t.textDim, fontWeight: 300 }}>Link expired — contact us</span>
+                          )}
+                          {offer.status === "countered" && (
+                            <Link href={`/offer/${offer.id}/accept-counter`}
+                              style={{ padding: "9px 18px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap", display: "block" }}>
+                              Review Counter →
+                            </Link>
+                          )}
+                          {offer.status === "declined" && (
+                            <Link href={`/product/${offer.product_handle}`}
+                              style={{ fontSize: "9px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, textDecoration: "none", borderBottom: `1px solid ${t.border}`, paddingBottom: "2px", fontWeight: 500 }}>
+                              View Item →
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
