@@ -238,9 +238,9 @@ export default function CheckoutPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])  // Only run once on mount — cartItems are already loaded from localStorage
 
-  // Update cart shipping address when FFL state changes (triggers Medusa tax recalculation)
+  // Update cart shipping address when buyer state changes (drives Medusa tax calculation)
   useEffect(() => {
-    if (!medusaCart?.id || !form.fflDealerState.trim()) return
+    if (!medusaCart?.id || !form.buyerState.trim()) return
     if (addressDebounceRef.current) clearTimeout(addressDebounceRef.current)
     addressDebounceRef.current = setTimeout(async () => {
       try {
@@ -248,20 +248,20 @@ export default function CheckoutPage() {
           method: 'POST',
           body: JSON.stringify({
             shipping_address: {
-              first_name: form.fflDealerName.trim() || 'FFL',
-              last_name: 'Dealer',
-              address_1: form.fflDealerAddress1.trim() || form.fflDealerCity.trim() || 'City',
-              city: form.fflDealerCity.trim() || 'City',
+              first_name: form.firstName.trim() || 'Buyer',
+              last_name: form.lastName.trim() || 'Address',
+              address_1: form.buyerAddress1.trim() || 'Address',
+              city: form.buyerCity.trim() || 'City',
               country_code: 'us',
-              province: form.fflDealerState.trim().toLowerCase(),
-              postal_code: form.fflDealerZip.trim() || '00000',
+              province: form.buyerState.trim().toLowerCase(),
+              postal_code: form.buyerZip.trim() || '00000',
             },
           }),
         })
         if (updatedData.cart) setMedusaCart(updatedData.cart)
       } catch { /* non-fatal */ }
     }, 500)
-  }, [form.fflDealerState, form.fflDealerName, form.fflDealerAddress1, form.fflDealerCity, form.fflDealerZip, medusaCart?.id])
+  }, [form.buyerState, form.buyerAddress1, form.buyerCity, form.buyerZip, form.firstName, form.lastName, medusaCart?.id])
 
   const setField = useCallback((k: keyof FormData, v: string) => {
     setForm(prev => ({ ...prev, [k]: v }))
@@ -339,14 +339,14 @@ export default function CheckoutPage() {
           postal_code: form.buyerZip.trim(),
           phone: form.phone.trim(),
         },
-        shipping_address: form.fflDealerState.trim() ? {
-          first_name: form.fflDealerName.trim() || 'FFL',
-          last_name: 'Dealer',
-          address_1: form.fflDealerAddress1.trim() || form.fflDealerCity.trim() || 'City',
-          city: form.fflDealerCity.trim() || 'City',
+        shipping_address: form.buyerState.trim() ? {
+          first_name: form.firstName.trim(),
+          last_name: form.lastName.trim(),
+          address_1: form.buyerAddress1.trim(),
+          city: form.buyerCity.trim(),
           country_code: 'us',
-          province: form.fflDealerState.trim().toLowerCase(),
-          postal_code: form.fflDealerZip.trim() || '00000',
+          province: form.buyerState.trim().toLowerCase(),
+          postal_code: form.buyerZip.trim(),
         } : undefined,
       }),
     })
@@ -485,7 +485,7 @@ export default function CheckoutPage() {
   const taxCents = medusaCart?.tax_total ?? 0
   const totalCents = medusaCart?.total ?? (subtotalCents + shippingCents + taxCents)
 
-  const fflState = form.fflDealerState.trim().toUpperCase()
+  const buyerStateTax = form.buyerState.trim().toUpperCase()
   const isLoading = status === 'loading'
 
   return (
@@ -655,17 +655,15 @@ export default function CheckoutPage() {
                   </span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>
-                    {taxCents > 0 ? `Tax (FL 7%)` : 'Tax'}
-                  </span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.textMuted }}>Tax</span>
                   <span style={{ fontSize: '11.5px', fontWeight: 300, color: t.text }}>
                     {medusaCartLoading
                       ? '—'
                       : taxCents > 0
                       ? fmtCents(taxCents)
-                      : fflState
+                      : buyerStateTax
                       ? 'None'
-                      : 'Enter FFL state'}
+                      : 'Enter address'}
                   </span>
                 </div>
               </div>
