@@ -54,30 +54,32 @@ if (!existsSync(filePath)) {
 
 // ── Fixed-width field spec ────────────────────────────────────────────────────
 // ATF format as of Sep 2013 (each field is right-padded with spaces)
+// Verified against actual ATF FFL file (FFL06102026.txt)
 const FIXED_FIELDS = [
   ["licRegn",     1],
   ["licDist",     2],
   ["licCnty",     3],
   ["licType",     2],
-  ["licXprdte",   8],
+  ["licXprdte",   2],  // 2-char coded expiry (e.g. "7D"), NOT 8
   ["licSeqn",     5],
   ["licName",    25],
-  ["bizName",    50],
+  ["bizName",    75],  // 75 chars, NOT 50
   ["street",     50],
-  ["city",       25],
+  ["city",       30],  // 30 chars, NOT 25
   ["state",       2],
   ["zip",         9],
   ["mailStreet", 50],
-  ["mailCity",   25],
+  ["mailCity",   30],  // 30 chars, NOT 25
   ["mailState",   2],
   ["mailZip",     9],
   ["phone",      10],
+  // Remaining bytes (16) are date metadata — ignored
 ]
 
-const FIXED_WIDTH = FIXED_FIELDS.reduce((s, [, w]) => s + w, 0)  // 278
+const FIXED_WIDTH = FIXED_FIELDS.reduce((s, [, w]) => s + w, 0)  // 307
 
 function parseFixedLine(line) {
-  if (line.length < FIXED_WIDTH - 20) return null  // too short
+  if (line.length < FIXED_WIDTH - 30) return null  // too short
   let pos = 0
   const obj = {}
   for (const [name, width] of FIXED_FIELDS) {
