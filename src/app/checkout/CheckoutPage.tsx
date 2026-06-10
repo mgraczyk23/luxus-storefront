@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart, type CartItem } from '@/context/CartContext'
+import FflSelector from '@/components/FflSelector'
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
 const MEDUSA_PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
@@ -489,15 +490,32 @@ export default function CheckoutPage() {
                     <path d="M7 0.5L13 4V8C13 11 10.5 13 7 14C3.5 13 1 11 1 8V4L7 0.5Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/>
                   </svg>
                   <p style={{ fontSize: '12px', fontWeight: 300, color: t.textMuted, lineHeight: 1.6, margin: 0 }}>
-                    All firearms require FFL transfer. Enter your chosen dealer — we ship directly to them.{' '}
+                    All firearms require FFL transfer. Search for your dealer below — we ship directly to them.{' '}
                     <Link href="/support#ffl" style={{ color: t.gold, textDecoration: 'none', borderBottom: `1px solid ${t.gold}50` }}>Learn more →</Link>
                   </p>
                 </div>
-                <div className="lxs-co-ffl">
-                  <Field label="Dealer Name" name="fflDealerName" value={form.fflDealerName} onChange={setField} placeholder="e.g. Sarasota Firearms" />
-                  <Field label="City" name="fflDealerCity" value={form.fflDealerCity} onChange={setField} />
-                  <Field label="State" name="fflDealerState" value={form.fflDealerState} onChange={setField} placeholder="e.g. FL" />
-                </div>
+                <FflSelector
+                  selected={form.fflDealerName ? { name: form.fflDealerName, city: form.fflDealerCity, state: form.fflDealerState } : null}
+                  onSelect={dealer => {
+                    if (dealer) {
+                      setField('fflDealerName',  dealer.name)
+                      setField('fflDealerCity',  dealer.city)
+                      setField('fflDealerState', dealer.state)
+                    } else {
+                      setField('fflDealerName',  '')
+                      setField('fflDealerCity',  '')
+                      setField('fflDealerState', '')
+                    }
+                  }}
+                />
+                {/* Manual entry fields shown when selector is in manual mode */}
+                {!form.fflDealerName && (
+                  <div className="lxs-co-ffl" style={{ marginTop: '12px' }}>
+                    <Field label="Dealer Name" name="fflDealerName" value={form.fflDealerName} onChange={setField} placeholder="e.g. Sarasota Firearms" />
+                    <Field label="City" name="fflDealerCity" value={form.fflDealerCity} onChange={setField} />
+                    <Field label="State" name="fflDealerState" value={form.fflDealerState} onChange={setField} placeholder="e.g. FL" />
+                  </div>
+                )}
               </section>
 
               <section>
