@@ -345,10 +345,13 @@ export default function CheckoutPage() {
     customer_phone:      form.phone.trim(),
   })
 
-  // Ensure cart has latest email + FFL metadata before paying
+  // Ensure cart has latest email + FFL metadata, address, and a shipping method before paying
   async function prepareCart() {
     if (!medusaCart?.id) throw new Error('No cart')
-    const data = await medusaFetch(`/store/carts/${medusaCart.id}`, {
+    const cartId = medusaCart.id
+
+    // 1. Update address + metadata
+    const data = await medusaFetch(`/store/carts/${cartId}`, {
       method: 'POST',
       body: JSON.stringify({
         email: form.email.trim(),
@@ -375,7 +378,22 @@ export default function CheckoutPage() {
       }),
     })
     if (data.cart) setMedusaCart(data.cart)
-    return data.cart ?? medusaCart
+    const cart = data.cart ?? medusaCart
+
+    // 2. Add shipping method if not already present (required by Medusa to complete cart)
+    const hasShipping = (cart as any)?.shipping_methods?.length > 0
+    if (!hasShipping) {
+      const soData = await medusaFetch(`/store/shipping-options?cart_id=${cartId}`)
+      const optionId = soData?.shipping_options?.[0]?.id
+      if (optionId) {
+        await medusaFetch(`/store/carts/${cartId}/shipping-methods`, {
+          method: 'POST',
+          body: JSON.stringify({ option_id: optionId }),
+        })
+      }
+    }
+
+    return cart
   }
 
   async function ensurePaymentCollection(cartId: string, providerId: string, extraData?: Record<string, unknown>) {
