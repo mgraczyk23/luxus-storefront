@@ -193,7 +193,7 @@ export async function POST(req: NextRequest) {
   ])
 
   const res = NextResponse.redirect(
-    `${origin}/order-confirmation?ref=${encodeURIComponent(orderRef)}&name=${encodeURIComponent(firstName)}&method=card`
+    `${origin}/order-confirmation?ref=${encodeURIComponent(orderRef)}&oid=${encodeURIComponent(orderId ?? '')}&name=${encodeURIComponent(firstName)}&method=card`
   )
   res.cookies.delete('lxs_cart')
   return res
