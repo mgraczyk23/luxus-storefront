@@ -17,3 +17,6 @@ if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
     ],
   })
 }
+
+// Captures client-side navigations as Sentry spans for performance tracing
+export const onRouterTransitionStart = Sentry.captureRouterTransitionStart

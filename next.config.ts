@@ -34,13 +34,18 @@ const nextConfig: NextConfig = {
 }
 
 export default withSentryConfig(nextConfig, {
-  // Source map upload requires SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT.
-  // Disabled until those are added to Vercel env vars.
-  sourcemaps: { disable: true },
-  // Suppress Sentry build output in non-CI environments
+  org: "luxus-collection",
+  project: "javascript-nextjs",
+  // SENTRY_AUTH_TOKEN must be set in the build environment (Vercel env vars)
+  // Source maps are uploaded at build time and then deleted from the output
+  // so they are never publicly served.
+  sourcemaps: {
+    filesToDeleteAfterUpload: [".next/static/**/*.map"],
+  },
   silent: true,
-  // Auto-instrument App Router server components, route handlers, and middleware
-  autoInstrumentServerFunctions: true,
-  autoInstrumentMiddleware: true,
-  autoInstrumentAppDirectory: true,
+  webpack: {
+    autoInstrumentServerFunctions: true,
+    autoInstrumentMiddleware: true,
+    autoInstrumentAppDirectory: true,
+  },
 })
