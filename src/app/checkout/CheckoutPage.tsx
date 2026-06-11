@@ -411,9 +411,10 @@ export default function CheckoutPage() {
         email: form.email.trim(),
       })
       const session = pc?.payment_sessions?.[0]
-      const hostedUrl = session?.data?.hostedUrl as string | undefined
+      const hppUrl = session?.data?.hppUrl as string | undefined
+      const hppToken = session?.data?.token as string | undefined
 
-      if (!hostedUrl) {
+      if (!hppUrl || !hppToken) {
         setStatus('error')
         setErrorMsg('Could not initialize payment. Please try again.')
         return
@@ -423,7 +424,20 @@ export default function CheckoutPage() {
       // Cart is cleared on the order-confirmation page after successful payment —
       // NOT here, so a cancelled payment restores the checkout with items intact.
       document.cookie = `lxs_cart=${cart.id}; path=/; max-age=3600; SameSite=None; Secure`
-      window.location.href = hostedUrl
+
+      // Submit a hidden form POST — per Elavon sample code this is the canonical way
+      // to redirect to HPP. It keeps the token out of the browser URL bar and history.
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = hppUrl
+      form.enctype = 'application/x-www-form-urlencoded'
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = 'ssl_txn_auth_token'
+      input.value = hppToken
+      form.appendChild(input)
+      document.body.appendChild(form)
+      form.submit()
     } catch (e: any) {
       setStatus('error')
       setErrorMsg(e?.message ?? 'Network error. Please try again.')
