@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import { withSentryConfig } from "@sentry/nextjs"
 
 const nextConfig: NextConfig = {
   async redirects() {
@@ -32,4 +33,14 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  // Source map upload requires SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT.
+  // Disabled until those are added to Vercel env vars.
+  sourcemaps: { disable: true },
+  // Suppress Sentry build output in non-CI environments
+  silent: true,
+  // Auto-instrument App Router server components, route handlers, and middleware
+  autoInstrumentServerFunctions: true,
+  autoInstrumentMiddleware: true,
+  autoInstrumentAppDirectory: true,
+})
