@@ -35,9 +35,8 @@ export default function OrderConfirmationPage() {
   const name   = params.get('name') ?? ''
   const method = params.get('method') ?? 'card'
   const isWire = method === 'wire'
-  const hasWarn = params.get('warn') === '1'
 
-  const [receipt, setReceipt] = useState<Receipt | null>(null)
+const [receipt, setReceipt] = useState<Receipt | null>(null)
 
   useEffect(() => {
     if (!isWire) clearCart()
@@ -100,16 +99,7 @@ export default function OrderConfirmationPage() {
           </div>
         </div>
 
-        {hasWarn && (
-          <div style={{ padding: '12px 16px', background: '#fff8f0', border: '1px solid #f0c080', marginBottom: '24px' }}>
-            <p style={{ fontSize: '12px', color: '#8b5e00', margin: 0, lineHeight: 1.6 }}>
-              Payment approved — our team will confirm your order by email within one business day.
-              Questions? <a href="mailto:sales@luxus-collection.com" style={{ color: '#8b5e00' }}>sales@luxus-collection.com</a>
-            </p>
-          </div>
-        )}
-
-        {/* Buyer + FFL columns */}
+{/* Buyer + FFL columns */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
           <div>
             <div style={{ fontSize: '8px', letterSpacing: '0.2em', textTransform: 'uppercase', color: t.gold, fontWeight: 600, marginBottom: '10px' }}>Bill To</div>
