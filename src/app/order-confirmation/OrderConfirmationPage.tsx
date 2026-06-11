@@ -1,17 +1,28 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
+import { useCart } from '@/context/CartContext'
 
 export default function OrderConfirmationPage() {
   const { t } = useTheme()
+  const { clearCart } = useCart()
   const params = useSearchParams()
   const ref = params.get('ref') ?? ''
   const name = params.get('name') ?? ''
   const method = params.get('method') ?? 'card'
   const isWire = method === 'wire'
   const hasWarn = params.get('warn') === '1'
+
+  // Clear the cart now that payment is confirmed. Wire orders clear it in CheckoutPage
+  // before navigating here; card orders keep the cart alive through the Elavon redirect
+  // so the customer can recover it if they cancel — we clear it here on success.
+  useEffect(() => {
+    if (!isWire) clearCart()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div style={{ background: t.bg, minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 24px' }}>
