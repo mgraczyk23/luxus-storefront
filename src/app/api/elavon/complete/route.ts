@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
@@ -36,6 +37,32 @@ async function sendEmail(to: string, subject: string, html: string, replyTo?: st
 export async function POST(req: NextRequest) {
   const origin = req.nextUrl.origin
 
+  // ── Verify callback signature ────────────────────────────────────────────────
+  // The return URL was signed with HMAC-SHA256(ELAVON_PROXY_SECRET, cartId) when
+  // the token was created. Reject any POST that doesn't carry a valid sig — this
+  // prevents fake callbacks from creating orders without real payment.
+  const urlCart = req.nextUrl.searchParams.get('cart')
+  const urlSig  = req.nextUrl.searchParams.get('sig')
+
+  if (!urlCart || !urlSig || !ELAVON_PROXY_SECRET) {
+    console.warn('[elavon/complete] missing cart/sig in return URL')
+    return NextResponse.redirect(`${origin}/checkout?error=invalid_callback`)
+  }
+
+  const expectedSig = crypto
+    .createHmac('sha256', ELAVON_PROXY_SECRET)
+    .update(urlCart)
+    .digest('hex')
+    .slice(0, 32)
+
+  if (expectedSig !== urlSig) {
+    console.warn('[elavon/complete] callback signature mismatch — possible forged request')
+    return NextResponse.redirect(`${origin}/checkout?error=invalid_callback`)
+  }
+
+  // Cart ID is now verified — use it as the authoritative source (more reliable than cookie)
+  const cartId = urlCart
+
   // Parse form-encoded body from Elavon
   let fields: Record<string, string> = {}
   try {
@@ -61,16 +88,6 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.redirect(`${origin}/checkout?declined=${encodeURIComponent(msg)}`)
     res.cookies.delete('lxs_cart')
     return res
-  }
-
-  // ── Approved — finalize via Medusa ──────────────────────────────────────────
-  const cartId = req.cookies.get('lxs_cart')?.value
-  if (!cartId) {
-    // Cookie missing — unusual but not necessarily an error (browser may have cleared cookies)
-    console.warn('[elavon/complete] lxs_cart cookie missing after approved payment')
-    return NextResponse.redirect(
-      `${origin}/order-confirmation?ref=unknown&name=${encodeURIComponent(firstName)}&method=card`
-    )
   }
 
   // Call Medusa to update payment session and complete the cart → creates a Medusa order
