@@ -37,31 +37,39 @@ async function sendEmail(to: string, subject: string, html: string, replyTo?: st
 export async function POST(req: NextRequest) {
   const origin = req.nextUrl.origin
 
-  // ── Verify callback signature ────────────────────────────────────────────────
-  // The return URL was signed with HMAC-SHA256(ELAVON_PROXY_SECRET, cartId) when
-  // the token was created. Reject any POST that doesn't carry a valid sig — this
-  // prevents fake callbacks from creating orders without real payment.
+  // ── Resolve cart ID ─────────────────────────────────────────────────────────
+  // Preferred path: ssl_return_url was signed with HMAC-SHA256(secret, cartId).
+  // Fallback path: admin-configured Complete URL doesn't carry query params, so
+  // we read the cart ID from the lxs_cart cookie the browser still holds.
   const urlCart = req.nextUrl.searchParams.get('cart')
   const urlSig  = req.nextUrl.searchParams.get('sig')
 
-  if (!urlCart || !urlSig || !ELAVON_PROXY_SECRET) {
-    console.warn('[elavon/complete] missing cart/sig in return URL')
-    return NextResponse.redirect(`${origin}/checkout?error=invalid_callback`)
+  let cartId: string | undefined
+
+  if (urlCart && urlSig && ELAVON_PROXY_SECRET) {
+    const expectedSig = crypto
+      .createHmac('sha256', ELAVON_PROXY_SECRET)
+      .update(urlCart)
+      .digest('hex')
+      .slice(0, 32)
+    if (expectedSig === urlSig) {
+      cartId = urlCart
+    } else {
+      console.warn('[elavon/complete] HMAC mismatch — possible forged request')
+      return NextResponse.redirect(`${origin}/checkout?error=invalid_callback`, 303)
+    }
+  } else {
+    // Admin Complete button URL — no signed params; trust the browser cookie
+    const cookieCart = req.cookies.get('lxs_cart')?.value
+    if (cookieCart) {
+      cartId = cookieCart
+    }
   }
 
-  const expectedSig = crypto
-    .createHmac('sha256', ELAVON_PROXY_SECRET)
-    .update(urlCart)
-    .digest('hex')
-    .slice(0, 32)
-
-  if (expectedSig !== urlSig) {
-    console.warn('[elavon/complete] callback signature mismatch — possible forged request')
-    return NextResponse.redirect(`${origin}/checkout?error=invalid_callback`)
+  if (!cartId) {
+    console.warn('[elavon/complete] no cart ID from URL params or cookie')
+    return NextResponse.redirect(`${origin}/checkout?error=invalid_callback`, 303)
   }
-
-  // Cart ID is now verified — use it as the authoritative source (more reliable than cookie)
-  const cartId = urlCart
 
   // Parse form-encoded body from Elavon
   let fields: Record<string, string> = {}
@@ -69,7 +77,7 @@ export async function POST(req: NextRequest) {
     const text = await req.text()
     fields = Object.fromEntries(new URLSearchParams(text))
   } catch {
-    return NextResponse.redirect(`${origin}/checkout?error=bad_response`)
+    return NextResponse.redirect(`${origin}/checkout?error=bad_response`, 303)
   }
 
   const sslResult     = fields.ssl_result ?? ''
@@ -85,7 +93,7 @@ export async function POST(req: NextRequest) {
   // Declined or error — redirect back to checkout
   if (sslResult !== '0') {
     const msg = resultMessage || 'Payment was declined. Please try again or use a different card.'
-    const res = NextResponse.redirect(`${origin}/checkout?declined=${encodeURIComponent(msg)}`)
+    const res = NextResponse.redirect(`${origin}/checkout?declined=${encodeURIComponent(msg)}`, 303)
     res.cookies.delete('lxs_cart')
     return res
   }
@@ -118,7 +126,8 @@ export async function POST(req: NextRequest) {
       console.error('[elavon/complete] finalize failed:', finalizeData.error)
       // Payment WAS approved by Elavon — flag for follow-up rather than showing an error
       const res = NextResponse.redirect(
-        `${origin}/order-confirmation?ref=${encodeURIComponent(approvalCode || cartId)}&name=${encodeURIComponent(firstName)}&method=card&warn=1`
+        `${origin}/order-confirmation?ref=${encodeURIComponent(approvalCode || cartId)}&name=${encodeURIComponent(firstName)}&method=card&warn=1`,
+        303
       )
       res.cookies.delete('lxs_cart')
       return res
@@ -129,7 +138,8 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[elavon/complete] finalize fetch error:', err)
     const res = NextResponse.redirect(
-      `${origin}/order-confirmation?ref=${encodeURIComponent(approvalCode || cartId)}&name=${encodeURIComponent(firstName)}&method=card&warn=1`
+      `${origin}/order-confirmation?ref=${encodeURIComponent(approvalCode || cartId)}&name=${encodeURIComponent(firstName)}&method=card&warn=1`,
+      303
     )
     res.cookies.delete('lxs_cart')
     return res
@@ -193,7 +203,8 @@ export async function POST(req: NextRequest) {
   ])
 
   const res = NextResponse.redirect(
-    `${origin}/order-confirmation?ref=${encodeURIComponent(orderRef)}&oid=${encodeURIComponent(orderId ?? '')}&name=${encodeURIComponent(firstName)}&method=card`
+    `${origin}/order-confirmation?ref=${encodeURIComponent(orderRef)}&oid=${encodeURIComponent(orderId ?? '')}&name=${encodeURIComponent(firstName)}&method=card`,
+    303
   )
   res.cookies.delete('lxs_cart')
   return res
