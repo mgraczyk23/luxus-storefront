@@ -169,11 +169,9 @@ const [receipt, setReceipt] = useState<Receipt | null>(null)
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderBottom: `1px solid ${t.border}`, fontSize: '12px', color: t.textMuted }}>
                   <span>Subtotal</span><span>{fmt(receipt.subtotal, receipt.currency_code)}</span>
                 </div>
-                {receipt.shipping_total > 0 && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderBottom: `1px solid ${t.border}`, fontSize: '12px', color: t.textMuted }}>
-                    <span>Shipping</span><span>{fmt(receipt.shipping_total, receipt.currency_code)}</span>
-                  </div>
-                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderBottom: `1px solid ${t.border}`, fontSize: '12px', color: t.textMuted }}>
+                  <span>Shipping</span><span>{fmt(receipt.shipping_total, receipt.currency_code)}</span>
+                </div>
                 {receipt.tax_total > 0 && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', borderBottom: `1px solid ${t.border}`, fontSize: '12px', color: t.textMuted }}>
                     <span>Tax</span><span>{fmt(receipt.tax_total, receipt.currency_code)}</span>
