@@ -574,9 +574,10 @@ export default function CheckoutPage() {
   const buyerStateTax = form.buyerState.trim().toUpperCase()
   const isLoading = status === 'loading'
 
-  const convergeSrc = process.env.NEXT_PUBLIC_ELAVON_ENV === 'production'
-    ? 'https://api.convergepay.com/hosted-payments/PayWithConverge.js'
-    : 'https://api.demo.convergepay.com/hosted-payments/PayWithConverge.js'
+  // Default to production — demo only when explicitly opted in
+  const convergeSrc = process.env.NEXT_PUBLIC_ELAVON_ENV === 'demo'
+    ? 'https://api.demo.convergepay.com/hosted-payments/PayWithConverge.js'
+    : 'https://api.convergepay.com/hosted-payments/PayWithConverge.js'
 
   return (
     <>
