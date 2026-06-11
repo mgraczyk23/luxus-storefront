@@ -362,7 +362,7 @@ export default function CheckoutPage() {
     return data.cart ?? medusaCart
   }
 
-  async function ensurePaymentCollection(cartId: string, providerId: string) {
+  async function ensurePaymentCollection(cartId: string, providerId: string, extraData?: Record<string, unknown>) {
     // Create payment collection
     const pcData = await medusaFetch('/store/payment-collections', {
       method: 'POST',
@@ -377,7 +377,11 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         provider_id: providerId,
         data: providerId === 'pp_elavon_elavon'
-          ? { return_url: `${window.location.origin}/api/elavon/complete` }
+          ? {
+              return_url: `${window.location.origin}/api/elavon/complete`,
+              cart_id: cartId,
+              ...extraData,
+            }
           : {},
       }),
     })
@@ -392,7 +396,18 @@ export default function CheckoutPage() {
 
     try {
       const cart = await prepareCart()
-      const pc = await ensurePaymentCollection(cart.id, 'pp_elavon_elavon')
+      const pc = await ensurePaymentCollection(cart.id, 'pp_elavon_elavon', {
+        billing_address: {
+          first_name: form.firstName.trim(),
+          last_name: form.lastName.trim(),
+          address_1: form.buyerAddress1.trim(),
+          city: form.buyerCity.trim(),
+          province: form.buyerState.trim().toUpperCase(),
+          postal_code: form.buyerZip.trim(),
+          phone: form.phone.trim(),
+        },
+        email: form.email.trim(),
+      })
       const session = pc?.payment_sessions?.[0]
       const hostedUrl = session?.data?.hostedUrl as string | undefined
 
@@ -475,7 +490,7 @@ export default function CheckoutPage() {
     else handleCardPay()
   }
 
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && status === 'idle') {
     return (
       <div style={{ background: t.bg, minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
