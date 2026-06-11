@@ -310,7 +310,7 @@ export default function FeaturedPage({ settings, text, products, classifieds }: 
               The Luxus classifieds section is in development. Want early access to list or browse peer-to-peer firearm listings from verified collectors?
             </p>
           </div>
-          <Link href="/contact?topic=Classifieds+Waitlist"
+          <Link href="/contact"
             style={{ padding: "13px 28px", background: t.gold, color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0 }}>
             Get Early Access
           </Link>

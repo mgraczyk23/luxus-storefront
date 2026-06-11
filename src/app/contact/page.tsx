@@ -9,6 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.contact?.title       || "Contact Us",
     description: seo.contact?.description || "Reach out to the Luxus Collection team — product inquiries, consignment, press, and more. Personal response guaranteed.",
+    alternates: { canonical: '/contact' },
   }
 }
 

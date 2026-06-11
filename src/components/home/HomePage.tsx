@@ -671,7 +671,7 @@ export default function HomePage({
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
               <SectionHead eyebrow="Just Arrived" title="New Arrivals" />
-              <Link href="/shop?order=newest" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
+              <Link href="/shop" style={{ fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.gold, borderBottom: `1px solid ${t.gold}50`, paddingBottom: "1px", fontWeight: 500, marginBottom: "44px", flexShrink: 0, textDecoration: "none" }}
                 onMouseEnter={e => (e.currentTarget.style.color = t.goldLight)}
                 onMouseLeave={e => (e.currentTarget.style.color = t.gold)}>
                 View All
