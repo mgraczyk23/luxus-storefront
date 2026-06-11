@@ -187,10 +187,12 @@ export default function CheckoutPage() {
   const [shippingOptionId, setShippingOptionId] = useState<string | null>(null)
   const addressDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Show error from Elavon declined redirect
+  // Show message from Elavon redirects
   useEffect(() => {
     const declined = searchParams.get('declined')
+    const cancelled = searchParams.get('cancelled')
     if (declined) setErrorMsg(`Payment declined: ${declined}`)
+    else if (cancelled) setErrorMsg('Payment cancelled. Your cart has been restored — you can try again when ready.')
   }, [searchParams])
 
   // Create Medusa cart on mount
