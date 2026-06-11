@@ -7,6 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.articles?.title       || "Articles",
     description: seo.articles?.description || "Long-form writing on the craft, history, and culture of fine firearms — for the collector who wants to understand what they own.",
+    alternates: { canonical: '/articles' },
   }
 }
 

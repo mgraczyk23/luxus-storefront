@@ -8,13 +8,14 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string; articleSlug: string }>
 }): Promise<Metadata> {
-  const { articleSlug } = await params
+  const { slug, articleSlug } = await params
   const page = await getResourcePage(articleSlug).catch(() => null)
   if (!page) return {}
   const brandName = typeof page.brand === 'object' ? page.brand.name : ''
   return {
     title: page.seoTitle ?? `${page.title} | ${brandName} | Resources on Guns | Luxus Collection`,
     description: page.seoDescription ?? page.excerpt ?? undefined,
+    alternates: { canonical: `/resources-on-guns/${slug}/${articleSlug}` },
   }
 }
 

@@ -9,6 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.categories?.title       || "Shop by Category",
     description: seo.categories?.description || "Browse all categories at the Luxus Collection.",
+    alternates: { canonical: '/shop/categories' },
   }
 }
 

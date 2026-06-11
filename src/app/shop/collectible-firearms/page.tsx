@@ -12,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.collectibleFirearms?.title       || "Collectible Firearms",
     description: seo.collectibleFirearms?.description || "Browse collectible and vintage firearms curated by the Luxus Collection.",
+    alternates: { canonical: '/shop/collectible-firearms' },
   }
 }
 

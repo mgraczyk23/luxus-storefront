@@ -7,6 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.shipping?.title       || "Shipping & Returns",
     description: seo.shipping?.description || "Luxus Collection shipping policy: FFL transfer process, shipping rates, return policy, and how to initiate a return.",
+    alternates: { canonical: '/shipping' },
   }
 }
 

@@ -7,6 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.about?.title       || "About Us",
     description: seo.about?.description || "Luxus Collection — a boutique destination for the serious collector. Our story, philosophy, and the standard behind every piece we carry.",
+    alternates: { canonical: '/about' },
   }
 }
 

@@ -9,6 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.home?.title       || "Luxus Collection — Fine Firearms",
     description: seo.home?.description || "A boutique destination for the serious collector. Curating the world's finest production and custom pistols.",
+    alternates: { canonical: '/' },
   }
 }
 

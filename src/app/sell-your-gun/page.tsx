@@ -9,6 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.consignment?.title       || "Consignment & Private Sales",
     description: seo.consignment?.description || "Consign a fine firearm through Luxus Collection or sell outright. Personal response within 3 business days.",
+    alternates: { canonical: '/sell-your-gun' },
   }
 }
 

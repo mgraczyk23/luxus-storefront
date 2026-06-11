@@ -34,6 +34,7 @@ export async function generateMetadata(
       title: detail?.seo_meta_title || mapped.title,
       description: detail?.seo_meta_description || mapped.short_description || mapped.overview?.slice(0, 160) || undefined,
       openGraph: mapped.thumbnail ? { images: [mapped.thumbnail] } : undefined,
+      alternates: { canonical: `/product/${handle}` },
     }
   } catch {
     return {}

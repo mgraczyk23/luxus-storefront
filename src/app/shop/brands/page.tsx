@@ -10,6 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.brands?.title       || "Shop by Brand",
     description: seo.brands?.description || "Browse all firearm brands at the Luxus Collection.",
+    alternates: { canonical: '/shop/brands' },
   }
 }
 

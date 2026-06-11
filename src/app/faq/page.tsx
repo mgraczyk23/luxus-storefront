@@ -9,6 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.faq?.title       || "FAQ",
     description: seo.faq?.description || "Frequently asked questions about ordering, FFL transfers, shipping, payments, and consignment at Luxus Collection.",
+    alternates: { canonical: '/faq' },
   }
 }
 

@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: brand?.seoTitle ?? `${name} — Resources on Guns | Luxus Collection`,
     description: brand?.seoDescription ?? brand?.tagline ?? brand?.description ?? `History, engineering, and craftsmanship of ${name} firearms.`,
+    alternates: { canonical: `/resources-on-guns/${slug}` },
   }
 }
 

@@ -12,6 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.modernFirearms?.title       || "Modern Firearms",
     description: seo.modernFirearms?.description || "Browse modern high-end firearms curated by the Luxus Collection.",
+    alternates: { canonical: '/shop/modern-firearms' },
   }
 }
 

@@ -50,6 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: `${name} Firearms`,
     description: `Browse ${name} firearms at the Luxus Collection.`,
+    alternates: { canonical: `/brand/${slug}` },
   }
 }
 

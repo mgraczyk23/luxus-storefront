@@ -7,6 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.terms?.title       || "Terms & Conditions",
     description: seo.terms?.description || "Luxus Collection terms and conditions: eligibility, payment, FFL transfer requirements, and governing law.",
+    alternates: { canonical: '/terms' },
   }
 }
 

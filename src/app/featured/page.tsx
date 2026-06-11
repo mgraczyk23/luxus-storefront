@@ -11,6 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.featured?.title       || "Featured Collection",
     description: seo.featured?.description || "Hand-selected pieces from the Luxus Collection — exceptional firearms chosen for provenance, craftsmanship, and rarity.",
+    alternates: { canonical: '/featured' },
   }
 }
 

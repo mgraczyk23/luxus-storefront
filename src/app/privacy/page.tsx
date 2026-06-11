@@ -7,6 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title:       seo.privacy?.title       || "Privacy Policy",
     description: seo.privacy?.description || "Luxus Collection privacy policy: how we collect, use, and protect your information.",
+    alternates: { canonical: '/privacy' },
   }
 }
 
