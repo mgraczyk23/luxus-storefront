@@ -422,7 +422,7 @@ export default function CheckoutPage() {
       // Save cart ID so the callback can complete it.
       // Cart is cleared on the order-confirmation page after successful payment —
       // NOT here, so a cancelled payment restores the checkout with items intact.
-      document.cookie = `lxs_cart=${cart.id}; path=/; max-age=3600; SameSite=Lax`
+      document.cookie = `lxs_cart=${cart.id}; path=/; max-age=3600; SameSite=None; Secure`
       window.location.href = hostedUrl
     } catch (e: any) {
       setStatus('error')
