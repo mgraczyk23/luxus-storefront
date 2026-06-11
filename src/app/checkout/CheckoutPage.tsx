@@ -3,11 +3,25 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import Script from 'next/script'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart, type CartItem } from '@/context/CartContext'
 import FflSelector from '@/components/FflSelector'
 import { fetchRestrictions, checkState, type StateRestriction } from '@/lib/state-restrictions'
+
+declare global {
+  interface Window {
+    PayWithConverge: {
+      open: (fields: { ssl_txn_auth_token: string }, callbacks: {
+        onError:     (error: string) => void
+        onCancelled: () => void
+        onDeclined:  (response: Record<string, string>) => void
+        onApproval:  (response: Record<string, string>) => void
+      }) => void
+    }
+  }
+}
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
 const MEDUSA_PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
@@ -379,11 +393,7 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         provider_id: providerId,
         data: providerId === 'pp_elavon_elavon'
-          ? {
-              return_url: `${window.location.origin}/api/elavon/complete`,
-              cart_id: cartId,
-              ...extraData,
-            }
+          ? { cart_id: cartId, ...extraData }
           : {},
       }),
     })
@@ -401,43 +411,79 @@ export default function CheckoutPage() {
       const pc = await ensurePaymentCollection(cart.id, 'pp_elavon_elavon', {
         billing_address: {
           first_name: form.firstName.trim(),
-          last_name: form.lastName.trim(),
-          address_1: form.buyerAddress1.trim(),
-          city: form.buyerCity.trim(),
-          province: form.buyerState.trim().toUpperCase(),
+          last_name:  form.lastName.trim(),
+          address_1:  form.buyerAddress1.trim(),
+          city:       form.buyerCity.trim(),
+          province:   form.buyerState.trim().toUpperCase(),
           postal_code: form.buyerZip.trim(),
-          phone: form.phone.trim(),
+          phone:      form.phone.trim(),
         },
         email: form.email.trim(),
       })
-      const session = pc?.payment_sessions?.[0]
-      const hppUrl = session?.data?.hppUrl as string | undefined
-      const hppToken = session?.data?.token as string | undefined
+      const session   = pc?.payment_sessions?.[0]
+      const cartId    = session?.data?.cartId as string | undefined
+      const token     = session?.data?.token  as string | undefined
 
-      if (!hppUrl || !hppToken) {
+      if (!token || !cartId) {
         setStatus('error')
         setErrorMsg('Could not initialize payment. Please try again.')
         return
       }
 
-      // Save cart ID so the callback can complete it.
-      // Cart is cleared on the order-confirmation page after successful payment —
-      // NOT here, so a cancelled payment restores the checkout with items intact.
-      document.cookie = `lxs_cart=${cart.id}; path=/; max-age=3600; SameSite=None; Secure`
+      if (!window.PayWithConverge) {
+        setStatus('error')
+        setErrorMsg('Payment script not loaded. Please refresh and try again.')
+        return
+      }
 
-      // Submit a hidden form POST — per Elavon sample code this is the canonical way
-      // to redirect to HPP. It keeps the token out of the browser URL bar and history.
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = hppUrl
-      form.enctype = 'application/x-www-form-urlencoded'
-      const input = document.createElement('input')
-      input.type = 'hidden'
-      input.name = 'ssl_txn_auth_token'
-      input.value = hppToken
-      form.appendChild(input)
-      document.body.appendChild(form)
-      form.submit()
+      // Open Converge Lightbox modal — customer pays without leaving this page
+      setStatus('idle') // re-enable UI while modal is open
+      window.PayWithConverge.open(
+        { ssl_txn_auth_token: token },
+        {
+          onCancelled: () => {
+            // Customer closed the modal — stay on checkout, nothing to do
+          },
+          onDeclined: (response) => {
+            setStatus('error')
+            setErrorMsg(response.ssl_result_message || 'Payment was declined. Please try a different card.')
+          },
+          onError: (error) => {
+            setStatus('error')
+            setErrorMsg(typeof error === 'string' ? error : 'A payment error occurred. Please try again.')
+          },
+          onApproval: async (response) => {
+            setStatus('loading')
+            try {
+              const finalizeRes = await fetch('/api/elavon/finalize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  cartId,
+                  ssl_result:         response.ssl_result,
+                  ssl_txn_id:         response.ssl_txn_id,
+                  ssl_approval_code:  response.ssl_approval_code,
+                  ssl_amount:         response.ssl_amount,
+                  ssl_result_message: response.ssl_result_message,
+                }),
+              })
+              const data = await finalizeRes.json()
+              if (!finalizeRes.ok || data.error) {
+                setStatus('error')
+                setErrorMsg('Payment approved but order could not be created. Please contact us with your approval code: ' + (response.ssl_approval_code ?? ''))
+                return
+              }
+              clearCart()
+              router.push(
+                `/order-confirmation?ref=${encodeURIComponent(data.displayId ?? data.orderId ?? '')}&oid=${encodeURIComponent(data.orderId ?? '')}&name=${encodeURIComponent(response.ssl_first_name ?? form.firstName)}&method=card`
+              )
+            } catch {
+              setStatus('error')
+              setErrorMsg('Network error completing order. Please contact us with your approval code: ' + (response.ssl_approval_code ?? ''))
+            }
+          },
+        }
+      )
     } catch (e: any) {
       setStatus('error')
       setErrorMsg(e?.message ?? 'Network error. Please try again.')
@@ -528,8 +574,13 @@ export default function CheckoutPage() {
   const buyerStateTax = form.buyerState.trim().toUpperCase()
   const isLoading = status === 'loading'
 
+  const convergeSrc = process.env.NEXT_PUBLIC_ELAVON_ENV === 'production'
+    ? 'https://api.convergepay.com/hosted-payments/PayWithConverge.js'
+    : 'https://api.demo.convergepay.com/hosted-payments/PayWithConverge.js'
+
   return (
     <>
+      <Script src={convergeSrc} strategy="afterInteractive" />
       <style>{`
         .lxs-co-grid { display: grid; grid-template-columns: 1fr 400px; gap: 48px; align-items: start; }
         .lxs-co-sticky { position: sticky; top: 96px; }
