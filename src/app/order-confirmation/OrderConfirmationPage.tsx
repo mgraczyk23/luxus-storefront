@@ -98,10 +98,24 @@ export default function OrderConfirmationPage() {
           <Link href="/shop" style={{ padding: '13px 28px', background: t.gold, color: '#fff', textDecoration: 'none', fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-inter)', fontWeight: 600 }}>
             Continue Shopping
           </Link>
-          <Link href="/contact" style={{ padding: '13px 28px', background: 'none', color: t.text, textDecoration: 'none', fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-inter)', fontWeight: 500, border: `1px solid ${t.border}` }}>
+          <button
+            onClick={() => window.print()}
+            className="lxs-no-print"
+            style={{ padding: '13px 28px', background: 'none', color: t.text, fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-inter)', fontWeight: 500, border: `1px solid ${t.border}`, cursor: 'pointer' }}
+          >
+            Print / Save PDF
+          </button>
+          <Link href="/contact" className="lxs-no-print" style={{ padding: '13px 28px', background: 'none', color: t.text, textDecoration: 'none', fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', fontFamily: 'var(--font-inter)', fontWeight: 500, border: `1px solid ${t.border}` }}>
             Contact Us
           </Link>
         </div>
+
+        <style>{`
+          @media print {
+            header, footer, nav, .lxs-no-print { display: none !important; }
+            body { background: #fff !important; }
+          }
+        `}</style>
       </div>
     </div>
   )
