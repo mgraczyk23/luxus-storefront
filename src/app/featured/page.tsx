@@ -1,14 +1,17 @@
 import type { Metadata } from "next"
 import { getProducts, getProductTags } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getSiteSettings, getFeaturedPageText, getFeaturedClassifieds } from "@/lib/payload"
+import { getSiteSettings, getFeaturedPageText, getFeaturedClassifieds, getPageSeo } from "@/lib/payload"
 import FeaturedPage from "./FeaturedPage"
 
 export const revalidate = 300
 
-export const metadata: Metadata = {
-  title: "Featured Collection",
-  description: "Hand-selected pieces from the Luxus Collection — exceptional firearms chosen for provenance, craftsmanship, and rarity.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.featured?.title       || "Featured Collection",
+    description: seo.featured?.description || "Hand-selected pieces from the Luxus Collection — exceptional firearms chosen for provenance, craftsmanship, and rarity.",
+  }
 }
 
 // Include tags and type so mapMedusaProduct can populate is_firearm and tags[]

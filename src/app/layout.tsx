@@ -31,8 +31,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     title: {
-      default: "Luxus Collection — Fine Firearms",
-      template: "%s | Luxus Collection",
+      default: "Luxus Collection",
+      template: "%s",  // no suffix — each page title is used exactly as set
     },
     description: "A boutique destination for the serious collector. Curating the world's finest production and custom pistols.",
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://luxus-collection.com"),

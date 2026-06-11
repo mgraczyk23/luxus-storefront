@@ -1,10 +1,13 @@
 import type { Metadata } from "next"
-import { getPosts } from "@/lib/payload"
+import { getPosts, getPageSeo } from "@/lib/payload"
 import ArticlesPage from "./ArticlesPage"
 
-export const metadata: Metadata = {
-  title: "Articles",
-  description: "Long-form writing on the craft, history, and culture of fine firearms — for the collector who wants to understand what they own.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.articles?.title       || "Articles",
+    description: seo.articles?.description || "Long-form writing on the craft, history, and culture of fine firearms — for the collector who wants to understand what they own.",
+  }
 }
 
 export default async function Page() {

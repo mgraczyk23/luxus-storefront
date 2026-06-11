@@ -1,13 +1,16 @@
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getShopTileImages } from "@/lib/payload"
+import { getShopTileImages, getPageSeo } from "@/lib/payload"
 import ShopByDirectory from "../ShopByDirectory"
 import type { DirectoryItem } from "../ShopByDirectory"
 import type { Metadata } from "next"
 
-export const metadata: Metadata = {
-  title: "Shop by Model",
-  description: "Browse all firearm models at the Luxus Collection.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.models?.title       || "Shop by Model",
+    description: seo.models?.description || "Browse all firearm models at the Luxus Collection.",
+  }
 }
 
 export const revalidate = false

@@ -1272,17 +1272,24 @@ export function parseLexical(content: any): LexNode[] {
 type PageSeoGroup = { title?: string | null; description?: string | null }
 
 export type PageSeoData = {
-  home?:        PageSeoGroup
-  shop?:        PageSeoGroup
-  about?:       PageSeoGroup
-  contact?:     PageSeoGroup
-  support?:     PageSeoGroup
-  faq?:         PageSeoGroup
-  consignment?: PageSeoGroup
-  articles?:    PageSeoGroup
-  brands?:      PageSeoGroup
-  categories?:  PageSeoGroup
-  collections?: PageSeoGroup
+  home?:               PageSeoGroup
+  shop?:               PageSeoGroup
+  about?:              PageSeoGroup
+  contact?:            PageSeoGroup
+  support?:            PageSeoGroup
+  faq?:                PageSeoGroup
+  consignment?:        PageSeoGroup
+  articles?:           PageSeoGroup
+  brands?:             PageSeoGroup
+  categories?:         PageSeoGroup
+  collections?:        PageSeoGroup
+  models?:             PageSeoGroup
+  collectibleFirearms?: PageSeoGroup
+  modernFirearms?:     PageSeoGroup
+  featured?:           PageSeoGroup
+  shipping?:           PageSeoGroup
+  terms?:              PageSeoGroup
+  privacy?:            PageSeoGroup
 }
 
 export async function getPageSeo(): Promise<PageSeoData> {

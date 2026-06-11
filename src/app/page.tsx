@@ -1,7 +1,16 @@
+import type { Metadata } from "next"
 import { getProducts, getCollections, getCategories, getProductTags } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getPosts, getHeroSlides, getShopTileImages, imageUrl, getSiteSettings } from "@/lib/payload"
+import { getPosts, getHeroSlides, getShopTileImages, imageUrl, getSiteSettings, getPageSeo } from "@/lib/payload"
 import HomePage from "@/components/home/HomePage"
+
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.home?.title       || "Luxus Collection — Fine Firearms",
+    description: seo.home?.description || "A boutique destination for the serious collector. Curating the world's finest production and custom pistols.",
+  }
+}
 
 export const revalidate = false
 

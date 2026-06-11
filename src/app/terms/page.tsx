@@ -1,10 +1,13 @@
-import { getPolicy, getSiteSettings } from "@/lib/payload"
+import { getPolicy, getSiteSettings, getPageSeo } from "@/lib/payload"
 import PolicyPage from "@/components/PolicyPage"
 import type { Metadata } from "next"
 
-export const metadata: Metadata = {
-  title: "Terms & Conditions",
-  description: "Luxus Collection terms and conditions: eligibility, payment, FFL transfer requirements, and governing law.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.terms?.title       || "Terms & Conditions",
+    description: seo.terms?.description || "Luxus Collection terms and conditions: eligibility, payment, FFL transfer requirements, and governing law.",
+  }
 }
 
 export const revalidate = 300

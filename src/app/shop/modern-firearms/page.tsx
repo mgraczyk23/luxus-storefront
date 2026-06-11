@@ -1,14 +1,18 @@
 import { Suspense } from "react"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
+import { getPageSeo } from "@/lib/payload"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 
 export const revalidate = false
 
-export const metadata: Metadata = {
-  title: "Modern Firearms",
-  description: "Browse modern high-end firearms curated by the Luxus Collection.",
+export async function generateMetadata(): Promise<Metadata> {
+  const seo = await getPageSeo()
+  return {
+    title:       seo.modernFirearms?.title       || "Modern Firearms",
+    description: seo.modernFirearms?.description || "Browse modern high-end firearms curated by the Luxus Collection.",
+  }
 }
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*tags"
