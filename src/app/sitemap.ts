@@ -32,11 +32,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getPosts({ limit: 200 }),
   ])
 
-  // Products — exclude backroom-hidden items
+  // Products — exclude all private room items (any room slug set, or legacy backroom_hidden flag)
   const productEntries: MetadataRoute.Sitemap =
     productsRes.status === 'fulfilled'
       ? (productsRes.value.products ?? [])
-          .filter((p: any) => p.metadata?.backroom_hidden !== 'true')
+          .filter((p: any) => !p.metadata?.private_room && p.metadata?.backroom_hidden !== 'true')
           .map((p: any) => ({
             url:             url(`/product/${p.handle}`),
             changeFrequency: 'weekly' as const,
