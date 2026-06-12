@@ -15,5 +15,33 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   const [categories, settings] = await Promise.all([getFaqItems(), getSiteSettings()])
-  return <FAQPage categories={categories} settings={settings} />
+
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: categories.flatMap(cat =>
+      cat.items.map(item => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      }))
+    ),
+    url: `${SITE}/faq`,
+    publisher: {
+      '@type': 'Organization',
+      name: settings.branding.legalName || 'Luxus Collection',
+      url: SITE,
+    },
+  }
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <FAQPage categories={categories} settings={settings} />
+    </>
+  )
 }
