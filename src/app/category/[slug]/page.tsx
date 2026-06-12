@@ -75,20 +75,43 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const name = categoryName ?? slug
   const products = allProducts.filter(p => p.categories.includes(name))
 
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const collectionPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${name} — Luxus Collection`,
+    description: `Browse ${name} firearms at the Luxus Collection.`,
+    url: `${SITE}/category/${slug}`,
+    numberOfItems: products.length || undefined,
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: `${SITE}/shop` },
+      { '@type': 'ListItem', position: 3, name: name },
+    ],
+  }
+
   return (
-    <Suspense fallback={<Loading />}>
-      <ListingPage
-        products={products}
-        title={name}
-        eyebrow="Category"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Shop", href: "/shop" },
-          { label: name },
-        ]}
-        hideCategoryFilter
-        basePath={`/category/${slug}`}
-      />
-    </Suspense>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <Suspense fallback={<Loading />}>
+        <ListingPage
+          products={products}
+          title={name}
+          eyebrow="Category"
+          breadcrumbs={[
+            { label: "Home", href: "/" },
+            { label: "Shop", href: "/shop" },
+            { label: name },
+          ]}
+          hideCategoryFilter
+          basePath={`/category/${slug}`}
+        />
+      </Suspense>
+    </>
   )
 }

@@ -55,5 +55,29 @@ export default async function CategoriesDirectory() {
     .filter((c: DirectoryItem) => !!c.name)
     .sort((a: DirectoryItem, b: DirectoryItem) => b.count - a.count || a.name.localeCompare(b.name))
 
-  return <ShopByDirectory type="category" title="Shop by Category" items={items} />
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const collectionPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Shop by Category — Luxus Collection',
+    description: 'Browse all firearm categories at the Luxus Collection.',
+    url: `${SITE}/shop/categories`,
+    numberOfItems: items.length || undefined,
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
+      { '@type': 'ListItem', position: 2, name: 'Shop by Category' },
+    ],
+  }
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <ShopByDirectory type="category" title="Shop by Category" items={items} />
+    </>
+  )
 }

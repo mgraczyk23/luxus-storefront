@@ -41,19 +41,42 @@ export default async function ModernFirearmsPage() {
     products = await getAllProducts()
   } catch {}
 
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const collectionPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Modern Firearms — Luxus Collection',
+    description: 'Browse modern high-end firearms curated by the Luxus Collection.',
+    url: `${SITE}/shop/modern-firearms`,
+    numberOfItems: products.length || undefined,
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home',           item: SITE },
+      { '@type': 'ListItem', position: 2, name: 'Shop',           item: `${SITE}/shop` },
+      { '@type': 'ListItem', position: 3, name: 'Modern Firearms' },
+    ],
+  }
+
   return (
-    <Suspense>
-      <ListingPage
-        products={products}
-        title="Modern Firearms"
-        eyebrow="Shop"
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "Shop All", href: "/shop" },
-          { label: "Modern Firearms" },
-        ]}
-        basePath="/shop/modern-firearms"
-      />
-    </Suspense>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <Suspense>
+        <ListingPage
+          products={products}
+          title="Modern Firearms"
+          eyebrow="Shop"
+          breadcrumbs={[
+            { label: "Home", href: "/" },
+            { label: "Shop All", href: "/shop" },
+            { label: "Modern Firearms" },
+          ]}
+          basePath="/shop/modern-firearms"
+        />
+      </Suspense>
+    </>
   )
 }

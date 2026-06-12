@@ -53,9 +53,30 @@ export default async function Shop() {
     // Products will be empty array — ShopPage shows empty state
   }
 
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const collectionPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'All Firearms — Luxus Collection',
+    description: 'Browse the Luxus Collection — fine, collectible, and modern firearms.',
+    url: `${SITE}/shop`,
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
+      { '@type': 'ListItem', position: 2, name: 'Shop' },
+    ],
+  }
+
   return (
-    <Suspense fallback={<ShopLoading />}>
-      <ShopPage products={products} />
-    </Suspense>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <Suspense fallback={<ShopLoading />}>
+        <ShopPage products={products} />
+      </Suspense>
+    </>
   )
 }
