@@ -38,6 +38,27 @@ export async function klaviyoSubscribe(email: string, firstName?: string): Promi
   } catch { return false }
 }
 
+export async function klaviyoSuppress(email: string): Promise<boolean> {
+  if (!KLAVIYO_KEY) return false
+  try {
+    const res = await fetch('https://a.klaviyo.com/api/profile-suppression-bulk-create-jobs/', {
+      method: 'POST',
+      headers: kHeaders(),
+      body: JSON.stringify({
+        data: {
+          type: 'profile-suppression-bulk-create-job',
+          attributes: {
+            profiles: {
+              data: [{ type: 'profile', attributes: { email } }],
+            },
+          },
+        },
+      }),
+    })
+    return res.ok || res.status === 202
+  } catch { return false }
+}
+
 export async function klaviyoTrackEvent(
   email: string,
   eventName: string,

@@ -52,7 +52,7 @@ const [receipt, setReceipt] = useState<Receipt | null>(null)
       .then(d => {
         if (!d || d.error) return
         setReceipt(d)
-        // Klaviyo: identify customer and track Placed Order
+        // Klaviyo: identify customer, track Placed Order + one Ordered Product per line item
         const kq = (window as { _learnq?: unknown[] })._learnq
         if (Array.isArray(kq) && d.email) {
           kq.push(['identify', { $email: d.email }])
@@ -69,6 +69,18 @@ const [receipt, setReceipt] = useState<Receipt | null>(null)
               ImageURL: i.thumbnail,
             })),
           }])
+          for (const item of (d.items as ReceiptItem[])) {
+            kq.push(['track', 'Ordered Product', {
+              $event_id: `${d.id}-${item.id}`,
+              $value: item.subtotal / 100,
+              OrderId: d.display_id,
+              ProductName: item.title,
+              Quantity: item.quantity,
+              ItemPrice: item.unit_price / 100,
+              RowTotal: item.subtotal / 100,
+              ImageURL: item.thumbnail,
+            }])
+          }
         }
       })
       .catch(() => {})

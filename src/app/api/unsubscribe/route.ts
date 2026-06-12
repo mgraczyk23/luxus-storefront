@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { klaviyoSuppress } from "@/lib/klaviyo"
 
 const PAYLOAD_URL = process.env.PAYLOAD_CMS_URL ?? "https://api.luxus-collection.com/cms"
 
@@ -23,11 +24,14 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    await fetch(`${PAYLOAD_URL}/api/subscribers/${subscriber.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "unsubscribed" }),
-    })
+    await Promise.all([
+      fetch(`${PAYLOAD_URL}/api/subscribers/${subscriber.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "unsubscribed" }),
+      }),
+      klaviyoSuppress(email),
+    ])
 
     return new NextResponse(unsubscribePage("You have been unsubscribed and will no longer receive article notifications."), {
       status: 200, headers: { "Content-Type": "text/html" },
