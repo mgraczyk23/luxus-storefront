@@ -27,10 +27,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [customer,  setCustomer]  = useState<LxsCustomer | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const klaviyoIdentify = (c: LxsCustomer) => {
+    const kq = (window as { _learnq?: unknown[] })._learnq
+    if (!Array.isArray(kq)) return
+    kq.push(['identify', {
+      $email: c.email,
+      $first_name: c.first_name ?? undefined,
+      $last_name: c.last_name ?? undefined,
+    }])
+  }
+
   const loadCustomer = useCallback(async (t: string) => {
     const c = await getCustomer(t)
     if (c) {
       setCustomer(c)
+      klaviyoIdentify(c)
     } else {
       // Token expired or invalid — clear it
       localStorage.removeItem(TOKEN_KEY)
@@ -56,6 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(t)
     const c = await getCustomer(t)
     setCustomer(c)
+    if (c) klaviyoIdentify(c)
   }
 
   const signOut = () => {

@@ -209,6 +209,23 @@ export default function CheckoutPage() {
     else if (cancelled) setErrorMsg('Payment cancelled. Your cart has been restored — you can try again when ready.')
   }, [searchParams])
 
+  // Klaviyo: Started Checkout — fires once when checkout loads with items
+  useEffect(() => {
+    if (cartItems.length === 0) return
+    const kq = (window as { _learnq?: unknown[] })._learnq
+    if (!Array.isArray(kq)) return
+    kq.push(['track', 'Started Checkout', {
+      $value: cartItems.reduce((s, i) => s + i.price * i.quantity, 0),
+      ItemNames: cartItems.map(i => i.title),
+      Items: cartItems.map(i => ({
+        ProductName: i.title,
+        Quantity: i.quantity,
+        ItemPrice: i.price,
+      })),
+    }])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Create Medusa cart on mount
   useEffect(() => {
     if (cartItems.length === 0) { setMedusaCartLoading(false); return }

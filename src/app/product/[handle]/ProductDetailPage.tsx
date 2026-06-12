@@ -168,6 +168,22 @@ export default function ProductDetailPage({
   const [wishlisted, setWishlisted] = useState(false)
   // Hydrate wishlist state from localStorage after mount
   useEffect(() => { setWishlisted(isWishlisted(product.handle)) }, [product.handle])
+
+  // Klaviyo: Viewed Product
+  useEffect(() => {
+    const kq = (window as { _learnq?: unknown[] })._learnq
+    if (!Array.isArray(kq)) return
+    kq.push(['track', 'Viewed Product', {
+      ProductName: product.title,
+      ProductID: product.id,
+      Handle: product.handle,
+      Brand: product.brand ?? undefined,
+      Price: product.price ?? undefined,
+      ImageURL: product.thumbnail ?? undefined,
+      URL: `/product/${product.handle}`,
+    }])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.handle])
   const [contactModalOpen, setContactModalOpen] = useState(false)
   const [offerModalOpen, setOfferModalOpen] = useState(false)
   const [availabilityModalOpen, setAvailabilityModalOpen] = useState(false)
