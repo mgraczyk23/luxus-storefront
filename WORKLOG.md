@@ -2128,6 +2128,34 @@ Wire Klaviyo (free account) as the list management and marketing email platform,
 Find keys: Klaviyo → Account → Settings → API Keys  
 Find list ID: Klaviyo → Lists & Segments → click list → ID is in the URL
 
-Commit: (pending)
+Commit: storefront `989d77f`
+
+---
+
+## §43 — Klaviyo: Remaining Events + Unsubscribe Sync (2026-06-12)
+
+### Viewed Product
+`ProductDetailPage.tsx` — `useEffect` fires on mount, pushes `_learnq.track('Viewed Product', ...)` with title, id, brand, price, thumbnail, and URL. Enables browse abandonment flows in Klaviyo.
+
+### Started Checkout
+`CheckoutPage.tsx` — `useEffect` fires once on mount when cart has items, pushes `_learnq.track('Started Checkout', ...)` with total value and item list. Enables abandoned cart flows.
+
+### Customer Identify
+`AuthContext.tsx` — `klaviyoIdentify()` helper calls `_learnq.push(['identify', ...])` with email, first name, last name. Called in both `signIn()` and `loadCustomer()` (session restore on page load). Links browsing sessions to known profiles.
+
+### Ordered Product
+`OrderConfirmationPage.tsx` — fires one `Ordered Product` event per line item after the `Placed Order` event. Enables product-level post-purchase flows (e.g. follow-up specific to the brand/model purchased).
+
+### Unsubscribe Sync
+`src/lib/klaviyo.ts` — added `klaviyoSuppress(email)` (calls `profile-suppression-bulk-create-jobs/`).
+`src/app/api/unsubscribe/route.ts` — now runs Payload status update and Klaviyo suppress in parallel. Ensures no suppressed subscriber is ever reached by a Klaviyo campaign.
+
+### Migration Script
+`scripts/klaviyo-migrate.mjs` — one-time Node.js script. Fetches all active Payload subscribers, pushes to Klaviyo list in batches of 100. Idempotent (safe to re-run). Run with:
+```
+KLAVIYO_PRIVATE_KEY=pk_xxx KLAVIYO_LIST_ID=LISTID node scripts/klaviyo-migrate.mjs
+```
+
+Commits: `75e0f06` (Viewed Product, Started Checkout, identify), `4140e0c` (unsubscribe sync, Ordered Product, migration script)
 
 ---
