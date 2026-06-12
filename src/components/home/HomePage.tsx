@@ -544,19 +544,14 @@ export default function HomePage({
     if (!email.trim()) return
     setNlStatus("submitting")
     try {
-      const res = await fetch(`${PAYLOAD_URL}/api/subscribers`, {
+      const res = await fetch("/api/newsletter/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim(), source: "homepage" }),
       })
-      if (res.status === 400) {
-        const json = await res.json().catch(() => ({}))
-        const msg = (json?.errors?.[0]?.message ?? "").toLowerCase()
-        if (msg.includes("already subscribed") || msg.includes("unique")) {
-          setNlStatus("duplicate"); return
-        }
-      }
       if (!res.ok) throw new Error()
+      const json = await res.json().catch(() => ({}))
+      if (json.duplicate) { setNlStatus("duplicate"); return }
       setEmail("")
       setNlStatus("success")
     } catch {

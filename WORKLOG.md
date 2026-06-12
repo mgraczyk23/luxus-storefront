@@ -2083,3 +2083,51 @@ Changed `InlineNode` in `ArticlePage.tsx` to use `color: t.goldDark` (`#c09530`,
 Commit: storefront `a82c2a9`
 
 ---
+
+## §42 — Klaviyo Marketing Email Integration (2026-06-12)
+
+### Goal
+Wire Klaviyo (free account) as the list management and marketing email platform, replacing the direct-to-Payload subscriber flow for newsletter signups.
+
+### Architecture
+- Transactional emails (order confirmation, invoice, password reset) remain on **Resend** — unchanged
+- **Klaviyo** handles: newsletter list subscription, segmentation, campaigns, flows (abandoned cart, post-purchase, win-back)
+- Payload `subscribers` collection retained as fallback — existing weekly email cron continues to work
+
+### Files
+
+**`src/lib/klaviyo.ts`** — server-side Klaviyo v3 API client
+- `klaviyoSubscribe(email, firstName?)` — POSTs to `profile-subscription-bulk-create-jobs/` (revision `2024-10-15`); idempotent on duplicates
+- `klaviyoTrackEvent(email, eventName, properties)` — POSTs to `events/` for server-side event tracking
+- Uses `KLAVIYO_PRIVATE_KEY` + `KLAVIYO_LIST_ID` env vars; returns `false` silently when not configured
+
+**`src/app/api/newsletter/subscribe/route.ts`** — unified subscribe endpoint
+- All newsletter signups now POST here instead of directly to Payload
+- Calls Klaviyo first, then saves to Payload as fallback
+- Returns `{ ok: true, duplicate: boolean }` — `duplicate` is true only if Payload rejected it as already-subscribed and Klaviyo wasn't configured
+
+**`src/app/layout.tsx`** — Klaviyo onsite JS snippet
+- Loads `https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=<ID>` when `NEXT_PUBLIC_KLAVIYO_SITE_ID` is set
+- Enables client-side page tracking, identify calls, and `window._learnq` event queuing
+
+**`src/app/order-confirmation/OrderConfirmationPage.tsx`** — Placed Order event
+- After receipt loads, fires `_learnq.identify` (links email to Klaviyo session) then `_learnq.track('Placed Order', ...)` with order ID, value, and item details
+
+### Updated subscriber capture points
+- `ArticleNewsletter.tsx` — now POSTs to `/api/newsletter/subscribe`
+- `HomePage.tsx` (newsletter section) — now POSTs to `/api/newsletter/subscribe`
+- `ContactPage.tsx` (newsletter opt-in checkbox) — now POSTs to `/api/newsletter/subscribe`
+
+### Env vars required
+| Name | Where | What |
+|---|---|---|
+| `NEXT_PUBLIC_KLAVIYO_SITE_ID` | Vercel | Public site ID — enables onsite JS snippet |
+| `KLAVIYO_PRIVATE_KEY` | Vercel | Private API key — enables server-side list subscription |
+| `KLAVIYO_LIST_ID` | Vercel | Target list ID — which Klaviyo list subscribers are added to |
+
+Find keys: Klaviyo → Account → Settings → API Keys  
+Find list ID: Klaviyo → Lists & Segments → click list → ID is in the URL
+
+Commit: (pending)
+
+---

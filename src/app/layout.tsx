@@ -54,8 +54,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ann = settings.announcement
   const annActive = ann.enabled && !!ann.message
   const logoUrl = imageUrl(settings.branding?.logo ?? null) ?? undefined
-  const gaId   = settings.analytics?.googleAnalyticsId?.trim() || null
-  const phKey  = settings.analytics?.postHogApiKey?.trim() || null
+  const gaId        = settings.analytics?.googleAnalyticsId?.trim() || null
+  const phKey       = settings.analytics?.postHogApiKey?.trim() || null
+  const klaviyoId   = process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null
 
   return (
     <html
@@ -88,6 +89,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               gtag('config', '${gaId}');
             `}</Script>
           </>
+        )}
+
+        {/* Klaviyo */}
+        {klaviyoId && (
+          <Script
+            src={`https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${klaviyoId}`}
+            strategy="afterInteractive"
+          />
         )}
 
         {/* PostHog */}

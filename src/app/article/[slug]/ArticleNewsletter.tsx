@@ -19,19 +19,14 @@ export default function ArticleNewsletter({ source }: { source?: string }) {
     setStatus('submitting')
 
     try {
-      const res = await fetch(`${PAYLOAD_URL}/api/subscribers`, {
+      const res = await fetch('/api/newsletter/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim(), name: name.trim() || undefined, source: source ?? 'article' }),
       })
-      if (res.status === 400) {
-        const json = await res.json().catch(() => ({}))
-        const msg = json?.errors?.[0]?.message ?? ''
-        if (msg.toLowerCase().includes('already subscribed') || msg.toLowerCase().includes('unique')) {
-          setStatus('duplicate'); return
-        }
-      }
       if (!res.ok) throw new Error()
+      const json = await res.json().catch(() => ({}))
+      if (json.duplicate) { setStatus('duplicate'); return }
       setStatus('success')
     } catch {
       setStatus('error')

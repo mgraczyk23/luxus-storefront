@@ -84,8 +84,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
       })
       if (!res.ok) throw new Error()
       if (form.newsletter) {
-        const PAYLOAD_URL = process.env.NEXT_PUBLIC_PAYLOAD_URL ?? 'https://api.luxus-collection.com/cms'
-        await fetch(`${PAYLOAD_URL}/api/subscribers`, {
+        await fetch('/api/newsletter/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email, name: `${form.firstName} ${form.lastName}`.trim(), source: 'contact-form' }),

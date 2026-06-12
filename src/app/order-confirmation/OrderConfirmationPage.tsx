@@ -49,7 +49,28 @@ const [receipt, setReceipt] = useState<Receipt | null>(null)
       headers: { 'x-publishable-api-key': MEDUSA_PK },
     })
       .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d && !d.error) setReceipt(d) })
+      .then(d => {
+        if (!d || d.error) return
+        setReceipt(d)
+        // Klaviyo: identify customer and track Placed Order
+        const kq = (window as { _learnq?: unknown[] })._learnq
+        if (Array.isArray(kq) && d.email) {
+          kq.push(['identify', { $email: d.email }])
+          kq.push(['track', 'Placed Order', {
+            $event_id: d.id,
+            $value: d.total / 100,
+            OrderId: d.display_id,
+            ItemNames: (d.items as ReceiptItem[]).map((i: ReceiptItem) => i.title),
+            Items: (d.items as ReceiptItem[]).map((i: ReceiptItem) => ({
+              ProductName: i.title,
+              Quantity: i.quantity,
+              ItemPrice: i.unit_price / 100,
+              RowTotal: i.subtotal / 100,
+              ImageURL: i.thumbnail,
+            })),
+          }])
+        }
+      })
       .catch(() => {})
   }, [oid, isWire])
 
