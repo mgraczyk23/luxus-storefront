@@ -29,10 +29,6 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "pics.gunbroker.com",
       },
-      {
-        protocol: "https",
-        hostname: "luxuscap.com",
-      },
     ],
   },
 }

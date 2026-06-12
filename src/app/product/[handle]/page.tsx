@@ -9,11 +9,13 @@ import type { Metadata } from "next"
 export const revalidate = false
 
 export async function generateStaticParams() {
-  // Pre-build only the 50 most recent products at deploy time — keeps build fast.
+  // Pre-build only the 50 most recent public products at deploy time — keeps build fast.
   // All other product pages render on first visit and are then cached indefinitely.
   try {
-    const res = await getProducts({ limit: "50", fields: "id,handle" })
-    return (res.products ?? []).map((p: any) => ({ handle: p.handle }))
+    const res = await getProducts({ limit: "50", fields: "id,handle,+metadata" })
+    return (res.products ?? [])
+      .filter((p: any) => p.metadata?.master_backroom !== "true" && p.metadata?.backroom_hidden !== "true")
+      .map((p: any) => ({ handle: p.handle }))
   } catch { return [] }
 }
 
@@ -28,6 +30,7 @@ export async function generateMetadata(
     const p = res.products?.[0]
     if (!p) return {}
     const mapped = mapMedusaProduct(p)
+    if (mapped.is_backroom_hidden) return {}
     const detailRes = await getProductDetails(p.id).catch(() => null)
     const detail = detailRes?.product_detail
     return {
@@ -51,6 +54,7 @@ export default async function ProductPage(
   if (!raw) notFound()
 
   const product = mapMedusaProduct(raw)
+  if (product.is_backroom_hidden) notFound()
 
   // Fetch product details (SEO fields + extra module data) and related products in parallel
   const [detailRes, relRes, settings, specsRes] = await Promise.all([
