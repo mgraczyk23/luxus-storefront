@@ -25,7 +25,7 @@ export async function generateMetadata(
   }
 }
 
-const FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,*tags,*type,+metadata,*attribute_values,*attribute_values.attribute_type"
+const FIELDS = "id,title,handle,subtitle,thumbnail,*images,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,*tags,*type,+metadata,*attribute_values,*attribute_values.attribute_type"
 
 async function getRoomProducts(room: string) {
   const res = await getProducts({ limit: "500", fields: FIELDS })

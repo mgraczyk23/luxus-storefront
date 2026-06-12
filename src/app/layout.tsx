@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import Script from "next/script"
+import { headers } from "next/headers"
 import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
 import { AuthProvider } from "@/context/AuthContext"
@@ -50,9 +51,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const h = await headers()
+  const isPrivate = h.get("x-is-private") === "1"
+
   const settings = await getSiteSettings()
   const ann = settings.announcement
-  const annActive = ann.enabled && !!ann.message
+  const annActive = !isPrivate && ann.enabled && !!ann.message
   const logoUrl = imageUrl(settings.branding?.logo ?? null) ?? undefined
   const gaId        = settings.analytics?.googleAnalyticsId?.trim() || null
   const phKey       = settings.analytics?.postHogApiKey?.trim() || null
@@ -69,11 +73,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <AuthProvider>
             <CartProvider>
               {annActive && <AnnouncementBar message={ann.message!} link={ann.link} />}
-              <Header logoUrl={logoUrl} />
-              <main style={{ paddingTop: "calc(68px + var(--ann-h, 0px))" }}>
+              {!isPrivate && <Header logoUrl={logoUrl} />}
+              <main style={{ paddingTop: isPrivate ? 0 : "calc(68px + var(--ann-h, 0px))" }}>
                 {children}
               </main>
-              <Footer settings={settings} logoUrl={logoUrl} />
+              {!isPrivate && <Footer settings={settings} logoUrl={logoUrl} />}
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>
