@@ -53,8 +53,8 @@ export type MappedProduct = {
   }
   tags:               string[]
   product_type:       string | null
-  private_room:       string | null  // room slug ('backroom'|'vip'|'reserve'|'special'|'unicorn') or null if public
-  is_backroom_hidden: boolean        // true when private_room is set — filtered from all public pages
+  private_rooms:      string[]       // slugs of rooms this product is assigned to (empty = no room)
+  is_backroom_hidden: boolean        // true when master_backroom is set — filtered from all public pages
   is_firearm:         boolean
   seo_meta_title: string | null
   seo_meta_description: string | null
@@ -198,8 +198,15 @@ export function mapMedusaProduct(p: any): MappedProduct {
     },
     tags:               (p.tags ?? []).map((t: { value: string }) => t.value),
     product_type:       p.type?.value ?? null,
-    private_room:       p.metadata?.private_room ?? (p.metadata?.backroom_hidden === "true" ? 'backroom' : null),
-    is_backroom_hidden: !!(p.metadata?.private_room || p.metadata?.backroom_hidden === "true"),
+    private_rooms:      [
+                          p.metadata?.room_backroom === "true" ? "backroom"  : null,
+                          p.metadata?.room_vip      === "true" ? "vip"       : null,
+                          p.metadata?.room_reserve  === "true" ? "reserve"   : null,
+                          p.metadata?.room_special  === "true" ? "special"   : null,
+                          p.metadata?.room_unicorn  === "true" ? "unicorn"   : null,
+                        ].filter(Boolean) as string[],
+    is_backroom_hidden: p.metadata?.master_backroom === "true"
+                          || p.metadata?.backroom_hidden === "true",  // legacy fallback
     is_firearm:         p.type?.value?.toLowerCase() === "firearm",
     seo_meta_title:       null,
     seo_meta_description: null,

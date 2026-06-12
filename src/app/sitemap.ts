@@ -36,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const productEntries: MetadataRoute.Sitemap =
     productsRes.status === 'fulfilled'
       ? (productsRes.value.products ?? [])
-          .filter((p: any) => !p.metadata?.private_room && p.metadata?.backroom_hidden !== 'true')
+          .filter((p: any) => p.metadata?.master_backroom !== 'true' && p.metadata?.backroom_hidden !== 'true')
           .map((p: any) => ({
             url:             url(`/product/${p.handle}`),
             changeFrequency: 'weekly' as const,
