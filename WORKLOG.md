@@ -2307,4 +2307,23 @@ BACKROOM_PASS_UNICORN
 
 Added "Fast Login — Vercel Environment Variables" section showing the exact env var names to set and linking to Vercel dashboard instructions. Legacy Medusa DB passwords remain as fallback (shown as separate section).
 
-Commit: storefront + medusa-backend (pending)
+**REVERTED** — management review required. Passwords must remain Medusa-only; Vercel env var approach rejected.
+All three files restored to original state via git revert + manual write. Speed issue deferred.
+Root cause is `scryptSync` (300ms–2s) inside Medusa container. Fix option when ready: reduce scrypt cost factor in the Medusa module (no Vercel config needed).
+
+---
+
+## §48 — payload.ts Build Fix (2026-06-12)
+
+### Problem
+Multiple commits were pushed but never deployed — Vercel builds were failing silently. Root cause: a `sed` command from a previous session corrupted 22 `fetch()` calls in `src/lib/payload.ts`, replacing `"force-cache"` with `\"force-cache\"` (literal backslash-escaped quotes). TypeScript rejected these as invalid characters; build failed immediately after restoring the build cache.
+
+### Fix
+Restored all 22 occurrences to `"force-cache"` via sed. TypeScript passes clean.
+
+`cache: "force-cache"` is confirmed necessary and must stay: Next.js opts all `fetch()` calls out of caching once `headers()` is called in the root layout. Without the explicit override, every page visit would make a live round-trip to Medusa and Payload.
+
+### Also in this push
+Reverted the `notFound()` security guard on `/product/[handle]` — backroom items accessible via their public slug again (user decision, pending management review on full backroom security posture).
+
+Commit: storefront `24e11bf`
