@@ -1,4 +1,3 @@
-import { unstable_cache } from 'next/cache'
 import type { LexNode, LexInline } from './payload'
 
 const PAYLOAD_URL = process.env.PAYLOAD_CMS_URL ?? 'https://api.luxus-collection.com/cms'
@@ -12,20 +11,22 @@ export interface LinkEntry {
 }
 
 // ── Source fetchers ────────────────────────────────────────────────────────────
+// Each fetch is cached by Next.js Data Cache via the `next.tags` option,
+// matching the same pattern used throughout src/lib/payload.ts and api.ts.
 
 async function fetchManualLinks(): Promise<LinkEntry[]> {
   try {
     const res = await fetch(
       `${PAYLOAD_URL}/api/internal-links?where[enabled][equals]=true&limit=500&depth=0`,
-      { next: { tags: ['internal-links'] } }
+      { next: { revalidate: false, tags: ['internal-links'] } }
     )
     if (!res.ok) return []
     const data = await res.json()
     return (data.docs ?? []).map((d: Record<string, unknown>) => ({
-      keyword: d.keyword as string,
-      url: d.url as string,
-      priority: (d.priority as number) ?? 10,
-    }))
+      keyword: String(d.keyword ?? ''),
+      url: String(d.url ?? ''),
+      priority: Number(d.priority ?? 10),
+    })).filter((e: LinkEntry) => e.keyword && e.url)
   } catch {
     return []
   }
@@ -35,14 +36,14 @@ async function fetchBrandLinks(): Promise<LinkEntry[]> {
   try {
     const res = await fetch(
       `${PAYLOAD_URL}/api/brands?limit=200&depth=0`,
-      { next: { tags: ['brands'] } }
+      { next: { revalidate: false, tags: ['brands'] } }
     )
     if (!res.ok) return []
     const data = await res.json()
     return (data.docs ?? [])
       .filter((b: Record<string, unknown>) => b.name && b.slug)
       .map((b: Record<string, unknown>) => ({
-        keyword: b.name as string,
+        keyword: String(b.name),
         url: `/brand/${b.slug}`,
         priority: 50,
       }))
@@ -57,7 +58,7 @@ async function fetchCategoryLinks(): Promise<LinkEntry[]> {
       `${BACKEND}/store/product-categories?limit=100&fields=id,name,handle`,
       {
         headers: { 'x-publishable-api-key': PK },
-        next: { tags: ['products'] },
+        next: { revalidate: false, tags: ['products'] },
       }
     )
     if (!res.ok) return []
@@ -65,7 +66,7 @@ async function fetchCategoryLinks(): Promise<LinkEntry[]> {
     return (data.product_categories ?? [])
       .filter((c: Record<string, unknown>) => c.name && c.handle)
       .map((c: Record<string, unknown>) => ({
-        keyword: c.name as string,
+        keyword: String(c.name),
         url: `/category/${c.handle}`,
         priority: 40,
       }))
@@ -84,7 +85,7 @@ async function fetchProductLinks(): Promise<LinkEntry[]> {
         `${BACKEND}/store/products?limit=${limit}&offset=${offset}&fields=id,title,handle`,
         {
           headers: { 'x-publishable-api-key': PK },
-          next: { tags: ['products'] },
+          next: { revalidate: false, tags: ['products'] },
         }
       )
       if (!res.ok) break
@@ -92,49 +93,43 @@ async function fetchProductLinks(): Promise<LinkEntry[]> {
       const products: Record<string, unknown>[] = data.products ?? []
       for (const p of products) {
         if (p.title && p.handle) {
-          all.push({ keyword: p.title as string, url: `/product/${p.handle}`, priority: 30 })
+          all.push({ keyword: String(p.title), url: `/product/${p.handle}`, priority: 30 })
         }
       }
       if (products.length < limit) break
       offset += limit
     }
   } catch {
-    // return whatever was collected
+    // return whatever was collected before the error
   }
   return all
 }
 
-// ── Cached dictionary ──────────────────────────────────────────────────────────
-// Rebuilt when internal-links, products, or brands tags are revalidated.
+// ── Dictionary builder ─────────────────────────────────────────────────────────
+// Combines all sources. Manual entries win over auto-entries when keywords clash.
+// Each source fetch is independently cached via Next.js Data Cache (fetch tags),
+// so this function is cheap to call — it hits cached fetch responses.
 
-export const getLinkDictionary = unstable_cache(
-  async (): Promise<LinkEntry[]> => {
-    const results = await Promise.allSettled([
-      fetchManualLinks(),
-      fetchBrandLinks(),
-      fetchCategoryLinks(),
-      fetchProductLinks(),
-    ])
+export async function getLinkDictionary(): Promise<LinkEntry[]> {
+  const [manual, brands, cats, prods] = await Promise.all([
+    fetchManualLinks(),
+    fetchBrandLinks(),
+    fetchCategoryLinks(),
+    fetchProductLinks(),
+  ])
 
-    const [manual, brands, cats, prods] = results.map(r =>
-      r.status === 'fulfilled' ? r.value : []
-    )
-
-    // Manual entries win; deduplicate by lowercased keyword across all sources
-    const seen = new Set<string>()
-    const combined: LinkEntry[] = []
-    for (const entry of [...manual, ...brands, ...cats, ...prods]) {
-      const key = entry.keyword.toLowerCase()
-      if (!seen.has(key)) {
-        seen.add(key)
-        combined.push(entry)
-      }
+  // Deduplicate by lowercased keyword; first seen wins (manual listed first)
+  const seen = new Set<string>()
+  const combined: LinkEntry[] = []
+  for (const entry of [...manual, ...brands, ...cats, ...prods]) {
+    const key = entry.keyword.toLowerCase()
+    if (!seen.has(key)) {
+      seen.add(key)
+      combined.push(entry)
     }
-    return combined
-  },
-  ['link-dictionary'],
-  { tags: ['internal-links', 'products', 'brands'], revalidate: false }
-)
+  }
+  return combined
+}
 
 // ── AST transformer ────────────────────────────────────────────────────────────
 
@@ -179,11 +174,11 @@ function linkifyChildren(children: LexInline[], entries: LinkEntry[]): LexInline
   return result
 }
 
-// Inject at most one auto-link per paragraph node. Headings, quotes, lists are untouched.
+// Inject at most one auto-link per paragraph. Headings, quotes, lists untouched.
 export function injectLinks(nodes: LexNode[], dictionary: LinkEntry[], currentPath: string): LexNode[] {
   if (!dictionary.length) return nodes
 
-  // Sort longest keyword first so "Sig Sauer P320 X-Carry" beats "Sig Sauer"
+  // Longest keyword first → "Sig Sauer P320 X-Carry" wins over "Sig Sauer"
   const sorted = [...dictionary]
     .filter(e => e.url !== currentPath && e.keyword.length >= 3)
     .sort((a, b) => b.keyword.length - a.keyword.length || b.priority - a.priority)
