@@ -9,7 +9,8 @@ async function storeFetch<T>(path: string, init?: RequestInit): Promise<T> {
       "x-publishable-api-key": PK,
       ...(init?.headers ?? {}),
     },
-    next: { revalidate: false, tags: ["products"] },
+    cache: "force-cache",
+    next: { tags: ["products"] },
   })
   if (!res.ok) throw new Error(`Store API error ${res.status}: ${path}`)
   return res.json()
