@@ -4,7 +4,7 @@ import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 
-const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
+const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*attribute_values,*attribute_values.attribute_type"
 const PAGE_SIZE = 100
 
 // Treats "&" and "and" as equivalent so "Smith & Wesson" and
@@ -58,14 +58,20 @@ export const revalidate = false
 
 export async function generateStaticParams() {
   try {
-    const res = await getProducts({ limit: "500", fields: "id" })
+    const res = await getProducts({
+      limit: "500",
+      fields: "id,+metadata,*attribute_values,*attribute_values.attribute_type",
+    })
     const slugs = new Set<string>()
     for (const p of (res.products ?? [])) {
+      // Attribute values module (authoritative)
       for (const av of (p.attribute_values ?? [])) {
         if (av.attribute_type?.slug === 'brand' && av.value) slugs.add(toSlug(String(av.value).trim()))
       }
+      // Metadata fallback
+      if (p.metadata?.brand) slugs.add(toSlug(String(p.metadata.brand).trim()))
     }
-    return [...slugs].map(slug => ({ slug }))
+    return [...slugs].filter(Boolean).map(slug => ({ slug }))
   } catch { return [] }
 }
 
