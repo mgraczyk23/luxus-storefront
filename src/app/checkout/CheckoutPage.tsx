@@ -356,6 +356,7 @@ export default function CheckoutPage() {
       body: JSON.stringify({
         email: form.email.trim(),
         metadata: cartMeta(),
+        // Billing = buyer's personal address
         billing_address: {
           first_name: form.firstName.trim(),
           last_name: form.lastName.trim(),
@@ -366,7 +367,17 @@ export default function CheckoutPage() {
           postal_code: form.buyerZip.trim(),
           phone: form.phone.trim(),
         },
-        shipping_address: form.buyerState.trim() ? {
+        // Shipping = FFL dealer address (all firearms transfer through an FFL).
+        // Falls back to buyer address when FFL info isn't present.
+        shipping_address: form.fflDealerAddress1.trim() ? {
+          first_name: form.fflDealerName.trim(),
+          last_name: '',
+          address_1: form.fflDealerAddress1.trim(),
+          city: form.fflDealerCity.trim(),
+          country_code: 'us',
+          province: form.fflDealerState.trim().toLowerCase(),
+          postal_code: form.fflDealerZip.trim(),
+        } : form.buyerState.trim() ? {
           first_name: form.firstName.trim(),
           last_name: form.lastName.trim(),
           address_1: form.buyerAddress1.trim(),
