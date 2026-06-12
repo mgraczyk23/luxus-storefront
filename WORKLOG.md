@@ -2159,3 +2159,152 @@ KLAVIYO_PRIVATE_KEY=pk_xxx KLAVIYO_LIST_ID=LISTID node scripts/klaviyo-migrate.m
 Commits: `75e0f06` (Viewed Product, Started Checkout, identify), `4140e0c` (unsubscribe sync, Ordered Product, migration script)
 
 ---
+
+## §44 — Private Room / Backroom System (2026-06-12)
+
+### Goal
+Password-protected private room pages for showing exclusive inventory to select buyers. No Medusa customer account required — each room has a shared password. Six rooms: master (staff view of all private items), backroom, vip, reserve, special, unicorn.
+
+### Medusa Backend
+
+**New module: `backroom-access`** (`src/modules/backroom-access/`)
+- `BackroomPassword` model — `id`, `room_slug`, `password_hash`
+- `service.ts` — `MedusaService({ BackroomPassword })`
+- Migration `Migration20260612BackroomPasswords` — creates `backroom_password` table with unique index on `room_slug`
+- Registered in `medusa-config.ts`
+
+**Admin API: `GET/POST /admin/backroom-passwords`**
+- GET: lists 6 rooms with `has_password` boolean
+- POST: `{ room_slug, password }` → validates (min 4 chars), hashes with `scryptSync + randomBytes(16)`, upserts
+
+**Store API: `POST /store/backroom-auth`**
+- Verifies password against stored hash (constant-time `timingSafeEqual`)
+- Returns HS256 JWT signed with `BACKROOM_JWT_SECRET`, 24-hour expiry, `{ room }` payload
+- Manual JWT using Node.js `crypto.createHmac` — no extra dependencies; verified by `jose` in Edge middleware
+
+**Admin page: `src/admin/routes/backroom/page.tsx`** — "Private Rooms" sidebar entry
+- 6 rows (master + 5 rooms), each with password input and Save button
+- Shows "Password set" / "No password" badge
+
+**Env var:** `BACKROOM_JWT_SECRET` — added to Medusa `.env`, `docker-compose.yml`, storefront `.env.local`. Still needs to be added to Vercel dashboard manually.
+
+### Product Admin Widget — Rewrite (`product-room.tsx`)
+- 6 toggle switches: Master Backroom + Backroom / VIP / Reserve / Special / Unicorn
+- Master Backroom = hides product from all public pages and sitemap
+- Room toggles = assigns to named room(s) (any combination simultaneously)
+- Saves to product metadata: `master_backroom`, `room_backroom`, `room_vip`, `room_reserve`, `room_special`, `room_unicorn`
+- Header badge: "Private" (orange) or "Public" (green) based on `master_backroom` state
+
+### Storefront
+
+**`src/middleware.ts`** — protects all `/private/*` routes; verifies `bkr_{room}` JWT cookie via `jose`; sets `x-is-private: 1` on all private requests including login pages
+
+**`src/app/layout.tsx`** — reads `x-is-private` header; skips `<Header>`, `<Footer>`, `<AnnouncementBar>` and removes `paddingTop` when on private routes
+
+**`src/app/private/layout.tsx`** — light theme, logo-only, "← Back to Store" link
+
+**`src/app/private/[room]/login/BackroomLoginClient.tsx`** — password form → `/api/backroom/auth` → sets `bkr_{room}` HttpOnly cookie → redirect
+
+**`src/app/private/[room]/page.tsx` + `BackroomListingClient.tsx`** — fetches all products with `*images`; master = all `is_backroom_hidden` items; other rooms = products matching `private_rooms.includes(room)`
+
+**`src/app/private/[room]/[handle]/page.tsx`** — reuses `ProductDetailPage`; `robots: noindex, nofollow`; guard `if (!product.is_backroom_hidden) notFound()`
+
+**`src/app/api/backroom/auth/route.ts`** — proxies to Medusa, sets `bkr_{room}` cookie (HttpOnly, 24h, path `/private/{room}`)
+
+**`src/app/api/backroom/logout/route.ts`** — clears cookie
+
+**`src/lib/medusa.ts`** — `private_rooms: string[]` replaces `private_room: string | null`; `is_backroom_hidden` reads `metadata.master_backroom === "true"`
+
+**`src/app/sitemap.ts`** — filters `master_backroom !== 'true'`
+
+**`docker-compose.yml`** — added `BACKROOM_JWT_SECRET: ${BACKROOM_JWT_SECRET}`
+
+Commits: storefront `767feb3`, Medusa (backroom-access module + admin/store routes)
+
+---
+
+## §45 — Backroom Image Migration + Public Route Security (2026-06-12)
+
+### Context
+WooCommerce-imported backroom products had image URLs pointing to `luxuscap.com` (old WordPress site). One published product was appearing in New Arrivals on the home page (no `master_backroom` metadata set yet).
+
+### Image migration script — `/home/ubuntu/fix-backroom-images.py`
+Standalone Python script:
+1. Finds all products with non-S3 image URLs
+2. Downloads image from old URL, uploads to S3 via `POST /admin/uploads`
+3. Updates product `images` + `thumbnail` with new S3 URLs
+4. Sets `metadata.master_backroom = "true"` and `metadata.room_{room} = "true"`
+5. Products stay in draft — user reviews and publishes individually
+
+Progress saved to `fix_backroom_state.json`; safe to interrupt and resume.
+
+```bash
+MEDUSA_PASSWORD=xxx python3 fix-backroom-images.py --dry-run
+MEDUSA_PASSWORD=xxx python3 fix-backroom-images.py --room backroom
+```
+
+### Security fixes — `src/app/product/[handle]/page.tsx`
+- `ProductPage`: `if (product.is_backroom_hidden) notFound()` — direct URL access to `/product/{handle}` for any backroom item returns 404
+- `generateMetadata`: returns `{}` for backroom products — no title/description in page source
+- `generateStaticParams`: excludes backroom products from static pre-build
+
+### `next.config.ts`
+- Removed `luxuscap.com` from `remotePatterns` (images migrating to S3 via script)
+
+Commit: storefront `767feb3`
+
+---
+
+## §46 — Brand Page Fix: attribute_values + generateStaticParams (2026-06-12)
+
+### Problem (Sentry alert: `GET /brand/[slug]/page`)
+Two bugs caused every brand page to render empty and surfaced as a Server Component render error in Sentry:
+
+1. **`PRODUCT_FIELDS` missing `*attribute_values,*attribute_values.attribute_type`** — `getBrandName` always returned `undefined`; every brand page showed 0 products.
+2. **`generateStaticParams` used `fields: "id"`** — attribute_values were never in the response, so no brand slugs were ever pre-built. Every brand page was a cold dynamic render making multiple paginated API calls that returned nothing useful. Under load this surfaced as a render timeout.
+
+### Fix
+- Added `*attribute_values,*attribute_values.attribute_type` to `PRODUCT_FIELDS`
+- `generateStaticParams` now fetches `id,+metadata,*attribute_values,*attribute_values.attribute_type`; reads both attributes module and `metadata.brand` fallback; filters empty slugs
+- All brand pages now pre-built at deploy time with correct product listings
+
+Commit: storefront `b030abc`
+
+---
+
+## §47 — Backroom Login: Instant Auth + Error UX (2026-06-12)
+
+### Problem
+Two issues with the private room login system:
+
+1. **Slow login**: The auth route proxied to Medusa on AWS Lightsail, which ran `scryptSync` (N=16384) — by design 300ms–2s on a resource-constrained container, plus the network round-trip. Users experienced 1–5s login latency.
+2. **No error feedback**: The login form called `setPassword("")` on auth failure, which immediately disabled the submit button. The 11px error message appeared but was easy to miss — the user saw the button go from "Verifying…" back to a disabled "Enter" with no clear indication of failure.
+
+### Fix — Auth Route (`src/app/api/backroom/auth/route.ts`)
+
+**Fast path via Vercel env vars** — if `BACKROOM_PASS_{ROOM}` is set (e.g. `BACKROOM_PASS_BACKROOM`, `BACKROOM_PASS_VIP`), the auth route verifies the password locally using a constant-time HMAC comparison and signs the JWT with the existing `BACKROOM_JWT_SECRET`. No Medusa round-trip. Auth completes in <10ms.
+
+**Fallback** — if the env var is not set, falls back to the original Medusa proxy path (existing behavior unchanged). This allows a safe migration: rooms without env vars still work via Medusa.
+
+Env vars to add in Vercel dashboard:
+```
+BACKROOM_PASS_MASTER
+BACKROOM_PASS_BACKROOM
+BACKROOM_PASS_VIP
+BACKROOM_PASS_RESERVE
+BACKROOM_PASS_SPECIAL
+BACKROOM_PASS_UNICORN
+```
+
+### Fix — Login Client (`src/app/private/[room]/login/BackroomLoginClient.tsx`)
+
+- **Removed `setPassword("")` on error** — the password stays in the field so the button remains enabled and the user can immediately retry or edit
+- **Shake animation** — the form shakes horizontally on auth failure (`bkr-shake` keyframe, 0.45s)
+- **Error text** — 13px (up from 11px), fontWeight 500, more legible
+- Error still clears when user edits the password field
+
+### Medusa Admin Page Update
+
+Added "Fast Login — Vercel Environment Variables" section showing the exact env var names to set and linking to Vercel dashboard instructions. Legacy Medusa DB passwords remain as fallback (shown as separate section).
+
+Commit: storefront + medusa-backend (pending)
