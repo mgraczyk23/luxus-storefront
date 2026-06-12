@@ -15,5 +15,37 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function Page() {
   const [settings, text] = await Promise.all([getSiteSettings(), getSupportPageText()])
-  return <SupportPage settings={settings} text={text} />
+
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const name = settings.branding.legalName || 'Luxus Collection'
+
+  const supportPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ContactPage',
+    name: `Customer Support — ${name}`,
+    description: 'Order help, FFL transfer guidance, shipping questions, and returns.',
+    url: `${SITE}/support`,
+    mainEntity: {
+      '@type': 'Organization',
+      name,
+      url: SITE,
+      contactPoint: [
+        {
+          '@type': 'ContactPoint',
+          telephone:         settings.contact.phone,
+          email:             settings.contact.emailSupport,
+          contactType:       'customer support',
+          areaServed:        'US',
+          availableLanguage: 'English',
+        },
+      ].filter(cp => cp.telephone || cp.email),
+    },
+  }
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(supportPageJsonLd) }} />
+      <SupportPage settings={settings} text={text} />
+    </>
+  )
 }
