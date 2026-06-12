@@ -18,7 +18,6 @@ export default function PrivateLoginClient({
   const [password, setPassword] = useState("")
   const [error,    setError]    = useState("")
   const [loading,  setLoading]  = useState(false)
-  const [shaking,  setShaking]  = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const router   = useRouter()
 
@@ -26,7 +25,7 @@ export default function PrivateLoginClient({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!password.trim() || loading) return
+    if (!password.trim()) return
 
     setLoading(true)
     setError("")
@@ -41,142 +40,122 @@ export default function PrivateLoginClient({
 
       if (!res.ok) {
         setError(data.message ?? "Incorrect password")
-        setShaking(true)
-        inputRef.current?.select()
+        setPassword("")
+        inputRef.current?.focus()
       } else {
         router.replace(`/private/${room}`)
       }
     } catch {
       setError("Connection error. Please try again.")
-      setShaking(true)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <>
-      <style>{`
-        @keyframes bkr-shake {
-          0%, 100% { transform: translateX(0); }
-          18%       { transform: translateX(-7px); }
-          36%       { transform: translateX(7px); }
-          54%       { transform: translateX(-4px); }
-          72%       { transform: translateX(4px); }
-        }
-      `}</style>
+    <div style={{
+      minHeight: "calc(100vh - 68px)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "40px 24px",
+      background: "#fff",
+    }}>
+      <div style={{ width: "100%", maxWidth: "360px" }}>
 
-      <div style={{
-        minHeight: "calc(100vh - 68px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "40px 24px",
-        background: "#fff",
-      }}>
-        <div style={{ width: "100%", maxWidth: "360px" }}>
+        {/* Decorative rule */}
+        <div style={{ width: "32px", height: "1px", background: GOLD, margin: "0 auto 28px" }} />
 
-          {/* Decorative rule */}
-          <div style={{ width: "32px", height: "1px", background: GOLD, margin: "0 auto 28px" }} />
+        <h1 style={{
+          fontFamily: "var(--font-playfair), serif",
+          fontSize: "26px",
+          fontWeight: 400,
+          color: "#1a1a1a",
+          textAlign: "center",
+          margin: "0 0 6px",
+          letterSpacing: "0.01em",
+        }}>
+          {roomName}
+        </h1>
 
-          <h1 style={{
-            fontFamily: "var(--font-playfair), serif",
-            fontSize: "26px",
-            fontWeight: 400,
-            color: "#1a1a1a",
-            textAlign: "center",
-            margin: "0 0 6px",
-            letterSpacing: "0.01em",
-          }}>
-            {roomName}
-          </h1>
+        <p style={{
+          fontSize: "10px",
+          color: "#aaa",
+          textAlign: "center",
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          margin: "0 0 36px",
+        }}>
+          Private Access
+        </p>
 
-          <p style={{
-            fontSize: "10px",
-            color: "#aaa",
-            textAlign: "center",
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
-            margin: "0 0 36px",
-          }}>
-            Private Access
-          </p>
-
-          <form
-            onSubmit={handleSubmit}
-            style={{
-              animation: shaking ? "bkr-shake 0.45s ease" : undefined,
-            }}
-            onAnimationEnd={() => setShaking(false)}
-          >
-            <div style={{ marginBottom: error ? "10px" : "12px" }}>
-              <input
-                ref={inputRef}
-                type="password"
-                value={password}
-                onChange={e => { setPassword(e.target.value); if (error) setError("") }}
-                placeholder="Password"
-                autoComplete="current-password"
-                style={{
-                  width: "100%",
-                  height: "46px",
-                  background: "#fff",
-                  border: `1px solid ${error ? ERR_RED : BORDER}`,
-                  borderRadius: "2px",
-                  color: "#1a1a1a",
-                  fontSize: "14px",
-                  padding: "0 14px",
-                  outline: "none",
-                  letterSpacing: "0.04em",
-                  transition: "border-color 0.15s",
-                  boxSizing: "border-box",
-                  fontFamily: "'Inter', sans-serif",
-                }}
-                onFocus={e => { if (!error) e.target.style.borderColor = GOLD_LT }}
-                onBlur={e  => { if (!error) e.target.style.borderColor = BORDER }}
-              />
-            </div>
-
-            {error && (
-              <p style={{
-                fontSize: "13px",
-                fontWeight: 500,
-                color: ERR_RED,
-                margin: "0 0 12px",
-                textAlign: "center",
-                letterSpacing: "0.03em",
-              }}>
-                {error}
-              </p>
-            )}
-
-            <button
-              type="submit"
-              disabled={!password.trim() || loading}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: "12px" }}>
+            <input
+              ref={inputRef}
+              type="password"
+              value={password}
+              onChange={e => { setPassword(e.target.value); setError("") }}
+              placeholder="Password"
+              autoComplete="current-password"
               style={{
                 width: "100%",
                 height: "46px",
-                background: !password.trim() || loading ? "#ccc" : "#1a1a1a",
-                border: "none",
+                background: "#fff",
+                border: `1px solid ${error ? ERR_RED : BORDER}`,
                 borderRadius: "2px",
-                color: "#fff",
-                fontSize: "10px",
-                letterSpacing: "0.22em",
-                textTransform: "uppercase",
-                fontWeight: 500,
-                cursor: !password.trim() || loading ? "default" : "pointer",
-                transition: "background 0.15s",
+                color: "#1a1a1a",
+                fontSize: "14px",
+                padding: "0 14px",
+                outline: "none",
+                letterSpacing: "0.04em",
+                transition: "border-color 0.15s",
+                boxSizing: "border-box",
+                fontFamily: "'Inter', sans-serif",
               }}
-            >
-              {loading ? "Verifying…" : "Enter"}
-            </button>
-          </form>
+              onFocus={e => { if (!error) e.target.style.borderColor = GOLD_LT }}
+              onBlur={e  => { if (!error) e.target.style.borderColor = BORDER }}
+            />
+          </div>
 
-          {/* Bottom rule */}
-          <div style={{ width: "32px", height: "1px", background: BORDER, margin: "36px auto 0" }} />
+          {error && (
+            <p style={{
+              fontSize: "11px",
+              color: ERR_RED,
+              margin: "0 0 12px",
+              textAlign: "center",
+              letterSpacing: "0.04em",
+            }}>
+              {error}
+            </p>
+          )}
 
-        </div>
+          <button
+            type="submit"
+            disabled={!password.trim() || loading}
+            style={{
+              width: "100%",
+              height: "46px",
+              background: !password.trim() || loading ? "#ccc" : "#1a1a1a",
+              border: "none",
+              borderRadius: "2px",
+              color: "#fff",
+              fontSize: "10px",
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              fontWeight: 500,
+              cursor: !password.trim() || loading ? "default" : "pointer",
+              transition: "background 0.15s",
+            }}
+          >
+            {loading ? "Verifying…" : "Enter"}
+          </button>
+        </form>
+
+        {/* Bottom rule */}
+        <div style={{ width: "32px", height: "1px", background: BORDER, margin: "36px auto 0" }} />
+
       </div>
-    </>
+    </div>
   )
 }
