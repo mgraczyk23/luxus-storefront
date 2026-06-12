@@ -2036,3 +2036,50 @@ Rewrote `order-ffl.tsx` to match native Medusa admin component conventions exact
 Removed all custom inline styles (gold borders, background colours, `letterSpacing` overrides). Container rebuilt and redeployed.
 
 ---
+
+## §40 — Internal Link Engine (2026-06-12)
+
+### Goal
+Auto-insert contextual internal links into article body text at build time, improving on-page SEO and cross-linking between content and products.
+
+### Implementation
+
+**New collection: `InternalLinks` (Payload CMS)**
+Manual keyword → URL overrides. Admins can add, enable/disable, and prioritise entries via CMS admin (`SEO` group). Table: `internal_links` + FK column in `payload_locked_documents_rels` (created manually via SQL — Payload doesn't auto-migrate new collections).
+
+**`src/lib/link-engine.ts`**
+Plain async function (no `unstable_cache` — deprecated in Next.js 16). Each source `fetch()` uses `next: { revalidate: false, tags: [...] }` matching the pattern in `payload.ts` / `api.ts`.
+
+Sources and priorities (highest wins on keyword conflict):
+- Manual CMS overrides (`/api/internal-links`) — priority 10 (configurable)
+- Article tags → article pages — priority 70
+- Product brand+model compound ("Colt Single Action Army") → product page — priority 60
+- Brand name → `/brand/[slug]` hub — priority 50
+- Product model only ("Single Action Army") → product page — priority 45
+- Category name → `/category/[handle]` — priority 40
+
+Keyword matching: word-boundary regex `(?<![a-zA-Z0-9])(keyword)(?![a-zA-Z0-9])`, case-insensitive. Longest keyword wins on overlap ("Colt Single Action Army" beats "Colt"). Max 1 auto-link per paragraph; each destination URL used at most once per article.
+
+Product attributes fetched with `fields=id,handle,*attribute_values,*attribute_values.attribute_type` — avoids exact title matching which almost never appears in article prose.
+
+**`src/app/article/[slug]/page.tsx`**
+Calls `getLinkDictionary()` + `injectLinks()` at build time; passes transformed `LexNode[]` to `ArticlePage` as `body` prop.
+
+**`src/app/article/[slug]/ArticlePage.tsx`**
+Auto-links render as `<a>` with `autoLink: true` flag — distinct style from external links (no `target="_blank"`).
+
+Commits: `502e37d`, `2d843c6`, `3a4eb96`
+
+---
+
+## §41 — Auto-Link Visibility + Style (2026-06-12)
+
+### Problem
+Auto-links used `color: inherit` with a 53%-transparent gold underline — very hard to spot in article body text.
+
+### Fix
+Changed `InlineNode` in `ArticlePage.tsx` to use `color: t.goldDark` (`#c09530`, the bright warm amber from the theme) with a 60%-opacity underline of the same colour. Matches the site's gold palette, clearly readable, visually distinct from external/outbound links which use `t.gold` (`#7e5e10`, the darker olive-gold).
+
+Commit: storefront `a82c2a9`
+
+---
