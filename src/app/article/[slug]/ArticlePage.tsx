@@ -51,6 +51,13 @@ function InlineNode({ node }: { node: LexInline }) {
   const { t } = useTheme()
   if (node.type === "linebreak") return <br />
   if (node.type === "link") {
+    if (node.autoLink) {
+      return (
+        <a href={node.url} style={{ color: "inherit", textDecoration: "underline", textDecorationColor: "#c9a96e88", textUnderlineOffset: "3px" }}>
+          {node.children.map((c, i) => <InlineNode key={i} node={c} />)}
+        </a>
+      )
+    }
     return (
       <a href={node.url} target="_blank" rel="noopener noreferrer" style={{ color: t.gold, textDecoration: "underline" }}>
         {node.children.map((c, i) => <InlineNode key={i} node={c} />)}
@@ -184,7 +191,7 @@ function RelatedCard({ post, compact = false }: { post: PayloadPost; compact?: b
 }
 
 /* ── Main export ─────────────────────────────────────────────────────────── */
-export default function ArticlePage({ post, related = [], comments = [] }: { post: PayloadPost; related?: PayloadPost[]; comments?: PayloadComment[] }) {
+export default function ArticlePage({ post, related = [], comments = [], body: bodyProp }: { post: PayloadPost; related?: PayloadPost[]; comments?: PayloadComment[]; body?: LexNode[] }) {
   const { t } = useTheme()
   const [activeToc, setActiveToc] = useState<string | null>(null)
   const [isMobile, setIsMobile] = useState(false)
@@ -211,7 +218,7 @@ export default function ArticlePage({ post, related = [], comments = [] }: { pos
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
-  const body = parseLexical(post.content)
+  const body = bodyProp ?? parseLexical(post.content)
 
   const toc = body
     .filter((n): n is Extract<LexNode, { type: "heading" }> => n.type === "heading" && n.tag === "h2")

@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { getPosts, getPost, getComments, getSiteSettings, imageUrl } from "@/lib/payload"
+import { getPosts, getPost, getComments, getSiteSettings, parseLexical, imageUrl } from "@/lib/payload"
+import { getLinkDictionary, injectLinks } from "@/lib/link-engine"
 import ArticlePage from "./ArticlePage"
 
 export async function generateStaticParams() {
@@ -33,16 +34,19 @@ export default async function Page({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const [post, allPosts, settings] = await Promise.all([
+  const [post, allPosts, settings, dictionary] = await Promise.all([
     getPost(slug),
     getPosts({ limit: 100, noContent: true }).catch(() => ({ docs: [] })),
     getSiteSettings(),
+    getLinkDictionary().catch(() => []),
   ])
   if (!post) notFound()
   const related = allPosts.docs
     .filter((p) => p.slug !== slug && p.status === "published")
     .slice(0, 3)
   const comments = await getComments(post.id).catch(() => [])
+
+  const body = injectLinks(parseLexical(post.content), dictionary, `/article/${slug}`)
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
   const orgLogoUrl = imageUrl(settings.branding.logo)
@@ -72,7 +76,7 @@ export default async function Page({
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogPostingJsonLd) }} />
-      <ArticlePage post={post} related={related} comments={comments} />
+      <ArticlePage post={post} related={related} comments={comments} body={body} />
     </>
   )
 }

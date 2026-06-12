@@ -1201,7 +1201,7 @@ export type LexNode =
 
 export type LexInline =
   | { type: "text";   text: string; bold?: boolean; italic?: boolean; underline?: boolean; code?: boolean }
-  | { type: "link";   url: string; children: LexInline[] }
+  | { type: "link";   url: string; children: LexInline[]; autoLink?: boolean }
   | { type: "linebreak" }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

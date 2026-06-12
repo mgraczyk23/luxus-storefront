@@ -24,6 +24,9 @@ export const TAG_PAGES: Record<string, string[]> = {
   "policy-terms":      ["/policy/terms"],
   "resource-pages":    ["/resources-on-guns"],
 
+  // Internal link engine — rebuilds when CMS entries, products, or brands change
+  "internal-links":    ["/articles"],
+
   // Dynamic tag prefixes — warm the parent listing
   "brand-":            ["/shop/brands"],
   "resource-brand-":   ["/resources-on-guns"],

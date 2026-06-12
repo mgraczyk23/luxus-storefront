@@ -1920,3 +1920,119 @@ Changed invoice `OrderConfirmationPage.tsx` to always display shipping line (eve
 Commits: storefront `e7d2062`, Medusa `6e858ec`
 
 ---
+
+## §35 — Email Order Totals Fix (2026-06-12)
+
+### Problem
+Order confirmation emails (and payment-received / notify emails) showed $0.00 for subtotal, tax, and total. Per-item prices were correct ($5.00) but all aggregate totals were $0.
+
+### Root cause
+`query.graph` computed fields (`order.total`, `order.item_total`, `order.tax_total`, `order.shipping_total`) return 0 for order entities. The email subscribers were querying these fields directly.
+
+Secondary: `items.quantity` was being requested but the quantity lives in `items.detail.quantity` (the `order_item_detail` table, not `order_line_item`).
+
+### Fix
+Switched all three affected files to use `summary.current_order_total` (same pattern as the receipt endpoint) with manual calculation:
+- `itemSubtotal = unit_price × detail.quantity` for each item
+- `shippingTotal` from `shipping_methods.raw_amount.value`  
+- `taxTotal = total − itemSubtotal − shippingTotal`
+
+Files changed:
+- `src/subscribers/order-placed.ts` — order confirmation email
+- `src/subscribers/payment-received.ts` — payment confirmation email
+- `src/api/admin/orders/[id]/notify/route.ts` — admin "Send Payment Confirmation" / "Mark as Shipped" emails (also switched from `orderModule.retrieveOrder` to `query.graph` for consistency)
+
+Commit: Medusa `14f2d01`, container rebuilt 2026-06-12
+
+---
+
+## §36 — Medusa Admin Price Display Fix — Permanent (2026-06-12)
+
+### Problem
+Admin order page showed $535.00 / $500.00 instead of $5.35 / $5.00. Patches applied via `docker cp` were lost every time the container was recreated (`docker compose up -d` recreates the writable layer).
+
+### Root cause
+Medusa v2.15.1 admin SPA has three compiled JS chunk files with currency formatters that pass raw cent values directly to `Intl.NumberFormat.format()` without dividing by 100:
+- `index-*.js` — `Bu` / `jve` functions (order summary section)
+- `chunk-WATKBUHQ-*.js` — `le` function (payment section)
+- `chunk-X6BAAGCL-*.js` — `O` / `I` functions (payment detail rows)
+
+The order detail page lazy-loads the latter two; patching only the main index bundle left prices wrong in payment sections.
+
+### Fix
+Added a 13-line `RUN` block to the Dockerfile (builder stage, after `npm run build`) that patches all `*.js` files in the admin assets directory using `find | xargs sed`. Uses five `-e` patterns with `|` delimiter to avoid escaping `/100`. Because `find` searches all JS files by wildcard, the patch survives hash-based filename changes across minor Medusa builds. If a future Medusa upgrade changes the patterns, the `sed` silently no-ops and prices will display 100× again.
+
+```dockerfile
+RUN ASSETS=.medusa/server/public/admin/assets && \
+    find "$ASSETS" -name "*.js" | xargs sed -i \
+      -e 's|...format(e)|...format((e??0)/100)|g' \
+      ...
+```
+
+Commit: Medusa `fd0e5ca`
+
+---
+
+## §37 — Sales Email Notifications (2026-06-12)
+
+### Problem
+No email was sent to the sales team when a customer placed an order or when a payment was captured. Only the buyer received emails.
+
+### Fix
+Two subscribers updated to `Promise.all([buyerEmail, salesEmail])`:
+
+**`order-placed.ts`:** Sales gets "NEW ORDER — #N" email with: order number, customer name, email, order total, ship-to address, FFL dealer name, itemised product table, "View in Admin" button linking to `${MEDUSA_ADMIN_URL}/app/orders/${id}`.
+
+**`payment-received.ts`:** Sales gets "PAYMENT CAPTURED — #N" email with: order number, customer name, email, amount, "View in Admin" button.
+
+Sales address: `process.env.ADMIN_EMAIL ?? "sales@luxus-collection.com"`
+
+Commit: Medusa `d4e25b8`
+
+---
+
+## §38 — FFL Address: Admin Display + Checkout Data Fix (2026-06-12)
+
+### Problem
+Two issues in the Medusa admin order page:
+1. The **Shipping address** section showed the buyer's personal address, not the FFL dealer.
+2. The **Billing address** section showed "Same as shipping address" because both addresses were identical in the DB — making it look like no billing address was on file.
+
+Staff looking at an order could not confirm an FFL was associated with it from the built-in panels.
+
+### Fix — Part 1: Checkout data model (`CheckoutPage.tsx`)
+Changed how the cart is finalised before payment. `shipping_address` is now set to the FFL dealer's name and address (from `form.fflDealerName` / `form.fflDealerAddress1` etc.). `billing_address` remains the buyer's personal address. When no FFL is selected (e.g. accessories-only), both fall back to the buyer's address as before.
+
+All new orders will have the correct data in Medusa's native address fields, so the built-in admin panels show FFL as shipping and buyer as billing automatically.
+
+Commit: storefront `24b84c2`
+
+### Fix — Part 2: Admin widget (`order-ffl.tsx`)
+New Medusa admin widget in zone `order.details.side.before` that reads `ffl_dealer_*` and `buyer_*` from `order.metadata`. Shows a clear "FFL Transfer Destination" heading with FFL name + address, and a "Buyer Address" row beneath it. Works for all orders (reads from metadata, which is always populated regardless of what `shipping_address` contains in the DB).
+
+"Manual entry" badge (grey, Medusa `Badge` component) shown when `meta.ffl_is_manual === "true"`.
+
+Commit: Medusa `6d19490`
+
+### Fix — Part 3: Existing test order corrected via API
+For the existing test order (`order_01KTWABDR6WR1D2NADGZG255K6`), the `shipping_address` and `billing_address` DB records were updated via `POST /admin/orders/:id` (Medusa's `updateOrderWorkflow` accepts both fields). The built-in admin panels now show the correct data for this order too.
+
+---
+
+## §39 — FFL Admin Widget — Medusa UI Styling (2026-06-12)
+
+### Problem
+The FFL widget used a gold-bordered, invoice-style box that looked out of place in the Medusa admin UI.
+
+### Fix
+Rewrote `order-ffl.tsx` to match native Medusa admin component conventions exactly:
+- **Heading**: `<Heading level="h2">` — same as "Customer", "Fulfillment" headers
+- **Rows**: `<div className="text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4">` — identical to built-in address rows
+- **Labels**: `<Text size="small" leading="compact" weight="plus">`
+- **Values**: `<Text size="small" leading="compact">` with `break-words` spans and `<br />` between address lines
+- **Badge**: `<Badge size="2xsmall" color="grey">Manual entry</Badge>` for manual FFL entries
+- Extracted `AddressRow` helper component for reuse
+
+Removed all custom inline styles (gold borders, background colours, `letterSpacing` overrides). Container rebuilt and redeployed.
+
+---
