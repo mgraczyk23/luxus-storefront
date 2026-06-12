@@ -65,7 +65,7 @@ export async function getPosts(opts: {
   if (opts.noContent) params.set("select[content]", "false")
 
   const res = await fetch(`${PAYLOAD_URL}/api/posts?${params}`, {
-    cache: \"force-cache\", next: { tags: ["posts"] },
+    cache: "force-cache", next: { tags: ["posts"] },
   })
   if (!res.ok) throw new Error(`Payload posts fetch failed: ${res.status}`)
   return res.json()
@@ -79,7 +79,7 @@ export async function getPost(slug: string): Promise<PayloadPost | null> {
   params.set("limit", "1")
 
   const res = await fetch(`${PAYLOAD_URL}/api/posts?${params}`, {
-    cache: \"force-cache\", next: { tags: ["posts"] },
+    cache: "force-cache", next: { tags: ["posts"] },
   })
   if (!res.ok) return null
   const data: PayloadListResponse<PayloadPost> = await res.json()
@@ -226,7 +226,7 @@ const SETTINGS_FALLBACK: SiteSettings = {
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/site-settings`, {
-      cache: \"force-cache\", next: { tags: ['site-settings'] },
+      cache: "force-cache", next: { tags: ['site-settings'] },
     })
     if (!res.ok) return SETTINGS_FALLBACK
     const data = await res.json()
@@ -248,7 +248,7 @@ export async function getShopTileImages(): Promise<{
   const empty = { collections: {}, categories: {}, models: {} }
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/shop-tile-images?depth=1`, {
-      cache: \"force-cache\", next: { tags: ['shop-tile-images'] },
+      cache: "force-cache", next: { tags: ['shop-tile-images'] },
     })
     if (!res.ok) return empty
     const data = await res.json()
@@ -304,7 +304,7 @@ const HERO_DEFAULT: HeroSlidesData = {
 export async function getHeroSlides(): Promise<HeroSlidesData> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/hero-slides?depth=1`, {
-      cache: \"force-cache\", next: { tags: ['hero-slides'] },
+      cache: "force-cache", next: { tags: ['hero-slides'] },
     })
     if (!res.ok) return HERO_DEFAULT
     const data = await res.json()
@@ -417,7 +417,7 @@ export async function getBrands(opts: { featuredOnly?: boolean; hubOnly?: boolea
     if (opts.hubOnly)      params.set('where[showInHub][equals]', 'true')
 
     const res = await fetch(`${PAYLOAD_URL}/api/brands?${params}`, {
-      cache: \"force-cache\", next: { tags: ['brands'] },
+      cache: "force-cache", next: { tags: ['brands'] },
     })
     if (!res.ok) return []
     const data = await res.json()
@@ -439,7 +439,7 @@ export async function getBrandsForSearch(): Promise<PayloadBrandForSearch[]> {
     params.set('depth', '2')
     params.set('sort', 'name')
     const res = await fetch(`${PAYLOAD_URL}/api/brands?${params}`, {
-      cache: \"force-cache\", next: { tags: ['brands'] },
+      cache: "force-cache", next: { tags: ['brands'] },
     })
     if (!res.ok) return []
     const data = await res.json()
@@ -475,7 +475,7 @@ export async function getAllResourcePagesForSearch(): Promise<PayloadResourcePag
     params.set('depth', '1')
     params.set('sort', 'title')
     const res = await fetch(`${PAYLOAD_URL}/api/resource-pages?${params}`, {
-      cache: \"force-cache\", next: { tags: ['resource-pages'] },
+      cache: "force-cache", next: { tags: ['resource-pages'] },
     })
     if (!res.ok) return []
     const data = await res.json()
@@ -500,7 +500,7 @@ export async function getBrand(slug: string): Promise<PayloadBrandFull | null> {
     params.set('limit', '1')
 
     const res = await fetch(`${PAYLOAD_URL}/api/brands?${params}`, {
-      cache: \"force-cache\", next: { tags: ['brands', `brand-${slug}`] },
+      cache: "force-cache", next: { tags: ['brands', `brand-${slug}`] },
     })
     if (!res.ok) return null
     const data: PayloadListResponse<any> = await res.json()
@@ -559,7 +559,7 @@ export async function getPostsByBrand(brandId: string, limit = 8): Promise<Paylo
     params.set('select[content]', 'false')
 
     const res = await fetch(`${PAYLOAD_URL}/api/posts?${params}`, {
-      cache: \"force-cache\", next: { tags: ['posts', `brand-${brandId}`] },
+      cache: "force-cache", next: { tags: ['posts', `brand-${brandId}`] },
     })
     if (!res.ok) return []
     const data: PayloadListResponse<PayloadPost> = await res.json()
@@ -593,7 +593,7 @@ export async function getFaqItems(): Promise<PayloadFaqCategory[]> {
     params.set('depth', '0')
 
     const res = await fetch(`${PAYLOAD_URL}/api/faq-items?${params}`, {
-      cache: \"force-cache\", next: { tags: ['faq'] },
+      cache: "force-cache", next: { tags: ['faq'] },
     })
     if (!res.ok) return []
     const data: PayloadListResponse<any> = await res.json()
@@ -658,7 +658,7 @@ export async function getResourcePages(brandId: string): Promise<PayloadResource
     params.set('select[content]', 'false')
 
     const res = await fetch(`${PAYLOAD_URL}/api/resource-pages?${params}`, {
-      cache: \"force-cache\", next: { tags: [`resource-brand-${brandId}`] },
+      cache: "force-cache", next: { tags: [`resource-brand-${brandId}`] },
     })
     if (!res.ok) return []
     const data: PayloadListResponse<any> = await res.json()
@@ -677,7 +677,7 @@ export async function getResourcePage(slug: string): Promise<PayloadResourcePage
     params.set('limit', '1')
 
     const res = await fetch(`${PAYLOAD_URL}/api/resource-pages?${params}`, {
-      cache: \"force-cache\", next: { tags: [`resource-page-${slug}`] },
+      cache: "force-cache", next: { tags: [`resource-page-${slug}`] },
     })
     if (!res.ok) return null
     const data: PayloadListResponse<any> = await res.json()
@@ -783,7 +783,7 @@ export async function getAboutPageImages(): Promise<AboutPageImages> {
   }
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/about-page?depth=1`, {
-      cache: \"force-cache\", next: { tags: ['about-page'] },
+      cache: "force-cache", next: { tags: ['about-page'] },
     })
     if (!res.ok) return empty
     const d = await res.json()
@@ -812,7 +812,7 @@ export async function getAboutPageImages(): Promise<AboutPageImages> {
 export async function getAboutPageText(): Promise<AboutPageText> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/about-page?depth=0`, {
-      cache: \"force-cache\", next: { tags: ['about-page'] },
+      cache: "force-cache", next: { tags: ['about-page'] },
     })
     if (!res.ok) return {}
     const d = await res.json()
@@ -901,7 +901,7 @@ export type ConsignmentPageText = {
 export async function getConsignmentPageText(): Promise<ConsignmentPageText> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/consignment-page?depth=0`, {
-      cache: \"force-cache\", next: { tags: ['consignment-page'] },
+      cache: "force-cache", next: { tags: ['consignment-page'] },
     })
     if (!res.ok) return {}
     const d = await res.json()
@@ -976,7 +976,7 @@ export type FeaturedClassifiedItem = {
 export async function getFeaturedPageText(): Promise<FeaturedPageText> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/featured-page?depth=0`, {
-      cache: \"force-cache\", next: { tags: ['featured-page'] },
+      cache: "force-cache", next: { tags: ['featured-page'] },
     })
     if (!res.ok) return {}
     const d = await res.json()
@@ -994,7 +994,7 @@ export async function getFeaturedPageText(): Promise<FeaturedPageText> {
 export async function getFeaturedClassifieds(): Promise<FeaturedClassifiedItem[]> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/featured-classifieds?where[active][equals]=true&sort=sortOrder&limit=12&depth=1`, {
-      cache: \"force-cache\", next: { tags: ['featured-page'] },
+      cache: "force-cache", next: { tags: ['featured-page'] },
     })
     if (!res.ok) return []
     const d = await res.json()
@@ -1036,7 +1036,7 @@ export type ContactPageText = {
 export async function getContactPageText(): Promise<ContactPageText> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/contact-page?depth=0`, {
-      cache: \"force-cache\", next: { tags: ['contact-page'] },
+      cache: "force-cache", next: { tags: ['contact-page'] },
     })
     if (!res.ok) return {}
     const d = await res.json()
@@ -1079,7 +1079,7 @@ export type SupportPageText = {
 export async function getSupportPageText(): Promise<SupportPageText> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/support-page?depth=0`, {
-      cache: \"force-cache\", next: { tags: ['support-page'] },
+      cache: "force-cache", next: { tags: ['support-page'] },
     })
     if (!res.ok) return {}
     const d = await res.json()
@@ -1163,7 +1163,7 @@ export async function getPolicy(slug: 'shipping' | 'privacy' | 'terms'): Promise
   const fallback: PolicyData = { ...meta, lastUpdated: 'May 1, 2026', sections: POLICY_FALLBACK_SECTIONS[slug] }
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/${slug}-policy`, {
-      cache: \"force-cache\", next: { tags: [`policy-${slug}`] },
+      cache: "force-cache", next: { tags: [`policy-${slug}`] },
     })
     if (!res.ok) return fallback
     const data = await res.json()
