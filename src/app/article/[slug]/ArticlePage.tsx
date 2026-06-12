@@ -53,7 +53,7 @@ function InlineNode({ node }: { node: LexInline }) {
   if (node.type === "link") {
     if (node.autoLink) {
       return (
-        <a href={node.url} style={{ color: "inherit", textDecoration: "underline", textDecorationColor: "#c9a96e88", textUnderlineOffset: "3px" }}>
+        <a href={node.url} style={{ color: t.goldDark, textDecoration: "underline", textDecorationColor: `${t.goldDark}99`, textDecorationThickness: "1px", textUnderlineOffset: "3px" }}>
           {node.children.map((c, i) => <InlineNode key={i} node={c} />)}
         </a>
       )
