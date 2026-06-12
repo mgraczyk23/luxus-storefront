@@ -137,12 +137,12 @@ function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-function linkifyChildren(children: LexInline[], entries: LinkEntry[]): LexInline[] {
-  let linked = false
+function linkifyChildrenTracked(children: LexInline[], entries: LinkEntry[]): { children: LexInline[]; linked: string | null } {
+  let linkedUrl: string | null = null
   const result: LexInline[] = []
 
   for (const child of children) {
-    if (linked || child.type !== 'text') {
+    if (linkedUrl !== null || child.type !== 'text') {
       result.push(child)
       continue
     }
@@ -155,7 +155,7 @@ function linkifyChildren(children: LexInline[], entries: LinkEntry[]): LexInline
       const m = re.exec(text)
       if (!m) continue
 
-      linked = true
+      linkedUrl = entry.url
       matched = true
 
       const pre  = text.slice(0, m.index)
@@ -171,10 +171,10 @@ function linkifyChildren(children: LexInline[], entries: LinkEntry[]): LexInline
     if (!matched) result.push(child)
   }
 
-  return result
+  return { children: result, linked: linkedUrl }
 }
 
-// Inject at most one auto-link per paragraph. Headings, quotes, lists untouched.
+// Inject at most one auto-link per paragraph, and each destination URL at most once per article.
 export function injectLinks(nodes: LexNode[], dictionary: LinkEntry[], currentPath: string): LexNode[] {
   if (!dictionary.length) return nodes
 
@@ -185,8 +185,15 @@ export function injectLinks(nodes: LexNode[], dictionary: LinkEntry[], currentPa
 
   if (!sorted.length) return nodes
 
+  const usedUrls = new Set<string>()
+
   return nodes.map(node => {
     if (node.type !== 'paragraph') return node
-    return { ...node, children: linkifyChildren(node.children, sorted) }
+    // Only offer entries whose URL hasn't been used yet in this article
+    const available = sorted.filter(e => !usedUrls.has(e.url))
+    if (!available.length) return node
+    const { children, linked } = linkifyChildrenTracked(node.children, available)
+    if (linked) usedUrls.add(linked)
+    return { ...node, children }
   })
 }
