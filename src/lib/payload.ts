@@ -1303,3 +1303,30 @@ export async function getPageSeo(): Promise<PageSeoData> {
     return {}
   }
 }
+
+// ── Product Media (360° spin + 3D model) ─────────────────────────────────────
+
+export type ProductMediaDoc = {
+  id: string
+  productHandle: string
+  spinImages: Array<{ id: string; image: PayloadImage }>
+  modelFile: PayloadImage | null
+}
+
+export async function getProductMedia(handle: string): Promise<ProductMediaDoc | null> {
+  try {
+    const params = new URLSearchParams({
+      'where[productHandle][equals]': handle,
+      depth: '1',
+      limit: '1',
+    })
+    const res = await fetch(`${PAYLOAD_URL}/api/product-media?${params}`, {
+      next: { revalidate: false },
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    return (data.docs?.[0] as ProductMediaDoc) ?? null
+  } catch {
+    return null
+  }
+}

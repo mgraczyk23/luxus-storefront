@@ -1,17 +1,21 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/context/ThemeContext'
 import { useCart } from '@/context/CartContext'
 import type { MappedProduct } from '@/lib/medusa'
-import type { SiteSettings } from '@/lib/payload'
+import type { SiteSettings, ProductMediaDoc } from '@/lib/payload'
 import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import { fetchRestrictions, checkState, type StateRestriction, type RestrictionCheckResult } from '@/lib/state-restrictions'
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 import ContactAvailabilityModal from '@/components/ContactAvailabilityModal'
+
+const SpinViewer  = dynamic(() => import('@/components/product/SpinViewer'),  { ssr: false })
+const ModelViewer = dynamic(() => import('@/components/product/ModelViewer'), { ssr: false })
 
 const PLAYFAIR = "var(--font-playfair), serif"
 
@@ -147,19 +151,29 @@ function RelatedCard({ product }: { product: MappedProduct }) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────────────────
+type ViewerMode = 'photos' | 'spin' | '3d'
+
 export default function ProductDetailPage({
   product,
   relatedProducts,
   settings,
   serverSpecs,
+  productMedia,
 }: {
   product: MappedProduct
   relatedProducts: MappedProduct[]
   settings?: SiteSettings
   serverSpecs?: Record<string, string> | null
+  productMedia?: ProductMediaDoc | null
 }) {
   const { t } = useTheme()
   const { addItem } = useCart()
+
+  // Derive available viewer modes from productMedia
+  const spinImages = (productMedia?.spinImages ?? []).map(s => s.image?.url).filter(Boolean) as string[]
+  const modelSrc   = productMedia?.modelFile?.url ?? null
+  const availableModes: ViewerMode[] = ['photos', ...(spinImages.length > 0 ? ['spin' as ViewerMode] : []), ...(modelSrc ? ['3d' as ViewerMode] : [])]
+  const [viewerMode, setViewerMode] = useState<ViewerMode>('photos')
 
   const [activeImg, setActiveImg] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
@@ -415,101 +429,149 @@ export default function ProductDetailPage({
           {/* LEFT: Gallery */}
           <div className="lxs-pdp-gallery" style={{ position: "sticky", top: "88px", minWidth: 0, overflow: "hidden" }}>
 
-            {/* Main image */}
-            <div
-              onClick={() => hasImages && setLightboxOpen(true)}
-              style={{
-                position: "relative", aspectRatio: "4/3",
-                border: `1px solid ${t.border}`,
-                cursor: hasImages ? "zoom-in" : "default",
-                overflow: "hidden", marginBottom: "12px",
-                background: "#ffffff",
-              }}
-            >
-              {hasImages && images[activeImg] ? (
-                <Image
-                  src={images[activeImg]}
-                  alt={`${product.title} – image ${activeImg + 1}`}
-                  fill style={{ objectFit: "contain" }}
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  priority
-                />
-              ) : (
-                <ImgBox index={activeImg} />
-              )}
-
-              {/* Category badge */}
-              {product.primary_category && (
-                <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}55`, padding: "4px 12px", fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold, backdropFilter: "blur(8px)" }}>
-                  {product.primary_category}
-                </div>
-              )}
-
-              {/* Stock badge */}
-              <div style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${product.in_stock ? "#4a8a4a" : "#8a4a4a"}40`, padding: "4px 12px", backdropFilter: "blur(8px)", display: "flex", alignItems: "center" }}>
-                <span style={{ fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: product.in_stock ? "#5a9a5a" : "#9a5a5a" }}>
-                  {product.in_stock ? "Available" : "Unavailable"}
-                </span>
-              </div>
-
-              {/* Zoom hint */}
-              {hasImages && (
-                <div style={{ position: "absolute", bottom: "14px", right: "14px", width: "32px", height: "32px", background: "rgba(255,255,255,0.8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
-                  <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
-                    <circle cx="5.5" cy="5.5" r="4.5" stroke={t.textMuted} strokeWidth="1" />
-                    <path d="M9 9L12 12" stroke={t.textMuted} strokeWidth="1" strokeLinecap="round" />
-                    <path d="M5.5 3.5V7.5M3.5 5.5H7.5" stroke={t.textMuted} strokeWidth="1" strokeLinecap="round" />
-                  </svg>
-                </div>
-              )}
-
-              {/* Prev / Next arrows */}
-              {images.length > 1 && (
-                <>
-                  <button onClick={e => { e.stopPropagation(); setActiveImg(i => (i - 1 + images.length) % images.length) }}
-                    style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
-                    <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6L6 11" stroke={t.textMuted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  </button>
-                  <button onClick={e => { e.stopPropagation(); setActiveImg(i => (i + 1) % images.length) }}
-                    style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
-                    <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke={t.textMuted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                  </button>
-                </>
-              )}
-            </div>
-
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div style={{ display: "flex", gap: "8px", flexWrap: "nowrap", overflowX: "auto", width: "100%", minWidth: 0 }}>
-                {images.map((src, i) => (
-                  <div key={i} className="lxs-thumb"
-                    onClick={() => setActiveImg(i)}
-                    style={{
-                      flexShrink: 0, height: "68px", aspectRatio: "4/3", cursor: "pointer",
-                      border: `1px solid ${activeImg === i ? t.gold : t.border}`,
-                      overflow: "hidden", opacity: activeImg === i ? 1 : 0.55,
-                      transition: "all 0.2s", position: "relative",
-                      background: "#f0f0f0",
-                    }}
-                  >
-                    {src ? (
-                      <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="90px" />
-                    ) : (
-                      <ImgBox index={i} />
-                    )}
-                  </div>
-                ))}
+            {/* Viewer mode tabs — only shown when more than one mode is available */}
+            {availableModes.length > 1 && (
+              <div style={{ display: "flex", gap: "2px", marginBottom: "10px" }}>
+                {availableModes.map(mode => {
+                  const labels: Record<ViewerMode, string> = { photos: 'Photos', spin: '360°', '3d': '3D Model' }
+                  const icons: Record<ViewerMode, React.ReactNode> = {
+                    photos: <svg width="13" height="12" viewBox="0 0 13 12" fill="none"><rect x="0.5" y="0.5" width="12" height="11" rx="1" stroke="currentColor" strokeWidth="1"/><circle cx="4" cy="4" r="1.5" stroke="currentColor" strokeWidth="0.9"/><path d="M0.5 8L4 5L6.5 7.5L8.5 5.5L12.5 9.5" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                    spin: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" strokeWidth="1"/><path d="M9.5 6.5C9.5 8.16 8.16 9.5 6.5 9.5C4.84 9.5 3.5 8.16 3.5 6.5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/><path d="M3.5 6.5L2 5M3.5 6.5L5 5" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/></svg>,
+                    '3d': <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1L11.5 4V9L6.5 12L1.5 9V4L6.5 1Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/><path d="M6.5 1V12M1.5 4L11.5 9M11.5 4L1.5 9" stroke="currentColor" strokeWidth="0.7"/></svg>,
+                  }
+                  const active = viewerMode === mode
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setViewerMode(mode)}
+                      style={{
+                        flex: 1, padding: "8px 6px", background: active ? t.gold : "#fff",
+                        border: `1px solid ${active ? t.gold : t.border}`,
+                        color: active ? "#fff" : t.textMuted,
+                        fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase",
+                        fontFamily: "'Inter',sans-serif", fontWeight: 600,
+                        cursor: "pointer", transition: "all 0.18s",
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: "6px",
+                      }}
+                      onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = t.gold + "60"; e.currentTarget.style.color = t.gold } }}
+                      onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = t.border; e.currentTarget.style.color = t.textMuted } }}
+                    >
+                      {icons[mode]}
+                      {labels[mode]}
+                    </button>
+                  )
+                })}
               </div>
             )}
 
-            {/* Dot counter */}
-            {images.length > 1 && (
-              <div style={{ marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
-                {images.map((_, i) => (
-                  <div key={i} onClick={() => setActiveImg(i)}
-                    style={{ width: i === activeImg ? "18px" : "5px", height: "3px", background: i === activeImg ? t.gold : t.border, transition: "all 0.28s ease", cursor: "pointer", borderRadius: "2px" }} />
-                ))}
+            {/* ── Photos mode ─────────────────────────────────────────── */}
+            {viewerMode === 'photos' && (<>
+              {/* Main image */}
+              <div
+                onClick={() => hasImages && setLightboxOpen(true)}
+                style={{
+                  position: "relative", aspectRatio: "4/3",
+                  border: `1px solid ${t.border}`,
+                  cursor: hasImages ? "zoom-in" : "default",
+                  overflow: "hidden", marginBottom: "12px",
+                  background: "#ffffff",
+                }}
+              >
+                {hasImages && images[activeImg] ? (
+                  <Image
+                    src={images[activeImg]}
+                    alt={`${product.title} – image ${activeImg + 1}`}
+                    fill style={{ objectFit: "contain" }}
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                    priority
+                  />
+                ) : (
+                  <ImgBox index={activeImg} />
+                )}
+
+                {/* Category badge */}
+                {product.primary_category && (
+                  <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}55`, padding: "4px 12px", fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold, backdropFilter: "blur(8px)" }}>
+                    {product.primary_category}
+                  </div>
+                )}
+
+                {/* Stock badge */}
+                <div style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${product.in_stock ? "#4a8a4a" : "#8a4a4a"}40`, padding: "4px 12px", backdropFilter: "blur(8px)", display: "flex", alignItems: "center" }}>
+                  <span style={{ fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: product.in_stock ? "#5a9a5a" : "#9a5a5a" }}>
+                    {product.in_stock ? "Available" : "Unavailable"}
+                  </span>
+                </div>
+
+                {/* Zoom hint */}
+                {hasImages && (
+                  <div style={{ position: "absolute", bottom: "14px", right: "14px", width: "32px", height: "32px", background: "rgba(255,255,255,0.8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+                      <circle cx="5.5" cy="5.5" r="4.5" stroke={t.textMuted} strokeWidth="1" />
+                      <path d="M9 9L12 12" stroke={t.textMuted} strokeWidth="1" strokeLinecap="round" />
+                      <path d="M5.5 3.5V7.5M3.5 5.5H7.5" stroke={t.textMuted} strokeWidth="1" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                )}
+
+                {/* Prev / Next arrows */}
+                {images.length > 1 && (
+                  <>
+                    <button onClick={e => { e.stopPropagation(); setActiveImg(i => (i - 1 + images.length) % images.length) }}
+                      style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
+                      <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6L6 11" stroke={t.textMuted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </button>
+                    <button onClick={e => { e.stopPropagation(); setActiveImg(i => (i + 1) % images.length) }}
+                      style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", width: "34px", height: "34px", background: "rgba(255,255,255,0.85)", border: `1px solid ${t.border}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
+                      <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke={t.textMuted} strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                    </button>
+                  </>
+                )}
               </div>
+
+              {/* Thumbnails */}
+              {images.length > 1 && (
+                <div style={{ display: "flex", gap: "8px", flexWrap: "nowrap", overflowX: "auto", width: "100%", minWidth: 0 }}>
+                  {images.map((src, i) => (
+                    <div key={i} className="lxs-thumb"
+                      onClick={() => setActiveImg(i)}
+                      style={{
+                        flexShrink: 0, height: "68px", aspectRatio: "4/3", cursor: "pointer",
+                        border: `1px solid ${activeImg === i ? t.gold : t.border}`,
+                        overflow: "hidden", opacity: activeImg === i ? 1 : 0.55,
+                        transition: "all 0.2s", position: "relative",
+                        background: "#f0f0f0",
+                      }}
+                    >
+                      {src ? (
+                        <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="90px" />
+                      ) : (
+                        <ImgBox index={i} />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Dot counter */}
+              {images.length > 1 && (
+                <div style={{ marginTop: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                  {images.map((_, i) => (
+                    <div key={i} onClick={() => setActiveImg(i)}
+                      style={{ width: i === activeImg ? "18px" : "5px", height: "3px", background: i === activeImg ? t.gold : t.border, transition: "all 0.28s ease", cursor: "pointer", borderRadius: "2px" }} />
+                  ))}
+                </div>
+              )}
+            </>)}
+
+            {/* ── 360° spin mode ─────────────────────────────────────── */}
+            {viewerMode === 'spin' && spinImages.length > 0 && (
+              <SpinViewer images={spinImages} title={product.title} />
+            )}
+
+            {/* ── 3D model mode ──────────────────────────────────────── */}
+            {viewerMode === '3d' && modelSrc && (
+              <ModelViewer src={modelSrc} title={product.title} />
             )}
           </div>
 

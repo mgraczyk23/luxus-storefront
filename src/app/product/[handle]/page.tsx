@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { notFound } from "next/navigation"
 import { getProduct, getProducts, getProductDetails, getProductSpecs } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getSiteSettings } from "@/lib/payload"
+import { getSiteSettings, getProductMedia } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
 import ProductDetailPage from "./ProductDetailPage"
 import type { Metadata } from "next"
@@ -56,11 +56,12 @@ export default async function ProductPage(
   const product = mapMedusaProduct(raw)
 
   // Fetch product details (SEO fields + extra module data) and related products in parallel
-  const [detailRes, relRes, settings, specsRes] = await Promise.all([
+  const [detailRes, relRes, settings, specsRes, productMedia] = await Promise.all([
     getProductDetails(raw.id).catch(() => null),
     getProducts({ limit: "20", fields: RELATED_FIELDS }).catch(() => null),
     getSiteSettings(),
     getProductSpecs(raw.id).catch(() => null),
+    getProductMedia(handle).catch(() => null),
   ])
 
   const detail = detailRes?.product_detail
@@ -165,7 +166,7 @@ export default async function ProductPage(
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <Suspense>
-        <ProductDetailPage product={product} relatedProducts={relatedProducts} settings={settings} serverSpecs={serverSpecs} />
+        <ProductDetailPage product={product} relatedProducts={relatedProducts} settings={settings} serverSpecs={serverSpecs} productMedia={productMedia} />
       </Suspense>
     </>
   )
