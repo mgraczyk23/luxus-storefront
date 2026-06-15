@@ -2,13 +2,17 @@ import type { Metadata } from "next"
 import { getProducts, getCollections, getCategories, getProductTags } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getPosts, getHeroSlides, getShopTileImages, imageUrl, getSiteSettings, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import HomePage from "@/components/home/HomePage"
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.home?.title || "Luxus Collection — Fine Firearms"
+  const description = seo.home?.description || "A boutique destination for the serious collector. Curating the world's finest production and custom pistols."
   return {
-    title:       seo.home?.title       || "Luxus Collection — Fine Firearms",
-    description: seo.home?.description || "A boutique destination for the serious collector. Curating the world's finest production and custom pistols.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/' },
   }
 }
