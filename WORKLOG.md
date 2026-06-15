@@ -2567,3 +2567,27 @@ Rate limiter: 60 req/min per IP, in-memory with 5-min pruning. Returns HTTP 429 
 Add `MEDUSA_PUBLISHABLE_KEY` to `/home/ubuntu/luxus-commerce/.env`. Value is the same as `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` in Vercel.
 
 Commit: commerce `d635e51`
+
+## §58 — MCP Import Path Fix + llms.txt (2026-06-15)
+
+### MCP Docker Crash Fix
+
+The MCP server was crash-looping in Docker with `Cannot find module '.../dist/cjs/dist/cjs/server/mcp.js'`. Root cause: the SDK's `./*` exports map was transforming the already-resolved `dist/cjs/` prefix a second time, doubling the path.
+
+Fix: changed require paths to use the correct subpath that goes *through* the exports map:
+- `@modelcontextprotocol/sdk/dist/cjs/server/mcp.js` → `@modelcontextprotocol/sdk/server/mcp.js`
+- `@modelcontextprotocol/sdk/dist/cjs/server/streamableHttp.js` → `@modelcontextprotocol/sdk/server/streamableHttp.js`
+
+The `./*` map resolves `./server/mcp.js` → `./dist/cjs/server/mcp.js` correctly in both local and Docker environments.
+
+Also added `contact_for_pricing` flag to the product serializer so AI agents know to say "contact us for pricing" rather than treating a null price as missing data.
+
+Commits: commerce `239b419`, `361eb4d`
+
+### llms.txt
+
+Added `public/llms.txt` to the storefront — a plain-text file at `https://luxus-collection.com/llms.txt` that AI crawlers and agents read to understand the site structure and capabilities. Documents all key public pages, the MCP server endpoint, available tools, and the note that backroom inventory is not accessible via MCP.
+
+`robots.txt` already explicitly allows GPTBot, ClaudeBot, and PerplexityBot.
+
+Commit: storefront `d666db7`
