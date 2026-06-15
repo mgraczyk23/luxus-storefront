@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 
 export type OfferPayload = {
   product_id:     string
@@ -51,6 +52,7 @@ export async function POST(req: NextRequest) {
 
   if (!medusaRes.ok) {
     const err = await medusaRes.json().catch(() => ({}))
+    Sentry.captureException(new Error(`Offer submit failed (${medusaRes.status}): ${JSON.stringify(err)}`))
     return NextResponse.json(
       { error: (err as any).error ?? 'Failed to submit offer' },
       { status: medusaRes.status }

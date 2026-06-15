@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { getSiteSettings } from '@/lib/payload'
 import { fetchRestrictions, checkState } from '@/lib/state-restrictions'
 import { EMAIL_FROM, EMAIL_SALES } from '@/lib/email-constants'
@@ -200,7 +201,11 @@ export async function POST(req: NextRequest) {
   ])
 
   if (!salesRes.ok) {
+    Sentry.captureException(new Error(`Wire checkout: sales email failed for order ${body.orderRef}`))
     return NextResponse.json({ error: 'Email send failed' }, { status: 502 })
+  }
+  if (!customerRes.ok) {
+    Sentry.captureException(new Error(`Wire checkout: customer email failed for order ${body.orderRef} to ${body.email}`))
   }
 
   return NextResponse.json({ ok: true })

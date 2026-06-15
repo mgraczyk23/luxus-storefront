@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
 const MEDUSA_PK  = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
 
   const data = await res.json().catch(() => ({ error: 'Invalid response from payment server' }))
   if (!res.ok || data.error) {
+    Sentry.captureException(new Error(`Elavon finalize failed (${res.status}): ${data.error}`))
     return NextResponse.json({ error: data.error ?? 'Could not complete order' }, { status: 500 })
   }
 

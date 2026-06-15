@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import Link from 'next/link'
 import Image from 'next/image'
 import Script from 'next/script'
@@ -263,7 +264,8 @@ export default function CheckoutPage() {
         }
 
         if (!cancelled) setMedusaCart(appliedCart)
-      } catch {
+      } catch (err) {
+        Sentry.captureException(err)
       } finally {
         if (!cancelled) setMedusaCartLoading(false)
       }

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import * as Sentry from '@sentry/nextjs'
 import { EMAIL_FROM, EMAIL_SALES } from '@/lib/email-constants'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
@@ -151,7 +152,11 @@ export async function POST(req: NextRequest) {
   ])
 
   if (!salesRes.ok) {
+    Sentry.captureException(new Error(`Elavon notify: sales email failed for order ${body.orderRef}`))
     return NextResponse.json({ error: 'Email send failed' }, { status: 502 })
+  }
+  if (!customerRes.ok) {
+    Sentry.captureException(new Error(`Elavon notify: customer email failed for order ${body.orderRef} to ${body.email}`))
   }
 
   return NextResponse.json({ ok: true })
