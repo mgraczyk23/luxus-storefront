@@ -2439,4 +2439,56 @@ Any mixed-case URL from old bookmarks or bad CMS data now 307-redirects to the c
 
 Commit: storefront `2212d95`
 
-Commit: storefront `24e11bf`
+---
+
+## §55 — Code Audit: Shared Utilities, Email Constants, Typo Fix, Console Cleanup (2026-06-15)
+
+### Audit Scope
+
+Full read of every file under `src/app/`, `src/lib/`, `src/components/`, `src/types/`, `src/context/` (~80 files). Issues were ranked by impact; only pure-refactoring changes with zero behavior risk were applied.
+
+### Fix 1 — `toSlug()` extracted to `src/lib/slug.ts`
+
+The same slug-normalization function had been copy-pasted into 10 separate files across the codebase. Two copies were simplified older variants missing `&amp;` HTML entity handling, which could cause slug mismatches on brand/category names containing `&`.
+
+Created `src/lib/slug.ts` with the canonical full implementation. All 10 files now import from it:
+- `src/app/page.tsx`, `src/app/sitemap.ts`
+- `src/app/brand/[slug]/page.tsx`, `src/app/category/[slug]/page.tsx` (simplified version — upgraded)
+- `src/app/shop/brands/page.tsx`, `src/app/shop/models/page.tsx`, `src/app/shop/model/[slug]/page.tsx`
+- `src/app/resources-on-guns/[slug]/page.tsx`, `src/app/resources-on-guns/[slug]/ResourcesBrandPage.tsx`
+- `src/components/home/HomePage.tsx`
+
+### Fix 2 — Email constants extracted to `src/lib/email-constants.ts`
+
+`FROM = 'Luxus Collection <noreply@luxus-collection.com>'` and `SALES = 'sales@luxus-collection.com'` were each defined independently in four API routes. Created `src/lib/email-constants.ts` with `EMAIL_FROM` and `EMAIL_SALES`. Updated:
+- `src/app/api/contact/route.ts`
+- `src/app/api/checkout/wire/route.ts`
+- `src/app/api/checkout/offer/route.ts`
+- `src/app/api/elavon/notify/route.ts`
+
+### Fix 3 — Typo: `firearamLabel` → `firearmLabel`
+
+Parameter name misspelling in `src/lib/state-restrictions.ts` line 56. Didn't cause a bug but would have been confusing in future maintenance.
+
+### Fix 4 — `console.error` statements removed (9 total)
+
+All were in error paths in production API routes and `CheckoutPage`. Error conditions still return the correct HTTP status codes to callers — no functional change.
+
+| File | Removed |
+|---|---|
+| `src/app/api/elavon/finalize/route.ts` | 1 |
+| `src/app/api/elavon/notify/route.ts` | 2 |
+| `src/app/api/checkout/wire/route.ts` | 2 |
+| `src/app/api/checkout/offer/route.ts` | 2 |
+| `src/app/api/offers/route.ts` | 1 |
+| `src/app/checkout/CheckoutPage.tsx` | 1 |
+
+### Not Fixed (by design)
+
+- `any` types in ~15 places — mostly for opaque Medusa API response shapes; removing them requires significant type work with no visible output
+- Hardcoded `US_REGION_ID` in `CheckoutPage.tsx` — single instance, fine as a constant
+- Hardcoded contact emails in `state-restrictions.ts` error message strings — user-facing text, correct to be inline
+
+TypeScript passes clean after all changes.
+
+Commit: storefront `c0e93e4`
