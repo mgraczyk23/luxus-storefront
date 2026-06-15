@@ -3,8 +3,9 @@ import { getSiteSettings } from "@/lib/payload"
 import AccountPage from "./AccountPage"
 
 export const metadata: Metadata = {
-  title: "My Account",
-  description: "View your order history, wishlist, and account details.",
+  title: "My Account | Luxus Collection",
+  description: "View your order history, saved items, and account details for your Luxus Collection account.",
+  robots: "noindex, nofollow",
 }
 
 export default async function Page() {
