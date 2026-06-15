@@ -14,6 +14,10 @@ import {
 } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
 
+function toSlug(str: string) {
+  return str.toLowerCase().replace(/&amp;/g,'and').replace(/\s*&\s*/g,'-').replace(/\s+and\s+/g,'-').replace(/[^a-z0-9]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')
+}
+
 /* ── Lexical inline renderer ─────────────────────────────────────────────── */
 
 function InlineNode({ node }: { node: LexInline }) {
@@ -194,7 +198,7 @@ function ModelSeriesCard({ series }: { series: PayloadModelSeries }) {
   )
 
   return hasLink
-    ? <Link href={`/shop/model/${series.productHandle}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>{card}</Link>
+    ? <Link href={`/shop/model/${toSlug(series.productHandle!)}`} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>{card}</Link>
     : <div style={{ height: '100%' }}>{card}</div>
 }
 

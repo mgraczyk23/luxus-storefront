@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import { redirect } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
@@ -41,10 +42,11 @@ function getModelName(slug: string, products: ReturnType<typeof mapMedusaProduct
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  let name = slug
+  const normalized = toSlug(slug)
+  let name = normalized
   try {
     const products = await getAllProducts()
-    name = getModelName(slug, products) ?? slug
+    name = getModelName(normalized, products) ?? normalized
   } catch {}
   const title = `${name} — Shop by Model`
   const description = `Browse ${name} firearms at the Luxus Collection.`
@@ -52,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description,
     ...ogMeta(title, description),
-    alternates: { canonical: `/shop/model/${slug}` },
+    alternates: { canonical: `/shop/model/${normalized}` },
   }
 }
 
@@ -68,6 +70,8 @@ function Loading() {
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  const normalized = toSlug(slug)
+  if (normalized !== slug) redirect(`/shop/model/${normalized}`)
 
   let allProducts: ReturnType<typeof mapMedusaProduct>[] = []
   try { allProducts = await getAllProducts() } catch {}
