@@ -18,11 +18,10 @@ export default function robots(): MetadataRoute.Robots {
           '/api/',
         ],
       },
-      // Explicitly allow AI crawlers to index public content
-      { userAgent: 'GPTBot',       allow: '/' },
-      { userAgent: 'ClaudeBot',    allow: '/' },
-      { userAgent: 'PerplexityBot', allow: '/' },
-      { userAgent: 'Googlebot',    allow: '/' },
+      // AI crawlers: same disallows as *, explicit allow ensures they aren't blocked by blanket filters
+      { userAgent: 'GPTBot',        allow: '/', disallow: ['/account/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
+      { userAgent: 'ClaudeBot',     allow: '/', disallow: ['/account/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
+      { userAgent: 'PerplexityBot', allow: '/', disallow: ['/account/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
     ],
     sitemap: `${SITE}/sitemap.xml`,
   }
