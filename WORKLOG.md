@@ -2651,3 +2651,94 @@ Commits: storefront `bd7a145` | commerce `c6dc431`
 Payload rebuilt and restarted: `docker compose build payload && docker compose up -d payload`
 
 **Payload rebuild verified:** `GET /cms/api/product-media` returns 200 — collection live and accepting entries.
+
+---
+
+## §60 — Progressive Web App (PWA)
+
+**Commit:** storefront `c269189`
+
+**Icons:** Generated 192×192, 512×512, and 180×180 apple-touch PNG icons from `public/logo.webp` using `sharp`. Logo centered on dark (#0a0a0a) square canvas at 68% width (within maskable safe zone).
+
+**Manifest:** `src/app/manifest.ts` — Next.js built-in `MetadataRoute.Manifest`, no external package. Name: "Luxus Collection", short_name: "Luxus", `display: "standalone"`, `theme_color: "#c09530"`, `background_color: "#0a0a0a"`. Served at `/manifest.webmanifest` automatically.
+
+**Service Worker:** `public/sw.js`
+- `_next/static/*`: cache-first (immutable fingerprinted chunks), stored in `luxus-v1` cache
+- Navigation requests (`mode: "navigate"`): network-first, falls back to `/offline` page on failure
+- API calls and dynamic media: network-only (not cached)
+- Old caches pruned on activate
+
+**Offline page:** `src/app/offline/page.tsx` — styled Luxus Collection offline page with SVG wifi-off icon, brand gold color, and "Try Again" button (client component `RetryButton.tsx` for `window.location.reload()`).
+
+**Registration:** `src/instrumentation-client.ts` — registers `sw.js` on `window.load` using `navigator.serviceWorker.register`. Errors swallowed silently (non-blocking).
+
+**Headers:** `next.config.ts` — `/sw.js` gets `Cache-Control: no-cache, no-store, must-revalidate` and `Service-Worker-Allowed: /` so the worker can control all pages.
+
+**Layout:** `src/app/layout.tsx` — `icons` metadata updated to include `icon-192.png` and `apple-touch-icon.png` alongside existing CMS favicon.
+
+**Result:** Site is now PWA-installable on Android (Chrome "Add to Home Screen") and iOS (Safari "Add to Home Screen"). Users get a native app-like experience with offline fallback if connectivity drops.
+
+
+---
+
+## §61 — Payload CMS Migration Fix (product_media)
+
+**Problem:** After the §59 ProductMedia collection was added and Payload rebuilt, the `product_media` table and its `product_media_id` column on `payload_locked_documents_rels` were never created in Postgres. Payload was crash-looping with:
+
+```
+column payload_locked_documents__rels.product_media_id does not exist
+```
+
+**Root cause:** Running `docker compose build payload && docker compose up -d payload` rebuilds and runs the application but does NOT auto-apply new Payload migrations. A migration file was never generated for the `ProductMedia` collection.
+
+**Fix:** Applied the schema changes directly via psql (the auto-generated migration tried to recreate already-existing tables and failed):
+1. `CREATE TABLE product_media_spin_images` + `product_media` with all constraints and indexes
+2. `ALTER TABLE payload_locked_documents_rels ADD COLUMN product_media_id` + foreign key + index
+3. Deleted the bad auto-generated migration file, restarted Payload
+
+**Result:** CMS admin at `/cms/admin` returns 200 and `product-media` collection is live.
+
+No commit — schema applied directly to Postgres.
+
+---
+
+## §62 — Structured Data: priceCurrency Always Required
+
+**Problem:** Site audit flagged: "Field priceCurrency or priceSpecification.priceCurrency is required for a nested Offer" on contact-for-pricing products. In §49 we omitted both `price` and `priceCurrency` for these products to avoid showing a misleading $0.
+
+**Fix:** `src/app/product/[handle]/page.tsx` — `priceCurrency: 'USD'` is now always present on every `Offer`. Only `price` is conditional (omitted when `contact_for_pricing`). Google requires the currency field regardless of whether a price value is given.
+
+Commit: storefront `35d3a3e`
+
+---
+
+## §63 — Crawler Blocking: Account Pages + robots.ts Fix
+
+**Problem:** Site audit found `https://dev.luxus-collection.com/account/orders` being indexed. Three separate gaps:
+
+1. **robots.ts bug:** AI crawler rules (`GPTBot`, `ClaudeBot`, `PerplexityBot`) and `Googlebot` were listed with `allow: '/'` and **no disallow** — overriding the `*` rule's disallow list for those agents. Googlebot doesn't need an explicit rule at all.
+
+2. **noindex only on root `/account` page:** Sub-paths like `/account/orders` had no `noindex` tag. Same gap applied to `/checkout`, `/invoice`, `/offer`, `/order-confirmation`.
+
+3. **Broken link in SupportPage.tsx:** "Track Your Order" linked to `/account/orders` (a non-existent URL — account uses client-side tabs at `/account`). Crawlers followed this link and indexed the 404.
+
+**Fixes:**
+- `src/app/robots.ts` — AI bots now carry the same disallow list as `*`; Googlebot removed (follows `*` automatically)
+- `src/app/account/layout.tsx` (new) — `robots: noindex, nofollow` covering all `/account/*` sub-paths
+- Same layout added to `auth/`, `cart/`, `checkout/`, `invoice/`, `offer/`, `order-confirmation/` — 7 layouts total
+- `SupportPage.tsx` — `/account/orders` → `/account`
+
+Commit: storefront `d12b8bd`
+
+---
+
+## §64 — Sentry: Suppress TypeError:terminated
+
+**Problem:** Sentry (JAVASCRIPT-NEXTJS-3) flagged `TypeError: terminated` / `SocketError: other side closed` from Node.js undici. This is a transient network error — undici throws when a backend TCP/TLS connection is dropped mid-request (stale keep-alive pool entry, backend idle timeout, or a deployment restarting Medusa/Payload). Sentry itself tagged it `handled = yes` because our `.catch()` wrappers already handle it gracefully.
+
+**Fix:** `src/instrumentation.ts` — added `beforeSend` filter to drop events where `err.message === 'terminated'`, `err.message === 'other side closed'`, or `err.constructor.name === 'SocketError'`. All three are the same undici connection-drop seen from different angles.
+
+The client config (`sentry.client.config.ts`) already filtered client-side fetch errors; this brings the server config in line.
+
+Commit: storefront `2b0a18b`
+
