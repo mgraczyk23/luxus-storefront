@@ -67,22 +67,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Model pages — extract unique model slugs from attribute_values (with metadata fallback)
   const modelSlugs = new Set<string>()
   for (const p of publicProducts) {
-    const attrVals: any[] = p.attribute_values ?? []
+    const attrVals: any[] = Array.isArray(p.attribute_values) ? p.attribute_values : []
     const fromAttrs = attrVals
-      .filter((v: any) => v.attribute_type?.slug === 'model' && v.value)
+      .filter((v: any) => v?.attribute_type?.slug === 'model' && v.value != null)
       .map((v: any) => String(v.value).trim())
+      .filter(Boolean)
     if (fromAttrs.length > 0) {
       fromAttrs.forEach(m => modelSlugs.add(toSlug(m)))
-    } else if (p.metadata?.model) {
+    } else {
       // legacy metadata fallback
-      const raw = p.metadata.model
-      const names: string[] = (() => {
-        if (raw.startsWith('[')) {
-          try { return JSON.parse(raw) } catch { /* ignore */ }
-        }
-        if (raw.includes(',')) return raw.split(',').map((s: string) => s.trim())
-        return [raw]
-      })()
+      const raw = p.metadata?.model
+      if (typeof raw !== 'string' || !raw) continue
+      let names: string[]
+      if (raw.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(raw)
+          names = Array.isArray(parsed) ? parsed.map(String) : [raw]
+        } catch { names = [raw] }
+      } else if (raw.includes(',')) {
+        names = raw.split(',').map((s: string) => s.trim()).filter(Boolean)
+      } else {
+        names = [raw]
+      }
       names.filter(Boolean).forEach((m: string) => modelSlugs.add(toSlug(m)))
     }
   }
