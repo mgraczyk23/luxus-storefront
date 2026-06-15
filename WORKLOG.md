@@ -2492,3 +2492,78 @@ All were in error paths in production API routes and `CheckoutPage`. Error condi
 TypeScript passes clean after all changes.
 
 Commit: storefront `c0e93e4`
+
+## §56 — Sentry Error Monitoring (2026-06-15)
+
+Full Sentry integration wired across all error paths. Requires `NEXT_PUBLIC_SENTRY_DSN` (and optionally `SENTRY_AUTH_TOKEN` for source maps) to be added to Vercel env vars.
+
+### Files Created / Modified
+
+| File | Change |
+|---|---|
+| `sentry.client.config.ts` (project root) | New — client-side Sentry init with Session Replay on errors |
+| `src/instrumentation.ts` | Modified — added `onRequestError = Sentry.captureRequestError` for all unhandled server errors |
+| `src/instrumentation-client.ts` | Modified — imports client config, exports `onRouterTransitionStart` |
+| `src/app/global-error.tsx` | New — root layout error boundary, calls `captureException` on mount |
+
+### `captureException` Added to API Routes
+
+The 6 meaningful error paths that previously had `console.error` now call `Sentry.captureException` before returning the error response:
+
+| File | Errors tracked |
+|---|---|
+| `src/app/api/elavon/notify/route.ts` | Customer email failure |
+| `src/app/api/checkout/wire/route.ts` | Sales + customer email failure |
+| `src/app/api/checkout/offer/route.ts` | Sales email failure + customer email failure |
+| `src/app/api/offers/route.ts` | Medusa offer submit failure |
+
+### Coverage
+
+- **Server**: all unhandled App Router errors (RSC, route handlers, middleware) via `onRequestError`
+- **Client**: browser JS errors via SDK init in `instrumentation-client.ts`
+- **Layout crash**: root layout failure via `global-error.tsx` boundary
+- **Silent API failures**: 6 caught errors that would have been swallowed now captured
+- **Session Replay**: 100% of error sessions recorded, 0% of normal sessions
+
+Commit: storefront `718bb8f`
+
+## §57 — MCP Server: Full Implementation (2026-06-15)
+
+Luxus Collection MCP server fully implemented. Provides 8 public tools for AI agents (Claude, etc.) to query the storefront catalog. Backroom/private inventory is completely excluded from all responses.
+
+**Files:** `luxus-commerce/services/mcp-server/src/index.ts` (rewritten), `tsconfig.json` (moduleResolution), `package.json`/`package-lock.json` (added `@modelcontextprotocol/sdk`, `zod`), `docker-compose.yml`
+
+### Tools
+
+| Tool | Description |
+|---|---|
+| `search_products` | Keyword search across public catalog (max 50 results) |
+| `get_product` | Full product detail by URL handle |
+| `check_availability` | In-stock status and quantity for a product |
+| `list_brands` | All brands from Payload CMS |
+| `get_brand_products` | Public products for a specific brand |
+| `list_categories` | All Medusa product categories |
+| `list_articles` | Blog articles from Payload CMS posts |
+| `get_site_info` | Business info: contact, hours, address from site-settings global |
+
+### Security / Privacy
+
+All product tools filter on `metadata.is_backroom_hidden === 'true'`, `metadata.backroom === 'true'`, and `metadata.is_private_room === 'true'`. Matching products are excluded silently (returned as not found). Account pages, admin pages, and backroom routes are never referenced.
+
+Rate limiter: 60 req/min per IP, in-memory with 5-min pruning. Returns HTTP 429 when exceeded.
+
+### Transport
+
+`StreamableHTTPServerTransport` (stateless per-request mode) on `POST /mcp`. Health check at `GET /health`.
+
+### docker-compose Changes
+
+- Removed unused `DATABASE_URL` from mcp-server
+- Added `depends_on: medusa + payload (service_started)`
+- Added env vars: `MEDUSA_URL=http://medusa:9000`, `MEDUSA_PUBLISHABLE_KEY` (from server `.env`), `PAYLOAD_URL=http://payload:3000`
+
+### Required Setup Step
+
+Add `MEDUSA_PUBLISHABLE_KEY` to `/home/ubuntu/luxus-commerce/.env`. Value is the same as `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` in Vercel.
+
+Commit: commerce `d635e51`
