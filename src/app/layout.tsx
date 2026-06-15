@@ -46,9 +46,9 @@ export async function generateMetadata(): Promise<Metadata> {
       card: 'summary_large_image',
     },
     icons: {
-      icon:     faviconUrl,
+      icon:     [faviconUrl, { url: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
       shortcut: faviconUrl,
-      apple:    faviconUrl,
+      apple:    '/apple-touch-icon.png',
     },
     ...(semrush ? { other: { 'semrush-site-verification': semrush } } : {}),
   }
