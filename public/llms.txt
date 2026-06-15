@@ -1,0 +1,57 @@
+# Luxus Collection
+
+> Premium curated firearms dealer specializing in collectible and modern firearms. Licensed FFL dealer located in the United States. Inventory includes rare collectibles, modern sporting rifles, handguns, and accessories.
+
+## Shop
+
+- [All Products](https://luxus-collection.com/shop): Full product catalog
+- [Modern Firearms](https://luxus-collection.com/shop/modern-firearms): Current-production firearms
+- [Collectible Firearms](https://luxus-collection.com/shop/collectible-firearms): Vintage and rare collectibles
+- [Shop by Brand](https://luxus-collection.com/shop/brands): Browse by manufacturer
+- [Shop by Model](https://luxus-collection.com/shop/models): Browse by model
+
+## Product Pages
+
+Individual product pages are at `https://luxus-collection.com/product/[handle]`. Each page includes full specifications, condition, caliber, action type, price, and availability.
+
+## Resources
+
+- [Resources on Guns](https://luxus-collection.com/resources-on-guns): Brand histories, guides, and articles
+- [FAQ](https://luxus-collection.com/faq): Frequently asked questions about purchasing, FFL transfers, and shipping
+
+## Business
+
+- [About](https://luxus-collection.com/about): About Luxus Collection
+- [Contact](https://luxus-collection.com/contact): Contact and location
+- [Sell Your Gun](https://luxus-collection.com/sell-your-gun): Consignment and trade-in information
+
+## Policies
+
+- [Shipping Policy](https://luxus-collection.com/shipping): Shipping rates, FFL transfer requirements
+- [Privacy Policy](https://luxus-collection.com/privacy): Privacy policy
+- [Terms of Service](https://luxus-collection.com/terms): Terms of service
+
+## MCP Server (for AI Agents)
+
+A Model Context Protocol server is available for programmatic access to the public product catalog. It provides structured, filterable access to inventory, brands, categories, and site information.
+
+- Endpoint: `https://api.luxus-collection.com/mcp/mcp`
+- Transport: Streamable HTTP (POST)
+- Protocol: MCP 1.0 (JSON-RPC 2.0)
+
+### Available Tools
+
+- `search_products` — keyword search across public inventory
+- `get_product` — full product detail by URL handle
+- `check_availability` — real-time stock status
+- `list_brands` — all carried brands
+- `get_brand_products` — products filtered by brand
+- `list_categories` — product categories
+- `list_articles` — guides and articles
+- `get_site_info` — business contact, hours, and address
+
+Note: Backroom and private-room inventory is not accessible via the MCP server.
+
+## Sitemap
+
+https://luxus-collection.com/sitemap.xml
