@@ -128,20 +128,17 @@ export default async function ProductPage(
     category: primaryCat?.name || undefined,
     itemCondition: 'https://schema.org/NewCondition',
     additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
-    ...(product.price && !product.contact_for_pricing
-      ? {
-          offers: {
-            '@type': 'Offer',
-            url: `${SITE}/product/${product.handle}`,
-            priceCurrency: 'USD',
-            price: (product.price / 100).toFixed(2),
-            availability: inStock
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
-            seller: { '@type': 'Organization', name: 'Luxus Collection' },
-          },
-        }
-      : {}),
+    offers: {
+      '@type': 'Offer',
+      url: `${SITE}/product/${product.handle}`,
+      ...(product.price && !product.contact_for_pricing
+        ? { priceCurrency: 'USD', price: (product.price / 100).toFixed(2) }
+        : {}),
+      availability: inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      seller: { '@type': 'Organization', name: 'Luxus Collection' },
+    },
   }
 
   // BreadcrumbList for navigation path context
