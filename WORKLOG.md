@@ -2591,3 +2591,61 @@ Added `public/llms.txt` to the storefront — a plain-text file at `https://luxu
 `robots.txt` already explicitly allows GPTBot, ClaudeBot, and PerplexityBot.
 
 Commit: storefront `d666db7`
+
+## §59 — 3D / 360° Product Viewer (2026-06-15)
+
+Full product viewer added to PDP with three switchable modes: Photos (always), 360° spin, and 3D model. Tabs only appear when more than one mode is available — products with only standard photos are unchanged.
+
+### Payload CMS — `ProductMedia` collection
+
+New collection `product-media` in `luxus-commerce/services/payload/src/collections/ProductMedia.ts`:
+- `productHandle` — text, required, unique, indexed. Must match the `/product/[handle]` URL exactly.
+- `spinImages` — array of upload references to the `media` collection. Ordered; drag to reorder in admin.
+- `modelFile` — single upload reference to `media` collection. Accepts GLB/GLTF files.
+
+All files stored in existing S3 bucket (`luxus-collection-media/cms/`). No new storage required.
+
+### Storefront Components
+
+**`src/components/product/SpinViewer.tsx`**
+- Preloads all frames via `new Image()` before showing
+- Single `<img>` element with src swap on drag (no opacity stacking)
+- Mouse and touch drag support (`touchAction: none` prevents page scroll)
+- Subtle 6-frame auto-spin on load to signal interactivity
+- Drag hint disappears after first interaction; frame counter always visible
+- 360° badge in top-left
+
+**`src/components/product/ModelViewer.tsx`**
+- `<model-viewer>` web component via Google CDN (`model-viewer.min.js v4.0.0`)
+- Loaded via `next/script strategy="afterInteractive"` — no impact on page load
+- Features: orbit drag, pinch-to-zoom, auto-rotate, AR on mobile
+- Loading skeleton shown until script is ready
+- TypeScript custom element declaration included
+- 3D badge + control hint
+
+### PDP Integration
+
+**`src/app/product/[handle]/page.tsx`**
+- Added `getProductMedia(handle)` to the parallel `Promise.all` fetch
+- Passed as `productMedia` prop to `ProductDetailPage`
+
+**`src/app/product/[handle]/ProductDetailPage.tsx`**
+- `SpinViewer` and `ModelViewer` loaded via `next/dynamic` with `ssr: false`
+- `availableModes` array derived from what media exists: always includes `'photos'`; adds `'spin'` if spinImages present; adds `'3d'` if modelFile present
+- Tab bar renders above gallery only when `availableModes.length > 1`
+- Active tab: gold background; inactive: border button with hover state
+- Each mode renders in the existing sticky gallery column — no layout change
+
+### Payload lib (`src/lib/payload.ts`)
+- Added `ProductMediaDoc` type
+- Added `getProductMedia(handle)` — fetches by `productHandle` with `depth=1`
+
+### Workflow for adding media
+1. Payload CMS admin → **Product Media** → Create New
+2. Enter product handle (e.g. `colt-python-357`)
+3. Upload turntable spin images in order under **360° Spin Images**
+4. Optionally upload GLB file under **3D Model File**
+5. Save — tabs appear on the storefront immediately
+
+Commits: storefront `bd7a145` | commerce `c6dc431`
+Payload rebuilt and restarted: `docker compose build payload && docker compose up -d payload`
