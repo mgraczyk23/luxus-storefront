@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { getProducts, getProductTags } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getSiteSettings, getFeaturedPageText, getFeaturedClassifieds, getPageSeo } from "@/lib/payload"
+import { getSiteSettings, getFeaturedPageText, getPageSeo } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
 import FeaturedPage from "./FeaturedPage"
 
@@ -23,17 +23,15 @@ export async function generateMetadata(): Promise<Metadata> {
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,+metadata,*tags,*type"
 
 export default async function Page() {
-  const [settingsRes, textRes, classifiedsRes, tagsRes] = await Promise.allSettled([
+  const [settingsRes, textRes, tagsRes] = await Promise.allSettled([
     getSiteSettings(),
     getFeaturedPageText(),
-    getFeaturedClassifieds(),
     getProductTags(),
   ])
 
-  const settings    = settingsRes.status    === "fulfilled" ? settingsRes.value    : await getSiteSettings()
-  const text        = textRes.status        === "fulfilled" ? textRes.value        : {}
-  const classifieds = classifiedsRes.status === "fulfilled" ? classifiedsRes.value : []
-  const allTags     = tagsRes.status        === "fulfilled" ? tagsRes.value.product_tags : []
+  const settings = settingsRes.status === "fulfilled" ? settingsRes.value : await getSiteSettings()
+  const text     = textRes.status     === "fulfilled" ? textRes.value     : {}
+  const allTags  = tagsRes.status     === "fulfilled" ? tagsRes.value.product_tags : []
 
   // Find the "Featured" tag (case-insensitive)
   const featuredTag = allTags.find(t => t.value.toLowerCase() === "featured")
@@ -60,5 +58,5 @@ export default async function Page() {
 
   const products = merged.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
 
-  return <FeaturedPage settings={settings} text={text} products={products} classifieds={classifieds} />
+  return <FeaturedPage settings={settings} text={text} products={products} />
 }
