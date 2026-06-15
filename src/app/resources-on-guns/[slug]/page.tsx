@@ -1,6 +1,7 @@
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getBrand, getPostsByBrand, getResourcePages } from "@/lib/payload"
+import { getBrand, getPostsByBrand, getResourcePages, imageUrl } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import ResourcesBrandPage from "./ResourcesBrandPage"
 import type { Metadata } from "next"
 
@@ -38,9 +39,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const brand = await getBrand(slug).catch(() => null)
   const name = brand?.name ?? slug
+  const title = brand?.seoTitle ?? `${name} — Resources on Guns | Luxus Collection`
+  const description = brand?.seoDescription ?? brand?.tagline ?? brand?.description ?? `History, engineering, and craftsmanship of ${name} firearms.`
   return {
-    title: brand?.seoTitle ?? `${name} — Resources on Guns | Luxus Collection`,
-    description: brand?.seoDescription ?? brand?.tagline ?? brand?.description ?? `History, engineering, and craftsmanship of ${name} firearms.`,
+    title,
+    description,
+    ...ogMeta(title, description, imageUrl(brand?.heroImage ?? null)),
     alternates: { canonical: `/resources-on-guns/${slug}` },
   }
 }

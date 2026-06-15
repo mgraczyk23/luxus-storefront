@@ -2,6 +2,7 @@ import { Suspense } from "react"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 
@@ -9,9 +10,12 @@ export const revalidate = false
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.collectibleFirearms?.title || "Collectible Firearms"
+  const description = seo.collectibleFirearms?.description || "Browse collectible and vintage firearms curated by the Luxus Collection."
   return {
-    title:       seo.collectibleFirearms?.title       || "Collectible Firearms",
-    description: seo.collectibleFirearms?.description || "Browse collectible and vintage firearms curated by the Luxus Collection.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/shop/collectible-firearms' },
   }
 }

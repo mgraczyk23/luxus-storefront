@@ -1,14 +1,18 @@
 import { getProducts, getCollections } from "@/lib/api"
 import { getShopTileImages, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import ShopByDirectory from "../ShopByDirectory"
 import type { DirectoryItem } from "../ShopByDirectory"
 import type { Metadata } from "next"
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.collections?.title || "Shop by Collection"
+  const description = seo.collections?.description || "Browse all collections at the Luxus Collection."
   return {
-    title:       seo.collections?.title       || "Shop by Collection",
-    description: seo.collections?.description || "Browse all collections at the Luxus Collection.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/shop/collections' },
   }
 }

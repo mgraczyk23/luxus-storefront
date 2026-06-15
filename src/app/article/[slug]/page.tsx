@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { getPosts, getPost, getComments, getSiteSettings, parseLexical, imageUrl } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import { getLinkDictionary, injectLinks } from "@/lib/link-engine"
 import ArticlePage from "./ArticlePage"
 
@@ -21,9 +22,12 @@ export async function generateMetadata({
   const { slug } = await params
   const post = await getPost(slug)
   if (!post) return {}
+  const title = post.seoTitle ?? post.title
+  const description = post.seoDescription ?? post.excerpt ?? undefined
   return {
-    title: post.seoTitle ?? post.title,
-    description: post.seoDescription ?? post.excerpt,
+    title,
+    description,
+    ...ogMeta(title, description, imageUrl(post.featuredImage), 'article'),
     alternates: { canonical: `/article/${slug}` },
   }
 }

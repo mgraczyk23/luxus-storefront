@@ -3,6 +3,7 @@ import { notFound } from "next/navigation"
 import { getProduct, getProducts, getProductDetails, getProductSpecs } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getSiteSettings } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import ProductDetailPage from "./ProductDetailPage"
 import type { Metadata } from "next"
 
@@ -30,10 +31,12 @@ export async function generateMetadata(
     const mapped = mapMedusaProduct(p)
     const detailRes = await getProductDetails(p.id).catch(() => null)
     const detail = detailRes?.product_detail
+    const title = detail?.seo_meta_title || mapped.title
+    const description = detail?.seo_meta_description || mapped.short_description || mapped.overview?.slice(0, 160) || undefined
     return {
-      title: detail?.seo_meta_title || mapped.title,
-      description: detail?.seo_meta_description || mapped.short_description || mapped.overview?.slice(0, 160) || undefined,
-      openGraph: mapped.thumbnail ? { images: [mapped.thumbnail] } : undefined,
+      title,
+      description,
+      ...ogMeta(title, description, mapped.thumbnail),
       alternates: { canonical: `/product/${handle}` },
     }
   } catch {

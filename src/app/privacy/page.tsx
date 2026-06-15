@@ -1,12 +1,16 @@
 import { getPolicy, getSiteSettings, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import PolicyPage from "@/components/PolicyPage"
 import type { Metadata } from "next"
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.privacy?.title || "Privacy Policy"
+  const description = seo.privacy?.description || "Luxus Collection privacy policy: how we collect, use, and protect your information."
   return {
-    title:       seo.privacy?.title       || "Privacy Policy",
-    description: seo.privacy?.description || "Luxus Collection privacy policy: how we collect, use, and protect your information.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/privacy' },
   }
 }

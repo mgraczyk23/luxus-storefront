@@ -1,14 +1,18 @@
 import type { Metadata } from "next"
 import { getSiteSettings, getSupportPageText, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import SupportPage from "./SupportPage"
 
 export const revalidate = 300
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.support?.title || "Customer Support"
+  const description = seo.support?.description || "Reach Luxus Collection customer support — order help, FFL transfer guidance, returns, and more. Personal response guaranteed."
   return {
-    title:       seo.support?.title       || "Customer Support",
-    description: seo.support?.description || "Reach Luxus Collection customer support — order help, FFL transfer guidance, returns, and more. Personal response guaranteed.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/support' },
   }
 }

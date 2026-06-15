@@ -1,4 +1,5 @@
-import { getBrand, getResourcePage, getResourcePages } from "@/lib/payload"
+import { getBrand, getResourcePage, getResourcePages, imageUrl } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import ResourceArticlePage from "./ResourceArticlePage"
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
@@ -12,9 +13,12 @@ export async function generateMetadata({
   const page = await getResourcePage(articleSlug).catch(() => null)
   if (!page) return {}
   const brandName = typeof page.brand === 'object' ? page.brand.name : ''
+  const title = page.seoTitle ?? `${page.title} | ${brandName} | Resources on Guns | Luxus Collection`
+  const description = page.seoDescription ?? page.excerpt ?? undefined
   return {
-    title: page.seoTitle ?? `${page.title} | ${brandName} | Resources on Guns | Luxus Collection`,
-    description: page.seoDescription ?? page.excerpt ?? undefined,
+    title,
+    description,
+    ...ogMeta(title, description, imageUrl(page.featuredImage), 'article'),
     alternates: { canonical: `/resources-on-guns/${slug}/${articleSlug}` },
   }
 }

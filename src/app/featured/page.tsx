@@ -2,15 +2,19 @@ import type { Metadata } from "next"
 import { getProducts, getProductTags } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getSiteSettings, getFeaturedPageText, getFeaturedClassifieds, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import FeaturedPage from "./FeaturedPage"
 
 export const revalidate = 300
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.featured?.title || "Featured Collection"
+  const description = seo.featured?.description || "Hand-selected pieces from the Luxus Collection — exceptional firearms chosen for provenance, craftsmanship, and rarity."
   return {
-    title:       seo.featured?.title       || "Featured Collection",
-    description: seo.featured?.description || "Hand-selected pieces from the Luxus Collection — exceptional firearms chosen for provenance, craftsmanship, and rarity.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/featured' },
   }
 }

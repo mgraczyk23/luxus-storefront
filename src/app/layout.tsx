@@ -40,6 +40,10 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       siteName: "Luxus Collection",
       type: "website",
+      images: ['/logo.webp'],
+    },
+    twitter: {
+      card: 'summary_large_image',
     },
     icons: {
       icon:     faviconUrl,

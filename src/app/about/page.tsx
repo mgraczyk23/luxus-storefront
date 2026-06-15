@@ -1,12 +1,16 @@
 import type { Metadata } from "next"
 import { getAboutPageImages, getAboutPageText, getBrands, getSiteSettings, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import AboutPage from "./AboutPage"
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.about?.title || "About Us"
+  const description = seo.about?.description || "Luxus Collection — a boutique destination for the serious collector. Our story, philosophy, and the standard behind every piece we carry."
   return {
-    title:       seo.about?.title       || "About Us",
-    description: seo.about?.description || "Luxus Collection — a boutique destination for the serious collector. Our story, philosophy, and the standard behind every piece we carry.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/about' },
   }
 }

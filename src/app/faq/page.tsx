@@ -1,14 +1,18 @@
 import type { Metadata } from "next"
 import { getFaqItems, getSiteSettings, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import FAQPage from "./FAQPage"
 
 export const revalidate = 300
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.faq?.title || "FAQ"
+  const description = seo.faq?.description || "Frequently asked questions about ordering, FFL transfers, shipping, payments, and consignment at Luxus Collection."
   return {
-    title:       seo.faq?.title       || "FAQ",
-    description: seo.faq?.description || "Frequently asked questions about ordering, FFL transfers, shipping, payments, and consignment at Luxus Collection.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/faq' },
   }
 }

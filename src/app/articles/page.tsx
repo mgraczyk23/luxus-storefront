@@ -1,12 +1,16 @@
 import type { Metadata } from "next"
 import { getPosts, getPageSeo } from "@/lib/payload"
+import { ogMeta } from "@/lib/og"
 import ArticlesPage from "./ArticlesPage"
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
+  const title = seo.articles?.title || "Articles"
+  const description = seo.articles?.description || "Long-form writing on the craft, history, and culture of fine firearms — for the collector who wants to understand what they own."
   return {
-    title:       seo.articles?.title       || "Articles",
-    description: seo.articles?.description || "Long-form writing on the craft, history, and culture of fine firearms — for the collector who wants to understand what they own.",
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: '/articles' },
   }
 }

@@ -4,6 +4,7 @@ import { getProducts, getCategories } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
+import { ogMeta } from "@/lib/og"
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
@@ -39,9 +40,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const products = await getAllProducts()
     name = getCategoryName(slug, products) ?? slug
   } catch {}
+  const title = `${name} — Luxus Collection`
+  const description = `Browse ${name} firearms at the Luxus Collection.`
   return {
-    title: `${name} — Luxus Collection`,
-    description: `Browse ${name} firearms at the Luxus Collection.`,
+    title,
+    description,
+    ...ogMeta(title, description),
     alternates: { canonical: `/category/${slug}` },
   }
 }
