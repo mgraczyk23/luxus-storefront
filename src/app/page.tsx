@@ -3,6 +3,7 @@ import { getProducts, getCollections, getCategories, getProductTags } from "@/li
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getPosts, getHeroSlides, getShopTileImages, imageUrl, getSiteSettings, getPageSeo } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
+import { toSlug } from "@/lib/slug"
 import HomePage from "@/components/home/HomePage"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -82,10 +83,6 @@ export default async function Home() {
       }
     }
   }
-
-  const toSlug = (s: string) => s.toLowerCase()
-    .replace(/\s*&\s*/g, '-').replace(/\s+and\s+/g, '-')
-    .replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
 
   const brands = Object.entries(brandCountMap)
     .sort((a, b) => b[1] - a[1])

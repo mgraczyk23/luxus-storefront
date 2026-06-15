@@ -1,21 +1,11 @@
 import type { MetadataRoute } from 'next'
 import { getProducts, getCategories, getCollections } from '@/lib/api'
 import { getBrands, getPosts, getAllResourcePagesForSearch } from '@/lib/payload'
+import { toSlug } from '@/lib/slug'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
 const url  = (path: string) => `${SITE}${path}`
 const now  = new Date()
-
-function toSlug(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/&amp;/g, 'and')
-    .replace(/\s*&\s*/g, '-')
-    .replace(/\s+and\s+/g, '-')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: url('/'),                          changeFrequency: 'weekly',  priority: 1.0, lastModified: now },

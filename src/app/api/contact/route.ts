@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { EMAIL_FROM } from '@/lib/email-constants'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
-const FROM = 'Luxus Collection <noreply@luxus-collection.com>'
 
 const MAILBOXES: Record<string, string> = {
   info:    'info@luxus-collection.com',
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to, reply_to: fields.email, subject: subject ?? `New inquiry from ${fields.firstName ?? ''} ${fields.lastName ?? ''}`.trim(), html }),
+    body: JSON.stringify({ from: EMAIL_FROM, to, reply_to: fields.email, subject: subject ?? `New inquiry from ${fields.firstName ?? ''} ${fields.lastName ?? ''}`.trim(), html }),
   })
 
   if (!res.ok) return NextResponse.json({ error: 'Send failed' }, { status: 502 })

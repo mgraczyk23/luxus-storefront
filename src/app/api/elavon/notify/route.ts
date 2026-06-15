@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { EMAIL_FROM, EMAIL_SALES } from '@/lib/email-constants'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
-const FROM = 'Luxus Collection <noreply@luxus-collection.com>'
-const SALES = 'sales@luxus-collection.com'
 
 type OrderItem = { title: string; quantity: number; price: number }
 
@@ -69,7 +68,7 @@ async function send(to: string, subject: string, html: string) {
   return fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to, reply_to: SALES, subject, html }),
+    body: JSON.stringify({ from: EMAIL_FROM, to, reply_to: EMAIL_SALES, subject, html }),
   })
 }
 
@@ -128,7 +127,7 @@ export async function POST(req: NextRequest) {
     <div style="padding:28px 28px 8px">
       <h2 style="font-size:24px;font-weight:400;color:#1a1a1a;margin:0 0 8px;font-family:Georgia,serif">Order Confirmed</h2>
       <p style="font-size:13px;color:#555;font-family:Arial,sans-serif;margin:0 0 4px">Thank you, ${body.firstName.replace(/</g, '&lt;')}. Your payment has been approved and your order is confirmed.</p>
-      <p style="font-size:12px;color:#9e9994;font-family:Arial,sans-serif;margin:0 0 24px">Questions? Reply to this email or contact us at <a href="mailto:${SALES}" style="color:#c9a96e">${SALES}</a></p>
+      <p style="font-size:12px;color:#9e9994;font-family:Arial,sans-serif;margin:0 0 24px">Questions? Reply to this email or contact us at <a href="mailto:${EMAIL_SALES}" style="color:#c9a96e">${EMAIL_SALES}</a></p>
     </div>
     <table style="width:100%;border-collapse:collapse">
       <tr>
@@ -147,16 +146,12 @@ export async function POST(req: NextRequest) {
     </div>`)
 
   const [salesRes, customerRes] = await Promise.all([
-    send(SALES, `New Order ${body.orderRef} — ${body.firstName} ${body.lastName} — ${fmt(body.amount)}`, salesHtml),
+    send(EMAIL_SALES, `New Order ${body.orderRef} — ${body.firstName} ${body.lastName} — ${fmt(body.amount)}`, salesHtml),
     send(body.email, `Order Confirmed — ${body.orderRef}`, customerHtml),
   ])
 
   if (!salesRes.ok) {
-    console.error('[elavon/notify] sales email failed:', await salesRes.text())
     return NextResponse.json({ error: 'Email send failed' }, { status: 502 })
-  }
-  if (!customerRes.ok) {
-    console.error('[elavon/notify] customer email failed:', await customerRes.text())
   }
 
   return NextResponse.json({ ok: true })

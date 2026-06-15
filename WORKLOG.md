@@ -2327,3 +2327,116 @@ Restored all 22 occurrences to `"force-cache"` via sed. TypeScript passes clean.
 Reverted the `notFound()` security guard on `/product/[handle]` — backroom items accessible via their public slug again (user decision, pending management review on full backroom security posture).
 
 Commit: storefront `24e11bf`
+
+---
+
+## 2026-06-15 — SEO Audit Fixes
+
+## §49 — Schema.org Product Offers Fix (2026-06-15)
+
+### Problem
+SEO site audit flagged: "A value for the aggregateRating or offers or review field is required" on product pages where `contact_for_pricing: true`. The `offers` block was wrapped in a conditional that excluded it entirely when no price existed, leaving those Product schema entries invalid per Google's spec.
+
+### Fix
+`src/app/product/[handle]/page.tsx` — `offers` is now always emitted. For contact-for-pricing products, `priceCurrency` and `price` are omitted (no fabricated $0), but `availability`, `url`, and `seller` are always present. This satisfies Google's requirement for at least one of `aggregateRating`, `offers`, or `review`.
+
+Commit: storefront `91839d4`
+
+---
+
+## §50 — Sitemap Completeness + Auto-Expansion (2026-06-15)
+
+### Problem
+Several routes were absent from the sitemap: `/shop/models`, `/shop/modern-firearms`, `/shop/collectible-firearms`, `/resources-on-guns`, all `/shop/model/[slug]` pages, brand hub pages, and resource article pages. The sitemap also didn't auto-update as new products/brands/models/articles were added to the CMS.
+
+### Fix
+Full rewrite of `src/app/sitemap.ts`. The file now fetches live data at build time and generates all URLs dynamically.
+
+**Static pages added:** `/shop/models`, `/shop/modern-firearms`, `/shop/collectible-firearms`, `/resources-on-guns`
+
+**Dynamic sections added:**
+- `/shop/model/[slug]` — extracted from product `attribute_values` where `attribute_type.slug === 'model'`, with metadata string fallback. Backroom products excluded. `toSlug()` applied to deduplicate case variants.
+- `/resources-on-guns/[slug]` — all brands with `showInHub: true`
+- `/resources-on-guns/[slug]/[articleSlug]` — all published resource articles via `getAllResourcePagesForSearch()`
+
+Product fetch expanded to include `+attribute_values,*attribute_values.attribute_type`.
+
+**Permanently excluded (no code needed):** Admin, account, auth, cart, backroom/private, invoice.
+
+**Crash fix (follow-up):** Metadata `model` values can be boolean/number, not strings. `typeof raw !== 'string'` guard added before `.startsWith()`. Build was failing with `TypeError: t.startsWith is not a function`.
+
+Commits: storefront `7817b3d`, `f4fa4f4`
+
+---
+
+## §51 — Open Graph + X Card Metadata (2026-06-15)
+
+### Problem
+No pages had Open Graph or Twitter Card metadata. Social link previews were blank — no image, title, or description.
+
+### Implementation
+Created `src/lib/og.ts` — `ogMeta(title, description?, image?, type?)` helper returns `{ openGraph, twitter }` with `/logo.webp` fallback image.
+
+Root layout (`layout.tsx`) updated with OG image default and `twitter: { card: 'summary_large_image' }` — pages that set no OG inherit these.
+
+**Image strategy by page type:**
+- Products → product thumbnail (fallback: logo)
+- Blog articles (`/article/[slug]`) → `featuredImage` (type: 'article')
+- Resources-on-guns brand pages → `brand.heroImage` (fallback: logo)
+- Resources-on-guns articles → `page.featuredImage` (type: 'article')
+- All other public pages → `/logo.webp`
+
+**Excluded from OG entirely:** Account, auth, cart, invoice, admin, private/backroom pages.
+
+27 page files updated. Pattern: extract `title`/`description` variables, spread `...ogMeta(title, description)` into metadata return object.
+
+Commits: storefront `bfba311` (27 files), `b211479` (home page)
+
+---
+
+## §52 — Account / Auth / Cart Meta + noindex (2026-06-15)
+
+### Problem
+`/account`, `/auth`, `/cart` had no `robots` directive. Some crawlers ignore `robots.txt` and would index these pages with weak meta.
+
+### Fix
+Added `robots: "noindex, nofollow"` to all three. Titles updated to include brand name:
+- `/account` → "My Account | Luxus Collection"
+- `/auth` → "Sign In | Luxus Collection"  
+- `/cart` → "Your Cart | Luxus Collection"
+
+Commit: storefront `cec5b21`
+
+---
+
+## §53 — Featured Page: Classifieds Section Removed (2026-06-15)
+
+### Decision
+Classifieds deferred to a future phase. The "Featured Classifieds" section and waitlist CTA removed from the Featured page entirely.
+
+**Removed from `FeaturedPage.tsx`:** `ClassifiedCard` (~70 lines), `CONDITION_LABELS`, `classifieds` prop, `FeaturedClassifiedItem` import, CMS keys (`classifiedsHeadline`, `classifiedsIntro`, `classifiedsBadge`), full classifieds JSX section + divider.
+
+**Removed from `featured/page.tsx`:** `getFeaturedClassifieds` import, fetch from `Promise.allSettled`, `classifieds` variable and prop.
+
+Commit: storefront `2eded43`
+
+---
+
+## §54 — Model Page Duplicate URL Fix (2026-06-15)
+
+### Problem
+SEO audit flagged `/shop/model/p220` and `/shop/model/P220` as two distinct pages. The capital-P URL originated from `ResourcesBrandPage.tsx`, which built links as `/shop/model/${series.productHandle}` using the raw CMS value without slug normalization.
+
+### Fix — Source (`ResourcesBrandPage.tsx`)
+Added `toSlug()` function. All model page links now built as `/shop/model/${toSlug(series.productHandle!)}`.
+
+### Fix — Destination (`src/app/shop/model/[slug]/page.tsx`)
+- Page component: if `toSlug(slug) !== slug`, `redirect()` to the canonical lowercase URL immediately
+- `generateMetadata`: canonical `alternates.canonical` always uses `toSlug(slug)` (normalized form)
+- Import: added `redirect` from `"next/navigation"`
+
+Any mixed-case URL from old bookmarks or bad CMS data now 307-redirects to the canonical lowercase version.
+
+Commit: storefront `2212d95`
+
+Commit: storefront `24e11bf`

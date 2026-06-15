@@ -263,8 +263,7 @@ export default function CheckoutPage() {
         }
 
         if (!cancelled) setMedusaCart(appliedCart)
-      } catch (err) {
-        console.error('[checkout] cart init failed:', err)
+      } catch {
       } finally {
         if (!cancelled) setMedusaCartLoading(false)
       }

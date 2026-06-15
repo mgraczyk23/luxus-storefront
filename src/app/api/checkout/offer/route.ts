@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSiteSettings } from '@/lib/payload'
 import { fetchRestrictions, checkState } from '@/lib/state-restrictions'
+import { EMAIL_FROM, EMAIL_SALES } from '@/lib/email-constants'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
-const FROM  = 'Luxus Collection <noreply@luxus-collection.com>'
-const SALES = 'sales@luxus-collection.com'
 const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? 'https://api.luxus-collection.com'
 const PK         = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ''
 
@@ -50,7 +49,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   return fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: FROM, to, reply_to: to === SALES ? undefined : SALES, subject, html }),
+    body: JSON.stringify({ from: EMAIL_FROM, to, reply_to: to === EMAIL_SALES ? undefined : EMAIL_SALES, subject, html }),
   })
 }
 
@@ -174,20 +173,16 @@ export async function POST(req: NextRequest) {
     ${fflSection}
     ${itemHtml}
     <div style="padding:0 28px 28px">
-      <p style="font-size:11px;color:#9e9994;font-family:Arial,sans-serif;line-height:1.7;margin:0">Questions? Contact us at <a href="mailto:${SALES}" style="color:#c9a96e">${SALES}</a></p>
+      <p style="font-size:11px;color:#9e9994;font-family:Arial,sans-serif;line-height:1.7;margin:0">Questions? Contact us at <a href="mailto:${EMAIL_SALES}" style="color:#c9a96e">${EMAIL_SALES}</a></p>
     </div>`)
 
   const [salesRes, customerRes] = await Promise.all([
-    sendEmail(SALES, `Offer Checkout ${orderRef} — ${body.firstName} ${body.lastName} — ${fmt(amount)}`, salesHtml),
+    sendEmail(EMAIL_SALES, `Offer Checkout ${orderRef} — ${body.firstName} ${body.lastName} — ${fmt(amount)}`, salesHtml),
     sendEmail(body.email, `Checkout Confirmed — ${offer.product_title} — ${orderRef}`, customerHtml),
   ])
 
   if (!salesRes.ok) {
-    console.error('[checkout/offer] sales email failed:', await salesRes.text())
     return NextResponse.json({ error: 'Email send failed' }, { status: 502 })
-  }
-  if (!customerRes.ok) {
-    console.error('[checkout/offer] customer email failed:', await customerRes.text())
   }
 
   return NextResponse.json({ ok: true, orderRef })

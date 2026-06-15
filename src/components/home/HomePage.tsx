@@ -10,6 +10,7 @@ import type { MappedProduct } from '@/lib/medusa'
 import type { HeroSlidesData } from '@/lib/payload'
 import type { GunBrokerListing } from '@/lib/gunbroker'
 import HeroSection from './HeroSection'
+import { toSlug } from '@/lib/slug'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
 
@@ -24,17 +25,6 @@ type HeroProduct = {
 }
 
 type ShopItem = { id: string; name: string; handle?: string; imageUrl?: string }
-
-function toSlug(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/&amp;/g, 'and')
-    .replace(/\s*&\s*/g, '-')
-    .replace(/\s+and\s+/g, '-')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 type Auction = GunBrokerListing
 

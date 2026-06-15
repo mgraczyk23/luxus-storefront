@@ -53,9 +53,9 @@ function categoriesToFirearmTypes(categories: string[]): Set<string> {
 
 const FIREARM_LABELS: Record<string, string> = { handgun: 'handguns', rifle: 'rifles', shotgun: 'shotguns' }
 
-function buildWarning(stateCode: string, limit: number | null, firearamLabel: string): string {
+function buildWarning(stateCode: string, limit: number | null, firearmLabel: string): string {
   if (limit !== null) {
-    return `${stateCode} limits magazine capacity to ${limit} rounds${firearamLabel}. This firearm will ship without its magazines. Contact us at sales@luxus-collection.com if you have any questions before ordering.`
+    return `${stateCode} limits magazine capacity to ${limit} rounds${firearmLabel}. This firearm will ship without its magazines. Contact us at sales@luxus-collection.com if you have any questions before ordering.`
   }
   return `${stateCode} restricts high-capacity magazines. This firearm will ship without its magazines. Contact us at sales@luxus-collection.com if you have any questions before ordering.`
 }

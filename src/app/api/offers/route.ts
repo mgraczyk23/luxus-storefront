@@ -51,7 +51,6 @@ export async function POST(req: NextRequest) {
 
   if (!medusaRes.ok) {
     const err = await medusaRes.json().catch(() => ({}))
-    console.error('[offer] Medusa error', medusaRes.status, err)
     return NextResponse.json(
       { error: (err as any).error ?? 'Failed to submit offer' },
       { status: medusaRes.status }

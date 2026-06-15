@@ -5,20 +5,10 @@ import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 import { ogMeta } from "@/lib/og"
+import { toSlug } from "@/lib/slug"
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
-
-function toSlug(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/&amp;/g, 'and')
-    .replace(/\s*&\s*/g, '-')
-    .replace(/\s+and\s+/g, '-')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 async function getAllProducts() {
   const first = await getProducts({ limit: String(PAGE_SIZE), offset: "0", fields: PRODUCT_FIELDS })

@@ -2,6 +2,7 @@ import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getBrands, imageUrl, getPageSeo } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
+import { toSlug } from "@/lib/slug"
 import ShopByDirectory from "../ShopByDirectory"
 import type { DirectoryItem } from "../ShopByDirectory"
 import type { Metadata } from "next"
@@ -19,17 +20,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export const revalidate = false
-
-function toSlug(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/&amp;/g, 'and')
-    .replace(/\s*&\s*/g, '-')
-    .replace(/\s+and\s+/g, '-')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-}
 
 export default async function BrandsDirectory() {
   const [rawRes, payloadBrandsRes] = await Promise.allSettled([

@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
 
   const data = await res.json().catch(() => ({ error: 'Invalid response from payment server' }))
   if (!res.ok || data.error) {
-    console.error('[elavon/finalize] Medusa error:', data.error)
     return NextResponse.json({ error: data.error ?? 'Could not complete order' }, { status: 500 })
   }
 

@@ -13,10 +13,7 @@ import {
   type PayloadCatalog, type LexNode, type LexInline,
 } from '@/lib/payload'
 import type { MappedProduct } from '@/lib/medusa'
-
-function toSlug(str: string) {
-  return str.toLowerCase().replace(/&amp;/g,'and').replace(/\s*&\s*/g,'-').replace(/\s+and\s+/g,'-').replace(/[^a-z0-9]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')
-}
+import { toSlug } from '@/lib/slug'
 
 /* ── Lexical inline renderer ─────────────────────────────────────────────── */
 
