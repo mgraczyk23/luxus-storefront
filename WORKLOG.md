@@ -2649,3 +2649,5 @@ All files stored in existing S3 bucket (`luxus-collection-media/cms/`). No new s
 
 Commits: storefront `bd7a145` | commerce `c6dc431`
 Payload rebuilt and restarted: `docker compose build payload && docker compose up -d payload`
+
+**Payload rebuild verified:** `GET /cms/api/product-media` returns 200 — collection live and accepting entries.
