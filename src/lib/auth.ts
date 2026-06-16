@@ -1,3 +1,5 @@
+import { safeSet } from '@/lib/safe-storage'
+
 const BACKEND = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL ?? "https://api.luxus-collection.com"
 const PK      = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY ?? ""
 
@@ -163,11 +165,11 @@ export function toggleWishlist(item: WishlistItem): boolean {
   const idx = list.findIndex(i => i.handle === item.handle)
   if (idx >= 0) {
     list.splice(idx, 1)
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
+    safeSet(WISHLIST_KEY, JSON.stringify(list))
     return false
   } else {
     list.unshift(item)
-    localStorage.setItem(WISHLIST_KEY, JSON.stringify(list))
+    safeSet(WISHLIST_KEY, JSON.stringify(list))
     return true
   }
 }

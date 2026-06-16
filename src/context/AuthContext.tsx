@@ -5,6 +5,7 @@ import {
   authSignIn, authRegister, createCustomerProfile, getCustomer,
   updateCustomer, type LxsCustomer,
 } from '@/lib/auth'
+import { safeGet, safeSet, safeRemove } from '@/lib/safe-storage'
 
 const TOKEN_KEY = "lxs_auth_token"
 
@@ -44,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       klaviyoIdentify(c)
     } else {
       // Token expired or invalid — clear it
-      localStorage.removeItem(TOKEN_KEY)
+      safeRemove(TOKEN_KEY)
       setToken(null)
       setCustomer(null)
     }
@@ -52,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Hydrate from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem(TOKEN_KEY)
+    const stored = safeGet(TOKEN_KEY)
     if (stored) {
       setToken(stored)
       loadCustomer(stored).finally(() => setIsLoading(false))
@@ -63,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     const t = await authSignIn(email, password)
-    localStorage.setItem(TOKEN_KEY, t)
+    safeSet(TOKEN_KEY, t)
     setToken(t)
     const c = await getCustomer(t)
     setCustomer(c)
@@ -71,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signOut = () => {
-    localStorage.removeItem(TOKEN_KEY)
+    safeRemove(TOKEN_KEY)
     setToken(null)
     setCustomer(null)
   }

@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import type { MappedProduct } from '@/lib/medusa'
+import { safeGet, safeSet } from '@/lib/safe-storage'
 
 const CART_KEY = 'lxs_cart'
 
@@ -31,14 +32,14 @@ const CartContext = createContext<CartContextType | null>(null)
 function readCart(): CartItem[] {
   if (typeof window === 'undefined') return []
   try {
-    return JSON.parse(localStorage.getItem(CART_KEY) ?? '[]')
+    return JSON.parse(safeGet(CART_KEY) ?? '[]')
   } catch {
     return []
   }
 }
 
 function writeCart(items: CartItem[]) {
-  localStorage.setItem(CART_KEY, JSON.stringify(items))
+  safeSet(CART_KEY, JSON.stringify(items))
 }
 
 export function CartProvider({ children }: { children: ReactNode }) {

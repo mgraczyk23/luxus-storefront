@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { safeGet, safeSet } from '@/lib/safe-storage'
 
 const HEIGHT = 36
 
@@ -14,14 +15,14 @@ export default function AnnouncementBar({ message, link }: {
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
-    if (localStorage.getItem('ann-dismissed') === message) {
+    if (safeGet('ann-dismissed') === message) {
       setVisible(false)
       document.documentElement.style.setProperty('--ann-h', '0px')
     }
   }, [message])
 
   const dismiss = () => {
-    localStorage.setItem('ann-dismissed', message)
+    safeSet('ann-dismissed', message)
     setVisible(false)
     document.documentElement.style.setProperty('--ann-h', '0px')
   }
