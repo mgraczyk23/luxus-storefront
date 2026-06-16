@@ -132,16 +132,21 @@ export default async function ProductPage(
     category: primaryCat?.name || undefined,
     itemCondition: 'https://schema.org/NewCondition',
     additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
-    offers: {
-      '@type': 'Offer',
-      url: `${SITE}/product/${product.handle}`,
-      priceCurrency: 'USD',
-      price: product.price ? (product.price / 100).toFixed(2) : '0',
-      availability: inStock
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-      seller: { '@type': 'Organization', name: 'Luxus Collection' },
-    },
+    // Omit offers entirely for contact-for-pricing products — price must not
+    // appear in schema. Google will show a "recommended field missing" notice
+    // but the Product schema remains valid without it.
+    ...(!product.contact_for_pricing && product.price ? {
+      offers: {
+        '@type': 'Offer',
+        url: `${SITE}/product/${product.handle}`,
+        priceCurrency: 'USD',
+        price: (product.price / 100).toFixed(2),
+        availability: inStock
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        seller: { '@type': 'Organization', name: 'Luxus Collection' },
+      },
+    } : {}),
   }
 
   // BreadcrumbList for navigation path context
