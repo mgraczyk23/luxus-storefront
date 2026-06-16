@@ -2742,3 +2742,69 @@ The client config (`sentry.client.config.ts`) already filtered client-side fetch
 
 Commit: storefront `2b0a18b`
 
+
+---
+
+## §65 — Safari iOS Privacy Notice: localStorage Guards + Skip SW on Safari
+
+**Problem:** iOS Safari users with "Advanced Tracking and Fingerprinting Protection" enabled (or in Private Browsing mode) saw a banner: "If this page is not displaying as expected, you can reduce advanced privacy protections which may resolve issues." Two root causes:
+
+1. **Service worker registration** — iOS Safari 17+ shows the privacy notice whenever a service worker registers and accesses the Cache API. Safari treats it as a potential tracking vector. Safari also doesn't support the PWA install prompt anyway, so the SW provides no benefit there.
+
+2. **Unguarded `localStorage` calls** — Six places across `AuthContext`, `CartContext`, `AnnouncementBar`, and `auth.ts` wishlist functions called `localStorage.getItem/setItem/removeItem` directly without try/catch. In Safari private browsing these throw `SecurityError`, breaking those components silently.
+
+**Fixes:**
+- `src/lib/safe-storage.ts` (new) — `safeGet`, `safeSet`, `safeRemove` wrappers that catch and ignore `SecurityError`
+- `src/context/AuthContext.tsx` — all four direct `localStorage` calls replaced with safe wrappers
+- `src/context/CartContext.tsx` — `writeCart()` now uses `safeSet`
+- `src/components/AnnouncementBar.tsx` — both localStorage calls replaced
+- `src/lib/auth.ts` — wishlist `setItem` calls replaced
+- `src/instrumentation-client.ts` — SW registration now skipped when UA matches Safari (detected via `!/Chrome|CriOS|FxiOS|EdgA/.test(ua)`)
+
+Commit: storefront `9ae3a59`
+
+---
+
+## §66 — Cookie Consent Banner (Gate Analytics Scripts)
+
+**Problem:** After the Safari SW fix, the privacy notice persisted because Klaviyo (`static.klaviyo.com/onsite/js/klaviyo.js`) and Google Analytics 4 were loading unconditionally on every page. Safari's ITP specifically identifies these as cross-site trackers. No code change can suppress Apple's privacy notice while those scripts load freely.
+
+**Fix:** New `ConsentBanner` component gates all three analytics scripts (GA4, Klaviyo, PostHog) behind explicit user acceptance.
+
+**`src/components/ConsentBanner.tsx` (new):**
+- Client component — reads `lxs_consent` from `safeGet` on mount
+- If no prior decision: renders a fixed bottom bar ("We use analytics cookies…" + Decline / Accept buttons)
+- On Accept: `safeSet('lxs_consent', 'accepted')`, renders `<Script>` tags for GA4 + Klaviyo + PostHog
+- On Decline: `safeSet('lxs_consent', 'declined')`, no scripts ever load
+- Choice is remembered; banner never shows again after a decision
+- `<Script>` tags use `strategy="afterInteractive"` (same as before)
+
+**`src/app/layout.tsx`:** Removed direct `<Script>` blocks for GA4, Klaviyo, PostHog. Replaced with `<ConsentBanner gaId={gaId} klaviyoId={klaviyoId} phKey={phKey} />`.
+
+Result: first-time visitors and Safari users who decline see no tracking scripts load → privacy notice gone. Returning visitors who accepted see analytics fire normally on page load.
+
+Commit: storefront `bcc43b5`
+
+---
+
+## §67 — Schema.org Product JSON-LD: price Field Fixes
+
+Multiple iterations to get product structured data correct:
+
+**Round 1 — Always include price for priced products** (`74c094a`):
+Removed the `!product.contact_for_pricing` condition that was blocking price from the Offer even when the product had a real price in Medusa. Google requires `price` on every Offer. Products with `contact_for_pricing: true` but a real price stored now emit that price in schema.
+
+**Round 2 — Use "0" for truly no-price products** (`8a17f81`):
+For products with `product.price === null`, changed from omitting `price` (which causes a Google ERROR) to `price: "0"` as a sentinel (Google accepts 0, and firearms don't appear in Google Shopping). This was superseded immediately by Round 3.
+
+**Round 3 — Omit offers entirely for contact-for-pricing products** (`554d3c9`):
+User confirmed: price must not appear in schema at all for contact-for-pricing products regardless of what's stored in Medusa. Offers block is now only emitted when `!product.contact_for_pricing && product.price`. Google shows a "recommended field missing" notice (not an error) for those products — acceptable since they can't be purchased online anyway.
+
+**Round 4 — Fix double-division bug** (`7ac14be`):
+Products with prices were showing 1/100th of the correct price in schema ($45,000 showing as $450). Root cause: `mapProduct()` in `src/lib/medusa.ts` already divides Medusa's cent values by 100 before storing in `product.price`. The JSON-LD was then dividing by 100 again. Fix: `product.price.toFixed(2)` instead of `(product.price / 100).toFixed(2)`.
+
+**Final state:**
+- Regular priced product → `offers` with correct dollar price
+- Contact-for-pricing product → no `offers` block, no price anywhere in schema
+- Product with no price set → no `offers` block
+
