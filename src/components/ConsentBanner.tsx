@@ -51,21 +51,23 @@ export default function ConsentBanner({ gaId, klaviyoId, phKey }: Props) {
     <>
       {consent === 'accepted' && gaId && (
         <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+          {/* Script and collect endpoint served through first-party proxy — avoids Safari ITP */}
+          <Script src={`/proxy/ga/gtag.js?id=${gaId}`} strategy="afterInteractive" />
           <Script id="ga4-init" strategy="afterInteractive">{`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${gaId}');
+            gtag('config', '${gaId}', {
+              transport_url: window.location.origin + '/proxy/ga',
+              first_party_collection: true,
+            });
           `}</Script>
         </>
       )}
 
       {consent === 'accepted' && klaviyoId && (
-        <Script
-          src={`https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${klaviyoId}`}
-          strategy="afterInteractive"
-        />
+        // Script served from first-party proxy; internal API URLs rewritten to /proxy/kl/*
+        <Script src={`/proxy/kl-script?company_id=${klaviyoId}`} strategy="afterInteractive" />
       )}
 
       {consent === 'accepted' && phKey && (
