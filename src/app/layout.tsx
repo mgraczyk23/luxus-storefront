@@ -50,6 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: faviconUrl,
       apple:    '/apple-touch-icon.png',
     },
+    themeColor: '#0a0a0a',
     ...(semrush ? { other: { 'semrush-site-verification': semrush } } : {}),
   }
 }

@@ -2808,3 +2808,38 @@ Products with prices were showing 1/100th of the correct price in schema ($45,00
 - Contact-for-pricing product → no `offers` block, no price anywhere in schema
 - Product with no price set → no `offers` block
 
+
+---
+
+## §68 — First-Party Analytics Proxy (Safari ITP)
+
+After the consent banner, Safari still showed the privacy notice and the Privacy Report listed "Klaviyo.com was prevented from profiling you on one website." Analytics scripts were still loading from their original domains (`static.klaviyo.com`, `www.googletagmanager.com`, etc.) even when gated by consent — Safari ITP detects cross-site origins regardless of when they're loaded.
+
+**Next.js `rewrites()` in `next.config.ts`:** All analytics traffic routed through first-party `/proxy/*` paths:
+- GA4: `/proxy/ga/gtag.js` → Google Tag Manager, `/proxy/ga/g|j/collect` → GA4 collection
+- Klaviyo API: `/proxy/kl-a/:path*` → `a.klaviyo.com`
+- PostHog: `/proxy/ph/static/:path*` → `us-assets.i.posthog.com`, `/proxy/ph/:path*` → `us.i.posthog.com`
+
+**Klaviyo two-stage loader:** Klaviyo's `klaviyo.js` bootstrap dynamically loads a second full bundle from `static.klaviyo.com`. Simple rewrites can't rewrite the content of JS files. Required two Route Handlers:
+- `src/app/proxy/kl-script/route.ts` — fetches `klaviyo.js`, rewrites all `*.klaviyo.com` references to our proxy paths, serves modified JS
+- `src/app/proxy/kl-s/[...path]/route.ts` — fetches second-stage bundles, rewrites domain references in JS content, streams non-JS as-is
+
+**ConsentBanner updates:** GA4 uses `transport_url: origin + '/proxy/ga'`. Klaviyo loads from `/proxy/kl-script?company_id=...`. PostHog uses `api_host: origin + '/proxy/ph'`. Also removed Sentry Replay (uses IndexedDB → triggers Safari notice).
+
+Result: Privacy Report empty.
+
+---
+
+## §69 — Safari Gold Chrome & Remaining Privacy Notice
+
+**Gold color above header:** PWA manifest `theme_color: '#c09530'` was painting Safari's entire browser chrome (address bar area and any notification banners) gold. Safari's privacy notice appeared as a gold bar, making it far more visually jarring than the same notice on sites with a system-default chrome color.
+
+Fix:
+- `src/app/manifest.ts` → `theme_color: '#0a0a0a'`
+- Root layout metadata → added `themeColor: '#0a0a0a'` (generates `<meta name="theme-color">` which controls Safari chrome in regular browsing, not just PWA/home-screen mode)
+
+**React hooks violation in ConsentBanner:** Early `return null` was placed between two `useState` calls and the `useEffect` call, violating React's rule that hooks must not be conditionally executed. Fixed by moving the early return to after all hooks.
+
+**PostHog session recording:** PostHog enables session recording by default. Session recording uses DOM-capture APIs that may be classified as fingerprinting by Safari's Advanced Tracking and Fingerprinting Protection (iOS 17+). Added `disable_session_recording: true` to PostHog init in ConsentBanner.
+
+Note: If the tester is in Private Browsing, Safari shows the notice on ALL sites whenever storage is accessed — this is unavoidable in that mode. Amazon and Apple show the same notice there; it just wasn't noticed because their chrome is system-color rather than gold.

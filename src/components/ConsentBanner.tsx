@@ -29,13 +29,13 @@ export default function ConsentBanner({ gaId, klaviyoId, phKey }: Props) {
   const [consent, setConsent] = useState<'accepted' | 'declined' | null>(null)
   const [mounted, setMounted] = useState(false)
 
-  // No analytics configured (or Safari where they're suppressed) — render nothing
-  if (!gaId && !klaviyoId && !phKey) return null
-
   useEffect(() => {
     setConsent(getConsentCookie())
     setMounted(true)
   }, [])
+
+  // No analytics configured — render nothing (hooks must come first per React rules)
+  if (!gaId && !klaviyoId && !phKey) return null
 
   const accept = () => {
     setConsentCookie('accepted')
@@ -77,6 +77,7 @@ export default function ConsentBanner({ gaId, klaviyoId, phKey }: Props) {
             api_host: window.location.origin + '/proxy/ph',
             ui_host: 'https://us.posthog.com',
             person_profiles: 'identified_only',
+            disable_session_recording: true,
           });
         `}</Script>
       )}
