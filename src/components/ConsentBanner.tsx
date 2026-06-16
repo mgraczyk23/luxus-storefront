@@ -2,9 +2,22 @@
 
 import { useState, useEffect } from 'react'
 import Script from 'next/script'
-import { safeGet, safeSet } from '@/lib/safe-storage'
 
-const CONSENT_KEY = 'lxs_consent'
+// Store consent in a first-party cookie — same-origin cookie reads/writes
+// never trigger Safari's privacy notice, unlike localStorage writes.
+const COOKIE_NAME = 'lxs_consent'
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 365 // 1 year
+
+function getConsentCookie(): 'accepted' | 'declined' | null {
+  if (typeof document === 'undefined') return null
+  const m = document.cookie.match(/(?:^|;\s*)lxs_consent=([^;]*)/)
+  const v = m?.[1]
+  return v === 'accepted' || v === 'declined' ? v : null
+}
+
+function setConsentCookie(value: 'accepted' | 'declined') {
+  document.cookie = `${COOKIE_NAME}=${value}; path=/; max-age=${COOKIE_MAX_AGE}; SameSite=Lax`
+}
 
 type Props = {
   gaId: string | null
@@ -16,21 +29,21 @@ export default function ConsentBanner({ gaId, klaviyoId, phKey }: Props) {
   const [consent, setConsent] = useState<'accepted' | 'declined' | null>(null)
   const [mounted, setMounted] = useState(false)
 
+  // No analytics configured (or Safari where they're suppressed) — render nothing
+  if (!gaId && !klaviyoId && !phKey) return null
+
   useEffect(() => {
-    const stored = safeGet(CONSENT_KEY)
-    if (stored === 'accepted' || stored === 'declined') {
-      setConsent(stored)
-    }
+    setConsent(getConsentCookie())
     setMounted(true)
   }, [])
 
   const accept = () => {
-    safeSet(CONSENT_KEY, 'accepted')
+    setConsentCookie('accepted')
     setConsent('accepted')
   }
 
   const decline = () => {
-    safeSet(CONSENT_KEY, 'declined')
+    setConsentCookie('declined')
     setConsent('declined')
   }
 

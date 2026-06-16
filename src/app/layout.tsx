@@ -62,9 +62,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ann = settings.announcement
   const annActive = !isPrivate && ann.enabled && !!ann.message
   const logoUrl = imageUrl(settings.branding?.logo ?? null) ?? undefined
-  const gaId        = settings.analytics?.googleAnalyticsId?.trim() || null
-  const phKey       = settings.analytics?.postHogApiKey?.trim() || null
-  const klaviyoId   = process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null
+  const ua = h.get('user-agent') ?? ''
+  const isSafari = /Safari/.test(ua) && !/Chrome|CriOS|FxiOS|EdgA/.test(ua)
+
+  // Safari (all versions, iOS + macOS) blocks cross-site tracking scripts and
+  // shows an "advanced privacy protections" notice. Skip analytics entirely —
+  // no consent banner, no scripts, no notice.
+  const gaId      = isSafari ? null : (settings.analytics?.googleAnalyticsId?.trim() || null)
+  const phKey     = isSafari ? null : (settings.analytics?.postHogApiKey?.trim() || null)
+  const klaviyoId = isSafari ? null : (process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null)
 
   return (
     <html
