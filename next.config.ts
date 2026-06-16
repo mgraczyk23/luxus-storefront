@@ -18,8 +18,10 @@ const nextConfig: NextConfig = {
       // GA4: event collection — transport_url set to origin + '/proxy/ga'
       { source: '/proxy/ga/g/collect', destination: 'https://www.google-analytics.com/g/collect' },
       { source: '/proxy/ga/j/collect', destination: 'https://www.google-analytics.com/j/collect' },
-      // Klaviyo: API calls (script is handled by Route Handler at /proxy/kl-script)
-      { source: '/proxy/kl/:path*', destination: 'https://a.klaviyo.com/:path*' },
+      // Klaviyo: API calls (/proxy/kl-a/*) and static JS bundles (/proxy/kl-s/*)
+      // are handled by Route Handlers so their content can be rewritten.
+      // This rewrite is a fallback for any paths the handlers don't cover.
+      { source: '/proxy/kl-a/:path*', destination: 'https://a.klaviyo.com/:path*' },
       // PostHog: static assets (array.js) + event ingestion
       { source: '/proxy/ph/static/:path*', destination: 'https://us-assets.i.posthog.com/static/:path*' },
       { source: '/proxy/ph/:path*', destination: 'https://us.i.posthog.com/:path*' },

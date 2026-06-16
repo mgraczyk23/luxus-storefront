@@ -16,7 +16,13 @@ export async function GET(request: NextRequest) {
   }
 
   const host = request.nextUrl.host
-  const script = (await upstream.text()).replaceAll('a.klaviyo.com', `${host}/proxy/kl`)
+  // Route static assets (JS bundles) and API calls to separate proxy paths
+  // so each goes to the correct upstream origin. Any unrecognised subdomain
+  // falls back to the API proxy.
+  const script = (await upstream.text())
+    .replace(/static\.klaviyo\.com/gi, `${host}/proxy/kl-s`)
+    .replace(/a\.klaviyo\.com/gi, `${host}/proxy/kl-a`)
+    .replace(/[\w-]+\.klaviyo\.com/gi, `${host}/proxy/kl-a`)
 
   return new NextResponse(script, {
     headers: {
