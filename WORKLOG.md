@@ -2843,3 +2843,5 @@ Fix:
 **PostHog session recording:** PostHog enables session recording by default. Session recording uses DOM-capture APIs that may be classified as fingerprinting by Safari's Advanced Tracking and Fingerprinting Protection (iOS 17+). Added `disable_session_recording: true` to PostHog init in ConsentBanner.
 
 Note: If the tester is in Private Browsing, Safari shows the notice on ALL sites whenever storage is accessed — this is unavoidable in that mode. Amazon and Apple show the same notice there; it just wasn't noticed because their chrome is system-color rather than gold.
+
+**Iteration 2 — match white header/footer** (`11fdd89`): Initial dark fix confirmed to remove the gold bar. User requested the chrome match the site's white header and footer. Changed `theme_color`, `background_color` (manifest.ts), and `themeColor` (layout.tsx) all to `#ffffff`. Confirmed fixed by user.
