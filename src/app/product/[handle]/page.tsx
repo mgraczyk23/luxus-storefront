@@ -136,7 +136,7 @@ export default async function ProductPage(
       '@type': 'Offer',
       url: `${SITE}/product/${product.handle}`,
       priceCurrency: 'USD',
-      ...(product.price ? { price: (product.price / 100).toFixed(2) } : {}),
+      price: product.price ? (product.price / 100).toFixed(2) : '0',
       availability: inStock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
