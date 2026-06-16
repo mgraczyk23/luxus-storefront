@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'A boutique destination for the serious collector. Curating the world\'s finest production and custom pistols.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#0a0a0a',
-    theme_color: '#0a0a0a',
+    background_color: '#ffffff',
+    theme_color: '#ffffff',
     orientation: 'portrait-primary',
     categories: ['shopping'],
     icons: [
