@@ -20,6 +20,9 @@ const nextConfig: NextConfig = {
       { source: '/proxy/ga/j/collect', destination: 'https://www.google-analytics.com/j/collect' },
       // Klaviyo: API calls (script is handled by Route Handler at /proxy/kl-script)
       { source: '/proxy/kl/:path*', destination: 'https://a.klaviyo.com/:path*' },
+      // PostHog: static assets (array.js) + event ingestion
+      { source: '/proxy/ph/static/:path*', destination: 'https://us-assets.i.posthog.com/static/:path*' },
+      { source: '/proxy/ph/:path*', destination: 'https://us.i.posthog.com/:path*' },
     ]
   },
   async headers() {

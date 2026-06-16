@@ -4,9 +4,8 @@ Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
   environment: process.env.NODE_ENV,
   tracesSampleRate: 0.2,
-  replaysOnErrorSampleRate: 1.0,
-  replaysSessionSampleRate: 0,
-  integrations: [Sentry.replayIntegration()],
+  // Session Replay removed — uses IndexedDB which triggers Safari's privacy notice.
+  // Re-add once we confirm it can be initialized lazily after user consent.
   ignoreErrors: [
     'Network request failed',
     'Failed to fetch',
