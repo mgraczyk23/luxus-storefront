@@ -177,6 +177,9 @@ export type SiteSettings = {
     memo?:          string
   }
   fflLicense?: string
+  productCards: {
+    showBadges: boolean
+  }
   announcement: {
     enabled:  boolean
     message?: string
@@ -218,6 +221,7 @@ const SETTINGS_FALLBACK: SiteSettings = {
     accountNumber: '1100009085694',
     location:      'Sarasota, FL',
   },
+  productCards: { showBadges: true },
   announcement: { enabled: false },
   footer: {},
   analytics: {},

@@ -66,11 +66,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const gaId      = settings.analytics?.googleAnalyticsId?.trim() || null
   const phKey     = settings.analytics?.postHogApiKey?.trim() || null
   const klaviyoId = process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null
+  const showBadges = settings.productCards?.showBadges !== false
 
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfair.variable}`}
+      className={[inter.variable, playfair.variable, !showBadges ? 'lxs-no-badges' : ''].filter(Boolean).join(' ')}
       style={annActive ? { '--ann-h': '36px' } as React.CSSProperties : {}}
     >
       <body>
