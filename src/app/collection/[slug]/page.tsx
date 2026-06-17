@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { getProducts, getCollection, getCollections } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/app/shop/ListingPage"
@@ -61,6 +61,7 @@ function Loading() {
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  if (slug !== slug.toLowerCase()) redirect(`/collection/${slug.toLowerCase()}`)
 
   let collectionTitle = slug
   let collectionId: string | null = null

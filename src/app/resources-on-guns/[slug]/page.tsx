@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getBrand, getPostsByBrand, getResourcePages, imageUrl } from "@/lib/payload"
@@ -43,6 +44,7 @@ export const revalidate = false
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
+  if (slug !== slug.toLowerCase()) redirect(`/resources-on-guns/${slug.toLowerCase()}`)
 
   const [brand, allProducts] = await Promise.allSettled([
     getBrand(slug),
