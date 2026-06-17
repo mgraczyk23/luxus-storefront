@@ -489,20 +489,6 @@ export default function ProductDetailPage({
                   <ImgBox index={activeImg} />
                 )}
 
-                {/* Category badge */}
-                {product.primary_category && (
-                  <div style={{ position: "absolute", top: "16px", left: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}55`, padding: "4px 12px", fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: t.gold, backdropFilter: "blur(8px)" }}>
-                    {product.primary_category}
-                  </div>
-                )}
-
-                {/* Stock badge */}
-                <div style={{ position: "absolute", top: "16px", right: "16px", background: "rgba(255,255,255,0.9)", border: `1px solid ${product.in_stock ? "#4a8a4a" : "#8a4a4a"}40`, padding: "4px 12px", backdropFilter: "blur(8px)", display: "flex", alignItems: "center" }}>
-                  <span style={{ fontSize: "8.5px", letterSpacing: "0.12em", textTransform: "uppercase", fontWeight: 500, color: product.in_stock ? "#5a9a5a" : "#9a5a5a" }}>
-                    {product.in_stock ? "Available" : "Unavailable"}
-                  </span>
-                </div>
-
                 {/* Zoom hint */}
                 {hasImages && (
                   <div style={{ position: "absolute", bottom: "14px", right: "14px", width: "32px", height: "32px", background: "rgba(255,255,255,0.8)", border: `1px solid ${t.border}`, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>
