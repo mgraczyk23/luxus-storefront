@@ -157,7 +157,7 @@ function ProductCard({ product, small = false }: {
           </div>
         )}
         {/* Availability badge */}
-        <div style={{
+        <div className="lxs-card-badge-avail" style={{
           position: "absolute", top: "10px", right: "10px",
           display: "flex", alignItems: "center",
           background: "rgba(255,255,255,0.88)",
