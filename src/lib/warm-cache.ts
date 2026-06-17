@@ -3,7 +3,7 @@
 // Individual dynamic pages self-warm on first visit after that.
 export const TAG_PAGES: Record<string, string[]> = {
   // Medusa product data
-  "products":          ["/shop", "/", "/shop/collectible-firearms", "/shop/modern-firearms", "/featured"],
+  "products":          ["/shop", "/", "/shop/modern-firearms", "/featured"],
 
   // Payload globals used on every page or the home page
   "site-settings":     ["/"],

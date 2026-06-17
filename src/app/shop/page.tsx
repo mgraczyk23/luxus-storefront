@@ -8,8 +8,8 @@ import { ogMeta } from "@/lib/og"
 
 export async function generateMetadata(): Promise<Metadata> {
   const seo = await getPageSeo()
-  const title = seo.shop?.title || "All Firearms"
-  const description = seo.shop?.description || "Browse the Luxus Collection — the world's finest production and custom pistols."
+  const title = seo.shop?.title || "Shop Collectible Firearms"
+  const description = seo.shop?.description || "Browse the Luxus Collection — rare, collectible, and historically significant firearms."
   return {
     title,
     description,
@@ -38,7 +38,7 @@ async function getAllProducts(): Promise<ReturnType<typeof mapMedusaProduct>[]> 
     for (const page of pages) raw.push(...(page.products ?? []))
   }
 
-  return raw.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden)
+  return raw.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden && p.tags.includes('Collectibles Firearms'))
 }
 
 function ShopLoading() {
@@ -61,8 +61,8 @@ export default async function Shop() {
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'All Firearms — Luxus Collection',
-    description: 'Browse the Luxus Collection — fine, collectible, and modern firearms.',
+    name: 'Shop Collectible Firearms — Luxus Collection',
+    description: 'Browse the Luxus Collection — rare, collectible, and historically significant firearms.',
     url: `${SITE}/shop`,
   }
   const breadcrumbJsonLd = {

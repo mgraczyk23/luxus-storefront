@@ -29,7 +29,6 @@ type Filters = {
   barrel_length: string[]
   priceMin:      number
   priceMax:      number
-  firearmType:   'all' | 'collectible' | 'modern'
 }
 
 const fmt = (n: number) =>
@@ -402,7 +401,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     barrel_length: searchParams.getAll('barrel_length'),
     priceMin:      Number(searchParams.get('priceMin') ?? PRICE_FLOOR),
     priceMax:      Number(searchParams.get('priceMax') ?? PRICE_MAX),
-    firearmType:   (searchParams.get('firetype') as 'all' | 'collectible' | 'modern') ?? 'all',
   }))
   const [sort, setSort] = useState(() => searchParams.get('sort') ?? 'newest')
   const [page, setPage] = useState(() => Number(searchParams.get('page') ?? 1))
@@ -454,7 +452,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     if (page > 1) p.set('page', String(page))
     if (filters.priceMin > PRICE_FLOOR) p.set('priceMin', String(filters.priceMin))
     if (filters.priceMax < PRICE_MAX) p.set('priceMax', String(filters.priceMax))
-    if (filters.firearmType !== 'all') p.set('firetype', filters.firearmType)
     if (q) p.set('q', q)
     const qs = p.toString()
     router.replace(`/shop${qs ? '?' + qs : ''}`, { scroll: false })
@@ -471,7 +468,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   }, [sortOpen])
 
   // ── Filter helpers ──────────────────────────────────────────────────────────
-  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax' | 'firearmType'>, value: string) => {
+  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax'>, value: string) => {
     setPage(1)
     setFilters(prev => ({
       ...prev,
@@ -528,8 +525,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
       if (!p.contact_for_pricing && p.price !== null) {
         if (p.price < filters.priceMin || p.price > filters.priceMax) return false
       }
-      if (filters.firearmType === 'collectible' && !p.tags.includes('Collectibles Firearms')) return false
-      if (filters.firearmType === 'modern'      && !p.tags.includes('Modern Firearms'))       return false
       return true
     })
   }, [products, filters, q, searchHandles, searchDone])
@@ -563,7 +558,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
 
   const clearAll = () => {
     setPage(1)
-    setFilters({ categories: [], brand: [], model: [], caliber: [], action: [], barrel_length: [], priceMin: PRICE_FLOOR, priceMax: PRICE_MAX, firearmType: 'all' })
+    setFilters({ categories: [], brand: [], model: [], caliber: [], action: [], barrel_length: [], priceMin: PRICE_FLOOR, priceMax: PRICE_MAX })
   }
 
   const clearSearch = () => {
@@ -669,22 +664,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
         </FilterSection>
       )}
 
-      <FilterSection title="Firearm Type" defaultOpen={true}>
-        {([
-          { value: 'all',         label: 'All Items' },
-          { value: 'collectible', label: 'Collectible Firearms' },
-          { value: 'modern',      label: 'Modern Firearms' },
-        ] as const).map(opt => (
-          <CheckboxItem
-            key={opt.value}
-            label={opt.label}
-            checked={filters.firearmType === opt.value}
-            onChange={() => { setPage(1); setFilters(prev => ({ ...prev, firearmType: opt.value })) }}
-            count={opt.value === 'all' ? undefined : products.filter(p => opt.value === 'collectible' ? p.tags.includes('Collectibles Firearms') : p.tags.includes('Modern Firearms')).length}
-          />
-        ))}
-      </FilterSection>
-
       <FilterSection title="Price Range" defaultOpen={true}>
         <PriceRange
           min={PRICE_FLOOR} max={PRICE_MAX}
@@ -728,7 +707,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
                 </span>
               </div>
               <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em", margin: 0 }}>
-                {q ? `Results for "${q}"` : "All Firearms"}
+                {q ? `Results for "${q}"` : "Shop Collectible Firearms"}
               </h1>
               {q && (
                 <button onClick={() => clearSearch()} style={{ marginTop: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "10px", letterSpacing: "0.12em", textTransform: "uppercase", color: t.textMuted, fontFamily: "'Inter',sans-serif", fontWeight: 500, padding: "6px 0", display: "flex", alignItems: "center", gap: "5px" }}

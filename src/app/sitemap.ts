@@ -15,7 +15,6 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: url('/shop/categories'),           changeFrequency: 'weekly',  priority: 0.7, lastModified: now },
   { url: url('/shop/collections'),          changeFrequency: 'weekly',  priority: 0.7, lastModified: now },
   { url: url('/shop/modern-firearms'),      changeFrequency: 'weekly',  priority: 0.7, lastModified: now },
-  { url: url('/shop/collectible-firearms'), changeFrequency: 'weekly',  priority: 0.7, lastModified: now },
   { url: url('/resources-on-guns'),         changeFrequency: 'weekly',  priority: 0.6, lastModified: now },
   { url: url('/about'),                     changeFrequency: 'monthly', priority: 0.6, lastModified: now },
   { url: url('/contact'),                   changeFrequency: 'monthly', priority: 0.5, lastModified: now },

@@ -114,7 +114,7 @@ function MobileNav({ logoUrl }: { logoUrl?: string }) {
     : [["/account", "My Account"], ["/auth", "Sign In"], ["/auth?tab=register", "Register"]]
 
   const NAV = [
-    { section: "Shop",      items: [["/", "Home"], ["/shop", "Shop All"], ["/shop/collectible-firearms", "Collectible Firearms"], ["/shop/modern-firearms", "Modern Firearms"], ["/cart", "Cart"]] as [string, string][] },
+    { section: "Shop",      items: [["/", "Home"], ["/shop", "Collectible Firearms"], ["/shop/modern-firearms", "Modern Firearms"], ["/cart", "Cart"]] as [string, string][] },
     { section: "Shop By",   items: [["/shop/brands", "Brands"], ["/shop/collections", "Collections"], ["/shop/categories", "Categories"], ["/shop/models", "Models"]] as [string, string][] },
     { section: "Editorial", items: [["/resources-on-guns", "Resources on Guns"], ["/articles", "Articles"]] as [string, string][] },
     { section: "Account",   items: accountItems },
@@ -340,13 +340,13 @@ export default function Header({ logoUrl }: { logoUrl?: string }) {
           {/* Desktop nav */}
           <nav style={{ display: "flex", alignItems: "center", gap: "28px", flex: 1, justifyContent: "center" }}>
 
-            {/* Shop All + dropdown */}
+            {/* Shop + dropdown */}
             <div style={{ position: "relative" }}
               onMouseEnter={() => setShopAllOpen(true)}
               onMouseLeave={() => setShopAllOpen(false)}>
               <Link href="/shop" className="nav-link"
                 style={{ ...navItem, display: "flex", alignItems: "center", gap: "4px", color: shopAllOpen || activePage === 'shop' ? t.gold : t.textMuted }}>
-                Shop All
+                Shop
                 <svg width="7" height="5" viewBox="0 0 7 5" fill="none" style={{ transition: "transform 0.2s", transform: shopAllOpen ? "rotate(180deg)" : "none" }}>
                   <path d="M0.5 0.5L3.5 4L6.5 0.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -355,8 +355,7 @@ export default function Header({ logoUrl }: { logoUrl?: string }) {
                 <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", paddingTop: "14px" }}>
                   <div style={{ background: "#ffffff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, minWidth: "180px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", padding: "8px 0" }}>
                     {([
-                      ["All Items",             "/shop"],
-                      ["Collectible Firearms",  "/shop/collectible-firearms"],
+                      ["Collectible Firearms",  "/shop"],
                       ["Modern Firearms",       "/shop/modern-firearms"],
                     ] as [string, string][]).map(([label, href]) => (
                       <Link key={label} href={href}
