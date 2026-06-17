@@ -66,8 +66,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const gaId      = settings.analytics?.googleAnalyticsId?.trim() || null
   const phKey     = settings.analytics?.postHogApiKey?.trim() || null
   const klaviyoId = process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null
-  const showCategoryBadge    = settings.productCards?.showCategoryBadge    !== false
-  const showAvailabilityBadge = settings.productCards?.showAvailabilityBadge !== false
+  const showCategoryBadge = settings.productCards?.showCategoryBadge !== false
 
   return (
     <html
@@ -75,8 +74,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       className={[
         inter.variable,
         playfair.variable,
-        !showCategoryBadge    ? 'lxs-no-cat-badge'   : '',
-        !showAvailabilityBadge ? 'lxs-no-avail-badge' : '',
+        !showCategoryBadge ? 'lxs-no-cat-badge' : '',
       ].filter(Boolean).join(' ')}
       style={annActive ? { '--ann-h': '36px' } as React.CSSProperties : {}}
     >

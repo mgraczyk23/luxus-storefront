@@ -147,7 +147,7 @@ function ProductCard({ product, small = false }: {
         )}
         {product.details?.primary_category && product.in_stock && (
           <div className="lxs-card-badge-cat" style={{
-            position: "absolute", top: "10px", left: "10px",
+            position: "absolute", top: "10px", right: "10px",
             background: "rgba(255,255,255,0.88)",
             border: `1px solid ${t.gold}50`, padding: "3px 9px",
             fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase",
@@ -156,18 +156,6 @@ function ProductCard({ product, small = false }: {
             {product.details.primary_category}
           </div>
         )}
-        {/* Availability badge */}
-        <div className="lxs-card-badge-avail" style={{
-          position: "absolute", top: "10px", right: "10px",
-          display: "flex", alignItems: "center",
-          background: "rgba(255,255,255,0.88)",
-          border: `1px solid ${product.in_stock ? "#3a6a3a55" : "#6a3a3a55"}`,
-          padding: "3px 9px", backdropFilter: "blur(6px)",
-        }}>
-          <span style={{ fontSize: "8.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 500, color: product.in_stock ? "#3a6a3a" : "#6a3a3a" }}>
-            {product.in_stock ? "Available" : "Unavailable"}
-          </span>
-        </div>
       </div>
       <div style={{ padding: small ? "14px 15px 16px" : "18px 20px 22px", display: "flex", flexDirection: "column", flex: 1 }}>
         <div className="lxs-card-brand" style={{ fontSize: "8.5px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "5px" }}>

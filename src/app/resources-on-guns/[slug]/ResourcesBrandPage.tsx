@@ -489,7 +489,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
 
         {product.details?.primary_category && product.in_stock && (
           <div className="lxs-card-badge-cat" style={{
-            position: 'absolute', top: '8px', left: '8px',
+            position: 'absolute', top: '8px', right: '8px',
             background: 'rgba(255,255,255,0.88)', border: `1px solid ${t.gold}50`,
             padding: '3px 8px', fontSize: '8px', letterSpacing: '0.14em',
             textTransform: 'uppercase', fontWeight: 500, color: t.gold, backdropFilter: 'blur(6px)',
@@ -497,13 +497,6 @@ function ProductCard({ product }: { product: MappedProduct }) {
             {product.details.primary_category}
           </div>
         )}
-
-        {/* Availability badge */}
-        <div className="lxs-card-badge-avail" style={{ position: 'absolute', top: '8px', right: '8px', display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.88)', border: `1px solid ${product.in_stock ? '#3a6a3a55' : '#6a3a3a55'}`, padding: '3px 8px', backdropFilter: 'blur(6px)' }}>
-          <span style={{ fontSize: '8px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: product.in_stock ? '#3a6a3a' : '#6a3a3a' }}>
-            {product.in_stock ? 'Available' : 'Unavailable'}
-          </span>
-        </div>
       </div>
 
       {/* Body */}

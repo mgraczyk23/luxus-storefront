@@ -731,6 +731,5 @@ a {
   .lxs-featured-classifieds-grid { grid-template-columns: 1fr; gap: 14px; }
 }
 
-/* ── Badge visibility toggles (controlled by CMS Site Settings → Product Cards) ── */
-.lxs-no-cat-badge   .lxs-card-badge-cat   { display: none !important; }
-.lxs-no-avail-badge .lxs-card-badge-avail { display: none !important; }
+/* ── Badge visibility toggle (controlled by CMS Site Settings → Product Cards) ── */
+.lxs-no-cat-badge .lxs-card-badge-cat { display: none !important; }
