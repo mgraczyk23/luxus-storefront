@@ -29,7 +29,6 @@ type Filters = {
   barrel_length: string[]
   priceMin:      number
   priceMax:      number
-  stockStatus:   'all' | 'in_stock' | 'out_of_stock'
   firearmType:   'all' | 'collectible' | 'modern'
 }
 
@@ -403,7 +402,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     barrel_length: searchParams.getAll('barrel_length'),
     priceMin:      Number(searchParams.get('priceMin') ?? PRICE_FLOOR),
     priceMax:      Number(searchParams.get('priceMax') ?? PRICE_MAX),
-    stockStatus:   (searchParams.get('stock') as 'all' | 'in_stock' | 'out_of_stock') ?? 'all',
     firearmType:   (searchParams.get('firetype') as 'all' | 'collectible' | 'modern') ?? 'all',
   }))
   const [sort, setSort] = useState(() => searchParams.get('sort') ?? 'newest')
@@ -456,7 +454,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     if (page > 1) p.set('page', String(page))
     if (filters.priceMin > PRICE_FLOOR) p.set('priceMin', String(filters.priceMin))
     if (filters.priceMax < PRICE_MAX) p.set('priceMax', String(filters.priceMax))
-    if (filters.stockStatus !== 'all') p.set('stock', filters.stockStatus)
     if (filters.firearmType !== 'all') p.set('firetype', filters.firearmType)
     if (q) p.set('q', q)
     const qs = p.toString()
@@ -474,7 +471,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
   }, [sortOpen])
 
   // ── Filter helpers ──────────────────────────────────────────────────────────
-  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax' | 'stockStatus' | 'firearmType'>, value: string) => {
+  const toggleFilter = useCallback((key: keyof Omit<Filters, 'priceMin' | 'priceMax' | 'firearmType'>, value: string) => {
     setPage(1)
     setFilters(prev => ({
       ...prev,
@@ -531,8 +528,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
       if (!p.contact_for_pricing && p.price !== null) {
         if (p.price < filters.priceMin || p.price > filters.priceMax) return false
       }
-      if (filters.stockStatus === 'in_stock'    && !p.in_stock) return false
-      if (filters.stockStatus === 'out_of_stock' && p.in_stock) return false
       if (filters.firearmType === 'collectible' && !p.tags.includes('Collectibles Firearms')) return false
       if (filters.firearmType === 'modern'      && !p.tags.includes('Modern Firearms'))       return false
       return true
@@ -568,7 +563,7 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
 
   const clearAll = () => {
     setPage(1)
-    setFilters({ categories: [], brand: [], model: [], caliber: [], action: [], barrel_length: [], priceMin: PRICE_FLOOR, priceMax: PRICE_MAX, stockStatus: 'all', firearmType: 'all' })
+    setFilters({ categories: [], brand: [], model: [], caliber: [], action: [], barrel_length: [], priceMin: PRICE_FLOOR, priceMax: PRICE_MAX, firearmType: 'all' })
   }
 
   const clearSearch = () => {
@@ -698,21 +693,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
         />
       </FilterSection>
 
-      <FilterSection title="Availability" defaultOpen={true}>
-        {([
-          { value: 'all',           label: 'All Items' },
-          { value: 'in_stock',      label: 'Available' },
-          { value: 'out_of_stock',  label: 'Unavailable' },
-        ] as const).map(opt => (
-          <CheckboxItem
-            key={opt.value}
-            label={opt.label}
-            checked={filters.stockStatus === opt.value}
-            onChange={() => { setPage(1); setFilters(prev => ({ ...prev, stockStatus: opt.value })) }}
-            count={opt.value === 'all' ? undefined : products.filter(p => opt.value === 'in_stock' ? p.in_stock : !p.in_stock).length}
-          />
-        ))}
-      </FilterSection>
     </div>
   )
 
