@@ -178,7 +178,8 @@ export type SiteSettings = {
   }
   fflLicense?: string
   productCards: {
-    showBadges: boolean
+    showCategoryBadge:    boolean
+    showAvailabilityBadge: boolean
   }
   announcement: {
     enabled:  boolean
@@ -221,7 +222,7 @@ const SETTINGS_FALLBACK: SiteSettings = {
     accountNumber: '1100009085694',
     location:      'Sarasota, FL',
   },
-  productCards: { showBadges: true },
+  productCards: { showCategoryBadge: true, showAvailabilityBadge: true },
   announcement: { enabled: false },
   footer: {},
   analytics: {},
@@ -230,7 +231,7 @@ const SETTINGS_FALLBACK: SiteSettings = {
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/site-settings`, {
-      cache: "force-cache", next: { tags: ['site-settings'] },
+      cache: "no-store",
     })
     if (!res.ok) return SETTINGS_FALLBACK
     const data = await res.json()
