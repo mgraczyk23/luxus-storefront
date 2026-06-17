@@ -282,7 +282,6 @@ export default function Header({ logoUrl }: { logoUrl?: string }) {
   const { cartCount } = useCart()
 
   const [scrolled, setScrolled] = useState(false)
-  const [shopAllOpen, setShopAllOpen] = useState(false)
   const [shopByOpen, setShopByOpen] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -340,35 +339,17 @@ export default function Header({ logoUrl }: { logoUrl?: string }) {
           {/* Desktop nav */}
           <nav style={{ display: "flex", alignItems: "center", gap: "28px", flex: 1, justifyContent: "center" }}>
 
-            {/* Shop + dropdown */}
-            <div style={{ position: "relative" }}
-              onMouseEnter={() => setShopAllOpen(true)}
-              onMouseLeave={() => setShopAllOpen(false)}>
-              <Link href="/shop" className="nav-link"
-                style={{ ...navItem, display: "flex", alignItems: "center", gap: "4px", color: shopAllOpen || activePage === 'shop' ? t.gold : t.textMuted }}>
-                Shop
-                <svg width="7" height="5" viewBox="0 0 7 5" fill="none" style={{ transition: "transform 0.2s", transform: shopAllOpen ? "rotate(180deg)" : "none" }}>
-                  <path d="M0.5 0.5L3.5 4L6.5 0.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </Link>
-              {shopAllOpen && (
-                <div style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", paddingTop: "14px" }}>
-                  <div style={{ background: "#ffffff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, minWidth: "180px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", padding: "8px 0" }}>
-                    {([
-                      ["Collectible Firearms",  "/shop"],
-                      ["Modern Firearms",       "/shop/modern-firearms"],
-                    ] as [string, string][]).map(([label, href]) => (
-                      <Link key={label} href={href}
-                        style={{ display: "block", padding: "9px 22px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: t.textMuted, textDecoration: "none", fontFamily: "'Inter',sans-serif", fontWeight: 500, transition: "all 0.15s" }}
-                        onMouseEnter={e => { e.currentTarget.style.color = t.gold; e.currentTarget.style.paddingLeft = "26px" }}
-                        onMouseLeave={e => { e.currentTarget.style.color = t.textMuted; e.currentTarget.style.paddingLeft = "22px" }}>
-                        {label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Collectible Firearms */}
+            <Link href="/shop" className="nav-link"
+              style={{ ...navItem, color: activePage === 'shop' && !pathname.startsWith('/shop/modern-firearms') ? t.gold : t.textMuted }}>
+              Collectible Firearms
+            </Link>
+
+            {/* Modern Firearms */}
+            <Link href="/shop/modern-firearms" className="nav-link"
+              style={{ ...navItem, color: pathname.startsWith('/shop/modern-firearms') ? t.gold : t.textMuted }}>
+              Modern Firearms
+            </Link>
 
             {/* Shop By dropdown */}
             <div style={{ position: "relative" }}
