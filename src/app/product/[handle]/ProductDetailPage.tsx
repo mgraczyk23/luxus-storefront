@@ -373,12 +373,12 @@ export default function ProductDetailPage({
             {!product.in_stock ? (
               <button onClick={() => setAvailabilityModalOpen(true)}
                 style={{ padding: "9px 22px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
-                Contact for Availability
+                Contact Us Now
               </button>
             ) : product.contact_for_pricing ? (
               <button onClick={() => { setContactModalContext('pricing'); setContactModalOpen(true) }}
                 style={{ padding: "9px 22px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
-                Contact for Pricing
+                Contact Us Now
               </button>
             ) : (
               <button
@@ -628,7 +628,7 @@ export default function ProductDetailPage({
                   <div>
                     <div style={{ fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 400, marginBottom: "4px" }}>Pricing</div>
                     <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(22px,2.4vw,30px)", fontWeight: 300, color: t.gold, letterSpacing: "0.02em" }}>
-                      Contact Us For Pricing
+                      Contact Us Now
                     </div>
                   </div>
                 ) : (
@@ -694,7 +694,7 @@ export default function ProductDetailPage({
                     onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
                     onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5C2 2.67 2.67 2 3.5 2H10.5C11.33 2 12 2.67 12 3.5V8.5C12 9.33 11.33 10 10.5 10H5L2 12.5V3.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /></svg>
-                    Contact for Availability
+                    Contact Us Now
                   </button>
                   <button onClick={() => { setContactModalContext('question'); setContactModalOpen(true) }}
                     style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.border}`, color: t.text, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s" }}
@@ -710,7 +710,7 @@ export default function ProductDetailPage({
                     onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
                     onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 3.5C2 2.67 2.67 2 3.5 2H10.5C11.33 2 12 2.67 12 3.5V8.5C12 9.33 11.33 10 10.5 10H5L2 12.5V3.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" /></svg>
-                    Contact Us For Pricing
+                    Contact Us Now
                   </button>
                   <button onClick={() => setOfferModalOpen(true)}
                     style={{ padding: "14px 32px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
