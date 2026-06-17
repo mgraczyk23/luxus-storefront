@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid or missing tag' }, { status: 400 })
   }
 
-  revalidateTag(tag, {})
+  revalidateTag(tag, { expire: 0 })
   warmCache(tag).catch(() => {})
 
   return NextResponse.json({ revalidated: true, tag, ts: Date.now() })
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   if (!checkSecret(req)) return NextResponse.json({ error: "Invalid secret" }, { status: 401 })
 
-  revalidateTag("products", {})
+  revalidateTag("products", { expire: 0 })
   revalidatePath("/", "layout")
   warmCache("products").catch(() => {})
 
