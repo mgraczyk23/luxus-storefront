@@ -538,7 +538,7 @@ export default function HomePage({
   }
 
   const featured = featuredProducts
-  const arrivals = newArrivals.filter(p => p.in_stock)
+  const arrivals = newArrivals
 
 
   return (

@@ -175,9 +175,11 @@ export default async function Home() {
       }
     : FALLBACK_HERO
 
-  // New arrivals = most recent products not already in the featured set
+  // New arrivals = 4 most recent in-stock Collectible Firearms not in the featured set
   const featuredIds = new Set(featuredProducts.map(p => p.id))
-  const newArrivals = products.filter(p => !featuredIds.has(p.id)).slice(0, 4)
+  const newArrivals = products
+    .filter(p => !featuredIds.has(p.id) && p.in_stock && p.tags.includes('Collectibles Firearms'))
+    .slice(0, 4)
 
   const articles = articlesRes.status === "fulfilled"
     ? articlesRes.value.docs.map(p => ({
@@ -251,7 +253,7 @@ export default async function Home() {
         heroProduct={heroProduct}
         heroData={heroData}
         featuredProducts={featuredProducts}
-        newArrivals={newArrivals.length > 0 ? newArrivals : products.slice(0, 4)}
+        newArrivals={newArrivals}
         collections={displayCollections}
         categories={displayCategories}
         articles={articles}
