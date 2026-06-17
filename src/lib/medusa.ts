@@ -58,8 +58,7 @@ export type MappedProduct = {
   is_firearm:         boolean
   seo_meta_title: string | null
   seo_meta_description: string | null
-  // ISO date string for sorting newest-first. wc_published_at (original WooCommerce
-  // publish date) takes priority; falls back to Medusa created_at.
+  // ISO date string for sorting newest-first. Medusa created_at.
   published_at: string | null
   // Raw shipping restriction flags set in the product admin widget
   shipping_flags: {
@@ -213,7 +212,7 @@ export function mapMedusaProduct(p: any): MappedProduct {
     is_firearm:         p.type?.value?.toLowerCase() === "firearm",
     seo_meta_title:       null,
     seo_meta_description: null,
-    published_at:         (p.metadata?.wc_published_at as string | undefined) ?? p.created_at ?? null,
+    published_at:         p.created_at ?? null,
     shipping_flags: {
       has_threaded_barrel:        p.metadata?.has_threaded_barrel        === "true",
       has_high_capacity_magazine: p.metadata?.has_high_capacity_magazine === "true",

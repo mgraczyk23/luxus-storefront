@@ -530,7 +530,7 @@ export default function ListingPage({
     if (sort === 'price_desc') return (b.price ?? 0) - (a.price ?? 0)
     if (sort === 'brand_az')   return (a.attributes.brand ?? '').localeCompare(b.attributes.brand ?? '')
 
-    // newest (default): wc_published_at (synced WooCommerce date) → Medusa created_at
+    // newest (default): Medusa created_at, newest first
     const aDate = a.published_at ? new Date(a.published_at).getTime() : 0
     const bDate = b.published_at ? new Date(b.published_at).getTime() : 0
     return bDate - aDate
