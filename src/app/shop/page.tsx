@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export const revalidate = false
 
-const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*tags,*type"
+const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*tags,*type"
 const PAGE_SIZE = 100
 
 async function getAllProducts(): Promise<ReturnType<typeof mapMedusaProduct>[]> {

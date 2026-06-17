@@ -6,7 +6,7 @@ import ListingPage from "@/app/shop/ListingPage"
 import type { Metadata } from "next"
 import { ogMeta } from "@/lib/og"
 
-const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
+const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
 
 async function getAllProducts() {

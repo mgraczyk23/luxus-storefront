@@ -522,12 +522,18 @@ export default function ListingPage({
   }), [products, filters])
 
   const sorted = useMemo(() => [...filtered].sort((a, b) => {
+    // Out-of-stock always at the end, regardless of chosen sort
     const aOut = !a.in_stock, bOut = !b.in_stock
     if (aOut !== bOut) return aOut ? 1 : -1
+
     if (sort === 'price_asc')  return (a.price ?? Infinity) - (b.price ?? Infinity)
     if (sort === 'price_desc') return (b.price ?? 0) - (a.price ?? 0)
     if (sort === 'brand_az')   return (a.attributes.brand ?? '').localeCompare(b.attributes.brand ?? '')
-    return 0
+
+    // newest (default): wc_published_at (synced WooCommerce date) → Medusa created_at
+    const aDate = a.published_at ? new Date(a.published_at).getTime() : 0
+    const bDate = b.published_at ? new Date(b.published_at).getTime() : 0
+    return bDate - aDate
   }), [filtered, sort])
 
   const totalPages = Math.ceil(sorted.length / PER_PAGE)
