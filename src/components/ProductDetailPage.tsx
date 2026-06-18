@@ -628,7 +628,7 @@ export default function ProductDetailPage({
                   <div>
                     <div style={{ fontSize: "10px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.textDim, fontWeight: 400, marginBottom: "4px" }}>Pricing</div>
                     <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(22px,2.4vw,30px)", fontWeight: 300, color: t.gold, letterSpacing: "0.02em" }}>
-                      Contact Us Now
+                      Contact Us
                     </div>
                   </div>
                 ) : (
