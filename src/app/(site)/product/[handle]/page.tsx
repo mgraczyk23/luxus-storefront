@@ -142,10 +142,10 @@ export default async function ProductPage(
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       seller: { '@type': 'Organization', name: 'Luxus Collection' },
-      ...(!product.contact_for_pricing && product.price ? {
-        priceCurrency: 'USD',
-        price: product.price.toFixed(2),
-      } : {}),
+      priceCurrency: 'USD',
+      // contact-for-pricing items use 0 — the schema.org convention for "price on request".
+      // Validators require price+priceCurrency on every Offer; omitting them triggers errors.
+      price: product.contact_for_pricing ? '0' : (product.price ? product.price.toFixed(2) : '0'),
     },
   }
 
