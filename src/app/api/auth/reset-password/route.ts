@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
   })
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
-    const msg = (err as any).message ?? "Reset failed — link may have expired"
+    const err = await res.json().catch(() => ({})) as { message?: string }
+    const msg = err.message ?? "Reset failed — link may have expired"
     return NextResponse.json({ error: msg }, { status: 400 })
   }
 

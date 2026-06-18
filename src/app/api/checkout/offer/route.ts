@@ -65,8 +65,8 @@ export async function POST(req: NextRequest) {
     cache: 'no-store',
   })
   if (!redeemRes.ok) {
-    const err = await redeemRes.json().catch(() => ({}))
-    return NextResponse.json({ error: (err as any).error ?? 'Invalid checkout link' }, { status: redeemRes.status })
+    const err = await redeemRes.json().catch(() => ({})) as { error?: string }
+    return NextResponse.json({ error: err.error ?? 'Invalid checkout link' }, { status: redeemRes.status })
   }
   const { offer } = await redeemRes.json()
 

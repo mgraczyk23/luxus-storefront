@@ -2,17 +2,25 @@ import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 import { warmCache } from "@/lib/warm-cache"
 
-// Medusa webhook endpoint — called automatically when products are
-// created, updated, or deleted in the Medusa admin.
+// Medusa webhook endpoint — called automatically when products, inventory, or
+// orders change in Medusa. Invalidates the "products" cache so the storefront
+// reflects the change immediately (price, stock, new products, etc.).
 //
 // Configure in Medusa admin → Settings → Webhooks:
 //   URL:    https://dev.luxus-collection.com/api/medusa-hook
-//   Events: product.created, product.updated, product.deleted
+//   Events: subscribe the product.*, product-variant.*, product-category.*,
+//           product-collection.*, inventory-item.*, inventory-level.*,
+//           reservation-item.*, and order.placed / order.canceled /
+//           order.completed events (full list in REVALIDATE_EVENTS below).
+//   The inventory/order events are what make a sold-out item flip to
+//   out-of-stock instantly; without them stock still self-heals on the
+//   5-minute ISR cycle, just not immediately.
 //
 // Optionally protect with REVALIDATE_SECRET:
 //   URL:    https://dev.luxus-collection.com/api/medusa-hook?secret=YOUR_SECRET
 
-const PRODUCT_EVENTS = new Set([
+const REVALIDATE_EVENTS = new Set([
+  // Catalog
   "product.created",
   "product.updated",
   "product.deleted",
@@ -25,6 +33,20 @@ const PRODUCT_EVENTS = new Set([
   "product-collection.created",
   "product-collection.updated",
   "product-collection.deleted",
+  // Inventory — stock level / availability changes
+  "inventory-item.created",
+  "inventory-item.updated",
+  "inventory-item.deleted",
+  "inventory-level.created",
+  "inventory-level.updated",
+  "inventory-level.deleted",
+  "reservation-item.created",
+  "reservation-item.updated",
+  "reservation-item.deleted",
+  // Orders — a sale reserves/decrements stock; a cancel releases it
+  "order.placed",
+  "order.canceled",
+  "order.completed",
 ])
 
 export async function POST(req: NextRequest) {
@@ -48,8 +70,8 @@ export async function POST(req: NextRequest) {
     // Body parsing failure is non-fatal — still revalidate
   }
 
-  // Only revalidate for product-related events. Ignore everything else.
-  if (!PRODUCT_EVENTS.has(eventName) && eventName !== "unknown") {
+  // Only revalidate for catalog / inventory / order events. Ignore everything else.
+  if (!REVALIDATE_EVENTS.has(eventName) && eventName !== "unknown") {
     return NextResponse.json({ skipped: true, event: eventName })
   }
 

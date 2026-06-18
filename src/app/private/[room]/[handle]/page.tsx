@@ -3,7 +3,7 @@ import { notFound }   from "next/navigation"
 import { getProduct, getProducts, getProductDetails, getProductSpecs } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getSiteSettings } from "@/lib/payload"
-import ProductDetailPage from "@/app/product/[handle]/ProductDetailPage"
+import ProductDetailPage from "@/components/ProductDetailPage"
 import type { Metadata } from "next"
 
 const ROOM_NAMES: Record<string, string> = {

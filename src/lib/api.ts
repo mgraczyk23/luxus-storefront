@@ -9,8 +9,10 @@ async function storeFetch<T>(path: string, init?: RequestInit): Promise<T> {
       "x-publishable-api-key": PK,
       ...(init?.headers ?? {}),
     },
-    cache: "force-cache",
-    next: { tags: ["products"] },
+    // 5-minute ISR fallback so stock/price self-heals even if a Medusa product
+    // webhook is ever missed; the "products" tag still triggers instant updates
+    // whenever a webhook fires (/api/medusa-hook → revalidateTag("products")).
+    next: { revalidate: 300, tags: ["products"] },
   })
   if (!res.ok) throw new Error(`Store API error ${res.status}: ${path}`)
   return res.json()

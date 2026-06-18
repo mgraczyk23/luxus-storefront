@@ -1,14 +1,10 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
-import { headers } from "next/headers"
 import ConsentBanner from "@/components/ConsentBanner"
 import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
 import { AuthProvider } from "@/context/AuthContext"
 import { CartProvider } from "@/context/CartContext"
-import Header from "@/components/Header"
-import Footer from "@/components/Footer"
-import AnnouncementBar from "@/components/AnnouncementBar"
 import { getSiteSettings, imageUrl } from "@/lib/payload"
 
 const inter = Inter({
@@ -50,19 +46,18 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: faviconUrl,
       apple:    '/apple-touch-icon.png',
     },
-    themeColor: '#ffffff',
     ...(semrush ? { other: { 'semrush-site-verification': semrush } } : {}),
   }
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const h = await headers()
-  const isPrivate = h.get("x-is-private") === "1"
+export const viewport: Viewport = {
+  themeColor: '#ffffff',
+}
 
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const settings = await getSiteSettings()
   const ann = settings.announcement
-  const annActive = !isPrivate && ann.enabled && !!ann.message
-  const logoUrl = imageUrl(settings.branding?.logo ?? null) ?? undefined
+  const annActive = ann.enabled && !!ann.message
   const gaId      = settings.analytics?.googleAnalyticsId?.trim() || null
   const phKey     = settings.analytics?.postHogApiKey?.trim() || null
   const klaviyoId = process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null
@@ -82,12 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
-              {annActive && <AnnouncementBar message={ann.message!} link={ann.link} />}
-              {!isPrivate && <Header logoUrl={logoUrl} />}
-              <main style={{ paddingTop: isPrivate ? 0 : "calc(68px + var(--ann-h, 0px))" }}>
-                {children}
-              </main>
-              {!isPrivate && <Footer settings={settings} logoUrl={logoUrl} />}
+              {children}
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>

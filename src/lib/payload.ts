@@ -231,7 +231,10 @@ const SETTINGS_FALLBACK: SiteSettings = {
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
     const res = await fetch(`${PAYLOAD_URL}/api/globals/site-settings`, {
-      cache: "no-store",
+      // force-cache + tag (not no-store): the Payload site-settings hook calls
+      // /api/revalidate?tag=site-settings on change, so edits still go live
+      // immediately while keeping pages statically renderable.
+      cache: "force-cache", next: { tags: ["site-settings"] },
     })
     if (!res.ok) return SETTINGS_FALLBACK
     const data = await res.json()

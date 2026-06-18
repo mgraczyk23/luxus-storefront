@@ -51,10 +51,10 @@ export async function POST(req: NextRequest) {
   })
 
   if (!medusaRes.ok) {
-    const err = await medusaRes.json().catch(() => ({}))
+    const err = await medusaRes.json().catch(() => ({})) as { error?: string }
     Sentry.captureException(new Error(`Offer submit failed (${medusaRes.status}): ${JSON.stringify(err)}`))
     return NextResponse.json(
-      { error: (err as any).error ?? 'Failed to submit offer' },
+      { error: err.error ?? 'Failed to submit offer' },
       { status: medusaRes.status }
     )
   }

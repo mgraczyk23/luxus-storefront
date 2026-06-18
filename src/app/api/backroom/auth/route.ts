@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ room, password }),
     })
     if (!res.ok) {
-      const err = await res.json().catch(() => ({}))
-      return NextResponse.json({ message: (err as any).message ?? "Incorrect password" }, { status: 401 })
+      const err = await res.json().catch(() => ({})) as { message?: string }
+      return NextResponse.json({ message: err.message ?? "Incorrect password" }, { status: 401 })
     }
     const data = await res.json()
     token = data.token
