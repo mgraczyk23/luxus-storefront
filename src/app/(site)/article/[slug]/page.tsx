@@ -67,6 +67,7 @@ export default async function Page({
     dateModified: (post as any).updatedAt || post.publishedAt || undefined,
     url: `${SITE}/article/${post.slug}`,
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE}/article/${post.slug}` },
+    inLanguage: 'en-US',
     author: { '@type': 'Person', name: post.author?.name || 'Luxus Collection' },
     publisher: {
       '@type': 'Organization',

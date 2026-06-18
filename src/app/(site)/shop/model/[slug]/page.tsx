@@ -87,7 +87,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
       { '@type': 'ListItem', position: 2, name: 'Shop', item: `${SITE}/shop` },
-      { '@type': 'ListItem', position: 3, name: name },
+      { '@type': 'ListItem', position: 3, name: name, item: `${SITE}/shop/model/${slug}` },
     ],
   }
 

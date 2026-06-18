@@ -132,9 +132,9 @@ export default async function ProductPage(
     category: primaryCat?.name || undefined,
     itemCondition: 'https://schema.org/NewCondition',
     additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
-    // Always include offers — Google requires offers, aggregateRating, or review
-    // on every Product. For contact-for-pricing items omit price/priceCurrency
-    // only; the offer itself must still be present.
+    // Google requires offers, aggregateRating, or review on every Product.
+    // For contact-for-pricing items price/priceCurrency are intentionally omitted —
+    // Google allows this for variable/on-request pricing (Rich Results Test passes).
     offers: {
       '@type': 'Offer',
       url: `${SITE}/product/${product.handle}`,
@@ -142,10 +142,26 @@ export default async function ProductPage(
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       seller: { '@type': 'Organization', name: 'Luxus Collection' },
-      priceCurrency: 'USD',
-      // contact-for-pricing items use 0 — the schema.org convention for "price on request".
-      // Validators require price+priceCurrency on every Offer; omitting them triggers errors.
-      price: product.contact_for_pricing ? '0' : (product.price ? product.price.toFixed(2) : '0'),
+      ...(!product.contact_for_pricing && product.price ? {
+        priceCurrency: 'USD',
+        price: product.price.toFixed(2),
+      } : {}),
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingRate: { '@type': 'MonetaryAmount', value: '95.00', currency: 'USD' },
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'US' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime:  { '@type': 'QuantitativeValue', minValue: 1, maxValue: 1, unitCode: 'DAY' },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'US',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+        merchantReturnLink: `${SITE}/contact`,
+      },
     },
   }
 

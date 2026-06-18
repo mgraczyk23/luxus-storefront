@@ -60,7 +60,7 @@ export default async function ModernFirearmsPage() {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home',           item: SITE },
       { '@type': 'ListItem', position: 2, name: 'Shop',           item: `${SITE}/shop` },
-      { '@type': 'ListItem', position: 3, name: 'Modern Firearms' },
+      { '@type': 'ListItem', position: 3, name: 'Modern Firearms', item: `${SITE}/shop/modern-firearms` },
     ],
   }
 
