@@ -251,6 +251,7 @@ export default async function Home() {
     '@type': 'Organization',
     name: 'Luxus Collection',
     legalName: orgName,
+    description: 'Luxus Collection is a premier dealer of rare, collectible, and historically significant firearms — specializing in antique, pre-WWII, and limited-edition pieces.',
     url: SITE,
     ...(orgLogoUrl ? { logo: { '@type': 'ImageObject', url: orgLogoUrl } } : {}),
     telephone: settings?.contact.phone || '(941) 253-3660',
@@ -262,6 +263,13 @@ export default async function Home() {
       addressRegion: settings?.address.state || 'FL',
       postalCode: settings?.address.zip || '34232',
       addressCountry: 'US',
+    },
+    areaServed: { '@type': 'Country', name: 'United States' },
+    knowsAbout: ['Collectible Firearms', 'Antique Firearms', 'Fine Firearms', 'Firearm Consignment', 'Historical Weapons'],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Collectible & Rare Firearms',
+      url: `${SITE}/shop`,
     },
     ...(sameAs.length > 0 ? { sameAs } : {}),
   }

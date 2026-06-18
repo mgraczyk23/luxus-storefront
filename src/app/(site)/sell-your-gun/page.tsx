@@ -22,5 +22,25 @@ export default async function Page() {
     getConsignmentPageText(),
     getSiteSettings(),
   ])
-  return <ConsignmentPage text={text} settings={settings} />
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const serviceJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Firearm Consignment & Private Sales',
+    serviceType: 'Firearm Consignment',
+    description: 'Consign a fine firearm through Luxus Collection or sell outright. Personal response within 3 business days.',
+    url: `${SITE}/sell-your-gun`,
+    areaServed: { '@type': 'Country', name: 'United States' },
+    provider: {
+      '@type': 'Organization',
+      name: settings?.branding?.legalName || 'Luxus Collection',
+      url: SITE,
+    },
+  }
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }} />
+      <ConsignmentPage text={text} settings={settings} />
+    </>
+  )
 }

@@ -23,5 +23,29 @@ export default async function Page() {
   } catch {
     // CMS unavailable — client component shows fallback
   }
-  return <ArticlesPage posts={posts} />
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const blogJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: 'Luxus Collection — Articles',
+    description: 'Long-form writing on the craft, history, and culture of fine firearms.',
+    url: `${SITE}/articles`,
+    inLanguage: 'en-US',
+    publisher: { '@type': 'Organization', name: 'Luxus Collection', url: SITE },
+    ...(posts && posts.length > 0 ? {
+      blogPost: posts.slice(0, 20).map((p: any) => ({
+        '@type': 'BlogPosting',
+        headline: p.title,
+        url: `${SITE}/article/${p.slug}`,
+        ...(p.publishedAt ? { datePublished: p.publishedAt } : {}),
+        ...(p.excerpt ? { description: p.excerpt } : {}),
+      })),
+    } : {}),
+  }
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }} />
+      <ArticlesPage posts={posts} />
+    </>
+  )
 }

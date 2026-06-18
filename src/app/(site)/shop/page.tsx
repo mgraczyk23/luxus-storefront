@@ -70,14 +70,27 @@ export default async function Shop() {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
-      { '@type': 'ListItem', position: 2, name: 'Shop' },
+      { '@type': 'ListItem', position: 2, name: 'Shop', item: `${SITE}/shop` },
     ],
   }
+  const itemListJsonLd = products.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Collectible Firearms',
+    numberOfItems: products.length,
+    itemListElement: products.slice(0, 50).map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE}/product/${p.handle}`,
+      name: p.title,
+    })),
+  } : null
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />}
       <Suspense fallback={<ShopLoading />}>
         <ShopPage products={products} />
       </Suspense>
