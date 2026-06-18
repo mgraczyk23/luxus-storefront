@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
-import { getBrand, getPostsByBrand, getResourcePages, imageUrl } from "@/lib/payload"
+import { getBrand, getBrands, getPostsByBrand, getResourcePages, imageUrl } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
 import { toSlug } from "@/lib/slug"
 import ResourcesBrandPage from "./ResourcesBrandPage"
@@ -41,6 +41,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export const revalidate = false
+
+// Pre-render the hub brand pages (SSG/ISR) so they're served instantly and
+// regenerate in the background when the `products` cache is invalidated —
+// instead of blocking each request on a full fetch of all products.
+export async function generateStaticParams() {
+  try {
+    const brands = await getBrands({ hubOnly: true })
+    return brands.filter(b => b.slug).map(b => ({ slug: b.slug as string }))
+  } catch {
+    return []
+  }
+}
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
