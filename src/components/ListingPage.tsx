@@ -37,6 +37,7 @@ type Props = {
   products: MappedProduct[]
   title: string
   eyebrow?: string
+  description?: string
   breadcrumbs: Breadcrumb[]
   hideBrandFilter?: boolean
   hideCategoryFilter?: boolean
@@ -123,7 +124,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
         {product.thumbnail ? (
           <Image
             src={product.thumbnail}
-            alt={product.title}
+            alt={[product.attributes?.brand, product.title, product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(' ')}
             fill
             style={{ objectFit: "contain", filter: !product.in_stock ? "grayscale(0.55) brightness(0.78)" : "none" }}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -385,6 +386,7 @@ export default function ListingPage({
   products,
   title,
   eyebrow = "Luxus Collection",
+  description,
   breadcrumbs,
   hideBrandFilter,
   hideCategoryFilter,
@@ -677,6 +679,11 @@ export default function ListingPage({
               <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em", margin: 0 }}>
                 {title}
               </h1>
+              {description && (
+                <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.75, marginTop: "10px", maxWidth: "680px", letterSpacing: "0.01em" }}>
+                  {description}
+                </p>
+              )}
             </div>
             <div style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.03em", paddingBottom: "6px", flexShrink: 0 }}>
               <span style={{ color: t.text, fontWeight: 400 }}>{filtered.length}</span> items

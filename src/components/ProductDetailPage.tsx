@@ -19,6 +19,17 @@ const ModelViewer = dynamic(() => import('@/components/product/ModelViewer'), { 
 
 const PLAYFAIR = "var(--font-playfair), serif"
 
+// Build descriptive alt text for product images: "Brand Title Caliber Action"
+function imgAlt(product: MappedProduct, index?: number): string {
+  const base = [
+    product.attributes?.brand,
+    product.title,
+    product.attributes?.caliber,
+    product.attributes?.action,
+  ].filter(Boolean).join(' ')
+  return index !== undefined ? `${base} — photo ${index + 1}` : base
+}
+
 // Convert plain-text paragraphs (\n\n) into <p> tags.
 // If Medusa ever returns HTML (rich-text editor), passes through unchanged.
 function formatOverview(text: string): string {
@@ -480,7 +491,7 @@ export default function ProductDetailPage({
                 {hasImages && images[activeImg] ? (
                   <Image
                     src={images[activeImg]}
-                    alt={`${product.title} – image ${activeImg + 1}`}
+                    alt={imgAlt(product, activeImg)}
                     fill style={{ objectFit: "contain" }}
                     sizes="(max-width: 640px) 100vw, 50vw"
                     priority
@@ -530,7 +541,7 @@ export default function ProductDetailPage({
                       }}
                     >
                       {src ? (
-                        <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="90px" />
+                        <Image src={src} alt={imgAlt(product, i)} fill style={{ objectFit: "contain" }} sizes="90px" />
                       ) : (
                         <ImgBox index={i} />
                       )}
@@ -1116,7 +1127,7 @@ export default function ProductDetailPage({
           <div onClick={e => e.stopPropagation()}
             style={{ maxWidth: "min(90vw,1000px)", width: "100%", aspectRatio: "4/3", maxHeight: "80vh", border: "1px solid #2a2a2a", position: "relative", background: "#161616" }}>
             {images[activeImg] ? (
-              <Image src={images[activeImg]} alt={product.title} fill style={{ objectFit: "contain" }} sizes="80vw" />
+              <Image src={images[activeImg]} alt={imgAlt(product)} fill style={{ objectFit: "contain" }} sizes="80vw" />
             ) : (
               <ImgBox index={activeImg} />
             )}
@@ -1140,7 +1151,7 @@ export default function ProductDetailPage({
                 <div key={i} onClick={e => { e.stopPropagation(); setActiveImg(i) }}
                   style={{ height: "52px", aspectRatio: "4/3", border: `1px solid ${i === activeImg ? "#c09530" : "#2a2a2a"}`, opacity: i === activeImg ? 1 : 0.5, cursor: "pointer", transition: "all 0.2s", overflow: "hidden", position: "relative", background: "#161616" }}>
                   {src ? (
-                    <Image src={src} alt="" fill style={{ objectFit: "contain" }} sizes="52px" />
+                    <Image src={src} alt={imgAlt(product, i)} fill style={{ objectFit: "contain" }} sizes="52px" />
                   ) : (
                     <ImgBox index={i} />
                   )}

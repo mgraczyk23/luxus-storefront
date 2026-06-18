@@ -10,6 +10,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/account/',
+          '/cart/',
           '/checkout/',
           '/invoice/',
           '/order-confirmation/',
@@ -19,9 +20,9 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
       // AI crawlers: same disallows as *, explicit allow ensures they aren't blocked by blanket filters
-      { userAgent: 'GPTBot',        allow: '/', disallow: ['/account/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
-      { userAgent: 'ClaudeBot',     allow: '/', disallow: ['/account/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
-      { userAgent: 'PerplexityBot', allow: '/', disallow: ['/account/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
+      { userAgent: 'GPTBot',        allow: '/', disallow: ['/account/', '/cart/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
+      { userAgent: 'ClaudeBot',     allow: '/', disallow: ['/account/', '/cart/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
+      { userAgent: 'PerplexityBot', allow: '/', disallow: ['/account/', '/cart/', '/checkout/', '/invoice/', '/order-confirmation/', '/offer/', '/auth/', '/api/'] },
     ],
     sitemap: `${SITE}/sitemap.xml`,
   }

@@ -75,13 +75,38 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     brandData ? getResourcePages(brandData.id).catch(() => []) : [],
   ])
 
+  const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const name = brandData?.name ?? slug
+  const collectionPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${name} — Resources on Guns | Luxus Collection`,
+    description: brandData?.tagline ?? `History, engineering, and craftsmanship of ${name} firearms.`,
+    url: `${SITE}/resources-on-guns/${slug}`,
+    about: { '@type': 'Brand', name },
+    numberOfItems: brandProds.length || undefined,
+  }
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE },
+      { '@type': 'ListItem', position: 2, name: 'Resources on Guns', item: `${SITE}/resources-on-guns` },
+      { '@type': 'ListItem', position: 3, name, item: `${SITE}/resources-on-guns/${slug}` },
+    ],
+  }
+
   return (
-    <ResourcesBrandPage
-      brand={brandData}
-      articles={articles}
-      resourcePages={resourcePages}
-      products={brandProds}
-      slug={slug}
-    />
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <ResourcesBrandPage
+        brand={brandData}
+        articles={articles}
+        resourcePages={resourcePages}
+        products={brandProds}
+        slug={slug}
+      />
+    </>
   )
 }

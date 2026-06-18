@@ -6,6 +6,7 @@ import ListingPage from "@/components/ListingPage"
 import type { Metadata } from "next"
 import { ogMeta } from "@/lib/og"
 import { toSlug } from "@/lib/slug"
+import { getBrand } from "@/lib/payload"
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*attribute_values,*attribute_values.attribute_type"
 const PAGE_SIZE = 100
@@ -82,13 +83,17 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const normalized = toSlug(slug)
   if (normalized !== slug) redirect(`/brand/${normalized}`)
 
-  let allProducts: ReturnType<typeof mapMedusaProduct>[] = []
-  try { allProducts = await getAllProducts() } catch {}
+  const [allProducts, brandPayload] = await Promise.allSettled([
+    getAllProducts(),
+    getBrand(slug),
+  ])
+  const allProductsArr = allProducts.status === 'fulfilled' ? allProducts.value : []
+  const tagline = brandPayload.status === 'fulfilled' ? (brandPayload.value?.tagline ?? null) : null
 
-  const brandName = getBrandName(slug, allProducts)
+  const brandName = getBrandName(slug, allProductsArr)
   const name = brandName ?? slug
   const products = brandName
-    ? allProducts.filter(p => p.attribute_lists.brand.includes(brandName))
+    ? allProductsArr.filter(p => p.attribute_lists.brand.includes(brandName))
     : []
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
@@ -134,6 +139,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           products={products}
           title={name}
           eyebrow="Brand"
+          description={tagline ?? undefined}
           breadcrumbs={[
             { label: "Home", href: "/" },
             { label: "Shop", href: "/shop" },

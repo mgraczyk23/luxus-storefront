@@ -30,7 +30,7 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [productsRes, categoriesRes, collectionsRes, brandsRes, postsRes, resourcesRes] =
     await Promise.allSettled([
-      getProducts({ limit: '500', fields: 'handle,+metadata,+attribute_values,*attribute_values.attribute_type' }),
+      getProducts({ limit: '500', fields: 'handle,updated_at,+metadata,+attribute_values,*attribute_values.attribute_type' }),
       getCategories(),
       getCollections(),
       getBrands(),
@@ -50,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url:             url(`/product/${p.handle}`),
     changeFrequency: 'weekly' as const,
     priority:        0.8,
-    lastModified:    now,
+    lastModified:    p.updated_at ? new Date(p.updated_at) : now,
   }))
 
   // Model pages — extract unique model slugs from attribute_values (with metadata fallback)
