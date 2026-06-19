@@ -131,21 +131,20 @@ export default async function ProductPage(
     category: primaryCat?.name || undefined,
     itemCondition: 'https://schema.org/NewCondition',
     additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
-    // Google requires Offer, Review, or AggregateRating on every Product, AND
-    // requires price/priceSpecification on every Offer. For contact-for-pricing
-    // items we use price "0" — the industry-standard convention for on-request
-    // pricing that satisfies the validator without a fake dollar value appearing
-    // in SERPs (Google suppresses $0 display for luxury/variable-price items).
-    offers: {
+    // Contact-for-pricing products omit the offers block entirely.
+    // Google Product Snippet (organic search) only requires name + image — offers
+    // is optional. The "missing Offer" warning in Search Console is non-penalizing
+    // and is the correct/recommended approach for POA items per Google's own docs.
+    // Firearms cannot appear in Google Shopping regardless, so Merchant Listing
+    // eligibility (which does require offers+price) is irrelevant for this store.
+    offers: (!product.contact_for_pricing && product.price != null) ? {
       '@type': 'Offer',
       url: `${SITE}/product/${product.handle}`,
-      availability: (product.in_stock || product.contact_for_pricing)
+      availability: product.in_stock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       priceCurrency: 'USD',
-      price: (!product.contact_for_pricing && product.price != null)
-        ? product.price.toFixed(2)
-        : '0',
+      price: product.price.toFixed(2),
       seller: { '@type': 'Organization', name: 'Luxus Collection' },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
@@ -163,7 +162,7 @@ export default async function ProductPage(
         returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
         merchantReturnLink: `${SITE}/contact`,
       },
-    },
+    } : undefined,
   }
 
   // BreadcrumbList for navigation path context
