@@ -579,6 +579,15 @@ export default function ResourcesBrandPage({
 
   const RESOURCES_PER_PAGE = 9
   const [resourcePage, setResourcePage] = useState(1)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const heroUrl      = imageUrl(brand?.heroImage)
   const logoUrl      = imageUrl(brand?.logo)
@@ -695,14 +704,23 @@ export default function ResourcesBrandPage({
               {pagedResources.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
             </div>
             {resourcePageCount > 1 && (
-              <div className="lxs-pagination" style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '32px', flexWrap: 'wrap' }}>
-                {Array.from({ length: resourcePageCount }, (_, i) => i + 1).map(n => (
-                  <button
-                    className="lxs-page-btn"
-                    key={n}
-                    onClick={() => setResourcePage(n)}
-                    style={{
-                      width: '36px', height: '36px',
+              <div className="lxs-pagination" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '32px', flexWrap: 'wrap' }}>
+                <button className="lxs-page-btn" onClick={() => setResourcePage(p => Math.max(1, p - 1))} disabled={resourcePage === 1}
+                  style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${resourcePage === 1 ? t.border + '50' : t.border}`, cursor: resourcePage === 1 ? 'not-allowed' : 'pointer', opacity: resourcePage === 1 ? 0.35 : 1, color: t.textMuted, transition: 'all 0.2s' }}>
+                  <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
+                {isMobile ? (
+                  <span style={{ padding: '0 16px', fontSize: '13px', color: t.textMuted, fontFamily: 'var(--font-inter)', letterSpacing: '0.04em', display: 'flex', alignItems: 'center' }}>
+                    {resourcePage} / {resourcePageCount}
+                  </span>
+                ) : (
+                  Array.from({ length: resourcePageCount }, (_, i) => i + 1).map(n => (
+                    <button
+                      className="lxs-page-btn"
+                      key={n}
+                      onClick={() => setResourcePage(n)}
+                      style={{
+                        width: '36px', height: '36px',
                       border: `1px solid ${n === resourcePage ? t.gold : t.border}`,
                       background: n === resourcePage ? t.gold : 'transparent',
                       color: n === resourcePage ? '#fff' : t.text,
@@ -713,7 +731,12 @@ export default function ResourcesBrandPage({
                   >
                     {n}
                   </button>
-                ))}
+                  ))
+                )}
+                <button className="lxs-page-btn" onClick={() => setResourcePage(p => Math.min(resourcePageCount, p + 1))} disabled={resourcePage === resourcePageCount}
+                  style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${resourcePage === resourcePageCount ? t.border + '50' : t.border}`, cursor: resourcePage === resourcePageCount ? 'not-allowed' : 'pointer', opacity: resourcePage === resourcePageCount ? 0.35 : 1, color: t.textMuted, transition: 'all 0.2s' }}>
+                  <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </button>
               </div>
             )}
           </section>

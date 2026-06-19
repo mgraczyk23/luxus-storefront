@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
@@ -203,7 +203,16 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
   const [activeCategory, setActiveCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
   const [page, setPage] = useState(1)
+  const [isMobile, setIsMobile] = useState(false)
   const PER_PAGE = 12
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const allPosts: PayloadPost[] = posts ?? (MOCK_POSTS as unknown as PayloadPost[])
 
@@ -352,12 +361,18 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
               style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === 1 ? t.border + "50" : t.border}`, cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s" }}>
               <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button className="lxs-page-btn" key={n} onClick={() => setPage(n)}
-                style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? "#fff" : t.textMuted, fontSize: "11px", fontFamily: "var(--font-inter)", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s" }}>
-                {n}
-              </button>
-            ))}
+            {isMobile ? (
+              <span style={{ padding: "0 16px", fontSize: "13px", color: t.textMuted, fontFamily: "var(--font-inter)", letterSpacing: "0.04em", display: "flex", alignItems: "center" }}>
+                {page} / {totalPages}
+              </span>
+            ) : (
+              Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
+                <button className="lxs-page-btn" key={n} onClick={() => setPage(n)}
+                  style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? "#fff" : t.textMuted, fontSize: "11px", fontFamily: "var(--font-inter)", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s" }}>
+                  {n}
+                </button>
+              ))
+            )}
             <button className="lxs-page-btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
               style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === totalPages ? t.border + "50" : t.border}`, cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s" }}>
               <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
