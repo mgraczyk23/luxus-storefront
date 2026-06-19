@@ -107,21 +107,22 @@ export default async function ProductPage(
   const primaryCat = (raw as any).categories?.[0]
 
   // Product images — use all available images, fall back to thumbnail.
-  // Converted to ImageObject so Google can index license metadata (Licensable badge).
-  // All collectible firearm images are Luxus Collection originals. Revisit if stock
-  // images are added for modern firearms — those would need their own license/creator.
+  // "Modern Firearms" tagged products use stock/manufacturer images, so we omit
+  // license metadata for those. All other products (collectibles) are original
+  // Luxus Collection photography and get the full ImageObject with license info.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawImages: string[] = ((raw as any).images ?? []).map((img: any) => img.url).filter(Boolean)
   const imageUrls = rawImages.length > 0 ? rawImages : (product.thumbnail ? [product.thumbnail] : [])
+  const isModernFirearm = product.tags.some(t => t.toLowerCase() === 'modern firearms')
   const images = imageUrls.length > 0
-    ? imageUrls.map(url => ({
+    ? imageUrls.map(url => isModernFirearm ? { '@type': 'ImageObject', url } : {
         '@type': 'ImageObject',
         url,
         copyrightNotice: '© Luxus Collection',
         creator: { '@type': 'Organization', name: 'Luxus Collection' },
-        license: `${SITE}/legal`,
+        license: `${SITE}/terms`,
         acquireLicensePage: `${SITE}/contact`,
-      }))
+      })
     : undefined
 
   const productJsonLd = {
