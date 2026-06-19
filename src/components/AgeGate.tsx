@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { LIGHT as t } from '@/context/ThemeContext'
 
 const COOKIE = 'lxs_age_verified'
 
@@ -47,48 +48,39 @@ export default function AgeGate() {
 
   if (!visible) return null
 
-  const T = {
-    overlay:  'rgba(8, 8, 8, 0.96)',
-    surface:  '#111111',
-    border:   '#272727',
-    gold:     '#c9a96e',
-    text:     '#f0ede8',
-    muted:    '#9a9a9a',
-    dim:      '#606060',
-  }
-
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 99999,
-      background: T.overlay,
+      background: 'rgba(26, 26, 26, 0.55)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '24px',
     }}>
       <div style={{
-        background: T.surface,
-        border: `1px solid ${T.border}`,
-        borderTop: `2px solid ${T.gold}`,
+        background: t.bg,
+        border: `1px solid ${t.border}`,
+        borderTop: `2px solid ${t.gold}`,
         maxWidth: '460px',
         width: '100%',
         padding: '48px 40px 40px',
         textAlign: 'center',
+        boxShadow: '0 30px 80px rgba(0,0,0,0.18)',
       }}>
 
         {/* Wordmark */}
         <div style={{
           fontSize: '9px', letterSpacing: '0.3em', textTransform: 'uppercase',
-          color: T.gold, fontWeight: 600, fontFamily: "'Inter', sans-serif",
+          color: t.gold, fontWeight: 600, fontFamily: "'Inter', sans-serif",
           marginBottom: '20px',
         }}>
           Luxus Collection
         </div>
 
-        <div style={{ width: '32px', height: '1px', background: T.gold, margin: '0 auto 28px' }} />
+        <div style={{ width: '32px', height: '1px', background: t.gold, margin: '0 auto 28px' }} />
 
         {/* Heading */}
         <h2 style={{
           fontFamily: 'var(--font-playfair), Georgia, serif',
-          fontSize: '22px', fontWeight: 400, color: T.text,
+          fontSize: '22px', fontWeight: 400, color: t.text,
           margin: '0 0 12px', lineHeight: 1.3,
         }}>
           Age Verification Required
@@ -96,7 +88,7 @@ export default function AgeGate() {
 
         <p style={{
           fontFamily: "'Inter', sans-serif",
-          fontSize: '13px', color: T.muted, lineHeight: 1.7,
+          fontSize: '13px', color: t.textMuted, lineHeight: 1.7,
           margin: '0 0 32px',
         }}>
           You must be 18 years of age or older to enter this site.
@@ -110,8 +102,8 @@ export default function AgeGate() {
             onClick={handleEnter}
             style={{
               flex: 1, padding: '14px 12px',
-              background: T.gold, border: 'none',
-              color: '#1a1a1a',
+              background: t.gold, border: 'none',
+              color: '#ffffff',
               fontFamily: "'Inter', sans-serif",
               fontSize: '10px', letterSpacing: '0.16em',
               textTransform: 'uppercase', fontWeight: 700,
@@ -125,8 +117,8 @@ export default function AgeGate() {
             style={{
               flex: 1, padding: '14px 12px',
               background: 'transparent',
-              border: `1px solid ${T.border}`,
-              color: T.muted,
+              border: `1px solid ${t.border}`,
+              color: t.textMuted,
               fontFamily: "'Inter', sans-serif",
               fontSize: '10px', letterSpacing: '0.16em',
               textTransform: 'uppercase', fontWeight: 600,
@@ -146,11 +138,11 @@ export default function AgeGate() {
             type="checkbox"
             checked={remember}
             onChange={e => setRemember(e.target.checked)}
-            style={{ marginTop: '2px', accentColor: T.gold, cursor: 'pointer', flexShrink: 0 }}
+            style={{ marginTop: '2px', accentColor: t.gold, cursor: 'pointer', flexShrink: 0 }}
           />
           <span style={{
             fontFamily: "'Inter', sans-serif",
-            fontSize: '11px', color: T.dim, lineHeight: 1.6,
+            fontSize: '11px', color: t.textDim, lineHeight: 1.6,
           }}>
             Remember me for 30 days.<br />
             I confirm that this is not a shared device.
