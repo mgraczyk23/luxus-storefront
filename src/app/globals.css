@@ -176,6 +176,11 @@ a {
 
   img                                                     { max-width: 100%; height: auto; }
 
+  /* Pagination — larger tap targets on mobile */
+  .lxs-pagination    { gap: 8px !important; }
+  .lxs-page-btn      { width: 44px !important; height: 44px !important; }
+  .lxs-page-ellipsis { height: 44px !important; }
+
   /* Articles page — compact mobile layout */
   .lxs-articles-banner                                    { padding: 20px 16px 0 !important; }
   .lxs-articles-title-block                               { margin-bottom: 16px !important; }

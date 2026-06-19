@@ -347,18 +347,18 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "64px", paddingTop: "40px", borderTop: `1px solid ${t.border}` }}>
-            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+          <div className="lxs-pagination" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginTop: "64px", paddingTop: "40px", borderTop: `1px solid ${t.border}` }}>
+            <button className="lxs-page-btn" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
               style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === 1 ? t.border + "50" : t.border}`, cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s" }}>
               <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-              <button key={n} onClick={() => setPage(n)}
+              <button className="lxs-page-btn" key={n} onClick={() => setPage(n)}
                 style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? "#fff" : t.textMuted, fontSize: "11px", fontFamily: "var(--font-inter)", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s" }}>
                 {n}
               </button>
             ))}
-            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            <button className="lxs-page-btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
               style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === totalPages ? t.border + "50" : t.border}`, cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s" }}>
               <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M1 1L5 5L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>

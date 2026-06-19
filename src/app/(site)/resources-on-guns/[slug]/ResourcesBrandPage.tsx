@@ -695,9 +695,10 @@ export default function ResourcesBrandPage({
               {pagedResources.map(p => <ResourceCard key={p.id} page={p} brandSlug={slug} />)}
             </div>
             {resourcePageCount > 1 && (
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '32px', flexWrap: 'wrap' }}>
+              <div className="lxs-pagination" style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '32px', flexWrap: 'wrap' }}>
                 {Array.from({ length: resourcePageCount }, (_, i) => i + 1).map(n => (
                   <button
+                    className="lxs-page-btn"
                     key={n}
                     onClick={() => setResourcePage(n)}
                     style={{
