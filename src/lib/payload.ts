@@ -1179,7 +1179,6 @@ export async function getPolicy(slug: 'shipping' | 'privacy' | 'terms'): Promise
       heading: s.heading,
       body: s.body,
     }))
-    if (!sections.length) return fallback
     return {
       ...meta,
       lastUpdated: data.lastUpdated || fallback.lastUpdated,

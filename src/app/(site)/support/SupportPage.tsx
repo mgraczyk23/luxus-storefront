@@ -38,24 +38,24 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
   const { contact, hours } = settings
 
   const c = {
-    headline:      text.headline      ?? "Customer Support",
-    introParagraph: text.introParagraph ?? "Whether you have a question about an order, an FFL transfer, or a specific piece in our collection, we respond to every inquiry personally.",
+    headline:      text.headline      ?? '',
+    introParagraph: text.introParagraph ?? '',
     topics: [TOPIC_PLACEHOLDER, ...[text.topic1, text.topic2, text.topic3, text.topic4, text.topic5, text.topic6, text.topic7, text.topic8, text.topic9, text.topic10].filter((t): t is string => !!t)],
-    emailCardSub: text.emailCardSub ?? "Response within 1 business day",
-    fflHeadline:  text.fflHeadline  ?? "The FFL Transfer Process",
-    fflIntro:     text.fflIntro     ?? "Purchasing a firearm online is straightforward once you understand the FFL transfer requirement. Federal law mandates that all interstate firearm sales route through a licensed dealer near you.",
-    fflFeeNote:   text.fflFeeNote   ?? "Your FFL dealer charges a transfer fee directly to you — typically $25–$75. This is separate from your Luxus Collection purchase and is paid to your local dealer at pickup.",
+    emailCardSub: text.emailCardSub ?? '',
+    fflHeadline:  text.fflHeadline  ?? '',
+    fflIntro:     text.fflIntro     ?? '',
+    fflFeeNote:   text.fflFeeNote   ?? '',
     fflSteps: [
-      [text.fflStep1Title ?? "Choose your FFL dealer",      text.fflStep1Desc ?? "Find a local gun shop or licensed dealer willing to accept transfers. Ask for their FFL license copy — you'll need to provide it when placing your order."],
-      [text.fflStep2Title ?? "Complete your purchase",      text.fflStep2Desc ?? "Add your item to cart, provide your FFL dealer's information at checkout, and complete payment. We'll ship directly to your dealer."],
-      [text.fflStep3Title ?? "We ship to your dealer",      text.fflStep3Desc ?? "Once payment clears, your firearm ships within 2–3 business days via FedEx with signature required. You'll receive tracking by email."],
-      [text.fflStep4Title ?? "Your dealer contacts you",    text.fflStep4Desc ?? "When your firearm arrives, your FFL dealer will call you to schedule pickup. Bring a valid government-issued photo ID."],
-      [text.fflStep5Title ?? "Complete the background check", text.fflStep5Desc ?? "At your dealer, you'll fill out ATF Form 4473 and pass the NICS background check. Upon approval, the firearm is yours."],
+      [text.fflStep1Title ?? '', text.fflStep1Desc ?? ''],
+      [text.fflStep2Title ?? '', text.fflStep2Desc ?? ''],
+      [text.fflStep3Title ?? '', text.fflStep3Desc ?? ''],
+      [text.fflStep4Title ?? '', text.fflStep4Desc ?? ''],
+      [text.fflStep5Title ?? '', text.fflStep5Desc ?? ''],
     ] as [string, string][],
     infoCards: [
-      [text.infoCard1Heading ?? "Legal Compliance",      text.infoCard1Body ?? `All transactions are conducted in full compliance with applicable federal, state, and local laws. We hold Federal Firearms License #${settings.fflLicense ?? "Update in Site Settings"}.`],
-      [text.infoCard2Heading ?? "Discreet Packaging",    text.infoCard2Body ?? "All shipments are packaged discreetly with no external markings indicating firearm content. Packaging is professional, secure, and fully insured for the declared value."],
-      [text.infoCard3Heading ?? "Response Commitment",   text.infoCard3Body ?? "Every inquiry receives a personal response — not an automated reply. We aim to respond within one business day and are available by phone Monday through Saturday."],
+      [text.infoCard1Heading ?? '', text.infoCard1Body ?? ''],
+      [text.infoCard2Heading ?? '', text.infoCard2Body ?? ''],
+      [text.infoCard3Heading ?? '', text.infoCard3Body ?? ''],
     ] as [string, string][],
   }
 

@@ -38,17 +38,17 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
   const { contact, address, hours, social } = settings
 
   const c = {
-    headline:      text.headline      ?? "We’d Love to\nHear from You.",
-    introParagraph: text.introParagraph ?? "Whether you’re inquiring about a specific piece, considering a consignment, or simply want to talk firearms with someone who cares as much as you do, our team is here.",
+    headline:      text.headline      ?? '',
+    introParagraph: text.introParagraph ?? '',
     topics: [TOPIC_PLACEHOLDER, ...[text.topic1, text.topic2, text.topic3, text.topic4, text.topic5, text.topic6, text.topic7, text.topic8, text.topic9, text.topic10].filter((t): t is string => !!t)],
-    emailChannelSub: text.emailChannelSub ?? "Response within 1 business day",
-    salesChannelSub: text.salesChannelSub ?? "Submit pieces for review\nResponse within 3 business days",
-    pressChannelSub: text.pressChannelSub ?? "Media inquiries & editorial requests",
+    emailChannelSub: text.emailChannelSub ?? '',
+    salesChannelSub: text.salesChannelSub ?? '',
+    pressChannelSub: text.pressChannelSub ?? '',
     expects: [
-      [text.expect1Title ?? "We Read Every Message",  text.expect1Body ?? "No automated routing, no ticket queue. Every message is read by a team member who knows the inventory."],
-      [text.expect2Title ?? "Honest, Direct Replies", text.expect2Body ?? "If we don’t have the piece you’re after, we’ll tell you, and often suggest where you might find it."],
-      [text.expect3Title ?? "No Hard Sell",           text.expect3Body ?? "Our team is here to inform and assist, not to close. If the right piece isn’t in our collection, we’ll say so."],
-      [text.expect4Title ?? "Follow-Through",         text.expect4Body ?? "If we say we’ll follow up, we follow up. Complex inquiries don’t fall through the cracks."],
+      [text.expect1Title ?? '', text.expect1Body ?? ''],
+      [text.expect2Title ?? '', text.expect2Body ?? ''],
+      [text.expect3Title ?? '', text.expect3Body ?? ''],
+      [text.expect4Title ?? '', text.expect4Body ?? ''],
     ] as [string, string][],
   }
 
