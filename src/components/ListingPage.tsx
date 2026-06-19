@@ -158,15 +158,15 @@ function ProductCard({ product }: { product: MappedProduct }) {
           {[product.attributes?.caliber, product.attributes?.action].filter(Boolean).join(" · ")}
         </div>
         <div style={{ height: "1px", background: t.border, marginBottom: "13px", marginTop: "auto" }} />
-        <div className="lxs-card-price-row" style={{ display: "flex", alignItems: "center", justifyContent: product.in_stock ? "space-between" : "flex-end", gap: "8px" }}>
+        <div className={`lxs-card-price-row${product.contact_for_pricing ? ' lxs-card-cfp-row' : ''}`} style={{ display: "flex", alignItems: "center", justifyContent: product.in_stock ? "space-between" : "flex-end", gap: "8px" }}>
           {product.in_stock && (
-            <div className="lxs-card-price" style={{
+            <div className={`lxs-card-price${product.contact_for_pricing ? ' lxs-card-price-cfp' : ''}`} style={{
               fontSize: product.contact_for_pricing ? "10px" : "15px",
               fontWeight: product.contact_for_pricing ? 400 : 500,
               color: product.contact_for_pricing ? t.gold : t.text,
               letterSpacing: product.contact_for_pricing ? "0.04em" : "0.01em",
             }}>
-              {product.contact_for_pricing ? "Contact Us For Pricing" : product.price !== null ? fmt(product.price) : "—"}
+              {product.contact_for_pricing ? "Contact Us" : product.price !== null ? fmt(product.price) : "—"}
             </div>
           )}
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>

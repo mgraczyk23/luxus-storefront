@@ -375,6 +375,7 @@ a {
 
   .lxs-card-badge-cat  { top: 10px !important; bottom: auto !important; right: 10px !important; left: auto !important; }
   .lxs-card-price      { font-size: 14px !important; letter-spacing: 0.01em !important; }
+  .lxs-card-price-cfp  { text-align: center !important; width: 100% !important; font-size: 10px !important; letter-spacing: 0.14em !important; }
   .lxs-card-view-btn   { font-size: 12px !important; min-height: 36px !important; display: flex !important; align-items: center !important; padding: 6px 0 !important; }
 }
 
