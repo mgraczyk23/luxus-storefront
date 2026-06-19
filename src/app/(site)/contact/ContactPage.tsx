@@ -208,7 +208,6 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
                 <div style={{ width:"18px",height:"1px",background:t.gold }}/>
                 <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>Send a Message</span>
               </div>
-              <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(26px,2.8vw,40px)",fontWeight:300,color:t.text,lineHeight:1.15 }}>Drop Us a Line</h2>
             </div>
 
             {formStatus === "success" ? (
