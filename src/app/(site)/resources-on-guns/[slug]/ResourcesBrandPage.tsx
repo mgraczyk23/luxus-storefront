@@ -455,12 +455,14 @@ function ProductCard({ product }: { product: MappedProduct }) {
   useEffect(() => { setWishlisted(isWishlisted(product.handle)) }, [product.handle])
 
   const handleHeartClick = (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     const next = toggleWishlist({ handle: product.handle, title: product.title, brand: product.brand, caliber: product.attributes?.caliber ?? null, action: product.attributes?.action ?? null, price: product.price, contact_for_pricing: product.contact_for_pricing, thumbnail: product.thumbnail })
     setWishlisted(next)
   }
 
   const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     addItem(product)
     setAddedToCart(true)
