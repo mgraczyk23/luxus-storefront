@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getSiteSettings, getContactPageText, getPageSeo } from "@/lib/payload"
+import { getSiteSettings, getContactPageText, getPageSeo, imageUrl } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
 import ContactPage from "./ContactPage"
 
@@ -32,7 +32,9 @@ export default async function Page() {
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
   const name = settings.branding.legalName || 'Luxus Collection'
-  const { hours, address, contact } = settings
+  const { hours, address, contact, social, branding } = settings
+  const logoUrl = imageUrl(branding.logo)
+  const sameAs = [social.facebook, social.instagram, social.twitter, social.youtube, social.linkedin, social.pinterest].filter(Boolean) as string[]
 
   const openingHours: string[] = []
   if (hours.weekdayOpen && hours.weekdayClose)
@@ -52,6 +54,10 @@ export default async function Page() {
     '@type': 'LocalBusiness',
     name,
     url: SITE,
+    description: 'A boutique destination for the serious firearms collector. Luxus Collection specializes in rare, collectible, and historically significant firearms — including antiques, engraved pieces, and limited-edition production guns.',
+    priceRange: '$$$',
+    currenciesAccepted: 'USD',
+    paymentAccepted: 'Cash, Credit Card, Wire Transfer',
     telephone: contact.phone,
     email: contact.emailInfo,
     address: {
@@ -63,9 +69,12 @@ export default async function Page() {
       addressCountry:  'US',
     },
     ...(openingHours.length > 0 ? { openingHours } : {}),
+    ...(logoUrl ? { logo: { '@type': 'ImageObject', url: logoUrl } } : {}),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
     ...(settings.fflLicense ? { identifier: { '@type': 'PropertyValue', name: 'FFL License', value: settings.fflLicense } } : {}),
     contactPoint: [
       { '@type': 'ContactPoint', telephone: contact.phone,         contactType: 'sales',            areaServed: 'US', availableLanguage: 'English' },
+      { '@type': 'ContactPoint', telephone: contact.phoneTollFree, contactType: 'customer service', areaServed: 'US', availableLanguage: 'English' },
       { '@type': 'ContactPoint', email:     contact.emailInfo,     contactType: 'customer service', areaServed: 'US', availableLanguage: 'English' },
       { '@type': 'ContactPoint', email:     contact.emailSales,    contactType: 'sales',            areaServed: 'US', availableLanguage: 'English' },
       { '@type': 'ContactPoint', email:     contact.emailSupport,  contactType: 'customer support', areaServed: 'US', availableLanguage: 'English' },
