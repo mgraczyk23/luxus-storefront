@@ -17,6 +17,18 @@ import { toSlug } from '@/lib/slug'
 
 /* ── Lexical inline renderer ─────────────────────────────────────────────── */
 
+function getPageNums(current: number, total: number, wing: number): (number | '...')[] {
+  if (total <= wing * 2 + 3) return Array.from({ length: total }, (_, i) => i + 1)
+  const out: (number | '...')[] = [1]
+  const lo = Math.max(2, current - wing)
+  const hi = Math.min(total - 1, current + wing)
+  if (lo > 2) out.push('...')
+  for (let i = lo; i <= hi; i++) out.push(i)
+  if (hi < total - 1) out.push('...')
+  out.push(total)
+  return out
+}
+
 function InlineNode({ node }: { node: LexInline }) {
   const { t } = useTheme()
   if (node.type === 'linebreak') return <br />
@@ -709,29 +721,15 @@ export default function ResourcesBrandPage({
                   style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${resourcePage === 1 ? t.border + '50' : t.border}`, cursor: resourcePage === 1 ? 'not-allowed' : 'pointer', opacity: resourcePage === 1 ? 0.35 : 1, color: t.textMuted, transition: 'all 0.2s' }}>
                   <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </button>
-                {isMobile ? (
-                  <span style={{ padding: '0 16px', fontSize: '13px', color: t.textMuted, fontFamily: 'var(--font-inter)', letterSpacing: '0.04em', display: 'flex', alignItems: 'center' }}>
-                    {resourcePage} / {resourcePageCount}
-                  </span>
-                ) : (
-                  Array.from({ length: resourcePageCount }, (_, i) => i + 1).map(n => (
-                    <button
-                      className="lxs-page-btn"
-                      key={n}
-                      onClick={() => setResourcePage(n)}
-                      style={{
-                        width: '36px', height: '36px',
-                      border: `1px solid ${n === resourcePage ? t.gold : t.border}`,
-                      background: n === resourcePage ? t.gold : 'transparent',
-                      color: n === resourcePage ? '#fff' : t.text,
-                      fontFamily: 'var(--font-inter)', fontSize: '12px', fontWeight: 500,
-                      cursor: 'pointer', letterSpacing: '0.03em',
-                      transition: 'border-color 0.15s, background 0.15s',
-                    }}
-                  >
-                    {n}
-                  </button>
-                  ))
+                {getPageNums(resourcePage, resourcePageCount, isMobile ? 0 : 4).map((n, idx) =>
+                  n === '...' ? (
+                    <span className="lxs-page-ellipsis" key={`el-${idx}`} style={{ width: '24px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: t.textDim, flexShrink: 0 }}>…</span>
+                  ) : (
+                    <button className="lxs-page-btn" key={n} onClick={() => setResourcePage(n as number)}
+                      style={{ width: '36px', height: '36px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: n === resourcePage ? t.gold : 'transparent', border: `1px solid ${n === resourcePage ? t.gold : t.border}`, color: n === resourcePage ? '#fff' : t.textMuted, fontSize: '11px', fontFamily: 'var(--font-inter)', fontWeight: n === resourcePage ? 500 : 300, cursor: 'pointer', transition: 'all 0.2s' }}>
+                      {n}
+                    </button>
+                  )
                 )}
                 <button className="lxs-page-btn" onClick={() => setResourcePage(p => Math.min(resourcePageCount, p + 1))} disabled={resourcePage === resourcePageCount}
                   style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${resourcePage === resourcePageCount ? t.border + '50' : t.border}`, cursor: resourcePage === resourcePageCount ? 'not-allowed' : 'pointer', opacity: resourcePage === resourcePageCount ? 0.35 : 1, color: t.textMuted, transition: 'all 0.2s' }}>

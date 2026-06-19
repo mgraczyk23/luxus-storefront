@@ -66,6 +66,18 @@ const MOCK_POSTS = [
 ]
 
 
+function getPageNums(current: number, total: number, wing: number): (number | '...')[] {
+  if (total <= wing * 2 + 3) return Array.from({ length: total }, (_, i) => i + 1)
+  const out: (number | '...')[] = [1]
+  const lo = Math.max(2, current - wing)
+  const hi = Math.min(total - 1, current + wing)
+  if (lo > 2) out.push('...')
+  for (let i = lo; i <= hi; i++) out.push(i)
+  if (hi < total - 1) out.push('...')
+  out.push(total)
+  return out
+}
+
 function formatDate(iso: string | null): string {
   if (!iso) return ""
   return new Date(iso).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
@@ -361,17 +373,15 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
               style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === 1 ? t.border + "50" : t.border}`, cursor: page === 1 ? "not-allowed" : "pointer", opacity: page === 1 ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s" }}>
               <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
             </button>
-            {isMobile ? (
-              <span style={{ padding: "0 16px", fontSize: "13px", color: t.textMuted, fontFamily: "var(--font-inter)", letterSpacing: "0.04em", display: "flex", alignItems: "center" }}>
-                {page} / {totalPages}
-              </span>
-            ) : (
-              Array.from({ length: totalPages }, (_, i) => i + 1).map((n) => (
-                <button className="lxs-page-btn" key={n} onClick={() => setPage(n)}
+            {getPageNums(page, totalPages, isMobile ? 0 : 4).map((n, idx) =>
+              n === '...' ? (
+                <span className="lxs-page-ellipsis" key={`el-${idx}`} style={{ width: "24px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", color: t.textDim }}>…</span>
+              ) : (
+                <button className="lxs-page-btn" key={n} onClick={() => setPage(n as number)}
                   style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: n === page ? t.gold : "transparent", border: `1px solid ${n === page ? t.gold : t.border}`, color: n === page ? "#fff" : t.textMuted, fontSize: "11px", fontFamily: "var(--font-inter)", fontWeight: n === page ? 500 : 300, cursor: "pointer", transition: "all 0.2s" }}>
                   {n}
                 </button>
-              ))
+              )
             )}
             <button className="lxs-page-btn" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
               style={{ width: "36px", height: "36px", display: "flex", alignItems: "center", justifyContent: "center", background: "transparent", border: `1px solid ${page === totalPages ? t.border + "50" : t.border}`, cursor: page === totalPages ? "not-allowed" : "pointer", opacity: page === totalPages ? 0.35 : 1, color: t.textMuted, transition: "all 0.2s" }}>
