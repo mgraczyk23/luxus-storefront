@@ -19,10 +19,13 @@ export const TAG_PAGES: Record<string, string[]> = {
   "consignment-page":  ["/sell-your-gun"],
   "contact-page":      ["/contact"],
   "support-page":      ["/support"],
-  "policy-shipping":   ["/policy/shipping"],
-  "policy-privacy":    ["/policy/privacy"],
-  "policy-terms":      ["/policy/terms"],
+  "policy-shipping":   ["/shipping"],
+  "policy-privacy":    ["/privacy"],
+  "policy-terms":      ["/terms"],
   "resource-pages":    ["/resources-on-guns"],
+
+  // Page SEO global — affects metadata on all main pages
+  "page-seo":          ["/", "/shop", "/about", "/articles", "/contact", "/support", "/faq", "/sell-your-gun", "/featured", "/shop/brands"],
 
   // Internal link engine — rebuilds when CMS entries, products, or brands change
   "internal-links":    ["/articles"],
