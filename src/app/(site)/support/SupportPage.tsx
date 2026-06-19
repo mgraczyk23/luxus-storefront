@@ -140,12 +140,14 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
                   </div>
                 ))}
               </div>
-              <div style={{ marginTop:"14px",display:"flex",alignItems:"center",gap:"6px" }}>
-                <div style={{ width:"6px",height:"6px",borderRadius:"50%",background:"#5a9a5a" }}/>
-                <span style={{ fontSize:"10.5px",color:t.textMuted,fontWeight:300,letterSpacing:"0.02em" }}>
-                  Typically respond within <span style={{ color:t.text,fontWeight:400 }}>1 business day</span>
-                </span>
-              </div>
+              {c.emailCardSub && (
+                <div style={{ marginTop:"14px",display:"flex",alignItems:"center",gap:"6px" }}>
+                  <div style={{ width:"6px",height:"6px",borderRadius:"50%",background:"#5a9a5a" }}/>
+                  <span style={{ fontSize:"10.5px",color:t.textMuted,fontWeight:300,letterSpacing:"0.02em" }}>
+                    {c.emailCardSub}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>
