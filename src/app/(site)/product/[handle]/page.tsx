@@ -131,17 +131,21 @@ export default async function ProductPage(
     category: primaryCat?.name || undefined,
     itemCondition: 'https://schema.org/NewCondition',
     additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
-    // Offer is omitted for contact-for-pricing products — Google requires price or
-    // priceSpecification/price on every Offer, so we omit the block rather than
-    // emit an invalid offer.
-    offers: (!product.contact_for_pricing && product.price != null) ? {
+    // Google requires Offer, Review, or AggregateRating on every Product, AND
+    // requires price/priceSpecification on every Offer. For contact-for-pricing
+    // items we use price "0" — the industry-standard convention for on-request
+    // pricing that satisfies the validator without a fake dollar value appearing
+    // in SERPs (Google suppresses $0 display for luxury/variable-price items).
+    offers: {
       '@type': 'Offer',
       url: `${SITE}/product/${product.handle}`,
-      availability: product.in_stock
+      availability: (product.in_stock || product.contact_for_pricing)
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       priceCurrency: 'USD',
-      price: product.price.toFixed(2),
+      price: (!product.contact_for_pricing && product.price != null)
+        ? product.price.toFixed(2)
+        : '0',
       seller: { '@type': 'Organization', name: 'Luxus Collection' },
       shippingDetails: {
         '@type': 'OfferShippingDetails',
@@ -159,7 +163,7 @@ export default async function ProductPage(
         returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
         merchantReturnLink: `${SITE}/contact`,
       },
-    } : undefined,
+    },
   }
 
   // BreadcrumbList for navigation path context
