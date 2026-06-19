@@ -62,9 +62,6 @@ export default function MakeAnOfferModal({
   const offerValid = !isNaN(offerNum) && offerNum > 0
   const canSubmit = form.firstName.trim() && form.email.trim() && offerValid && status !== 'submitting'
 
-  // Percentage of list price — only shown when list price is known
-  const pctOfList = listedPrice && offerValid ? Math.round((offerNum / listedPrice) * 100) : null
-
   const handleSubmit = async () => {
     if (!canSubmit) return
     setStatus('submitting')
@@ -282,16 +279,6 @@ export default function MakeAnOfferModal({
                   USD
                 </div>
               </div>
-              {/* Percentage hint */}
-              {pctOfList !== null && (
-                <div style={{ marginTop: "8px", fontSize: "11px", color: pctOfList >= 90 ? "#5a8a5a" : pctOfList >= 75 ? t.textMuted : "#a05a2a", fontWeight: 400 }}>
-                  {pctOfList}% of listed price
-                  {pctOfList >= 95 && " — strong offer"}
-                  {pctOfList >= 85 && pctOfList < 95 && " — competitive"}
-                  {pctOfList >= 75 && pctOfList < 85 && " — may consider"}
-                  {pctOfList < 75 && " — low offer"}
-                </div>
-              )}
             </div>
 
             {/* Contact fields */}
