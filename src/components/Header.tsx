@@ -14,14 +14,9 @@ type SearchHit = {
   title: string
   brand: string | null
   caliber: string | null
-  price: number | null
-  contact_for_pricing: boolean
   thumbnail: string | null
   in_stock: boolean
 }
-
-const fmt = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 
 function useSearch(query: string) {
   const [hits, setHits]   = useState<SearchHit[]>([])
@@ -64,9 +59,6 @@ function SearchResultItem({ hit, onClick }: { hit: SearchHit; onClick: () => voi
           {hit.brand && <div style={{ fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "2px" }}>{hit.brand}</div>}
           <div style={{ fontSize: "13px", fontWeight: 400, color: t.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "var(--font-playfair)" }}>{hit.title}</div>
           {hit.caliber && <div style={{ fontSize: "10px", color: t.textMuted, fontWeight: 300, marginTop: "1px" }}>{hit.caliber}</div>}
-        </div>
-        <div style={{ flexShrink: 0, fontSize: "12px", fontWeight: 500, color: hit.contact_for_pricing ? t.gold : t.text }}>
-          {hit.contact_for_pricing ? "Contact" : hit.price !== null ? fmt(hit.price) : "—"}
         </div>
       </div>
     </Link>
