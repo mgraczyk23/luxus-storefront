@@ -166,7 +166,7 @@ function ArticleCard({ post, index }: { post: PayloadPost; index: number }) {
   return (
     <Link href={`/article/${post.slug}`} style={{ textDecoration: "none", display: "flex", flexDirection: "column" }}>
       <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", flex: 1 }}>
-        <div style={{ position: "relative", overflow: "hidden", border: `1px solid ${hov ? t.gold + "40" : t.border}`, marginBottom: "18px", transition: "border-color 0.25s", height: "210px" }}>
+        <div className="lxs-articles-card-img" style={{ position: "relative", overflow: "hidden", border: `1px solid ${hov ? t.gold + "40" : t.border}`, marginBottom: "18px", transition: "border-color 0.25s", height: "210px" }}>
           <ArticleThumbnail img={post.featuredImage} index={index} hov={hov} />
           <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(255,255,255,0.88)", border: `1px solid ${t.gold}45`, padding: "3px 9px", backdropFilter: "blur(6px)", display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, color: t.gold }}>{post.category}</span>
@@ -233,7 +233,7 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
 
       {/* ── Page banner ── */}
       <div>
-        <div style={{ background: `linear-gradient(to bottom,${t.bgSurface},${t.bg})`, borderBottom: `1px solid ${t.border}`, padding: "48px 40px 0" }}>
+        <div className="lxs-articles-banner" style={{ background: `linear-gradient(to bottom,${t.bgSurface},${t.bg})`, borderBottom: `1px solid ${t.border}`, padding: "48px 40px 0" }}>
           <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
             {/* Breadcrumb */}
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
@@ -250,7 +250,7 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
             </div>
 
             {/* Title + description */}
-            <div style={{ maxWidth: "680px", marginBottom: "40px" }}>
+            <div className="lxs-articles-title-block" style={{ maxWidth: "680px", marginBottom: "40px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
                 <div style={{ width: "18px", height: "1px", background: t.gold }}/>
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Editorial</span>
@@ -306,14 +306,14 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
 
       {/* ── Featured article ── */}
       {activeCategory === "All" && featured && (
-        <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "52px 40px 0" }}>
+        <div className="lxs-articles-featured-section" style={{ maxWidth: "1440px", margin: "0 auto", padding: "52px 40px 0" }}>
           <FeaturedCard post={featured} index={0} />
         </div>
       )}
 
       {/* ── Article grid ── */}
-      <div style={{ maxWidth: "1440px", margin: "0 auto", padding: "52px 40px 0" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "36px" }}>
+      <div className="lxs-articles-grid-section" style={{ maxWidth: "1440px", margin: "0 auto", padding: "52px 40px 0" }}>
+        <div className="lxs-articles-grid-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "36px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div style={{ width: "18px", height: "1px", background: t.gold }}/>
             <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
@@ -324,10 +324,10 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
             <span style={{ color: t.text, fontWeight: 400 }}>{filtered.length}</span> articles
           </span>
         </div>
-        <div style={{ height: "1px", background: `linear-gradient(to right,${t.gold}30,transparent)`, marginBottom: "44px" }}/>
+        <div className="lxs-articles-separator" style={{ height: "1px", background: `linear-gradient(to right,${t.gold}30,transparent)`, marginBottom: "44px" }}/>
 
         {paginated.length > 0 ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "44px 32px" }}>
+          <div className="lxs-articles-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "44px 32px" }}>
             {paginated.map((post, i) => (
               <ArticleCard key={post.id} post={post} index={i + 1} />
             ))}
@@ -367,7 +367,7 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
       </div>
 
       {/* ── Newsletter ── */}
-      <section style={{ margin: "80px 0 0", padding: "72px 40px", background: t.bgSurface, borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}` }}>
+      <section className="lxs-articles-newsletter" style={{ margin: "80px 0 0", padding: "72px 40px", background: t.bgSurface, borderTop: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}` }}>
         <div style={{ maxWidth: "520px", margin: "0 auto", textAlign: "center" }}>
           <div style={{ fontSize: "8px", letterSpacing: "0.28em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "14px" }}>Stay Informed</div>
           <div style={{ fontFamily: "var(--font-playfair)", fontSize: "32px", fontWeight: 300, color: t.text, lineHeight: 1.15, marginBottom: "12px" }}>The Collector's Circle</div>

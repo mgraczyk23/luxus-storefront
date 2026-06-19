@@ -170,9 +170,18 @@ a {
 
   img                                                     { max-width: 100%; height: auto; }
 
-  /* Articles page — featured card mobile sizing */
-  .lxs-articles-featured-img                              { min-height: 220px !important; }
-  .lxs-articles-featured-body                             { padding: 28px 20px 24px !important; }
+  /* Articles page — compact mobile layout */
+  .lxs-articles-banner                                    { padding: 20px 16px 0 !important; }
+  .lxs-articles-title-block                               { margin-bottom: 16px !important; }
+  .lxs-articles-featured-section                          { padding: 16px 16px 0 !important; }
+  .lxs-articles-grid-section                              { padding: 16px 16px 0 !important; }
+  .lxs-articles-grid-header                               { margin-bottom: 16px !important; }
+  .lxs-articles-separator                                 { margin-bottom: 16px !important; }
+  .lxs-articles-grid                                      { gap: 20px !important; }
+  .lxs-articles-card-img                                  { height: 160px !important; margin-bottom: 10px !important; }
+  .lxs-articles-newsletter                                { margin-top: 32px !important; padding: 32px 16px !important; }
+  .lxs-articles-featured-img                              { min-height: 180px !important; }
+  .lxs-articles-featured-body                             { padding: 20px 16px 20px !important; }
 
   /* footer layout handled by .lxs-footer-* class rules below */
 }
