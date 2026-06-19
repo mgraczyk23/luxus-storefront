@@ -1,6 +1,7 @@
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import AnnouncementBar from "@/components/AnnouncementBar"
+import AgeGate from "@/components/AgeGate"
 import { getSiteSettings, imageUrl } from "@/lib/payload"
 
 // Public-facing layout: site chrome (announcement bar, header, footer) wraps
@@ -15,6 +16,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <>
+      <AgeGate />
       {annActive && <AnnouncementBar message={ann.message!} link={ann.link} />}
       <Header logoUrl={logoUrl} />
       <main style={{ paddingTop: "calc(68px + var(--ann-h, 0px))" }}>
