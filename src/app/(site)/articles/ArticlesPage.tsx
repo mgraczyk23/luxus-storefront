@@ -110,9 +110,9 @@ function FeaturedCard({ post, index }: { post: PayloadPost; index: number }) {
   return (
     <Link href={`/article/${post.slug}`} style={{ textDecoration: "none" }}>
       <div
+        className="lxs-articles-featured-card"
         onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
         style={{
-          display: "grid", gridTemplateColumns: "1.1fr 1fr",
           border: `1px solid ${hov ? t.gold + "50" : t.border}`,
           background: hov ? t.bgCardHover : t.bgCard,
           transition: "all 0.3s ease", cursor: "pointer",
@@ -327,7 +327,7 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
         <div className="lxs-articles-separator" style={{ height: "1px", background: `linear-gradient(to right,${t.gold}30,transparent)`, marginBottom: "44px" }}/>
 
         {paginated.length > 0 ? (
-          <div className="lxs-articles-grid" style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "44px 32px" }}>
+          <div className="lxs-articles-grid">
             {paginated.map((post, i) => (
               <ArticleCard key={post.id} post={post} index={i + 1} />
             ))}
