@@ -721,7 +721,7 @@ export default function ResourcesBrandPage({
                   style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: `1px solid ${resourcePage === 1 ? t.border + '50' : t.border}`, cursor: resourcePage === 1 ? 'not-allowed' : 'pointer', opacity: resourcePage === 1 ? 0.35 : 1, color: t.textMuted, transition: 'all 0.2s' }}>
                   <svg width="6" height="10" viewBox="0 0 6 10" fill="none"><path d="M5 1L1 5L5 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 </button>
-                {getPageNums(resourcePage, resourcePageCount, isMobile ? 0 : 4).map((n, idx) =>
+                {getPageNums(resourcePage, resourcePageCount, isMobile ? 1 : 4).map((n, idx) =>
                   n === '...' ? (
                     <span className="lxs-page-ellipsis" key={`el-${idx}`} style={{ width: '24px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: t.textDim, flexShrink: 0 }}>…</span>
                   ) : (
