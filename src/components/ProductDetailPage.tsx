@@ -286,6 +286,7 @@ export default function ProductDetailPage({
             ? `Pricing Inquiry: ${product.title}`
             : `Product Question: ${product.title}`,
           product: `${product.brand ? product.brand + ' — ' : ''}${product.title}`,
+          productUrl: `${window.location.origin}/product/${product.handle}`,
           ...form,
           fflConsent: form.fflConsent ? 'Yes' : undefined,
         }),

@@ -22,6 +22,7 @@ const LABELS: Record<string, string> = {
   model:         'Model',
   estimatedValue:'Estimated Value',
   product:       'Product',
+  productUrl:    'Product Link',
   message:       'Message',
   fflConsent:    'FFL Acknowledged',
   newsletter:    'Newsletter Opt-in',
@@ -43,10 +44,14 @@ export async function POST(req: NextRequest) {
     .map(([k, v]) => {
       const label = LABELS[k] ?? k
       const value = v === 'true' ? 'Yes' : v
+      const isUrl = String(value).startsWith('http')
+      const displayValue = isUrl
+        ? `<a href="${String(value)}" style="color:#7e5e10">${String(value)}</a>`
+        : String(value).replace(/</g, '&lt;')
       return `
         <tr>
           <td style="padding:9px 16px;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#9e9994;font-family:Arial,sans-serif;white-space:nowrap;border-bottom:1px solid #f0ede8;vertical-align:top;width:140px">${label}</td>
-          <td style="padding:9px 16px;font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;line-height:1.6;border-bottom:1px solid #f0ede8">${String(value).replace(/</g, '&lt;')}</td>
+          <td style="padding:9px 16px;font-size:13px;color:#1a1a1a;font-family:Arial,sans-serif;line-height:1.6;border-bottom:1px solid #f0ede8">${displayValue}</td>
         </tr>`
     }).join('')
 
