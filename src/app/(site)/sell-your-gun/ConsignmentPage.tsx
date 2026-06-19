@@ -22,7 +22,7 @@ export default function ConsignmentPage({
   settings?: SiteSettings
 }) {
   const { t } = useTheme()
-  const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", inquiryType:INQUIRY_TYPES[0], make:"", model:"", estimatedValue:"", message:"" })
+  const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", inquiryType:INQUIRY_TYPES[0], make:"", model:"", message:"" })
   const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }))
@@ -198,7 +198,7 @@ export default function ConsignmentPage({
                 <p style={{ fontSize:"13.5px",fontWeight:300,color:t.textMuted,lineHeight:1.8,maxWidth:"400px",margin:"0 auto 24px" }}>
                   Thank you, {form.firstName}. A member of our team will be in touch at <span style={{ color:t.text }}>{form.email}</span> within three business days.
                 </p>
-                <button onClick={()=>{ setFormStatus("idle"); setForm({ firstName:"",lastName:"",email:"",phone:"",inquiryType:INQUIRY_TYPES[0],make:"",model:"",estimatedValue:"",message:"" }) }}
+                <button onClick={()=>{ setFormStatus("idle"); setForm({ firstName:"",lastName:"",email:"",phone:"",inquiryType:INQUIRY_TYPES[0],make:"",model:"",message:"" }) }}
                   style={{ fontSize:"9.5px",letterSpacing:"0.16em",textTransform:"uppercase",color:t.gold,background:"none",border:`1px solid ${t.gold}50`,padding:"10px 24px",cursor:"pointer",fontFamily:"var(--font-inter)",fontWeight:500 }}>
                   Send Another Inquiry
                 </button>
@@ -235,13 +235,6 @@ export default function ConsignmentPage({
                     <div>
                       <label style={{ ...lbl,fontSize:"7.5px",opacity:0.75 }}>Model</label>
                       <input type="text" placeholder="Agent" value={form.model} onChange={e=>set("model",e.target.value)} style={inp} className="lxs-form-field"/>
-                    </div>
-                    <div>
-                      <label style={{ ...lbl,fontSize:"7.5px",opacity:0.75 }}>Est. Value</label>
-                      <div style={{ position:"relative" }}>
-                        <span style={{ position:"absolute",left:"12px",top:"50%",transform:"translateY(-50%)",color:t.textMuted,fontSize:"12px" }}>$</span>
-                        <input type="text" placeholder="3,500" value={form.estimatedValue} onChange={e=>set("estimatedValue",e.target.value)} style={{ ...inp,paddingLeft:"26px" }} className="lxs-form-field"/>
-                      </div>
                     </div>
                   </div>
                 </div>
