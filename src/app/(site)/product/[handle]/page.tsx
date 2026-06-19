@@ -78,7 +78,6 @@ export default async function ProductPage(
   const serverSpecs = specsRes?.specs ?? null
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
-  const inStock = product.in_stock || product.contact_for_pricing
 
   // Build additionalProperty array from firearms attributes and specs
   const additionalProps: Array<{ '@type': string; name: string; value: string }> = []
@@ -132,20 +131,18 @@ export default async function ProductPage(
     category: primaryCat?.name || undefined,
     itemCondition: 'https://schema.org/NewCondition',
     additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
-    // Google requires offers, aggregateRating, or review on every Product.
-    // For contact-for-pricing items price/priceCurrency are intentionally omitted —
-    // Google allows this for variable/on-request pricing (Rich Results Test passes).
-    offers: {
+    // Offer is omitted for contact-for-pricing products — Google requires price or
+    // priceSpecification/price on every Offer, so we omit the block rather than
+    // emit an invalid offer.
+    offers: (!product.contact_for_pricing && product.price != null) ? {
       '@type': 'Offer',
       url: `${SITE}/product/${product.handle}`,
-      availability: inStock
+      availability: product.in_stock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
+      priceCurrency: 'USD',
+      price: product.price.toFixed(2),
       seller: { '@type': 'Organization', name: 'Luxus Collection' },
-      ...(!product.contact_for_pricing && product.price ? {
-        priceCurrency: 'USD',
-        price: product.price.toFixed(2),
-      } : {}),
       shippingDetails: {
         '@type': 'OfferShippingDetails',
         shippingRate: { '@type': 'MonetaryAmount', value: '95.00', currency: 'USD' },
@@ -162,7 +159,7 @@ export default async function ProductPage(
         returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
         merchantReturnLink: `${SITE}/contact`,
       },
-    },
+    } : undefined,
   }
 
   // BreadcrumbList for navigation path context
