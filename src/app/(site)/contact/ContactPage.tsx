@@ -40,7 +40,11 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
   const c = {
     headline:      text.headline      ?? '',
     introParagraph: text.introParagraph ?? '',
-    topics: [TOPIC_PLACEHOLDER, ...[text.topic1, text.topic2, text.topic3, text.topic4, text.topic5, text.topic6, text.topic7, text.topic8, text.topic9, text.topic10].filter((t): t is string => !!t)],
+    topics: (() => {
+      const cms = [text.topic1, text.topic2, text.topic3, text.topic4, text.topic5, text.topic6, text.topic7, text.topic8, text.topic9, text.topic10].filter((t): t is string => !!t)
+      const list = cms.length > 0 ? cms : ["General Inquiry", "Purchase Inquiry", "Consignment / Selling a Firearm", "FFL Transfer Question", "Press / Media", "Other"]
+      return [TOPIC_PLACEHOLDER, ...list]
+    })(),
     emailChannelSub: text.emailChannelSub ?? '',
     salesChannelSub: text.salesChannelSub ?? '',
     pressChannelSub: text.pressChannelSub ?? '',
