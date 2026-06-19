@@ -265,11 +265,28 @@ export default async function Home() {
       addressCountry: 'US',
     },
     areaServed: { '@type': 'Country', name: 'United States' },
+    naics: '451110',
     knowsAbout: ['Collectible Firearms', 'Antique Firearms', 'Fine Firearms', 'Firearm Consignment', 'Historical Weapons'],
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Collectible & Rare Firearms',
       url: `${SITE}/shop`,
+    },
+    hasMerchantReturnPolicy: {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'US',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+      merchantReturnLink: `${SITE}/contact`,
+    },
+    hasShippingService: {
+      '@type': 'ShippingService',
+      name: 'Standard Domestic Shipping',
+      shippingConditions: {
+        '@type': 'ShippingConditions',
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'US' },
+        shippingRate: { '@type': 'MonetaryAmount', value: '95.00', currency: 'USD' },
+        transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 5, unitCode: 'DAY' },
+      },
     },
     ...(sameAs.length > 0 ? { sameAs } : {}),
   }

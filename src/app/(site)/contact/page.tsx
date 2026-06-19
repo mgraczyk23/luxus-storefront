@@ -36,11 +36,29 @@ export default async function Page() {
   const logoUrl = imageUrl(branding.logo)
   const sameAs = [social.facebook, social.instagram, social.twitter, social.youtube, social.linkedin, social.pinterest].filter(Boolean) as string[]
 
-  const openingHours: string[] = []
-  if (hours.weekdayOpen && hours.weekdayClose)
-    openingHours.push(`Mo-Fr ${to24h(hours.weekdayOpen)}-${to24h(hours.weekdayClose)}`)
-  if (hours.saturdayOpen && hours.saturdayClose)
-    openingHours.push(`Sa ${to24h(hours.saturdayOpen)}-${to24h(hours.saturdayClose)}`)
+  const openingHoursSpec: Array<Record<string, unknown>> = []
+  if (hours.weekdayOpen && hours.weekdayClose) {
+    openingHoursSpec.push({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: [
+        'https://schema.org/Monday',
+        'https://schema.org/Tuesday',
+        'https://schema.org/Wednesday',
+        'https://schema.org/Thursday',
+        'https://schema.org/Friday',
+      ],
+      opens:  to24h(hours.weekdayOpen),
+      closes: to24h(hours.weekdayClose),
+    })
+  }
+  if (hours.saturdayOpen && hours.saturdayClose) {
+    openingHoursSpec.push({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['https://schema.org/Saturday'],
+      opens:  to24h(hours.saturdayOpen),
+      closes: to24h(hours.saturdayClose),
+    })
+  }
 
   const contactPageJsonLd = {
     '@context': 'https://schema.org',
@@ -68,7 +86,8 @@ export default async function Page() {
       postalCode:      address.zip,
       addressCountry:  'US',
     },
-    ...(openingHours.length > 0 ? { openingHours } : {}),
+    geo: { '@type': 'GeoCoordinates', latitude: 27.3480838, longitude: -82.5005979 },
+    ...(openingHoursSpec.length > 0 ? { openingHoursSpecification: openingHoursSpec } : {}),
     ...(logoUrl ? { logo: { '@type': 'ImageObject', url: logoUrl } } : {}),
     ...(sameAs.length > 0 ? { sameAs } : {}),
     ...(settings.fflLicense ? { identifier: { '@type': 'PropertyValue', name: 'FFL License', value: settings.fflLicense } } : {}),
