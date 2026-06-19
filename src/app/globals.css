@@ -105,7 +105,9 @@ a {
   [style*="padding: 36px 40px"],
   [style*="padding: 36px 40px 28px"]                      { padding: 36px 18px 28px !important; }
   [style*="padding: 48px 40px"]                           { padding: 48px 18px !important; }
+  [style*="padding: 48px 40px 0"]                         { padding: 48px 18px 0 !important; }
   [style*="padding: 52px 40px"]                           { padding: 44px 18px !important; }
+  [style*="padding: 52px 40px 0"]                         { padding: 44px 18px 0 !important; }
   [style*="padding: 52px 40px 40px"]                      { padding: 44px 18px 32px !important; }
   [style*="padding: 52px 40px 48px"]                      { padding: 44px 18px 36px !important; }
   [style*="padding: 52px 40px 52px"]                      { padding: 44px 18px !important; }
@@ -167,6 +169,10 @@ a {
   [style*="grid-template-columns: 96px 1fr auto"] > div[style*="text-align: right"] { text-align: left !important; }
 
   img                                                     { max-width: 100%; height: auto; }
+
+  /* Articles page — featured card mobile sizing */
+  .lxs-articles-featured-img                              { min-height: 220px !important; }
+  .lxs-articles-featured-body                             { padding: 28px 20px 24px !important; }
 
   /* footer layout handled by .lxs-footer-* class rules below */
 }

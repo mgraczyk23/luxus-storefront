@@ -119,13 +119,13 @@ function FeaturedCard({ post, index }: { post: PayloadPost; index: number }) {
           boxShadow: hov ? "0 20px 60px rgba(0,0,0,0.1)" : "0 4px 16px rgba(0,0,0,0.06)",
         }}
       >
-        <div style={{ position: "relative", overflow: "hidden", minHeight: "380px" }}>
+        <div className="lxs-articles-featured-img" style={{ position: "relative", overflow: "hidden", minHeight: "380px" }}>
           <ArticleThumbnail img={post.featuredImage} index={index} style={{ width: "100%", height: "100%" }} hov={hov} />
-          <div style={{ position: "absolute", top: "20px", left: "20px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}50`, padding: "4px 12px", backdropFilter: "blur(8px)" }}>
+          <div style={{ position: "absolute", top: "20px", left: "20px", background: "rgba(255,255,255,0.9)", border: `1px solid ${t.gold}50`, padding: "4px 12px", backdropFilter: "blur(8px)", display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, color: t.gold }}>{post.category}</span>
           </div>
         </div>
-        <div style={{ padding: "44px 44px 40px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+        <div className="lxs-articles-featured-body" style={{ padding: "44px 44px 40px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
               <div style={{ width: "18px", height: "1px", background: t.gold }}/>
@@ -168,7 +168,7 @@ function ArticleCard({ post, index }: { post: PayloadPost; index: number }) {
       <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)} style={{ cursor: "pointer", display: "flex", flexDirection: "column", flex: 1 }}>
         <div style={{ position: "relative", overflow: "hidden", border: `1px solid ${hov ? t.gold + "40" : t.border}`, marginBottom: "18px", transition: "border-color 0.25s", height: "210px" }}>
           <ArticleThumbnail img={post.featuredImage} index={index} hov={hov} />
-          <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(255,255,255,0.88)", border: `1px solid ${t.gold}45`, padding: "3px 9px", backdropFilter: "blur(6px)" }}>
+          <div style={{ position: "absolute", top: "12px", left: "12px", background: "rgba(255,255,255,0.88)", border: `1px solid ${t.gold}45`, padding: "3px 9px", backdropFilter: "blur(6px)", display: "flex", alignItems: "center" }}>
             <span style={{ fontSize: "8px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 500, color: t.gold }}>{post.category}</span>
           </div>
         </div>
