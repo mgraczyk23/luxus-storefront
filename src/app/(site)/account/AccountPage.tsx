@@ -337,8 +337,8 @@ export default function AccountPage({ settings }: { settings?: SiteSettings }) {
               <div style={{ padding: "60px 0", textAlign: "center", fontSize: "11px", color: t.textDim }}>Loading offers…</div>
             ) : offers.length === 0 ? (
               <div style={{ padding: "60px 0", textAlign: "center", border: `1px solid ${t.border}`, background: "#fafafa" }}>
-                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", fontWeight: 400, color: t.text, marginBottom: "10px" }}>No offers yet</div>
-                <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, marginBottom: "20px" }}>When you submit an offer on a firearm, it will appear here with its current status.</p>
+                <div style={{ fontFamily: "var(--font-playfair)", fontSize: "22px", fontWeight: 400, color: t.text, marginBottom: "10px" }}>You have not submitted any offers</div>
+                <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, marginBottom: "20px" }}>This is where you can manage offers you have put on our products.</p>
                 <Link href="/shop" style={{ fontSize: "9.5px", letterSpacing: "0.16em", textTransform: "uppercase", color: t.gold, fontWeight: 600, textDecoration: "none", borderBottom: `1px solid ${t.gold}50`, paddingBottom: "2px" }}>Browse the Collection →</Link>
               </div>
             ) : (
