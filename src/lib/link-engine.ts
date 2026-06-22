@@ -17,6 +17,7 @@ export interface LinkEntry {
 function extractAttrMap(p: any): Record<string, string[]> {
   const map: Record<string, string[]> = {}
   for (const av of (p.attribute_values ?? [])) {
+    if (!av) continue
     const slug: string | undefined = av.attribute_type?.slug
     if (!slug || av.value == null) continue
     const val = String(av.value).trim()
