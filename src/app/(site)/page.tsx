@@ -3,7 +3,6 @@ import { getProducts, getCollections, getCategories, getProductTags } from "@/li
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getPosts, getHeroSlides, getShopTileImages, imageUrl, getSiteSettings, getPageSeo } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
-import { toSlug } from "@/lib/slug"
 import HomePage from "@/components/home/HomePage"
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -53,7 +52,7 @@ export default async function Home() {
     getProducts({ order: "-created_at", limit: "8", fields: PRODUCT_FIELDS }),
     getCollections(),
     getCategories(),
-    // Fetch product→category+brand associations to sort categories and derive live brand list
+    // Fetch product→category associations to sort categories by product count
     getProducts({ limit: "200", fields: "id,*categories,*attribute_values,*attribute_values.attribute_type" }),
     getPosts({ limit: 6, noContent: true }),
     getHeroSlides(),
@@ -64,30 +63,27 @@ export default async function Home() {
 
   // Build count maps from the combined product fetch
   const catCountMap: Record<string, number> = {}
-  const brandCountMap: Record<string, number> = {}
   if (catCountRes.status === "fulfilled") {
     for (const p of (catCountRes.value.products ?? [])) {
-      // Category counts
       for (const c of (p.categories ?? [])) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const id = (c as any).id as string | undefined
         if (id) catCountMap[id] = (catCountMap[id] ?? 0) + 1
       }
-      // Brand counts from attribute_values — authoritative for all products
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      for (const av of ((p as any).attribute_values ?? [])) {
-        if ((av as any)?.attribute_type?.slug === 'brand' && (av as any)?.value) {
-          const brand = String((av as any).value).trim()
-          if (brand) brandCountMap[brand] = (brandCountMap[brand] ?? 0) + 1
-        }
-      }
     }
   }
 
-  const brands = Object.entries(brandCountMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 8)
-    .map(([name]) => ({ name, slug: toSlug(name) }))
+  // Curated "Shop By Brand" list — fixed order, fixed slugs
+  const brands = [
+    { name: 'Korriphila',       slug: 'korriphila' },
+    { name: 'SIG Sauer',        slug: 'sig-sauer' },
+    { name: 'Korth',            slug: 'korth' },
+    { name: 'Colt',             slug: 'colt' },
+    { name: 'Smith & Wesson',   slug: 'smith-wesson' },
+    { name: 'Heckler & Koch',   slug: 'heckler-koch' },
+    { name: 'Mauser',           slug: 'mauser' },
+    { name: 'Walther',          slug: 'walther' },
+  ]
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rawProducts = productsRes.status === "fulfilled" ? (productsRes.value.products ?? []) : []
