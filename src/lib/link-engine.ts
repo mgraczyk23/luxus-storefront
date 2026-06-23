@@ -50,7 +50,7 @@ async function fetchManualLinks(): Promise<LinkEntry[]> {
 // Most-recently-published article wins when multiple share the same tag.
 async function fetchArticleTagLinks(): Promise<LinkEntry[]> {
   try {
-    const result = await getPosts({ limit: 500, noContent: true })
+    const result = await getPosts({ limit: 500, noContent: true, depth: 0 })
     const entries: LinkEntry[] = []
     for (const post of result.docs) {
       for (const t of (post.tags ?? [])) {

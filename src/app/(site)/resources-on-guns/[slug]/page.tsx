@@ -7,7 +7,7 @@ import { toSlug } from "@/lib/slug"
 import ResourcesBrandPage from "./ResourcesBrandPage"
 import type { Metadata } from "next"
 
-const PRODUCT_FIELDS = "*variants,*variants.prices,*variants.inventory_quantity,*images,*categories,*collection,+metadata,*attribute_values,*attribute_values.attribute_type"
+const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*attribute_values,*attribute_values.attribute_type"
 const PAGE_SIZE = 100
 
 async function getAllProducts() {

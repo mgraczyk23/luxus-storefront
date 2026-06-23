@@ -40,7 +40,7 @@ export const TAG_PAGES: Record<string, string[]> = {
 const DYNAMIC_PREFIXES = Object.keys(TAG_PAGES).filter(k => k.endsWith("-"))
 
 export async function warmCache(tag: string): Promise<void> {
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://dev.luxus-collection.com"
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? "https://luxus-collection.com"
 
   let pages: string[] = TAG_PAGES[tag] ?? []
   if (!pages.length) {

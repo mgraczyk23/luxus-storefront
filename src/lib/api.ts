@@ -76,7 +76,7 @@ export function getCollection(handle: string) {
 }
 
 export function getProductTags() {
-  return storeFetch<{ product_tags: { id: string; value: string }[] }>("/store/product-tags?limit=100")
+  return storeFetch<{ product_tags: { id: string; value: string }[] }>("/store/product-tags?limit=100&fields=id,value")
 }
 
 export function getProductTypes() {

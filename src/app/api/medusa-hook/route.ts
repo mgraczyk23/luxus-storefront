@@ -7,7 +7,7 @@ import { warmCache } from "@/lib/warm-cache"
 // reflects the change immediately (price, stock, new products, etc.).
 //
 // Configure in Medusa admin → Settings → Webhooks:
-//   URL:    https://dev.luxus-collection.com/api/medusa-hook
+//   URL:    https://luxus-collection.com/api/medusa-hook
 //   Events: subscribe the product.*, product-variant.*, product-category.*,
 //           product-collection.*, inventory-item.*, inventory-level.*,
 //           reservation-item.*, and order.placed / order.canceled /
@@ -17,7 +17,7 @@ import { warmCache } from "@/lib/warm-cache"
 //   5-minute ISR cycle, just not immediately.
 //
 // Optionally protect with REVALIDATE_SECRET:
-//   URL:    https://dev.luxus-collection.com/api/medusa-hook?secret=YOUR_SECRET
+//   URL:    https://luxus-collection.com/api/medusa-hook?secret=YOUR_SECRET
 
 const REVALIDATE_EVENTS = new Set([
   // Catalog

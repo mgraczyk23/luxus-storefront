@@ -53,12 +53,13 @@ export async function getPosts(opts: {
   category?:   string
   featured?:   boolean
   noContent?:  boolean  // exclude Lexical body — use for listing pages
+  depth?:      number   // relation depth; defaults to 1, use 0 for index/tag-only queries
 } = {}): Promise<PayloadListResponse<PayloadPost>> {
   const params = new URLSearchParams()
   params.set("where[status][equals]", "published")
   params.set("sort", "-publishedAt")
   params.set("limit", String(opts.limit ?? 100))
-  params.set("depth", "1")
+  params.set("depth", String(opts.depth ?? 1))
   if (opts.page)      params.set("page",     String(opts.page))
   if (opts.category)  params.set("where[category][equals]", opts.category)
   if (opts.featured)  params.set("where[featured][equals]", "true")
