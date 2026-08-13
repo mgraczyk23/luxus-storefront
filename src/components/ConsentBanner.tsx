@@ -21,11 +21,10 @@ function setConsentCookie(value: 'accepted' | 'declined') {
 
 type Props = {
   gaId: string | null
-  klaviyoId: string | null
   phKey: string | null
 }
 
-export default function ConsentBanner({ gaId, klaviyoId, phKey }: Props) {
+export default function ConsentBanner({ gaId, phKey }: Props) {
   const [consent, setConsent] = useState<'accepted' | 'declined' | null>(null)
   const [mounted, setMounted] = useState(false)
 
@@ -35,7 +34,7 @@ export default function ConsentBanner({ gaId, klaviyoId, phKey }: Props) {
   }, [])
 
   // No analytics configured — render nothing (hooks must come first per React rules)
-  if (!gaId && !klaviyoId && !phKey) return null
+  if (!gaId && !phKey) return null
 
   const accept = () => {
     setConsentCookie('accepted')
@@ -62,15 +61,6 @@ export default function ConsentBanner({ gaId, klaviyoId, phKey }: Props) {
               first_party_collection: true,
             });
           `}</Script>
-        </>
-      )}
-
-      {consent === 'accepted' && klaviyoId && (
-        <>
-          {/* Inline init so window.klaviyo is available immediately; queues calls until async script loads */}
-          <Script id="klaviyo-init" strategy="afterInteractive">{`!function(){if(!window.klaviyo){window._klOnsite=window._klOnsite||[];try{window.klaviyo=new Proxy({},{get:function(n,i){return"push"===i?function(){var n;(n=window._klOnsite).push.apply(n,arguments)}:function(){for(var n=arguments.length,o=new Array(n),w=0;w<n;w++)o[w]=arguments[w];var t="function"==typeof o[o.length-1]?o.pop():void 0,e=new Promise((function(n){window._klOnsite.push([i].concat(o,[function(i){t&&t(i),n(i)}]))}));return e}}})}catch(n){window.klaviyo=window.klaviyo||[],window.klaviyo.push=function(){var n;(n=window._klOnsite).push.apply(n,arguments)}}}}();`}</Script>
-          {/* Script served from first-party proxy; internal API URLs rewritten to /proxy/kl-a and /proxy/kl-s */}
-          <Script src={`/proxy/kl-script?company_id=${klaviyoId}`} strategy="afterInteractive" />
         </>
       )}
 
