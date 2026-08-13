@@ -13,6 +13,11 @@ Sentry.init({
     'AbortError',
     'ResizeObserver loop limit exceeded',
     'Non-Error promise rejection captured',
+    // ProgressEvent(type=error) fires when a third-party script (e.g. Klaviyo)
+    // fails to load — common in TikTok/Instagram in-app browsers that block
+    // external marketing scripts. Not an app error, not actionable.
+    /ProgressEvent/,
+    "Event `ProgressEvent` (type=error)",
   ],
   debug: false,
 })

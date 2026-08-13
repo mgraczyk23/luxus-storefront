@@ -95,6 +95,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Script
               src={`https://static.klaviyo.com/onsite/js/${klaviyoId}/klaviyo.js?company_id=${klaviyoId}`}
               strategy="afterInteractive"
+              onError={() => {/* Klaviyo blocked by in-app browser (TikTok, Instagram, etc.) — non-fatal */}}
             />
           </>
         )}
