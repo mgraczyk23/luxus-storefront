@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   const companyId = request.nextUrl.searchParams.get('company_id') ?? ''
 
   const upstream = await fetch(
-    `https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${encodeURIComponent(companyId)}`,
+    `https://static.klaviyo.com/onsite/js/${encodeURIComponent(companyId)}/klaviyo.js?company_id=${encodeURIComponent(companyId)}`,
     { next: { revalidate: 3600 } }
   )
 
