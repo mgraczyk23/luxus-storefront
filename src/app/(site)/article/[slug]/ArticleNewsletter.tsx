@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTheme } from '@/context/ThemeContext'
+import { trackEvent, trackOnce } from '@/lib/gtm'
 
 type Status = 'idle' | 'submitting' | 'success' | 'error' | 'duplicate'
 
@@ -10,6 +11,7 @@ export default function ArticleNewsletter({ source }: { source?: string }) {
   const [email, setEmail]   = useState('')
   const [name, setName]     = useState('')
   const [status, setStatus] = useState<Status>('idle')
+  const formStartedRef = useRef(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,6 +27,7 @@ export default function ArticleNewsletter({ source }: { source?: string }) {
       if (!res.ok) throw new Error()
       const json = await res.json().catch(() => ({}))
       if (json.duplicate) { setStatus('duplicate'); return }
+      trackEvent('newsletter_signup', { source: source ?? 'article' })
       setStatus('success')
     } catch {
       setStatus('error')
@@ -70,7 +73,7 @@ export default function ArticleNewsletter({ source }: { source?: string }) {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} onFocusCapture={() => trackOnce(formStartedRef, 'form_start', { form: 'newsletter' })}>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                 <input
                   type="text" placeholder="Your name (optional)"

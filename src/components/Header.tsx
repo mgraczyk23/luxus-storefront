@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import { useAuth } from '@/context/AuthContext'
 import { useCart } from '@/context/CartContext'
+import { trackEvent } from '@/lib/gtm'
 
 type SearchHit = {
   id: string
@@ -242,7 +243,7 @@ function MobileNav({ logoUrl }: { logoUrl?: string }) {
                       : section}
                   </div>
                   {items.map(([path, label]) => (
-                    <button key={label} onClick={() => go(path)}
+                    <button key={label} onClick={() => { if (label === "Sell Your Gun") trackEvent('sell_gun_cta_click', { location: 'mobile_nav' }); go(path) }}
                       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "14px 22px", color: T.text, fontSize: "14px", fontWeight: 400, background: "none", border: "none", cursor: "pointer", minHeight: "48px", letterSpacing: "0.02em", textAlign: "left" }}>
                       <span>{label}</span>
                       <svg width="9" height="9" viewBox="0 0 9 9" fill="none" style={{ color: T.dim, flexShrink: 0 }}><path d="M1 1L8 1L8 8M8 1L1 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -393,6 +394,7 @@ export default function Header({ logoUrl }: { logoUrl?: string }) {
                   <div style={{ background: "#ffffff", border: `1px solid ${t.border}`, borderTop: `2px solid ${t.gold}`, minWidth: "168px", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", padding: "8px 0" }}>
                     {([["Contact Us", "/contact", activePage === 'contact'], ["Support", "/support", activePage === 'support'], ["Sell Your Gun", "/sell-your-gun", activePage === 'consignment']] as [string, string, boolean][]).map(([label, href, isActive]) => (
                       <Link key={label} href={href}
+                        onClick={() => { if (label === "Sell Your Gun") trackEvent('sell_gun_cta_click', { location: 'desktop_nav' }) }}
                         style={{ display: "block", padding: "9px 22px", fontSize: "9px", letterSpacing: "0.13em", textTransform: "uppercase", color: isActive ? t.gold : t.textMuted, textDecoration: "none", fontFamily: "'Inter',sans-serif", fontWeight: 500, transition: "all 0.15s" }}
                         onMouseEnter={e => { e.currentTarget.style.color = t.gold; e.currentTarget.style.paddingLeft = "26px" }}
                         onMouseLeave={e => { e.currentTarget.style.color = isActive ? t.gold : t.textMuted; e.currentTarget.style.paddingLeft = "22px" }}>

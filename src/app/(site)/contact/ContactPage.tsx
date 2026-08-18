@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import type { SiteSettings, ContactPageText } from '@/lib/payload'
+import { trackEvent, trackOnce } from '@/lib/gtm'
 
 const TOPIC_PLACEHOLDER = "Select a topic…"
 
@@ -68,6 +69,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", company:"", topic: TOPIC_PLACEHOLDER, message:"", newsletter: false })
   const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
   const [activeChannel, setActiveChannel] = useState<string|null>(null)
+  const formStartedRef = useRef(false)
 
   const set = (k: string, v: string | boolean) => setForm(p => ({ ...p, [k]: v }))
   const canSubmit = form.firstName && form.email && form.topic !== TOPIC_PLACEHOLDER
@@ -87,12 +89,13 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
         }),
       })
       if (!res.ok) throw new Error()
+      trackEvent('contact_form_submit', { topic: form.topic })
       if (form.newsletter) {
         await fetch('/api/newsletter/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: form.email, name: `${form.firstName} ${form.lastName}`.trim(), source: 'contact-form' }),
-        }).catch(() => {})
+        }).then(r => { if (r.ok) trackEvent('newsletter_signup', { source: 'contact-form' }) }).catch(() => {})
       }
       setFormStatus("success")
     } catch {
@@ -229,7 +232,8 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
                 </button>
               </div>
             ) : (
-              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}
+                onFocusCapture={() => trackOnce(formStartedRef, 'form_start', { form: 'contact' })}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
                   {[["firstName","First Name *","James"],["lastName","Last Name","Whitfield"]].map(([k,l,p]) => (
                     <div key={k}>

@@ -11,6 +11,7 @@ import type { HeroSlidesData } from '@/lib/payload'
 import type { GunBrokerListing } from '@/lib/gunbroker'
 import HeroSection from './HeroSection'
 import { toSlug } from '@/lib/slug'
+import { trackEvent, trackOnce } from '@/lib/gtm'
 
 /* ── Types ────────────────────────────────────────────────────────────── */
 
@@ -508,6 +509,7 @@ export default function HomePage({
   const [email, setEmail] = useState("")
   const [nlStatus, setNlStatus] = useState<"idle" | "submitting" | "success" | "duplicate" | "error">("idle")
   const [auctions, setAuctions] = useState<Auction[]>([])
+  const newsletterStartedRef = useRef(false)
 
   useEffect(() => {
     fetch('/api/gunbroker/listings')
@@ -532,6 +534,7 @@ export default function HomePage({
       if (!res.ok) throw new Error()
       const json = await res.json().catch(() => ({}))
       if (json.duplicate) { setNlStatus("duplicate"); return }
+      trackEvent('newsletter_signup', { source: 'homepage' })
       setEmail("")
       setNlStatus("success")
     } catch {
@@ -749,7 +752,7 @@ export default function HomePage({
               </p>
             </div>
           ) : (
-            <form onSubmit={handleNewsletterSubmit} style={{ display: "flex", maxWidth: "420px", margin: "0 auto", flexDirection: "column", gap: "8px" }}>
+            <form onSubmit={handleNewsletterSubmit} onFocusCapture={() => trackOnce(newsletterStartedRef, 'form_start', { form: 'newsletter' })} style={{ display: "flex", maxWidth: "420px", margin: "0 auto", flexDirection: "column", gap: "8px" }}>
               <div style={{ display: "flex" }}>
                 <input
                   type="email"

@@ -193,8 +193,9 @@ export type SiteSettings = {
     legalLine?:     string
   }
   analytics: {
-    googleAnalyticsId?:  string
-    postHogApiKey?:      string
+    googleAnalyticsId?:   string
+    googleTagManagerId?:  string
+    postHogApiKey?:       string
     semrushVerification?: string
   }
 }

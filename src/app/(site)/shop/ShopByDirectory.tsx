@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { trackEvent } from '@/lib/gtm'
 
 export type DirectoryItem = {
   name: string
@@ -12,9 +13,13 @@ export type DirectoryItem = {
 
 const PLAYFAIR = "var(--font-playfair), serif"
 
-function DirectoryCard({ item, isBrand }: { item: DirectoryItem; isBrand: boolean }) {
+function DirectoryCard({ item, isBrand, type }: { item: DirectoryItem; isBrand: boolean; type: 'brand' | 'collection' | 'category' | 'model' }) {
+  const handleClick = () => {
+    if (type === 'brand' || type === 'category') trackEvent('brand_filter_click', { name: item.name, type })
+    else if (type === 'model') trackEvent('model_filter_click', { name: item.name })
+  }
   return (
-    <Link href={item.href} style={{ textDecoration: 'none', display: 'block' }}>
+    <Link href={item.href} onClick={handleClick} style={{ textDecoration: 'none', display: 'block' }}>
       <div
         style={{
           border: '1px solid #e4e4e6',
@@ -175,7 +180,7 @@ export default function ShopByDirectory({
       {items.length > 0 ? (
         <div className="lxs-shop-by-grid" style={{ display: 'grid', gap: '20px' }}>
           {items.map(item => (
-            <DirectoryCard key={item.href} item={item} isBrand={isBrand} />
+            <DirectoryCard key={item.href} item={item} isBrand={isBrand} type={type} />
           ))}
         </div>
       ) : (

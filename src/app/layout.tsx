@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import Script from "next/script"
 import ConsentBanner from "@/components/ConsentBanner"
+import GtmLinkTracker from "@/components/GtmLinkTracker"
 import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
 import { AuthProvider } from "@/context/AuthContext"
@@ -60,6 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const ann = settings.announcement
   const annActive = ann.enabled && !!ann.message
   const gaId      = settings.analytics?.googleAnalyticsId?.trim() || null
+  const gtmId     = settings.analytics?.googleTagManagerId?.trim() || null
   const phKey     = settings.analytics?.postHogApiKey?.trim() || null
   const klaviyoId = process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null
   const showCategoryBadge = settings.productCards?.showCategoryBadge !== false
@@ -75,6 +77,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       style={annActive ? { '--ann-h': '36px' } as React.CSSProperties : {}}
     >
       <body>
+        {/* Google Tag Manager — loaded unconditionally like Klaviyo above.
+            GTM itself is just a script loader and sets no cookies; any tag
+            configured inside it that needs consent (e.g. Google Ads) should
+            use GTM's own Consent Mode rather than being gated here. */}
+        {gtmId && (
+          <>
+            <Script id="gtm-init" strategy="afterInteractive">{`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${gtmId}');`}</Script>
+            <noscript>
+              <iframe src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`} height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
+            </noscript>
+            <GtmLinkTracker />
+          </>
+        )}
+
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>

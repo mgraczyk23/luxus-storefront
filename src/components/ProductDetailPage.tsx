@@ -13,6 +13,7 @@ import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import { fetchRestrictions, checkState, type StateRestriction, type RestrictionCheckResult } from '@/lib/state-restrictions'
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 import ContactAvailabilityModal from '@/components/ContactAvailabilityModal'
+import { trackEvent } from '@/lib/gtm'
 
 const SpinViewer  = dynamic(() => import('@/components/product/SpinViewer'),  { ssr: false })
 const ModelViewer = dynamic(() => import('@/components/product/ModelViewer'), { ssr: false })
@@ -383,12 +384,12 @@ export default function ProductDetailPage({
               </span>
             )}
             {!product.in_stock ? (
-              <button onClick={() => setAvailabilityModalOpen(true)}
+              <button onClick={() => { trackEvent('contact_cta_click', { product: product.title, product_handle: product.handle, context: 'unavailable' }); setAvailabilityModalOpen(true) }}
                 style={{ padding: "9px 22px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
                 Contact Us Now
               </button>
             ) : product.contact_for_pricing ? (
-              <button onClick={() => { setContactModalContext('pricing'); setContactModalOpen(true) }}
+              <button onClick={() => { trackEvent('contact_cta_click', { product: product.title, product_handle: product.handle, context: 'pricing' }); setContactModalContext('pricing'); setContactModalOpen(true) }}
                 style={{ padding: "9px 22px", background: "transparent", border: `1px solid ${t.gold}`, color: t.gold, fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px" }}>
                 Contact Us Now
               </button>
@@ -701,7 +702,7 @@ export default function ProductDetailPage({
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
               {!product.in_stock ? (
                 <>
-                  <button onClick={() => setAvailabilityModalOpen(true)}
+                  <button onClick={() => { trackEvent('contact_cta_click', { product: product.title, product_handle: product.handle, context: 'unavailable' }); setAvailabilityModalOpen(true) }}
                     style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
                     onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
                     onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>
@@ -717,7 +718,7 @@ export default function ProductDetailPage({
                 </>
               ) : product.contact_for_pricing ? (
                 <>
-                  <button onClick={() => { setContactModalContext('pricing'); setContactModalOpen(true) }}
+                  <button onClick={() => { trackEvent('contact_cta_click', { product: product.title, product_handle: product.handle, context: 'pricing' }); setContactModalContext('pricing'); setContactModalOpen(true) }}
                     style={{ padding: "15px 32px", background: t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: "pointer", borderRadius: "1px", transition: "all 0.22s", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px" }}
                     onMouseEnter={e => { e.currentTarget.style.background = t.goldLight; e.currentTarget.style.transform = "translateY(-1px)" }}
                     onMouseLeave={e => { e.currentTarget.style.background = t.gold; e.currentTarget.style.transform = "none" }}>

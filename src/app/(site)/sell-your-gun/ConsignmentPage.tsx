@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Link from 'next/link'
 import { useTheme } from '@/context/ThemeContext'
 import type { ConsignmentPageText, SiteSettings } from '@/lib/payload'
+import { trackEvent, trackOnce } from '@/lib/gtm'
 
 const INQUIRY_TYPES = [
   "Select a topic…",
@@ -24,6 +25,7 @@ export default function ConsignmentPage({
   const { t } = useTheme()
   const [form, setForm] = useState({ firstName:"", lastName:"", email:"", phone:"", inquiryType:INQUIRY_TYPES[0], make:"", model:"", message:"" })
   const [formStatus, setFormStatus] = useState<"idle"|"submitting"|"success"|"error">("idle")
+  const formStartedRef = useRef(false)
 
   const set = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }))
   const canSubmit = form.firstName && form.email && form.inquiryType !== INQUIRY_TYPES[0]
@@ -42,6 +44,7 @@ export default function ConsignmentPage({
         }),
       })
       if (!res.ok) throw new Error()
+      trackEvent('sell_gun_form_submit', { inquiry_type: form.inquiryType })
       setFormStatus("success")
     } catch {
       setFormStatus("error")
@@ -204,7 +207,8 @@ export default function ConsignmentPage({
                 </button>
               </div>
             ) : (
-              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
+              <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}
+                onFocusCapture={() => trackOnce(formStartedRef, 'form_start', { form: 'sell_your_gun' })}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
                   <div><label style={lbl}>First Name *</label><input type="text" placeholder="James" value={form.firstName} onChange={e=>set("firstName",e.target.value)} style={inp} className="lxs-form-field"/></div>
                   <div><label style={lbl}>Last Name</label><input type="text" placeholder="Whitfield" value={form.lastName} onChange={e=>set("lastName",e.target.value)} style={inp} className="lxs-form-field"/></div>
