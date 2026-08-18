@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getBrand, getBrands, getPostsByBrand, getResourcePages, imageUrl } from "@/lib/payload"
@@ -56,7 +56,7 @@ export async function generateStaticParams() {
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  if (slug !== slug.toLowerCase()) redirect(`/resources-on-guns/${slug.toLowerCase()}`)
+  if (slug !== slug.toLowerCase()) permanentRedirect(`/resources-on-guns/${slug.toLowerCase()}`)
 
   const [brand, allProducts] = await Promise.allSettled([
     getBrand(slug),

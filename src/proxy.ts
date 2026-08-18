@@ -3,6 +3,42 @@ import { jwtVerify } from "jose"
 
 const VALID_ROOMS = ["master", "backroom", "vip", "reserve", "special", "unicorn"]
 
+// Every route with a dynamic [segment] gets matched case-insensitively by
+// Vercel's own routing layer (platform behavior, not a Next.js/app bug) —
+// e.g. /Brand/x and /BRAND/x both resolve to brand/[slug] and return 200.
+// Fully static routes (no brackets anywhere) are unaffected and stay
+// case-sensitive. By the time a page component runs, `params` only ever
+// contains the dynamic segment's value — the literal folder-name casing is
+// already gone — so this can only be normalized here, before Vercel resolves
+// the route. Each entry is the canonical-case path segments leading up to
+// (and including) the folder that holds the dynamic segment.
+const CASE_NORMALIZED_PREFIXES: string[][] = [
+  ["article"],
+  ["brand"],
+  ["category"],
+  ["checkout", "offer"],
+  ["collection"],
+  ["invoice"],
+  ["offer"],
+  ["product"],
+  ["resources-on-guns"],
+  ["shop", "model"],
+]
+
+function normalizePrefixCase(pathname: string): string | null {
+  const segments = pathname.split("/").filter(Boolean)
+  for (const prefix of CASE_NORMALIZED_PREFIXES) {
+    if (segments.length < prefix.length) continue
+    const head = segments.slice(0, prefix.length)
+    const isMatch = head.every((seg, i) => seg.toLowerCase() === prefix[i])
+    if (!isMatch) continue
+    const isExact = head.every((seg, i) => seg === prefix[i])
+    if (isExact) return null
+    return "/" + [...prefix, ...segments.slice(prefix.length)].join("/")
+  }
+  return null
+}
+
 // Tag every /private/* request so the root layout can hide Header/Footer
 function privateNext(request: NextRequest) {
   const headers = new Headers(request.headers)
@@ -12,6 +48,13 @@ function privateNext(request: NextRequest) {
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  const corrected = normalizePrefixCase(pathname)
+  if (corrected) {
+    const url = request.nextUrl.clone()
+    url.pathname = corrected
+    return NextResponse.redirect(url, 308)
+  }
 
   if (!pathname.startsWith("/private/")) return NextResponse.next()
 
@@ -42,5 +85,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/private/:path*"],
+  // Broad match (not just "/private/:path*") so the case-normalization check
+  // above also runs on the affected content routes. Excludes static assets,
+  // /api, and /proxy so those aren't paying for an edge invocation.
+  matcher: ["/((?!_next/static|_next/image|api|proxy|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?|css|js|txt|xml|webmanifest)$).*)"],
 }

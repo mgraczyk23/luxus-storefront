@@ -1,9 +1,10 @@
 import { Suspense } from "react"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { getProduct, getProducts, getProductDetails, getProductSpecs } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import { getSiteSettings, getProductMedia } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
+import { toSlug } from "@/lib/slug"
 import ProductDetailPage from "@/components/ProductDetailPage"
 import type { Metadata } from "next"
 
@@ -24,8 +25,9 @@ export async function generateMetadata(
   { params }: { params: Promise<{ handle: string }> }
 ): Promise<Metadata> {
   const { handle } = await params
+  const normalized = toSlug(handle)
   try {
-    const res = await getProduct(handle)
+    const res = await getProduct(normalized)
     const p = res.products?.[0]
     if (!p) return {}
     const mapped = mapMedusaProduct(p)
@@ -37,7 +39,7 @@ export async function generateMetadata(
       title,
       description,
       ...ogMeta(title, description, mapped.thumbnail),
-      alternates: { canonical: `/product/${handle}` },
+      alternates: { canonical: `/product/${normalized}` },
     }
   } catch {
     return {}
@@ -48,8 +50,10 @@ export default async function ProductPage(
   { params }: { params: Promise<{ handle: string }> }
 ) {
   const { handle } = await params
+  const normalized = toSlug(handle)
+  if (normalized !== handle) permanentRedirect(`/product/${normalized}`)
 
-  const res = await getProduct(handle).catch(() => null)
+  const res = await getProduct(normalized).catch(() => null)
   const raw = res?.products?.[0]
   if (!raw) notFound()
 
@@ -61,7 +65,7 @@ export default async function ProductPage(
     getProducts({ limit: "20", fields: RELATED_FIELDS }).catch(() => null),
     getSiteSettings(),
     getProductSpecs(raw.id).catch(() => null),
-    getProductMedia(handle).catch(() => null),
+    getProductMedia(normalized).catch(() => null),
   ])
 
   const detail = detailRes?.product_detail

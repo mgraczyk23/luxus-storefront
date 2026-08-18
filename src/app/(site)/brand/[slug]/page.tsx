@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { permanentRedirect } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/components/ListingPage"
@@ -63,7 +63,7 @@ function Loading() {
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const normalized = toSlug(slug)
-  if (normalized !== slug) redirect(`/brand/${normalized}`)
+  if (normalized !== slug) permanentRedirect(`/brand/${normalized}`)
 
   const [allProducts, brandPayload] = await Promise.allSettled([
     getAllProducts(),

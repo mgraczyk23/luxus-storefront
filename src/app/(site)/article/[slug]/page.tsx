@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
-import { notFound } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { getPosts, getPost, getComments, getSiteSettings, parseLexical, imageUrl } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
 import { getLinkDictionary, injectLinks } from "@/lib/link-engine"
+import { toSlug } from "@/lib/slug"
 import ArticlePage from "./ArticlePage"
 
 export async function generateStaticParams() {
@@ -20,7 +21,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
   const { slug } = await params
-  const post = await getPost(slug)
+  const normalized = toSlug(slug)
+  const post = await getPost(normalized)
   if (!post) return {}
   const title = post.seoTitle ?? post.title
   const description = post.seoDescription ?? post.excerpt ?? undefined
@@ -28,7 +30,7 @@ export async function generateMetadata({
     title,
     description,
     ...ogMeta(title, description, imageUrl(post.featuredImage), 'article'),
-    alternates: { canonical: `/article/${slug}` },
+    alternates: { canonical: `/article/${normalized}` },
   }
 }
 
@@ -38,19 +40,22 @@ export default async function Page({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+  const normalized = toSlug(slug)
+  if (normalized !== slug) permanentRedirect(`/article/${normalized}`)
+
   const [post, allPosts, settings, dictionary] = await Promise.all([
-    getPost(slug),
+    getPost(normalized),
     getPosts({ limit: 100, noContent: true }).catch(() => ({ docs: [] })),
     getSiteSettings(),
     getLinkDictionary().catch(() => []),
   ])
   if (!post) notFound()
   const related = allPosts.docs
-    .filter((p) => p.slug !== slug && p.status === "published")
+    .filter((p) => p.slug !== normalized && p.status === "published")
     .slice(0, 3)
   const comments = await getComments(post.id).catch(() => [])
 
-  const body = injectLinks(parseLexical(post.content), dictionary, `/article/${slug}`)
+  const body = injectLinks(parseLexical(post.content), dictionary, `/article/${normalized}`)
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
   const orgLogoUrl = imageUrl(settings.branding.logo)

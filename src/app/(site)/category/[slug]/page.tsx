@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { notFound, redirect } from "next/navigation"
+import { notFound, permanentRedirect } from "next/navigation"
 import { getProducts, getCategories } from "@/lib/api"
 import { mapMedusaProduct } from "@/lib/medusa"
 import ListingPage from "@/components/ListingPage"
@@ -68,7 +68,7 @@ function Loading() {
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const normalized = toSlug(slug)
-  if (normalized !== slug) redirect(`/category/${normalized}`)
+  if (normalized !== slug) permanentRedirect(`/category/${normalized}`)
 
   let allProducts: ReturnType<typeof mapMedusaProduct>[] = []
   try { allProducts = await getAllProducts() } catch {}
