@@ -221,3 +221,22 @@ export function mapMedusaProduct(p: any): MappedProduct {
     },
   }
 }
+
+// Must match ListingPage.tsx's PER_PAGE (18) — keeps schema.org ItemList markup
+// limited to only the products actually visible on page 1 of a listing (default
+// sort, no filters applied), instead of every matching product. Some of these
+// pages have 400+ products; declaring them all in itemListElement doesn't match
+// what a visitor or crawler actually sees on the page.
+export const SCHEMA_ITEM_LIST_SIZE = 18
+
+// Mirrors ListingPage.tsx's default sort (out-of-stock last, then newest first)
+// so the schema reflects the same order a visitor lands on.
+export function sortForDefaultListing<T extends { in_stock: boolean; published_at: string | null }>(products: T[]): T[] {
+  return [...products].sort((a, b) => {
+    const aOut = !a.in_stock, bOut = !b.in_stock
+    if (aOut !== bOut) return aOut ? 1 : -1
+    const aDate = a.published_at ? new Date(a.published_at).getTime() : 0
+    const bDate = b.published_at ? new Date(b.published_at).getTime() : 0
+    return bDate - aDate
+  })
+}

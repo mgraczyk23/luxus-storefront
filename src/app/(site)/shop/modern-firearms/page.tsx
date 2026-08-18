@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { getProducts } from "@/lib/api"
-import { mapMedusaProduct } from "@/lib/medusa"
+import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "@/lib/medusa"
 import { getPageSeo } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
 import ListingPage from "@/components/ListingPage"
@@ -63,11 +63,25 @@ export default async function ModernFirearmsPage() {
       { '@type': 'ListItem', position: 3, name: 'Modern Firearms', item: `${SITE}/shop/modern-firearms` },
     ],
   }
+  const visibleProducts = sortForDefaultListing(products).slice(0, SCHEMA_ITEM_LIST_SIZE)
+  const itemListJsonLd = visibleProducts.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Modern Firearms',
+    numberOfItems: visibleProducts.length,
+    itemListElement: visibleProducts.map((p, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE}/product/${p.handle}`,
+      name: p.title,
+    })),
+  } : null
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />}
       <Suspense>
         <ListingPage
           products={products}

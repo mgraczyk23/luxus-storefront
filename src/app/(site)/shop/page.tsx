@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { getProducts } from "@/lib/api"
-import { mapMedusaProduct, } from "@/lib/medusa"
+import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "@/lib/medusa"
 import ShopPage from "./ShopPage"
 import type { Metadata } from "next"
 import { getPageSeo } from "@/lib/payload"
@@ -73,12 +73,13 @@ export default async function Shop() {
       { '@type': 'ListItem', position: 2, name: 'Shop', item: `${SITE}/shop` },
     ],
   }
-  const itemListJsonLd = products.length > 0 ? {
+  const visibleProducts = sortForDefaultListing(products).slice(0, SCHEMA_ITEM_LIST_SIZE)
+  const itemListJsonLd = visibleProducts.length > 0 ? {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Collectible Firearms',
-    numberOfItems: products.length,
-    itemListElement: products.slice(0, 50).map((p, i) => ({
+    numberOfItems: visibleProducts.length,
+    itemListElement: visibleProducts.map((p, i) => ({
       '@type': 'ListItem',
       position: i + 1,
       url: `${SITE}/product/${p.handle}`,
