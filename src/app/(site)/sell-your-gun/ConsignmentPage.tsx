@@ -123,10 +123,6 @@ export default function ConsignmentPage({
 
           <div className="lxs-consign-banner">
             <div>
-              <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"14px" }}>
-                <div style={{ width:"18px",height:"1px",background:t.gold }}/>
-                <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>Sell or Consign</span>
-              </div>
               <h1 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(32px,4vw,54px)",fontWeight:400,color:t.text,lineHeight:1.08,marginBottom:"20px" }}>
                 {c.headline}
               </h1>

@@ -672,12 +672,6 @@ export default function ListingPage({
           {/* Title row */}
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "20px" }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }} />
-                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
-                  {eyebrow}
-                </span>
-              </div>
               <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em", margin: 0 }}>
                 {title}
               </h1>

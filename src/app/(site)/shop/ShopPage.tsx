@@ -704,12 +704,6 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
           {/* Title row */}
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "20px" }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "6px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }} />
-                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
-                  Luxus Collection
-                </span>
-              </div>
               <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em", margin: 0 }}>
                 {q ? `Results for "${q}"` : "Shop Collectible Firearms"}
               </h1>

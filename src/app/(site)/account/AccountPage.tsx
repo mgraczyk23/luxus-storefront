@@ -153,10 +153,6 @@ export default function AccountPage({ settings }: { settings?: SiteSettings }) {
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", paddingBottom: "28px", borderBottom: `1px solid ${t.border}` }}>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }}/>
-                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>My Account</span>
-              </div>
               <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,3vw,40px)", fontWeight: 400, color: t.text, lineHeight: 1.1 }}>
                 Welcome back, {customer.first_name}.
               </h1>

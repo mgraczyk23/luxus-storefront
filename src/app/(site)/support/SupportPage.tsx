@@ -121,10 +121,6 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
           </div>
           <div className="lxs-support-banner">
             <div>
-              <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px" }}>
-                <div style={{ width:"18px",height:"1px",background:t.gold }}/>
-                <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>We&apos;re Here to Help</span>
-              </div>
               <h1 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(36px,4vw,58px)",fontWeight:300,color:t.text,lineHeight:1.08,letterSpacing:"0.01em",marginBottom:"16px" }}>{c.headline}</h1>
               <p style={{ fontSize:"14px",fontWeight:300,color:t.textMuted,lineHeight:1.8,maxWidth:"440px" }}>
                 {c.introParagraph}

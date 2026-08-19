@@ -272,10 +272,6 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
 
             {/* Title + description */}
             <div className="lxs-articles-title-block" style={{ maxWidth: "680px", marginBottom: "40px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }}/>
-                <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Editorial</span>
-              </div>
               <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(36px,4vw,60px)", fontWeight: 300, color: t.text, lineHeight: 1.05, letterSpacing: "0.01em", marginBottom: "16px" }}>
                 From The Blog
               </h1>

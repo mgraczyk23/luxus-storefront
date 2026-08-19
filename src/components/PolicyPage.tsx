@@ -49,10 +49,6 @@ export default function PolicyPage({ policy, data, settings }: { policy: PolicyS
               </div>
             ))}
           </div>
-          <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px" }}>
-            <div style={{ width:"18px",height:"1px",background:t.gold }}/>
-            <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>{doc.eyebrow}</span>
-          </div>
           <h1 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(30px,3.5vw,52px)",fontWeight:400,color:t.text,lineHeight:1.1,marginBottom:"10px" }}>{doc.title}</h1>
           <div style={{ fontSize:"11px",color:t.textDim,fontWeight:300 }}>Last updated: {doc.lastUpdated}</div>
           <div style={{ display:"flex",gap:"12px",marginTop:"24px",flexWrap:"wrap" }}>

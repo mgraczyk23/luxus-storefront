@@ -18,9 +18,6 @@ export default function GlobalError({
     <html lang="en">
       <body style={{ margin: 0, background: '#0a0a0a', fontFamily: "'Inter',sans-serif", minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', padding: '40px 24px', maxWidth: 480 }}>
-          <p style={{ fontSize: '9px', letterSpacing: '0.26em', textTransform: 'uppercase', color: '#c09530', margin: '0 0 24px' }}>
-            Luxus Collection
-          </p>
           <h1 style={{ fontSize: '22px', fontWeight: 400, color: '#ededed', margin: '0 0 12px', fontFamily: 'Georgia,serif' }}>
             Something went wrong
           </h1>

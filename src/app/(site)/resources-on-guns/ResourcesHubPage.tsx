@@ -153,9 +153,6 @@ export default function ResourcesHubPage({
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <div style={{ background: t.bgSurface, borderBottom: `1px solid ${t.border}`, padding: '72px 24px 60px' }}>
         <div style={{ maxWidth: '760px', margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ fontSize: '9px', letterSpacing: '0.28em', textTransform: 'uppercase', color: t.gold, fontFamily: 'var(--font-inter)', fontWeight: 500, marginBottom: '16px' }}>
-            Luxus Collection
-          </div>
           <h1 style={{ fontFamily: 'var(--font-playfair)', fontSize: 'clamp(36px,5vw,52px)', fontWeight: 400, color: t.text, margin: '0 0 20px', lineHeight: 1.1 }}>
             Resources on Guns
           </h1>

@@ -69,10 +69,6 @@ export default function ResetPasswordPage() {
 
           {/* Header */}
           <div style={{ marginBottom: "36px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "14px" }}>
-              <div style={{ width: "18px", height: "1px", background: t.gold }}/>
-              <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Luxus Collection</span>
-            </div>
             <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(28px,3vw,40px)", fontWeight: 400, color: t.text, lineHeight: 1.1, marginBottom: "8px" }}>
               Set New Password
             </h1>

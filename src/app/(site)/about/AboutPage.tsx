@@ -22,14 +22,8 @@ function ImgBox({ style = {}, index = 0 }: { style?: React.CSSProperties; index?
   )
 }
 
-function Eyebrow({ label, center = false }: { label: string; center?: boolean }) {
-  const { t } = useTheme()
-  return (
-    <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px", justifyContent: center ? "center" : "flex-start" }}>
-      <div style={{ width:"18px",height:"1px",background:t.gold }}/>
-      <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500,fontFamily:"var(--font-inter)" }}>{label}</span>
-    </div>
-  )
+function Eyebrow(_props: { label: string; center?: boolean }) {
+  return null
 }
 
 function ValueCard({ number, title, body }: { number: string; title: string; body: string }) {

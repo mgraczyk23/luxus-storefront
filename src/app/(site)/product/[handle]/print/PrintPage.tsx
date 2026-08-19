@@ -125,11 +125,6 @@ export default function PrintPage({ product, settings }: { product: MappedProduc
 
           {/* ── Product identification ───────────────────────────────────── */}
           <div className="lxs-print-section" style={{ marginBottom: "24px" }}>
-            {product.brand && (
-              <div style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: GOLD, fontWeight: 500, marginBottom: "6px", fontFamily: "'Inter',sans-serif" }}>
-                {product.brand}
-              </div>
-            )}
             <h1 style={{ fontFamily: PLAYFAIR, fontSize: "32px", fontWeight: 300, color: "#1a1a1a", lineHeight: 1.1, letterSpacing: "0.01em", margin: "0 0 6px" }}>
               {product.title}
             </h1>

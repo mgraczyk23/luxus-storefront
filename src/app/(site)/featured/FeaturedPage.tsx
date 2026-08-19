@@ -144,10 +144,6 @@ export default function FeaturedPage({ settings, text, products }: {
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-            <div style={{ width: "18px", height: "1px", background: t.gold }}/>
-            <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Curated Selection</span>
-          </div>
           <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(36px,4.5vw,62px)", fontWeight: 300, color: t.text, lineHeight: 1.07, letterSpacing: "0.01em", marginBottom: "18px" }}>
             {c.headline}
           </h1>

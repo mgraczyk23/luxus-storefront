@@ -39,14 +39,6 @@ export default function NotFoundContent() {
         />
       </Link>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-        <div style={{ width: "24px", height: "1px", background: t.gold }} />
-        <span style={{ fontSize: "9px", letterSpacing: "0.28em", textTransform: "uppercase", color: t.gold, fontWeight: 600 }}>
-          Error 404
-        </span>
-        <div style={{ width: "24px", height: "1px", background: t.gold }} />
-      </div>
-
       <h1
         style={{
           fontFamily: "var(--font-playfair), serif",

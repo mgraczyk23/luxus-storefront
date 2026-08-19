@@ -75,12 +75,6 @@ function SectionHead({ eyebrow, title, center = false }: {
   const { t } = useTheme()
   return (
     <div style={{ marginBottom: "44px", textAlign: center ? "center" : "left" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", justifyContent: center ? "center" : "flex-start", marginBottom: "10px" }}>
-        <div style={{ width: "20px", height: "1px", background: t.gold, flexShrink: 0 }} />
-        <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 500, color: t.gold }}>
-          {eyebrow}
-        </span>
-      </div>
       <div style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,42px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em" }}>
         {title}
       </div>
