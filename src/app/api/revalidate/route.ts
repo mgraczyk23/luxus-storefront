@@ -1,6 +1,7 @@
 import { revalidatePath, revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 import { warmCache, TAG_PAGES } from "@/lib/warm-cache"
+import { submitIndexNow, pathForTag } from "@/lib/indexnow"
 
 const STATIC_TAGS = new Set(
   Object.keys(TAG_PAGES).filter(k => !k.endsWith("-"))
@@ -29,6 +30,11 @@ export async function GET(req: NextRequest) {
   revalidateTag(tag, { expire: 0 })
   warmCache(tag).catch(() => {})
 
+  // Explicit ?path=/article/foo overrides tag-based guessing when the caller
+  // knows the exact URL; otherwise fall back to the slug embedded in the tag.
+  const explicitPath = req.nextUrl.searchParams.get('path')
+  submitIndexNow(explicitPath ? [explicitPath] : pathForTag(tag)).catch(() => {})
+
   return NextResponse.json({ revalidated: true, tag, ts: Date.now() })
 }
 
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
   revalidateTag("products", { expire: 0 })
   revalidatePath("/", "layout")
   warmCache("products").catch(() => {})
+
+  // Medusa doesn't currently pass the specific product handle, so we can only
+  // submit it to IndexNow when the caller explicitly provides one.
+  const explicitPath = req.nextUrl.searchParams.get('path')
+  if (explicitPath) submitIndexNow([explicitPath]).catch(() => {})
 
   return NextResponse.json({ revalidated: true })
 }
