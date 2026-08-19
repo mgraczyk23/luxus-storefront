@@ -1,10 +1,16 @@
 import { getBrands, getBrandsForSearch, getAllResourcePagesForSearch } from "@/lib/payload"
 import ResourcesHubPage from "./ResourcesHubPage"
 import type { Metadata } from "next"
+import { ogMeta } from "@/lib/og"
+
+const title = "Resources on Guns | Luxus Collection"
+const description = "Deep dives into the history, engineering, and craftsmanship of the world's finest firearms manufacturers."
 
 export const metadata: Metadata = {
-  title: "Resources on Guns | Luxus Collection",
-  description: "Deep dives into the history, engineering, and craftsmanship of the world's finest firearms manufacturers.",
+  title,
+  description,
+  ...ogMeta(title, description, { url: '/resources-on-guns' }),
+  alternates: { canonical: '/resources-on-guns' },
 }
 
 export const revalidate = 300

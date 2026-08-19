@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
-    ...ogMeta(title, description),
+    ...ogMeta(title, description, { url: '/sell-your-gun' }),
     alternates: { canonical: '/sell-your-gun' },
   }
 }

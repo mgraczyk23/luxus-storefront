@@ -38,7 +38,7 @@ export async function generateMetadata(
     return {
       title,
       description,
-      ...ogMeta(title, description, mapped.thumbnail),
+      ...ogMeta(title, description, { image: mapped.thumbnail, url: `/product/${normalized}` }),
       alternates: { canonical: `/product/${normalized}` },
     }
   } catch {

@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title,
     description,
-    ...ogMeta(title, description),
+    ...ogMeta(title, description, { url: `/brand/${normalized}` }),
     alternates: { canonical: `/brand/${normalized}` },
   }
 }

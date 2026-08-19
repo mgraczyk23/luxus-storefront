@@ -18,7 +18,11 @@ export async function generateMetadata({
   return {
     title,
     description,
-    ...ogMeta(title, description, imageUrl(page.featuredImage), 'article'),
+    ...ogMeta(title, description, {
+      image: imageUrl(page.featuredImage),
+      type: 'article',
+      url: `/resources-on-guns/${slug}/${articleSlug}`,
+    }),
     alternates: { canonical: `/resources-on-guns/${slug}/${articleSlug}` },
   }
 }

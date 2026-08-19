@@ -29,7 +29,11 @@ export async function generateMetadata({
   return {
     title,
     description,
-    ...ogMeta(title, description, imageUrl(post.featuredImage), 'article'),
+    ...ogMeta(title, description, {
+      image: imageUrl(post.featuredImage),
+      type: 'article',
+      url: `/article/${normalized}`,
+    }),
     alternates: { canonical: `/article/${normalized}` },
   }
 }
