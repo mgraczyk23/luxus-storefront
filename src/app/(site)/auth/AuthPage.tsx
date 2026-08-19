@@ -144,7 +144,6 @@ export default function AuthPage({ defaultTab = "signin" }: { defaultTab?: "sign
             ))}
             <div style={{ position: "relative", zIndex: 1 }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "16px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }}/>
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>The Collector&apos;s Circle</span>
               </div>
               <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(32px,3.2vw,48px)", fontWeight: 400, color: t.text, lineHeight: 1.12, marginBottom: "24px", letterSpacing: "0.01em" }}>

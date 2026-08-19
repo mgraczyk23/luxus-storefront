@@ -71,7 +71,7 @@ export default function PolicyPage({ policy, data, settings }: { policy: PolicyS
           {/* ToC */}
           <aside style={{ position:"sticky",top:"88px" }}>
             <div style={{ fontSize:"8px",letterSpacing:"0.24em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px" }}>
-              <div style={{ width:"14px",height:"1px",background:t.gold }}/>Contents
+              Contents
             </div>
             <div style={{ display:"flex",flexDirection:"column" }}>
               {doc.sections.map((s,i) => (

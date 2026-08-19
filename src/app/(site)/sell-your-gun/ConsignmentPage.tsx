@@ -182,7 +182,6 @@ export default function ConsignmentPage({
           <div>
             <div style={{ marginBottom:"28px" }}>
               <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px" }}>
-                <div style={{ width:"18px",height:"1px",background:t.gold }}/>
                 <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>Get In Touch</span>
               </div>
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(24px,2.8vw,36px)",fontWeight:400,color:t.text,lineHeight:1.15 }}>{c.formHeading}</h2>

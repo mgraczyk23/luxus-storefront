@@ -140,7 +140,6 @@ function FeaturedCard({ post, index }: { post: PayloadPost; index: number }) {
         <div className="lxs-articles-featured-body" style={{ padding: "44px 44px 40px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-              <div style={{ width: "18px", height: "1px", background: t.gold }}/>
               <span style={{ fontSize: "8px", letterSpacing: "0.28em", textTransform: "uppercase", color: t.gold, fontWeight: 500, fontFamily: "var(--font-inter)" }}>Editor's Pick</span>
             </div>
             <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,2.4vw,34px)", fontWeight: 300, lineHeight: 1.2, color: hov ? t.gold : t.text, transition: "color 0.25s", marginBottom: "18px", letterSpacing: "0.01em" }}>
@@ -332,7 +331,6 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
       <div className="lxs-articles-grid-section" style={{ maxWidth: "1440px", margin: "0 auto", padding: "52px 40px 0" }}>
         <div className="lxs-articles-grid-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "36px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: "18px", height: "1px", background: t.gold }}/>
             <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
               {activeCategory === "All" ? "All Articles" : activeCategory}
             </span>

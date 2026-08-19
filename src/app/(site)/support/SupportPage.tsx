@@ -169,7 +169,6 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
           <div>
             <div style={{ marginBottom:"32px" }}>
               <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px" }}>
-                <div style={{ width:"18px",height:"1px",background:t.gold }}/>
                 <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>Get In Touch</span>
               </div>
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(26px,2.8vw,38px)",fontWeight:300,color:t.text,lineHeight:1.15 }}>Send Us a Message</h2>
@@ -255,7 +254,7 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
           <div style={{ display:"flex",flexDirection:"column",gap:"40px" }}>
             <div>
               <div style={{ fontSize:"8px",letterSpacing:"0.24em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"20px",display:"flex",alignItems:"center",gap:"10px" }}>
-                <div style={{ width:"14px",height:"1px",background:t.gold }}/>Quick Resources
+                Quick Resources
               </div>
               <div style={{ display:"flex",flexDirection:"column",gap:"10px" }}>
                 {[
@@ -292,7 +291,6 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
           <div className="lxs-ffl-guide">
             <div>
               <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"12px" }}>
-                <div style={{ width:"18px",height:"1px",background:t.gold }}/>
                 <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>How It Works</span>
               </div>
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(26px,2.8vw,38px)",fontWeight:300,color:t.text,lineHeight:1.15,marginBottom:"18px" }}>{c.fflHeadline}</h2>

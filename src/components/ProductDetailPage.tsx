@@ -580,7 +580,6 @@ export default function ProductDetailPage({
             {/* Brand + SKU */}
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ width: "16px", height: "1px", background: t.gold }} />
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
                   {product.brand}
                 </span>
@@ -914,7 +913,6 @@ export default function ProductDetailPage({
               {product.overview && (
                 <>
                   <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-                    <div style={{ width: "18px", height: "1px", background: t.gold }} />
                     <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>About This Piece</span>
                   </div>
                   <div
@@ -941,7 +939,6 @@ export default function ProductDetailPage({
           {activeTab === 'specifications' && (
             <div style={{ maxWidth: "680px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }} />
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Full Specifications</span>
               </div>
               <div style={{ border: `1px solid ${t.border}`, padding: "0 20px" }}>
@@ -959,7 +956,6 @@ export default function ProductDetailPage({
           {activeTab === 'in the box' && (
             <div style={{ maxWidth: "560px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }} />
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>What's Included</span>
               </div>
               <div style={{ display: "flex", flexDirection: "column" }}>
@@ -983,7 +979,6 @@ export default function ProductDetailPage({
             {/* Copy */}
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                <div style={{ width: "18px", height: "1px", background: t.gold }} />
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Inquire</span>
               </div>
               <h2 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(24px,2.8vw,40px)", fontWeight: 300, color: t.text, lineHeight: 1.15, letterSpacing: "0.01em", marginBottom: "20px" }}>
@@ -1093,7 +1088,6 @@ export default function ProductDetailPage({
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "44px" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                  <div style={{ width: "18px", height: "1px", background: t.gold }} />
                   <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
                     {product.brand ? `More From ${product.brand}` : "You May Also Consider"}
                   </span>
@@ -1196,7 +1190,6 @@ export default function ProductDetailPage({
             ) : (
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-                  <div style={{ width: "20px", height: "1px", background: t.gold }} />
                   <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Pricing Inquiry</span>
                 </div>
                 <h2 style={{ fontFamily: PLAYFAIR, fontSize: "26px", fontWeight: 400, color: t.text, lineHeight: 1.2, marginBottom: "8px" }}>

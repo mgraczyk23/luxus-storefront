@@ -179,7 +179,6 @@ function MobileNav({ logoUrl }: { logoUrl?: string }) {
           <div style={{ width: "min(560px, 90vw)", background: T.bg, border: `1px solid ${T.border}`, borderTop: `2px solid ${T.gold}`, padding: "28px 28px 24px", boxShadow: "0 30px 80px rgba(0,0,0,0.5)" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "18px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <div style={{ width: "16px", height: "1px", background: T.gold }}/>
                 <span style={{ fontSize: "9px", letterSpacing: "0.26em", textTransform: "uppercase", color: T.gold, fontWeight: 600 }}>Search the Collection</span>
               </div>
               <button onClick={() => setSearchOpen(false)} aria-label="Close search"

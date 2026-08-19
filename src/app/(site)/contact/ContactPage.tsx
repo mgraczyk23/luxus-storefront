@@ -208,7 +208,6 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
           <div>
             <div style={{ marginBottom:"32px" }}>
               <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px" }}>
-                <div style={{ width:"18px",height:"1px",background:t.gold }}/>
                 <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>Send a Message</span>
               </div>
             </div>
@@ -292,7 +291,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
           <div style={{ display:"flex",flexDirection:"column",gap:"28px" }}>
             <div>
               <div style={{ fontSize:"8px",letterSpacing:"0.24em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px" }}>
-                <div style={{ width:"14px",height:"1px",background:t.gold }}/>Location
+                Location
               </div>
               <MapEmbed address={address} />
               <div style={{ marginTop:"12px", padding:"10px 14px", background:"#faf9f6", border:`1px solid ${t.border}`, borderLeft:`2px solid ${t.gold}` }}>
@@ -317,7 +316,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
             </div>
             <div>
               <div style={{ fontSize:"8px",letterSpacing:"0.24em",textTransform:"uppercase",color:t.gold,fontWeight:500,marginBottom:"14px",display:"flex",alignItems:"center",gap:"10px" }}>
-                <div style={{ width:"14px",height:"1px",background:t.gold }}/>Follow Along
+                Follow Along
               </div>
               <div style={{ display:"flex",flexWrap:"wrap",gap:"8px" }}>
                 {SOCIALS.map(({ label, href, icon }) => (
@@ -339,9 +338,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
         <div style={{ maxWidth:"1440px",margin:"0 auto" }}>
           <div style={{ textAlign:"center",marginBottom:"48px" }}>
             <div style={{ display:"flex",alignItems:"center",gap:"12px",marginBottom:"10px",justifyContent:"center" }}>
-              <div style={{ width:"18px",height:"1px",background:t.gold }}/>
               <span style={{ fontSize:"8.5px",letterSpacing:"0.26em",textTransform:"uppercase",color:t.gold,fontWeight:500 }}>What To Expect</span>
-              <div style={{ width:"18px",height:"1px",background:t.gold }}/>
             </div>
             <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(26px,2.8vw,38px)",fontWeight:300,color:t.text,lineHeight:1.15 }}>
               Every Inquiry Gets a Personal Response

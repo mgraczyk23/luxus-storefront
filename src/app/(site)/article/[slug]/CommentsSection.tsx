@@ -80,7 +80,6 @@ export default function CommentsSection({
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '36px' }}>
-        <div style={{ width: '18px', height: '1px', background: t.gold }} />
         <h2 style={{ fontFamily: 'var(--font-playfair)', fontSize: '22px', fontWeight: 300, color: t.text, margin: 0 }}>
           {initialComments.length > 0 ? `${initialComments.length} Comment${initialComments.length !== 1 ? 's' : ''}` : 'Comments'}
         </h2>

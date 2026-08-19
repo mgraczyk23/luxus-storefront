@@ -211,7 +211,6 @@ export default function MakeAnOfferModal({
             {/* Header */}
             <div style={{ marginBottom: "24px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                <div style={{ width: "20px", height: "1px", background: t.gold }} />
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>
                   Private Offer
                 </span>

@@ -149,7 +149,6 @@ function OrderSummary({ items }: { items: CartItem[] }) {
   return (
     <div style={{ position: "sticky", top: "96px", background: "#fff", border: `1px solid ${t.border}`, padding: "28px" }}>
       <div style={{ fontSize: "8.5px", letterSpacing: "0.22em", textTransform: "uppercase", color: t.gold, fontWeight: 500, marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-        <div style={{ width: "14px", height: "1px", background: t.gold }}/>
         Order Summary
       </div>
 

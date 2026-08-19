@@ -160,7 +160,6 @@ export default function AcceptCounterPage({ params }: {
     <div style={{ maxWidth: '560px', margin: '0 auto', padding: '64px 20px 80px', fontFamily: 'var(--font-inter)' }}>
 
       <div style={{ fontSize: '8.5px', letterSpacing: '0.26em', textTransform: 'uppercase', color: '#c9a96e', fontWeight: 600, marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '16px', height: '1px', background: '#c9a96e' }}/>
         Counter Offer
       </div>
       <h1 style={{ fontFamily: PLAYFAIR, fontSize: '30px', fontWeight: 400, color: '#1a1a1a', marginBottom: '8px', lineHeight: 1.2 }}>

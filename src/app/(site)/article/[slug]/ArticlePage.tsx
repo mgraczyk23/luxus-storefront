@@ -314,7 +314,6 @@ export default function ArticlePage({ post, related = [], comments = [], body: b
       {showFixedToc && toc.length > 0 && pastHero && (
         <div style={{ position: "fixed", top: "120px", right: "32px", width: "220px", zIndex: 80 }}>
           <div style={{ fontSize: "8px", letterSpacing: "0.24em", textTransform: "uppercase", color: t.gold, fontWeight: 500, fontFamily: "var(--font-inter)", marginBottom: "14px", display: "flex", alignItems: "center", gap: "10px" }}>
-            <div style={{ width: "14px", height: "1px", background: t.gold }}/>
             In This Article
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
@@ -391,7 +390,6 @@ export default function ArticlePage({ post, related = [], comments = [], body: b
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: "40px" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "10px" }}>
-                  <div style={{ width: "18px", height: "1px", background: t.gold }}/>
                   <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Continue Reading</span>
                 </div>
                 <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(24px,2.5vw,34px)", fontWeight: 300, color: t.text, lineHeight: 1.1 }}>
