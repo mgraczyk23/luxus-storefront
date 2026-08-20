@@ -420,9 +420,6 @@ export default function ProductDetailPage({
           {[
             { label: "Home", href: "/" },
             { label: "Shop", href: "/shop" },
-            ...(product.brand && product.attribute_lists.brand[0]
-              ? [{ label: product.brand, href: `/brand/${toSlug(product.attribute_lists.brand[0])}` }]
-              : []),
           ].map(crumb => (
             <div key={crumb.href} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Link href={crumb.href}
@@ -434,6 +431,24 @@ export default function ProductDetailPage({
               <span style={{ fontSize: "9px", color: t.textDim }}>›</span>
             </div>
           ))}
+          {product.attribute_lists.brand.length > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                {product.attribute_lists.brand.map((brand, i) => (
+                  <span key={brand} style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                    {i > 0 && <span style={{ fontSize: "10px", color: t.textDim }}>/</span>}
+                    <Link href={`/brand/${toSlug(brand)}`}
+                      style={{ fontSize: "10px", color: t.textDim, fontWeight: 300, letterSpacing: "0.04em", transition: "color 0.18s" }}
+                      onMouseEnter={e => (e.currentTarget.style.color = t.gold)}
+                      onMouseLeave={e => (e.currentTarget.style.color = t.textDim)}>
+                      {brand}
+                    </Link>
+                  </span>
+                ))}
+              </span>
+              <span style={{ fontSize: "9px", color: t.textDim }}>›</span>
+            </div>
+          )}
           <span style={{ fontSize: "10px", color: t.textMuted, fontWeight: 400, letterSpacing: "0.01em" }}>{product.title}</span>
         </div>
       </div>
