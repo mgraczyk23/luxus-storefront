@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { permanentRedirect } from "next/navigation"
+import { permanentRedirect, notFound } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "@/lib/medusa"
 import ListingPage from "@/components/ListingPage"
@@ -70,9 +70,14 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     getBrand(slug),
   ])
   const allProductsArr = allProducts.status === 'fulfilled' ? allProducts.value : []
-  const tagline = brandPayload.status === 'fulfilled' ? (brandPayload.value?.tagline ?? null) : null
+  const brandDoc = brandPayload.status === 'fulfilled' ? brandPayload.value : null
+  const tagline = brandDoc?.tagline ?? null
 
   const brandName = getBrandName(slug, allProductsArr)
+  // No product carries this brand and no CMS brand doc exists for it — not a
+  // real brand slug (e.g. a stray link that concatenated two brand names
+  // together). Render a real 404 instead of an empty "0 results" page.
+  if (!brandName && !brandDoc) notFound()
   const name = brandName ?? slug
   const products = brandName
     ? allProductsArr.filter(p => p.attribute_lists.brand.includes(brandName))

@@ -14,6 +14,7 @@ import { fetchRestrictions, checkState, type StateRestriction, type RestrictionC
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 import ContactAvailabilityModal from '@/components/ContactAvailabilityModal'
 import { trackEvent } from '@/lib/gtm'
+import { toSlug } from '@/lib/slug'
 
 const SpinViewer  = dynamic(() => import('@/components/product/SpinViewer'),  { ssr: false })
 const ModelViewer = dynamic(() => import('@/components/product/ModelViewer'), { ssr: false })
@@ -419,7 +420,9 @@ export default function ProductDetailPage({
           {[
             { label: "Home", href: "/" },
             { label: "Shop", href: "/shop" },
-            ...(product.brand ? [{ label: product.brand, href: `/brand/${product.brand.toLowerCase().replace(/&amp;/g,'and').replace(/\s*&\s*/g,'-').replace(/\s+and\s+/g,'-').replace(/[^a-z0-9]+/g,'-').replace(/-+/g,'-').replace(/^-|-$/g,'')}` }] : []),
+            ...(product.brand && product.attribute_lists.brand[0]
+              ? [{ label: product.brand, href: `/brand/${toSlug(product.attribute_lists.brand[0])}` }]
+              : []),
           ].map(crumb => (
             <div key={crumb.href} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <Link href={crumb.href}
