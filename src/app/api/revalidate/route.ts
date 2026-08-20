@@ -29,6 +29,11 @@ export async function GET(req: NextRequest) {
 
   revalidateTag(tag, { expire: 0 })
   warmCache(tag).catch(() => {})
+  // revalidatePath("/", "layout") (used below in POST) only covers *pages*
+  // under that layout — sitemap.xml is a metadata Route Handler, not a page,
+  // so it's never swept by that call and needs its own explicit revalidation
+  // whenever content that appears in it changes (brands, posts, resources).
+  revalidatePath("/sitemap.xml")
 
   // Explicit ?path=/article/foo overrides tag-based guessing when the caller
   // knows the exact URL; otherwise fall back to the slug embedded in the tag.
@@ -44,6 +49,9 @@ export async function POST(req: NextRequest) {
 
   revalidateTag("products", { expire: 0 })
   revalidatePath("/", "layout")
+  // Same reason as the GET handler above — sitemap.xml is a Route Handler,
+  // not a page, so it needs an explicit revalidatePath call of its own.
+  revalidatePath("/sitemap.xml")
   warmCache("products").catch(() => {})
 
   // Medusa doesn't currently pass the specific product handle, so we can only
