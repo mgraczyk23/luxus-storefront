@@ -3,9 +3,34 @@ import { getProducts, getCategories, getCollections } from '@/lib/api'
 import { getBrands, getPosts, getAllResourcePagesForSearch } from '@/lib/payload'
 import { toSlug } from '@/lib/slug'
 
+// Explicit upper bound on how stale sitemap.xml can get. In practice the
+// products/categories/collections fetches below already carry a 5-minute
+// revalidate window, so this mainly guards against sitemap.xml silently
+// going fully static if those fetches ever change to tag-only caching.
+export const revalidate = 3600
+
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
 const url  = (path: string) => `${SITE}${path}`
 const now  = new Date()
+
+// Medusa caps /store/products at 500 per request — the catalog has already
+// passed that (501+ and growing), so a single fetch silently drops products.
+// Page through with offset until every product has been fetched.
+async function getAllProducts(): Promise<any[]> {
+  const pageSize = 500
+  // Must use `*attribute_values` (wildcard expand) not `+attribute_values`
+  // (add-field) — the latter omits the nested `value` field entirely, which
+  // silently breaks model-slug extraction below.
+  const fields = 'handle,updated_at,+metadata,*attribute_values,*attribute_values.attribute_type'
+  const first = await getProducts({ limit: String(pageSize), offset: '0', fields })
+  const all = [...(first.products ?? [])]
+  const total = first.count ?? all.length
+  for (let offset = pageSize; offset < total; offset += pageSize) {
+    const page = await getProducts({ limit: String(pageSize), offset: String(offset), fields })
+    all.push(...(page.products ?? []))
+  }
+  return all
+}
 
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: url('/'),                          changeFrequency: 'weekly',  priority: 1.0, lastModified: now },
@@ -30,7 +55,7 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [productsRes, categoriesRes, collectionsRes, brandsRes, postsRes, resourcesRes] =
     await Promise.allSettled([
-      getProducts({ limit: '500', fields: 'handle,updated_at,+metadata,+attribute_values,*attribute_values.attribute_type' }),
+      getAllProducts(),
       getCategories(),
       getCollections(),
       getBrands(),
@@ -38,7 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       getAllResourcePagesForSearch(),
     ])
 
-  const allProducts = productsRes.status === 'fulfilled' ? (productsRes.value.products ?? []) : []
+  const allProducts = productsRes.status === 'fulfilled' ? (productsRes.value ?? []) : []
 
   // Exclude all private room / backroom items from every public section
   const publicProducts = allProducts.filter(
@@ -64,11 +89,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (fromAttrs.length > 0) {
       fromAttrs.forEach(m => modelSlugs.add(toSlug(m)))
     } else {
-      // legacy metadata fallback
+      // legacy metadata fallback — metadata.model may already be a native
+      // array (current API shape), a JSON-stringified array, or a plain/CSV string
       const raw = p.metadata?.model
-      if (typeof raw !== 'string' || !raw) continue
+      if (raw == null || raw === '') continue
       let names: string[]
-      if (raw.startsWith('[')) {
+      if (Array.isArray(raw)) {
+        names = raw.map(String)
+      } else if (typeof raw !== 'string') {
+        continue
+      } else if (raw.startsWith('[')) {
         try {
           const parsed = JSON.parse(raw)
           names = Array.isArray(parsed) ? parsed.map(String) : [raw]
