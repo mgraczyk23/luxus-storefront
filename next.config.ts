@@ -47,6 +47,13 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
+          // Isolates this origin's top-level window from cross-origin popups
+          // it opens. Verified safe against this codebase: Elavon's checkout
+          // lightbox (PayWithConverge.open()) is an iframe overlay from its
+          // own SDK, not a window.open() popup, and the only window.open()
+          // call in the app (product print sheet) is same-origin — neither
+          // relies on cross-origin window.opener/postMessage access.
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
           // Report-Only first pass — monitors and logs violations to the
           // browser console without blocking anything. Origins below are
           // sourced directly from this codebase (GTM/Klaviyo script tags in
