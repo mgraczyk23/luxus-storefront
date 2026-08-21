@@ -78,6 +78,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       style={annActive ? { '--ann-h': '36px' } as React.CSSProperties : {}}
     >
       <body>
+        {/* Homepage's "Currently on GunBroker" section fetches its listing
+            images from this origin client-side, after the initial page load
+            — a cold DNS/TCP/TLS handshake for it only starts once that fetch
+            resolves. Preconnecting here warms the connection ahead of time.
+            No crossOrigin attribute: next/image renders plain <img> tags for
+            these (no images.crossOrigin config set), so the hint must match
+            that no-CORS connection mode or the browser opens a second,
+            wasted connection. */}
+        <link rel="preconnect" href="https://assets.gunbroker.com" />
+
         {/* Google Tag Manager — loaded unconditionally like Klaviyo above.
             GTM itself is just a script loader and sets no cookies; any tag
             configured inside it that needs consent (e.g. Google Ads) should
