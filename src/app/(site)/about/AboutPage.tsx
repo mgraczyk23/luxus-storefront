@@ -558,7 +558,7 @@ export default function AboutPage({
             <div>
               <Eyebrow label="Licensing & Compliance" />
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(26px,2.8vw,40px)",fontWeight:300,color:t.text,lineHeight:1.15,marginBottom:"20px" }}>
-                FFL Licensing &<br/>Legal Compliance
+                FFL Licensing &{' '}<br/>Legal Compliance
               </h2>
               <p style={{ fontSize:"14px",fontWeight:300,lineHeight:1.88,color:t.textMuted,letterSpacing:"0.02em" }}>
                 {c.fflBody}
@@ -587,7 +587,7 @@ export default function AboutPage({
             <div>
               <Eyebrow label="Begin Your Collection" />
               <h2 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(30px,3.2vw,48px)",fontWeight:300,color:t.text,lineHeight:1.12,marginBottom:"18px" }}>
-                Ready to Find Your<br/>Next Piece?
+                Ready to Find Your{' '}<br/>Next Piece?
               </h2>
               <p style={{ fontSize:"14px",fontWeight:300,color:t.textMuted,lineHeight:1.85,maxWidth:"420px" }}>
                 Browse our current inventory, explore by brand, or reach out to our team with a specific piece in mind. Every inquiry receives a personal response.

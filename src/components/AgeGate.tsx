@@ -1,32 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { LIGHT as t } from '@/context/ThemeContext'
-
-const COOKIE = 'lxs_age_verified'
-
-function getVerified(): boolean {
-  try {
-    const hasCookie = document.cookie.split('; ').some(r => r.startsWith(COOKIE + '=1'))
-    const hasSession = sessionStorage.getItem(COOKIE) === '1'
-    return hasCookie || hasSession
-  } catch {
-    return false
-  }
-}
-
-function setVerified(remember: boolean) {
-  if (remember) {
-    const maxAge = 30 * 24 * 60 * 60
-    document.cookie = `${COOKIE}=1;path=/;max-age=${maxAge};samesite=lax`
-  } else {
-    sessionStorage.setItem(COOKIE, '1')
-  }
-}
+import { isAgeVerified as getVerified, setAgeVerified as setVerified } from '@/lib/age-gate'
 
 export default function AgeGate() {
   const [visible, setVisible] = useState(false)
   const [remember, setRemember] = useState(true)
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const enterBtnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!getVerified()) setVisible(true)
@@ -35,6 +17,58 @@ export default function AgeGate() {
   useEffect(() => {
     document.body.style.overflow = visible ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
+  }, [visible])
+
+  // Move focus into the dialog when it opens, and trap Tab/Shift+Tab inside
+  // it so keyboard users can't reach the page (or the consent banner)
+  // underneath while age verification is unresolved.
+  useEffect(() => {
+    if (!visible) return
+    enterBtnRef.current?.focus()
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !dialogRef.current) return
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [visible])
+
+  // Suppress the rest of the page (header, nav, consent banner, etc.) from
+  // focus/interaction while the gate is open — the Tab trap above covers
+  // keyboard navigation already reaching this dialog, but `inert` (with
+  // aria-hidden as a fallback for browsers that don't support it) is the
+  // belt-and-suspenders fix so assistive tech doesn't even announce the
+  // page underneath while age verification is unresolved.
+  useEffect(() => {
+    if (!visible) return
+    const toggled: HTMLElement[] = []
+    Array.from(document.body.children).forEach(el => {
+      if (el === dialogRef.current) return
+      const node = el as HTMLElement
+      if ('inert' in node) (node as unknown as { inert: boolean }).inert = true
+      node.setAttribute('aria-hidden', 'true')
+      toggled.push(node)
+    })
+    return () => {
+      toggled.forEach(node => {
+        if ('inert' in node) (node as unknown as { inert: boolean }).inert = false
+        node.removeAttribute('aria-hidden')
+      })
+    }
   }, [visible])
 
   const handleEnter = () => {
@@ -49,12 +83,18 @@ export default function AgeGate() {
   if (!visible) return null
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 99999,
-      background: 'rgba(26, 26, 26, 0.55)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '24px',
-    }}>
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="age-gate-heading"
+      aria-describedby="age-gate-desc"
+      ref={dialogRef}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 99999,
+        background: 'rgba(26, 26, 26, 0.55)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '24px',
+      }}>
       <div style={{
         background: t.bg,
         border: `1px solid ${t.border}`,
@@ -78,7 +118,7 @@ export default function AgeGate() {
         <div style={{ width: '32px', height: '1px', background: t.gold, margin: '0 auto 28px' }} />
 
         {/* Heading */}
-        <h2 style={{
+        <h2 id="age-gate-heading" style={{
           fontFamily: 'var(--font-playfair), Georgia, serif',
           fontSize: '22px', fontWeight: 400, color: t.text,
           margin: '0 0 12px', lineHeight: 1.3,
@@ -86,7 +126,7 @@ export default function AgeGate() {
           Age Verification Required
         </h2>
 
-        <p style={{
+        <p id="age-gate-desc" style={{
           fontFamily: "'Inter', sans-serif",
           fontSize: '13px', color: t.textMuted, lineHeight: 1.7,
           margin: '0 0 32px',
@@ -99,6 +139,7 @@ export default function AgeGate() {
         {/* Buttons */}
         <div style={{ display: 'flex', gap: '10px', marginBottom: '28px' }}>
           <button
+            ref={enterBtnRef}
             onClick={handleEnter}
             style={{
               flex: 1, padding: '14px 12px',

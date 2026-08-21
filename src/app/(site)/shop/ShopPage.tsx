@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -65,10 +65,15 @@ function ImgBox({ style = {} }: { style?: React.CSSProperties }) {
 }
 
 // ── ProductCard ───────────────────────────────────────────────────────────────
+// Not a <Link>-wrapped card: the card itself is a non-interactive container
+// with a full-cover "stretched" <Link> (position:absolute, inset:0, behind
+// the button row) as the actual navigation target. This keeps the whole card
+// clickable/keyboard-focusable for navigation while the wishlist/cart
+// buttons stay sibling controls instead of being nested inside the anchor
+// (invalid markup — a <button> can't be a descendant of an <a>).
 function ProductCard({ product }: { product: MappedProduct }) {
   const { t } = useTheme()
   const { addItem } = useCart()
-  const router = useRouter()
   const [hov, setHov] = useState(false)
   const [wishlisted, setWishlisted] = useState(false)
   const [addedToCart, setAddedToCart] = useState(false)
@@ -92,14 +97,14 @@ function ProductCard({ product }: { product: MappedProduct }) {
 
 
   return (
-    <Link href={`/product/${product.handle}`}
+    <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
+        position: "relative",
         background: hov ? t.bgCardHover : t.bgCard,
         border: `1px solid ${hov ? t.gold + "55" : t.border}`,
         borderRadius: "1px", overflow: "hidden",
-        textDecoration: "none", color: "inherit",
         transition: "all 0.28s ease",
         transform: hov ? "translateY(-4px)" : "translateY(0)",
         boxShadow: hov
@@ -109,6 +114,9 @@ function ProductCard({ product }: { product: MappedProduct }) {
         display: "flex", flexDirection: "column", flex: 1, height: "100%",
       }}
     >
+      <Link href={`/product/${product.handle}`} aria-label={product.title}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }} />
+
       {/* Image */}
       <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#ffffff" }}>
         {product.thumbnail ? (
@@ -160,7 +168,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
               {product.contact_for_pricing ? "Contact Us" : product.price !== null ? fmt(product.price) : "—"}
             </div>
           )}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+          <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
             {/* Heart / Wishlist */}
             <button
               onClick={handleHeartClick}
@@ -196,7 +204,7 @@ function ProductCard({ product }: { product: MappedProduct }) {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 
@@ -303,12 +311,9 @@ function PriceRange({ priceMin, priceMax, min, max, onChange }: {
 
   return (
     <div>
-      <style>{`
-        input[type=range]{-webkit-appearance:none;appearance:none;}
-        input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:16px;height:16px;border-radius:50%;background:${t.gold};border:2px solid ${t.bg};cursor:pointer;position:relative;z-index:5;}
-        input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:${t.gold};border:2px solid ${t.bg};cursor:pointer;}
-        input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
-      `}</style>
+      {/* Slider thumb / number-input spinner rules live in globals.css
+          (global element selectors, not scoped to a class either way — moved
+          out of an inline <style> tag so the markup validates). */}
 
       {/* Track */}
       <div style={{ position: "relative", height: "3px", background: t.border, borderRadius: "2px", margin: "12px 0 18px" }}>
@@ -317,27 +322,31 @@ function PriceRange({ priceMin, priceMax, min, max, onChange }: {
           left: `${leftPct}%`, width: `${rightPct - leftPct}%`,
           background: t.gold, borderRadius: "2px",
         }} />
-        <input type="range" min={min} max={max} step={50} value={priceMin} onChange={handleMinRange}
+        <input type="range" id="shop-price-min-range" min={min} max={max} step={50} value={priceMin} onChange={handleMinRange}
+          aria-label="Minimum price"
           style={{ position: "absolute", width: "100%", top: "50%", transform: "translateY(-50%)", appearance: "none", WebkitAppearance: "none" as React.CSSProperties["WebkitAppearance"], background: "transparent", height: "16px", cursor: "pointer", margin: 0, zIndex: priceMin > max - 100 ? 5 : 3 }} />
-        <input type="range" min={min} max={max} step={50} value={priceMax} onChange={handleMaxRange}
+        <input type="range" id="shop-price-max-range" min={min} max={max} step={50} value={priceMax} onChange={handleMaxRange}
+          aria-label="Maximum price"
           style={{ position: "absolute", width: "100%", top: "50%", transform: "translateY(-50%)", appearance: "none", WebkitAppearance: "none" as React.CSSProperties["WebkitAppearance"], background: "transparent", height: "16px", cursor: "pointer", margin: 0, zIndex: 4 }} />
       </div>
 
       {/* Min / Max inputs */}
       <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.textDim, fontFamily: "'Inter',sans-serif", marginBottom: "5px" }}>Min</div>
+          <label htmlFor="shop-price-min-input" style={{ display: "block", fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.textDim, fontFamily: "'Inter',sans-serif", marginBottom: "5px" }}>Min</label>
           <div style={{ position: "relative" }}>
             <span style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "11px", color: t.textMuted }}>$</span>
-            <input type="number" value={localMin} onChange={handleMinInput} style={inputStyle} />
+            <input type="number" id="shop-price-min-input" value={localMin} onChange={handleMinInput} style={inputStyle}
+              aria-label="Minimum price (exact amount)" />
           </div>
         </div>
         <div style={{ width: "12px", height: "1px", background: t.border, marginTop: "18px", flexShrink: 0 }} />
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.textDim, fontFamily: "'Inter',sans-serif", marginBottom: "5px" }}>Max</div>
+          <label htmlFor="shop-price-max-input" style={{ display: "block", fontSize: "8px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.textDim, fontFamily: "'Inter',sans-serif", marginBottom: "5px" }}>Max</label>
           <div style={{ position: "relative" }}>
             <span style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", fontSize: "11px", color: t.textMuted }}>$</span>
-            <input type="number" value={localMax} onChange={handleMaxInput} style={inputStyle} />
+            <input type="number" id="shop-price-max-input" value={localMax} onChange={handleMaxInput} style={inputStyle}
+              aria-label="Maximum price (exact amount)" />
           </div>
         </div>
       </div>
@@ -372,10 +381,25 @@ function FilterPill({ label, onRemove }: { label: string; onRemove: () => void }
   )
 }
 
-// ── Main Component ────────────────────────────────────────────────────────────
-export default function ShopPage({ products }: { products: MappedProduct[] }) {
+// ── Main body ─────────────────────────────────────────────────────────────────
+// Does not call useSearchParams() itself — the searchParams-derived initial
+// filter/sort/page/query state is computed by the caller (see
+// ShopBodyFromParams and the default export below) and passed in as plain
+// props instead. This is what lets the default (no-filters, no-search) view
+// prerender as real static HTML: a Client Component tree only bails to
+// client-only rendering on a statically generated route at the point
+// something inside it actually calls useSearchParams(), and nothing in this
+// component does.
+type BodyProps = {
+  products: MappedProduct[]
+  initialFilters?: Partial<Filters>
+  initialSort?: string
+  initialPage?: number
+  initialQuery?: string
+}
+
+function ShopBody({ products, initialFilters, initialSort, initialPage, initialQuery }: BodyProps) {
   const { t } = useTheme()
-  const searchParams = useSearchParams()
   const router = useRouter()
 
   // Derived constants from product data (computed once per render cycle, stable when products don't change)
@@ -393,25 +417,28 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
     }
   }, [products])
 
-  // Filter state — initialized from URL params
+  // Filter state — initialized from props (derived from URL params by the caller)
   const [filters, setFilters] = useState<Filters>(() => ({
-    categories:    searchParams.getAll('category'),
-    brand:         searchParams.getAll('brand'),
-    model:         searchParams.getAll('model'),
-    caliber:       searchParams.getAll('caliber'),
-    action:        searchParams.getAll('action'),
-    barrel_length: searchParams.getAll('barrel_length'),
-    priceMin:      Number(searchParams.get('priceMin') ?? PRICE_FLOOR),
-    priceMax:      Number(searchParams.get('priceMax') ?? PRICE_MAX),
+    categories:    initialFilters?.categories ?? [],
+    brand:         initialFilters?.brand ?? [],
+    model:         initialFilters?.model ?? [],
+    caliber:       initialFilters?.caliber ?? [],
+    action:        initialFilters?.action ?? [],
+    barrel_length: initialFilters?.barrel_length ?? [],
+    priceMin:      initialFilters?.priceMin ?? PRICE_FLOOR,
+    priceMax:      initialFilters?.priceMax ?? PRICE_MAX,
   }))
-  const [sort, setSort] = useState(() => searchParams.get('sort') ?? 'newest')
-  const [page, setPage] = useState(() => Number(searchParams.get('page') ?? 1))
+  const [sort, setSort] = useState(() => initialSort ?? 'newest')
+  const [page, setPage] = useState(() => initialPage ?? 1)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
-  // ── Search query from URL ────────────────────────────────────────────────────
-  const q = searchParams.get('q') ?? ''
+  // ── Search query ─────────────────────────────────────────────────────────────
+  // Any search change navigates via a full window.location.href reload (see
+  // clearSearch/submitSearch below), so q only needs to be read once on
+  // mount, not kept reactive to searchParams — a plain prop is enough.
+  const q = initialQuery ?? ''
   const [searchHandles, setSearchHandles] = useState<string[]>([])
   const [searchTotal, setSearchTotal] = useState(0)
   const [searchDone, setSearchDone] = useState(!q)
@@ -912,5 +939,55 @@ export default function ShopPage({ products }: { products: MappedProduct[] }) {
         </>
       )}
     </div>
+  )
+}
+
+// ── searchParams reader ──────────────────────────────────────────────────────
+// The only place in this file that calls useSearchParams(). Kept as a tiny
+// leaf so the Suspense boundary in the default export below wraps as little
+// as possible — everything above (the whole ShopBody tree) still prerenders
+// normally as the Suspense fallback.
+function ShopBodyFromParams({ products }: { products: MappedProduct[] }) {
+  const searchParams = useSearchParams()
+
+  const priceMinParam = searchParams.get('priceMin')
+  const priceMaxParam = searchParams.get('priceMax')
+  const pageParam = searchParams.get('page')
+
+  const initialFilters: Partial<Filters> = {
+    categories:    searchParams.getAll('category'),
+    brand:         searchParams.getAll('brand'),
+    model:         searchParams.getAll('model'),
+    caliber:       searchParams.getAll('caliber'),
+    action:        searchParams.getAll('action'),
+    barrel_length: searchParams.getAll('barrel_length'),
+    ...(priceMinParam != null ? { priceMin: Number(priceMinParam) } : {}),
+    ...(priceMaxParam != null ? { priceMax: Number(priceMaxParam) } : {}),
+  }
+
+  return (
+    <ShopBody
+      products={products}
+      initialFilters={initialFilters}
+      initialSort={searchParams.get('sort') ?? undefined}
+      initialPage={pageParam ? Number(pageParam) : undefined}
+      initialQuery={searchParams.get('q') ?? undefined}
+    />
+  )
+}
+
+// ── Default export ───────────────────────────────────────────────────────────
+// ShopBody itself never calls useSearchParams(), so it prerenders fully as
+// the Suspense fallback below — the static HTML shell for /shop now contains
+// the real H1, product grid, filters, and pagination for the default (no
+// query-string) view, not a loading spinner. On hydration,
+// ShopBodyFromParams reads the actual URL params and re-renders with them
+// applied — a no-op swap for the common case (no filters/search in the URL),
+// and a brief refinement for a bookmarked/shared filtered or search URL.
+export default function ShopPage({ products }: { products: MappedProduct[] }) {
+  return (
+    <Suspense fallback={<ShopBody products={products} />}>
+      <ShopBodyFromParams products={products} />
+    </Suspense>
   )
 }

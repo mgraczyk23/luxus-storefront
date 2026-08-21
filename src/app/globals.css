@@ -1,7 +1,32 @@
 @import "tailwindcss";
 
 /* ── Theme CSS variables (lets media-query CSS reference theme tokens) ── */
-:root { --lxs-gold: #7e5e10; --lxs-border: #e4e4e6; --lxs-bg: #ffffff; }
+:root { --lxs-gold: #7e5e10; --lxs-border: #e4e4e6; --lxs-bg: #ffffff; --lxs-text-dim: #707076; }
+
+/* ── PriceRange dual slider (ListingPage.tsx / ShopPage.tsx) ─────────────
+   Moved out of a per-render inline <style> tag so the markup validates —
+   these are global element selectors either way (range/number inputs
+   aren't scoped to a class), so moving them here is a like-for-like fix. */
+input[type=range] { -webkit-appearance: none; appearance: none; }
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--lxs-gold); border: 2px solid var(--lxs-bg);
+  cursor: pointer; position: relative; z-index: 5;
+}
+input[type=range]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--lxs-gold); border: 2px solid var(--lxs-bg);
+  cursor: pointer;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+/* ── ProductDetailPage.tsx form/gallery styles ─────────────────────────── */
+.lxs-form-input:focus { border-color: #7e5e1060 !important; }
+.lxs-thumb:hover { border-color: #7e5e1080 !important; opacity: 1 !important; }
+.lxs-pdp textarea { resize: vertical; }
+.lxs-pdp input::placeholder, .lxs-pdp textarea::placeholder { color: var(--lxs-text-dim); }
 
 /* ── Base ──────────────────────────────────────────────────────────────── */
 html, body {

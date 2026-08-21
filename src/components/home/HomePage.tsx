@@ -83,6 +83,12 @@ function SectionHead({ eyebrow, title, center = false }: {
 }
 
 /* ── ProductCard ──────────────────────────────────────────────────────── */
+// Not a <Link>-wrapped card: the card itself is a non-interactive container
+// with a full-cover "stretched" <Link> (position:absolute, inset:0, behind
+// the button row) as the actual navigation target. This keeps the whole card
+// clickable/keyboard-focusable for navigation while the wishlist/cart
+// buttons stay sibling controls instead of being nested inside the anchor
+// (invalid markup — a <button> can't be a descendant of an <a>).
 
 function ProductCard({ product, small = false }: {
   product: MappedProduct; small?: boolean
@@ -112,14 +118,13 @@ function ProductCard({ product, small = false }: {
   }
 
   return (
-    <Link href={`/product/${product.handle}`}
+    <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
         background: hov ? t.bgCardHover : t.bgCard,
         border: `1px solid ${hov ? t.gold + "55" : t.border}`,
         borderRadius: "1px", overflow: "hidden",
-        textDecoration: "none", color: "inherit",
         transition: "all 0.28s ease",
         transform: hov ? "translateY(-4px)" : "translateY(0)",
         boxShadow: hov
@@ -130,6 +135,9 @@ function ProductCard({ product, small = false }: {
         display: "flex", flexDirection: "column",
       }}
     >
+      <Link href={`/product/${product.handle}`} aria-label={product.title}
+        style={{ position: "absolute", inset: 0, zIndex: 1 }} />
+
       <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", overflow: "hidden", flexShrink: 0, background: "#ffffff" }}>
         {product.thumbnail ? (
           <Image
@@ -176,7 +184,7 @@ function ProductCard({ product, small = false }: {
               {product.contact_for_pricing ? "Contact Us" : (product.price ? fmt(product.price) : "—")}
             </div>
           )}
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+          <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
             <button
               onClick={handleHeartClick}
               title={wishlisted ? "Remove from wishlist" : "Add to wishlist"}
@@ -210,7 +218,7 @@ function ProductCard({ product, small = false }: {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 
@@ -726,7 +734,7 @@ export default function HomePage({
             The Inner Circle
           </div>
           <div style={{ fontFamily: PLAYFAIR, fontSize: "34px", fontWeight: 300, color: t.text, lineHeight: 1.15, marginBottom: "14px" }}>
-            The Collector&apos;s<br />Newsletter
+            The Collector&apos;s{' '}<br />Newsletter
           </div>
           <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.8, marginBottom: "30px" }}>
             New acquisitions, exclusive access, editorial features, and curated insights — delivered to the discerning few.

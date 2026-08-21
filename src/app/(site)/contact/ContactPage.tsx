@@ -145,7 +145,7 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
           <div className="lxs-contact-hero">
             <div>
               <h1 style={{ fontFamily:"var(--font-playfair)",fontSize:"clamp(36px,4.5vw,62px)",fontWeight:300,color:t.text,lineHeight:1.07,letterSpacing:"0.01em",marginBottom:"18px" }}>
-                {c.headline.split('\n').map((line, i, a) => <span key={i}>{line}{i < a.length - 1 && <br/>}</span>)}
+                {c.headline.split('\n').map((line, i, a) => <span key={i}>{line}{i < a.length - 1 && <>{' '}<br/></>}</span>)}
               </h1>
               <p style={{ fontSize:"14.5px",fontWeight:300,color:t.textMuted,lineHeight:1.82,maxWidth:"420px",letterSpacing:"0.02em" }}>
                 {c.introParagraph}

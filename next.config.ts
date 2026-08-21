@@ -2,6 +2,7 @@ import type { NextConfig } from "next"
 import { withSentryConfig } from "@sentry/nextjs"
 
 const nextConfig: NextConfig = {
+  poweredByHeader: false,
   async redirects() {
     return [
       { source: '/consignment', destination: '/sell-your-gun', permanent: true },
@@ -38,9 +39,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Baseline security headers on every route. Intentionally no strict CSP
-        // here — a content-security-policy needs to be authored and tested against
-        // GA / Klaviyo / PostHog / Elavon first, or it will break those scripts.
+        // Baseline security headers on every route, unchanged.
         source: '/:path*',
         headers: [
           { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
@@ -48,6 +47,35 @@ const nextConfig: NextConfig = {
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), browsing-topics=()' },
+          // Report-Only first pass — monitors and logs violations to the
+          // browser console without blocking anything. Origins below are
+          // sourced directly from this codebase (GTM/Klaviyo script tags in
+          // layout.tsx, Elavon Converge JS in CheckoutPage.tsx, Sentry DSN in
+          // sentry.client.config.ts, Google Maps embed in ContactPage.tsx,
+          // and next.config.ts's own images.remotePatterns) — not guessed.
+          // GA and PostHog need no external entries: both are proxied
+          // same-origin via the /proxy/* rewrites above. Fonts are self-hosted
+          // via next/font/google, so no external font-src is needed either.
+          // style-src keeps 'unsafe-inline' — this codebase styles almost
+          // everything via inline style={{}} objects, and nonces aren't
+          // practical here without a much larger refactor than this pass
+          // covers. Do not switch this to enforcing Content-Security-Policy
+          // without reviewing violation reports first (Elavon's payment
+          // lightbox in particular needs to be verified against this list by
+          // actually stepping through checkout, not just by static review).
+          { key: 'Content-Security-Policy-Report-Only', value: [
+            "default-src 'self'",
+            "base-uri 'self'",
+            "object-src 'none'",
+            "script-src 'self' www.googletagmanager.com static.klaviyo.com api.convergepay.com api.demo.convergepay.com",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' *.amazonaws.com api.luxus-collection.com res.cloudinary.com *.gunbroker.com pics.gunbroker.com",
+            "font-src 'self'",
+            "connect-src 'self' o4511547309817856.ingest.us.sentry.io a.klaviyo.com",
+            "frame-src maps.google.com www.googletagmanager.com api.convergepay.com api.demo.convergepay.com",
+            "frame-ancestors 'self'",
+            "form-action 'self'",
+          ].join('; ') },
         ],
       },
     ]

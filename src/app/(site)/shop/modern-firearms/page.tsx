@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "@/lib/medusa"
 import { getPageSeo } from "@/lib/payload"
@@ -82,19 +81,17 @@ export default async function ModernFirearmsPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />}
-      <Suspense>
-        <ListingPage
-          products={products}
-          title="Modern Firearms"
-          eyebrow="Shop"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Shop All", href: "/shop" },
-            { label: "Modern Firearms" },
-          ]}
-          basePath="/shop/modern-firearms"
-        />
-      </Suspense>
+      <ListingPage
+        products={products}
+        title="Modern Firearms"
+        eyebrow="Shop"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Shop All", href: "/shop" },
+          { label: "Modern Firearms" },
+        ]}
+        basePath="/shop/modern-firearms"
+      />
     </>
   )
 }

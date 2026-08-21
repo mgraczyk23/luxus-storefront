@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google"
 import Script from "next/script"
 import ConsentBanner from "@/components/ConsentBanner"
 import GtmLinkTracker from "@/components/GtmLinkTracker"
+import KlaviyoLoader from "@/components/KlaviyoLoader"
 import "./globals.css"
 import { ThemeProvider } from "@/context/ThemeContext"
 import { AuthProvider } from "@/context/AuthContext"
@@ -105,19 +106,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         <ConsentBanner gaId={gaId} phKey={phKey} />
 
-        {/* Klaviyo onsite JS — loaded unconditionally so popup forms and
-            back-in-stock subscriptions work for all visitors. Form signup
-            is the user's explicit consent; no passive tracking fires until
-            the visitor interacts with a form. */}
-        {klaviyoId && (
-          <>
-            <Script id="klaviyo-init" strategy="afterInteractive">{`!function(){if(!window.klaviyo){window._klOnsite=window._klOnsite||[];try{window.klaviyo=new Proxy({},{get:function(n,i){return"push"===i?function(){var n;(n=window._klOnsite).push.apply(n,arguments)}:function(){for(var n=arguments.length,o=new Array(n),w=0;w<n;w++)o[w]=arguments[w];var t="function"==typeof o[o.length-1]?o.pop():void 0,e=new Promise((function(n){window._klOnsite.push([i].concat(o,[function(i){t&&t(i),n(i)}]))}));return e}}})}catch(n){window.klaviyo=window.klaviyo||[],window.klaviyo.push=function(){var n;(n=window._klOnsite).push.apply(n,arguments)}}}}();`}</Script>
-            <Script
-              src={`https://static.klaviyo.com/onsite/js/${klaviyoId}/klaviyo.js?company_id=${klaviyoId}`}
-              strategy="afterInteractive"
-            />
-          </>
-        )}
+        {/* Klaviyo onsite JS — deferred until age verification is complete
+            (KlaviyoLoader), so its popup forms can never appear above or
+            steal focus from the age gate. Once verified, it still loads
+            unconditionally for every visitor same as before: form signup is
+            the user's explicit consent, no passive tracking fires until the
+            visitor interacts with a form. */}
+        {klaviyoId && <KlaviyoLoader klaviyoId={klaviyoId} />}
       </body>
     </html>
   )

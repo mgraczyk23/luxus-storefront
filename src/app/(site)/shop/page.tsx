@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "@/lib/medusa"
 import ShopPage from "./ShopPage"
@@ -39,14 +38,6 @@ async function getAllProducts(): Promise<ReturnType<typeof mapMedusaProduct>[]> 
   }
 
   return raw.map(mapMedusaProduct).filter(p => !p.is_backroom_hidden && p.tags.includes('Collectibles Firearms'))
-}
-
-function ShopLoading() {
-  return (
-    <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter',sans-serif", color: "#9a9a9a", fontSize: "11px", letterSpacing: "0.1em" }}>
-      Loading…
-    </div>
-  )
 }
 
 export default async function Shop() {
@@ -92,9 +83,7 @@ export default async function Shop() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />}
-      <Suspense fallback={<ShopLoading />}>
-        <ShopPage products={products} />
-      </Suspense>
+      <ShopPage products={products} />
     </>
   )
 }

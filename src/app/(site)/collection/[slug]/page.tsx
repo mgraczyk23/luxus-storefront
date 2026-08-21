@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import { notFound, permanentRedirect } from "next/navigation"
 import { getProducts, getCollection, getCollections } from "@/lib/api"
 import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "@/lib/medusa"
@@ -49,14 +48,6 @@ export async function generateStaticParams() {
     const res = await getCollections()
     return (res.collections ?? []).map((c: any) => ({ slug: c.handle }))
   } catch { return [] }
-}
-
-function Loading() {
-  return (
-    <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter',sans-serif", color: "#9a9a9a", fontSize: "11px", letterSpacing: "0.1em" }}>
-      Loading…
-    </div>
-  )
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
@@ -121,20 +112,18 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />}
-      <Suspense fallback={<Loading />}>
-        <ListingPage
-          products={products}
-          title={collectionTitle}
-          eyebrow="Collection"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Shop", href: "/shop" },
-            { label: collectionTitle },
-          ]}
-          hideBrandFilter
-          basePath={`/collection/${slug}`}
-        />
-      </Suspense>
+      <ListingPage
+        products={products}
+        title={collectionTitle}
+        eyebrow="Collection"
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Shop", href: "/shop" },
+          { label: collectionTitle },
+        ]}
+        hideBrandFilter
+        basePath={`/collection/${slug}`}
+      />
     </>
   )
 }

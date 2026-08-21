@@ -36,20 +36,27 @@ function AccordionItem({ item, isOpen, onToggle, highlight = "" }: {
     return <>{text.slice(0, idx)}<mark style={{ background: t.gold + "35", color: t.gold, padding: "0 2px", borderRadius: "2px" }}>{text.slice(idx, idx + highlight.length)}</mark>{text.slice(idx + highlight.length)}</>
   }
 
+  const panelId = `faq-panel-${item.id}`
+  const buttonId = `faq-trigger-${item.id}`
+
   return (
     <div style={{ borderBottom: `1px solid ${t.border}`, background: isOpen ? "#fafafa" : "transparent", transition: "background 0.25s" }}>
-      <button onClick={onToggle}
+      <button
+        id={buttonId}
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
         style={{ width: "100%", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "20px", padding: "20px 24px", background: "none", border: "none", cursor: "pointer", textAlign: "left" }}>
         <span style={{ fontFamily: "var(--font-playfair)", fontSize: "18px", fontWeight: isOpen ? 400 : 300, color: isOpen ? t.gold : t.text, lineHeight: 1.35, letterSpacing: "0.01em", transition: "color 0.22s", flex: 1 }}>
           {hl(item.question)}
         </span>
-        <div style={{ width: "24px", height: "24px", flexShrink: 0, border: `1px solid ${isOpen ? t.gold + "60" : t.border}`, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.25s", marginTop: "2px", background: isOpen ? t.gold + "15" : "transparent" }}>
+        <span style={{ width: "24px", height: "24px", flexShrink: 0, border: `1px solid ${isOpen ? t.gold + "60" : t.border}`, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.25s", marginTop: "2px", background: isOpen ? t.gold + "15" : "transparent" }}>
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" style={{ transition: "transform 0.25s", transform: isOpen ? "rotate(45deg)" : "none" }}>
             <path d="M5 1V9M1 5H9" stroke={isOpen ? t.gold : t.textMuted} strokeWidth="1.2" strokeLinecap="round" />
           </svg>
-        </div>
+        </span>
       </button>
-      <div style={{ overflow: "hidden", maxHeight: isOpen ? "600px" : "0", transition: "max-height 0.35s ease" }}>
+      <div id={panelId} role="region" aria-labelledby={buttonId} style={{ overflow: "hidden", maxHeight: isOpen ? "600px" : "0", transition: "max-height 0.35s ease" }}>
         <div style={{ padding: "0 24px 24px" }}>
           <div style={{ width: "28px", height: "1px", background: t.gold + "60", marginBottom: "14px" }} />
           <p style={{ fontSize: "14px", fontWeight: 300, lineHeight: 1.85, color: t.textMuted, letterSpacing: "0.02em", fontFamily: "var(--font-inter)" }}>
@@ -117,7 +124,7 @@ export default function FAQPage({ categories, settings }: { categories: PayloadF
           <div className="lxs-faq-banner">
             <div>
               <h1 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(36px,4vw,58px)", fontWeight: 300, color: t.text, lineHeight: 1.08, letterSpacing: "0.01em", marginBottom: "16px" }}>
-                Frequently Asked<br />Questions
+                Frequently Asked{' '}<br />Questions
               </h1>
               <p style={{ fontSize: "14px", fontWeight: 300, color: t.textMuted, lineHeight: 1.8, maxWidth: "440px" }}>
                 Answers to our most common questions across ordering, FFL transfers, products, payments, and more.
@@ -267,7 +274,7 @@ export default function FAQPage({ categories, settings }: { categories: PayloadF
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Still Need Help?</span>
               </div>
               <h2 style={{ fontFamily: "var(--font-playfair)", fontSize: "clamp(26px,2.8vw,38px)", fontWeight: 300, color: t.text, lineHeight: 1.15, marginBottom: "14px" }}>
-                Our Team Is Here<br />To Assist You
+                Our Team Is Here{' '}<br />To Assist You
               </h2>
               <p style={{ fontSize: "13.5px", fontWeight: 300, color: t.textMuted, lineHeight: 1.8, maxWidth: "400px" }}>
                 If you couldn&apos;t find the answer you were looking for, reach out directly. We respond to every inquiry personally.

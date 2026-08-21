@@ -350,13 +350,10 @@ export default function ProductDetailPage({
   }
 
   return (
-    <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "'Inter',sans-serif" }}>
-      <style>{`
-        .lxs-form-input:focus { border-color: ${t.gold}60 !important; }
-        .lxs-thumb:hover { border-color: ${t.gold}80 !important; opacity: 1 !important; }
-        textarea { resize: vertical; }
-        input::placeholder, textarea::placeholder { color: ${t.textDim}; }
-      `}</style>
+    <div className="lxs-pdp" style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "'Inter',sans-serif" }}>
+      {/* .lxs-form-input:focus / .lxs-thumb:hover / textarea resize / placeholder
+          color rules for this page live in globals.css (scoped to .lxs-pdp) —
+          moved out of an inline <style> tag so the markup validates. */}
 
       {/* ── Sticky buy bar ──────────────────────────────────────────────── */}
       <div className="lxs-sticky-buy" style={{
@@ -1000,7 +997,7 @@ export default function ProductDetailPage({
                 <span style={{ fontSize: "8.5px", letterSpacing: "0.26em", textTransform: "uppercase", color: t.gold, fontWeight: 500 }}>Inquire</span>
               </div>
               <h2 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(24px,2.8vw,40px)", fontWeight: 300, color: t.text, lineHeight: 1.15, letterSpacing: "0.01em", marginBottom: "20px" }}>
-                Questions About<br />This Piece?
+                Questions About{' '}<br />This Piece?
               </h2>
               <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.85, marginBottom: "28px", maxWidth: "320px" }}>
                 Our team is available to answer questions about specifications, provenance, availability, and FFL transfer logistics. We typically respond within one business day.
@@ -1069,10 +1066,15 @@ export default function ProductDetailPage({
                   </div>
 
                   <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "24px", cursor: "pointer" }}>
-                    <div onClick={() => handleFormChange("fflConsent", !form.fflConsent)}
+                    <span
+                      role="checkbox"
+                      aria-checked={form.fflConsent}
+                      tabIndex={0}
+                      onClick={() => handleFormChange("fflConsent", !form.fflConsent)}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleFormChange("fflConsent", !form.fflConsent) } }}
                       style={{ width: "14px", height: "14px", flexShrink: 0, marginTop: "1px", border: `1px solid ${form.fflConsent ? t.gold : t.border}`, background: form.fflConsent ? t.gold : "transparent", transition: "all 0.18s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px" }}>
                       {form.fflConsent && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-                    </div>
+                    </span>
                     <span style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, lineHeight: 1.6, letterSpacing: "0.01em" }}>
                       I understand that all firearm purchases require FFL transfer through a licensed dealer in my state.
                     </span>

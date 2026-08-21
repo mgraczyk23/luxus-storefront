@@ -1,4 +1,3 @@
-import { Suspense } from "react"
 import { permanentRedirect, notFound } from "next/navigation"
 import { getProducts } from "@/lib/api"
 import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "@/lib/medusa"
@@ -39,26 +38,23 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const products = await getAllProducts()
     name = getBrandName(normalized, products) ?? normalized
   } catch {}
+  let image: string | undefined
+  try {
+    const brandDoc = await getBrand(normalized)
+    image = brandDoc?.heroImage?.url ?? brandDoc?.logo?.url ?? undefined
+  } catch {}
   const title = `${name} Firearms`
   const description = `Browse ${name} firearms at the Luxus Collection.`
   return {
     title,
     description,
-    ...ogMeta(title, description, { url: `/brand/${normalized}` }),
+    ...ogMeta(title, description, { url: `/brand/${normalized}`, image }),
     alternates: { canonical: `/brand/${normalized}` },
   }
 }
 
 export const revalidate = false
 export const dynamicParams = true
-
-function Loading() {
-  return (
-    <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Inter',sans-serif", color: "#9a9a9a", fontSize: "11px", letterSpacing: "0.1em" }}>
-      Loading…
-    </div>
-  )
-}
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -122,21 +118,19 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {itemListJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />}
-      <Suspense fallback={<Loading />}>
-        <ListingPage
-          products={products}
-          title={name}
-          eyebrow="Brand"
-          description={tagline ?? undefined}
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Shop", href: "/shop" },
-            { label: name },
-          ]}
-          hideBrandFilter
-          basePath={`/brand/${slug}`}
-        />
-      </Suspense>
+      <ListingPage
+        products={products}
+        title={name}
+        eyebrow="Brand"
+        description={tagline ?? undefined}
+        breadcrumbs={[
+          { label: "Home", href: "/" },
+          { label: "Shop", href: "/shop" },
+          { label: name },
+        ]}
+        hideBrandFilter
+        basePath={`/brand/${slug}`}
+      />
     </>
   )
 }
