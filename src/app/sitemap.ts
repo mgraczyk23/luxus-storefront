@@ -3,11 +3,18 @@ import { getProducts, getCategories, getCollections } from '@/lib/api'
 import { getBrands, getPosts, getAllResourcePagesForSearch } from '@/lib/payload'
 import { toSlug } from '@/lib/slug'
 
-// Explicit upper bound on how stale sitemap.xml can get. In practice the
-// products/categories/collections fetches below already carry a 5-minute
-// revalidate window, so this mainly guards against sitemap.xml silently
-// going fully static if those fetches ever change to tag-only caching.
-export const revalidate = 3600
+// On-demand revalidation (revalidatePath("/sitemap.xml") in api/revalidate,
+// fired by Medusa/Payload webhooks) has been confirmed NOT to reliably
+// trigger regeneration of this specific route in production — verified by
+// manually re-firing the webhook and watching the served response's `age`
+// header climb indefinitely with no regeneration for 30+ seconds afterward,
+// even though the sitemap's own generation logic is correct (a fresh local
+// build against the same live data includes the missing products). Rather
+// than keep depending on that cross-service chain for freshness, this route
+// now self-heals on a short timer that matches the underlying products
+// fetch's own 5-minute window (storeFetch in lib/api.ts) — worst case
+// staleness is ~5 minutes regardless of whether any on-demand trigger fired.
+export const revalidate = 300
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
 const url  = (path: string) => `${SITE}${path}`
