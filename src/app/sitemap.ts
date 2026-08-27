@@ -125,16 +125,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified:    now,
   }))
 
-  // Brand pages
+  // Brand pages — /brand/[slug] renders for ANY brand name found on a live
+  // product (see getBrandName() in brand/[slug]/page.tsx), independently of
+  // whether a curated Payload CMS "Brand" doc exists for it. The sitemap
+  // previously only listed the CMS-curated set, so any brand carried by
+  // products but never manually added to the CMS (smaller/newer brands,
+  // typically) never appeared here even though its page was live and
+  // returning 200 — this was the actual cause of brand pages like
+  // /brand/delta-ar and /brand/hilton-yam being permanently missing,
+  // unrelated to caching/staleness. Union both sources, same extraction
+  // pattern as model slugs above.
+  const brandSlugs = new Set<string>()
+  for (const p of publicProducts) {
+    const attrVals: any[] = Array.isArray(p.attribute_values) ? p.attribute_values : []
+    const fromAttrs = attrVals
+      .filter((v: any) => v?.attribute_type?.slug === 'brand' && v.value != null)
+      .map((v: any) => String(v.value).trim())
+      .filter(Boolean)
+    if (fromAttrs.length > 0) {
+      fromAttrs.forEach(b => brandSlugs.add(toSlug(b)))
+    } else {
+      const raw = p.metadata?.brand
+      if (raw == null || raw === '') continue
+      let names: string[]
+      if (Array.isArray(raw)) {
+        names = raw.map(String)
+      } else if (typeof raw !== 'string') {
+        continue
+      } else if (raw.startsWith('[')) {
+        try {
+          const parsed = JSON.parse(raw)
+          names = Array.isArray(parsed) ? parsed.map(String) : [raw]
+        } catch { names = [raw] }
+      } else if (raw.includes(',')) {
+        names = raw.split(',').map((s: string) => s.trim()).filter(Boolean)
+      } else {
+        names = [raw]
+      }
+      names.filter(Boolean).forEach((b: string) => brandSlugs.add(toSlug(b)))
+    }
+  }
   const brands = brandsRes.status === 'fulfilled' ? brandsRes.value : []
-  const brandEntries: MetadataRoute.Sitemap = brands
-    .filter((b: any) => b.slug)
-    .map((b: any) => ({
-      url:             url(`/brand/${b.slug}`),
-      changeFrequency: 'weekly' as const,
-      priority:        0.7,
-      lastModified:    now,
-    }))
+  brands.filter((b: any) => b.slug).forEach((b: any) => brandSlugs.add(toSlug(b.slug)))
+
+  const brandEntries: MetadataRoute.Sitemap = [...brandSlugs].map(slug => ({
+    url:             url(`/brand/${slug}`),
+    changeFrequency: 'weekly' as const,
+    priority:        0.7,
+    lastModified:    now,
+  }))
 
   // Resources-on-guns brand hub pages (brands with hub content)
   const hubBrandEntries: MetadataRoute.Sitemap = brands
