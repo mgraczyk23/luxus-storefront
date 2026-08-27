@@ -52,7 +52,17 @@ export async function warmCache(tag: string): Promise<void> {
     }
   }
 
-  if (!pages.length) return
+  // sitemap.xml aggregates nearly every content type on the site (products,
+  // models, brands, resource articles, categories, collections, posts) —
+  // rather than maintaining a duplicate list of which tags affect it, always
+  // warm it alongside whatever this tag's own pages are. Without this,
+  // revalidatePath("/sitemap.xml") (called separately by both /api/revalidate
+  // handlers) only marks the route stale — nothing then visits it to actually
+  // trigger regeneration, so it keeps serving the old cached version until
+  // some crawler happens to request it, which can be hours later. This is
+  // exactly the gap that caused newly added products/brands to go missing
+  // from the sitemap for an unpredictable amount of time.
+  pages = [...pages, "/sitemap.xml"]
 
   await Promise.allSettled(
     pages.map(path => fetch(`${origin}${path}`, { cache: "no-store" }))
