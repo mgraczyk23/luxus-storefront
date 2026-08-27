@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   } catch {}
   const brand = singleBrand(modelProducts)
   const heading = brand ? `${brand} ${name}` : name
-  const { title, description } = buildListingMeta(heading, modelProducts)
+  const { title, description } = buildListingMeta(heading)
   return {
     title,
     description,
@@ -87,7 +87,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
   const modelHeading = singleBrand(products) ? `${singleBrand(products)} ${name}` : name
-  const { description: modelDescription } = buildListingMeta(modelHeading, products)
+  const { description: modelDescription } = buildListingMeta(modelHeading)
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',

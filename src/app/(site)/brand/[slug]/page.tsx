@@ -35,18 +35,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const normalized = toSlug(slug)
   let name = normalized
-  let brandProducts: ReturnType<typeof mapMedusaProduct>[] = []
   try {
     const products = await getAllProducts()
     name = getBrandName(normalized, products) ?? normalized
-    brandProducts = products.filter(p => p.attribute_lists.brand.includes(name))
   } catch {}
   let image: string | undefined
   try {
     const brandDoc = await getBrand(normalized)
     image = brandDoc?.heroImage?.url ?? brandDoc?.logo?.url ?? undefined
   } catch {}
-  const { title, description } = buildListingMeta(name, brandProducts)
+  const { title, description } = buildListingMeta(name)
   return {
     title,
     description,
@@ -82,7 +80,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     : []
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
-  const { description: brandDescription } = buildListingMeta(name, products)
+  const { description: brandDescription } = buildListingMeta(name)
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',

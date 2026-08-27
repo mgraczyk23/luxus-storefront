@@ -28,20 +28,11 @@ async function getAllProducts() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   let name = slug
-  let collectionId: string | null = null
   try {
     const res = await getCollection(slug)
     name = res.collections?.[0]?.title ?? slug
-    collectionId = res.collections?.[0]?.id ?? null
   } catch {}
-  let collectionProducts: ReturnType<typeof mapMedusaProduct>[] = []
-  if (collectionId) {
-    try {
-      const products = await getAllProducts()
-      collectionProducts = products.filter(p => p.collection_id === collectionId)
-    } catch {}
-  }
-  const { title, description } = buildListingMeta(name, collectionProducts, { bareNoun: true })
+  const { title, description } = buildListingMeta(name, { bareNoun: true })
   return {
     title,
     description,
@@ -85,7 +76,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     : allProducts
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
-  const { description: collectionDescription } = buildListingMeta(collectionTitle, products, { bareNoun: true })
+  const { description: collectionDescription } = buildListingMeta(collectionTitle, { bareNoun: true })
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
