@@ -6,6 +6,7 @@ import type { Metadata } from "next"
 import { ogMeta } from "@/lib/og"
 import { toSlug } from "@/lib/slug"
 import { getBrand } from "@/lib/payload"
+import { buildListingMeta } from "@/lib/listingSeo"
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*attribute_values,*attribute_values.attribute_type"
 const PAGE_SIZE = 100
@@ -34,17 +35,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const normalized = toSlug(slug)
   let name = normalized
+  let brandProducts: ReturnType<typeof mapMedusaProduct>[] = []
   try {
     const products = await getAllProducts()
     name = getBrandName(normalized, products) ?? normalized
+    brandProducts = products.filter(p => p.attribute_lists.brand.includes(name))
   } catch {}
   let image: string | undefined
   try {
     const brandDoc = await getBrand(normalized)
     image = brandDoc?.heroImage?.url ?? brandDoc?.logo?.url ?? undefined
   } catch {}
-  const title = `${name} Firearms`
-  const description = `Browse ${name} firearms at the Luxus Collection.`
+  const { title, description } = buildListingMeta(name, brandProducts)
   return {
     title,
     description,
@@ -80,11 +82,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     : []
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const { description: brandDescription } = buildListingMeta(name, products)
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: `${name} Firearms — Luxus Collection`,
-    description: `Browse ${name} firearms at the Luxus Collection.`,
+    description: brandDescription,
     url: `${SITE}/brand/${slug}`,
     numberOfItems: products.length || undefined,
     about: { '@type': 'Brand', name },

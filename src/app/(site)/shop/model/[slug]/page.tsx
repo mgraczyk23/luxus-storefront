@@ -6,6 +6,16 @@ import ListingPage from "@/components/ListingPage"
 import type { Metadata } from "next"
 import { ogMeta } from "@/lib/og"
 import { toSlug } from "@/lib/slug"
+import { buildListingMeta } from "@/lib/listingSeo"
+
+// If every product under this model slug shares one brand, lead with it
+// ("Korth Model 48-4") — a much stronger match for "<brand> <model> for sale"
+// searches than the bare model number alone, derived from data with no
+// per-model manual entry.
+function singleBrand(products: ReturnType<typeof mapMedusaProduct>[]): string | null {
+  const brands = new Set(products.flatMap(p => p.attribute_lists.brand))
+  return brands.size === 1 ? [...brands][0] : null
+}
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
@@ -34,12 +44,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const normalized = toSlug(slug)
   let name = normalized
+  let modelProducts: ReturnType<typeof mapMedusaProduct>[] = []
   try {
     const products = await getAllProducts()
     name = getModelName(normalized, products) ?? normalized
+    modelProducts = products.filter(p => p.attribute_lists.model.includes(name))
   } catch {}
-  const title = `${name} — Shop by Model`
-  const description = `Browse ${name} firearms at the Luxus Collection.`
+  const brand = singleBrand(modelProducts)
+  const heading = brand ? `${brand} ${name}` : name
+  const { title, description } = buildListingMeta(heading, modelProducts)
   return {
     title,
     description,
@@ -73,11 +86,13 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     : []
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const modelHeading = singleBrand(products) ? `${singleBrand(products)} ${name}` : name
+  const { description: modelDescription } = buildListingMeta(modelHeading, products)
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: `${name} — Luxus Collection`,
-    description: `Browse ${name} firearms at the Luxus Collection.`,
+    name: `${modelHeading} — Luxus Collection`,
+    description: modelDescription,
     url: `${SITE}/shop/model/${slug}`,
     numberOfItems: products.length || undefined,
   }

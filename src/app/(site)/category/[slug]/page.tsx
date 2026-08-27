@@ -5,6 +5,7 @@ import ListingPage from "@/components/ListingPage"
 import type { Metadata } from "next"
 import { ogMeta } from "@/lib/og"
 import { toSlug } from "@/lib/slug"
+import { buildListingMeta } from "@/lib/listingSeo"
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
@@ -33,12 +34,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const normalized = toSlug(slug)
   let name = normalized
+  let categoryProducts: ReturnType<typeof mapMedusaProduct>[] = []
   try {
     const products = await getAllProducts()
     name = getCategoryName(normalized, products) ?? normalized
+    categoryProducts = products.filter(p => p.categories.includes(name))
   } catch {}
-  const title = `${name} — Luxus Collection`
-  const description = `Browse ${name} firearms at the Luxus Collection.`
+  const { title, description } = buildListingMeta(name, categoryProducts, { bareNoun: true })
   return {
     title,
     description,
@@ -71,11 +73,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const products = allProducts.filter(p => p.categories.includes(name))
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
+  const { description: categoryDescription } = buildListingMeta(name, products, { bareNoun: true })
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: `${name} — Luxus Collection`,
-    description: `Browse ${name} firearms at the Luxus Collection.`,
+    description: categoryDescription,
     url: `${SITE}/category/${slug}`,
     numberOfItems: products.length || undefined,
   }
