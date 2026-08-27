@@ -38,6 +38,21 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // Static brand assets in /public — favicon, touch icon, PWA icons,
+        // manifest, header logo. These only change via a code deploy (not
+        // CMS-editable), so a long cache is safe; `must-revalidate` (no
+        // `immutable`) means a browser still checks back once the year is up
+        // instead of never revisiting the file at all. PageSpeed flagged all
+        // of these as serving with no real cache lifetime — Vercel's default
+        // for anything under /public is `max-age=0` since, unlike the hashed
+        // /_next/static/* filenames, it can't assume the content at a stable
+        // URL like this never changes.
+        source: '/:path(favicon\\.ico|apple-touch-icon\\.png|icon-192\\.png|icon-512\\.png|logo\\.webp|manifest\\.webmanifest)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, must-revalidate' },
+        ],
+      },
+      {
         // Baseline security headers on every route, unchanged.
         source: '/:path*',
         headers: [
@@ -87,6 +102,17 @@ const nextConfig: NextConfig = {
     ]
   },
   images: {
+    // Vercel's default is 4 hours — PageSpeed flags that as an inefficient
+    // cache lifetime for images that don't change on every request. Went
+    // with 7 days rather than matching the /public assets' 1-year value
+    // above: those are code-deployed and effectively permanent, but most
+    // images through this optimizer are CMS-managed product/brand photos
+    // that can be swapped by a non-developer at any time, and Payload's S3
+    // upload can reuse the same filename/URL on a re-upload — a much longer
+    // cache risks serving a stale photo for a long stretch after a real
+    // update. 7 days is a meaningful improvement over 4 hours while keeping
+    // that risk small.
+    minimumCacheTTL: 604800,
     remotePatterns: [
       {
         protocol: "https",

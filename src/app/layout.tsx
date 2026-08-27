@@ -26,7 +26,16 @@ const playfair = Playfair_Display({
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings()
-  const faviconUrl = imageUrl(settings.branding?.favicon ?? null) ?? '/favicon.ico'
+  const rawFaviconUrl = imageUrl(settings.branding?.favicon ?? null)
+  // Route the CMS-uploaded favicon through Next's image optimizer instead of
+  // linking the raw S3 file directly — the raw upload was a full-size PNG
+  // (289KB) served with no cache header at all (S3 doesn't set one on
+  // upload; see the GA4/PostHog cleanup earlier this session for the same
+  // gap on a different asset type). This resizes it to actual favicon size
+  // and picks up the image optimizer's cache lifetime (next.config.ts).
+  const faviconUrl = rawFaviconUrl
+    ? `/_next/image?url=${encodeURIComponent(rawFaviconUrl)}&w=32&q=75`
+    : '/favicon.ico'
   const semrush = settings.analytics?.semrushVerification
 
   return {
