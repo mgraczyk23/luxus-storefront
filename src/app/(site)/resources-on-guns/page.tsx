@@ -21,5 +21,9 @@ export default async function Page() {
     getBrandsForSearch().catch(() => []),
     getAllResourcePagesForSearch().catch(() => []),
   ])
-  return <ResourcesHubPage brands={brands} brandsForSearch={brandsForSearch} resourcePages={resourcePages} />
+  // getBrands() returns its CMS-curated sortOrder (used as-is elsewhere, e.g.
+  // the About page's featured-brands carousel) — this page's full manufacturer
+  // list is alphabetized instead, on request, to make it easier to scan.
+  const alphabeticalBrands = [...brands].sort((a, b) => a.name.localeCompare(b.name))
+  return <ResourcesHubPage brands={alphabeticalBrands} brandsForSearch={brandsForSearch} resourcePages={resourcePages} />
 }
