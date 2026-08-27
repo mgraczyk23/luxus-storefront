@@ -61,7 +61,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const settings = await getSiteSettings()
   const ann = settings.announcement
   const annActive = ann.enabled && !!ann.message
-  const gaId      = settings.analytics?.googleAnalyticsId?.trim() || null
   const gtmId     = settings.analytics?.googleTagManagerId?.trim() || null
   const phKey     = settings.analytics?.postHogApiKey?.trim() || null
   const klaviyoId = process.env.NEXT_PUBLIC_KLAVIYO_SITE_ID?.trim() || null
@@ -114,7 +113,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </AuthProvider>
         </ThemeProvider>
 
-        <ConsentBanner gaId={gaId} phKey={phKey} />
+        <ConsentBanner phKey={phKey} />
 
         {/* Klaviyo onsite JS — deferred until age verification is complete
             (KlaviyoLoader), so its popup forms can never appear above or

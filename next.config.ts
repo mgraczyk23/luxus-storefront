@@ -13,12 +13,11 @@ const nextConfig: NextConfig = {
       // ── First-party analytics proxy ──────────────────────────────────────────
       // Routes analytics through our domain so Safari ITP doesn't flag them as
       // cross-site trackers. Browser only ever sees requests to luxus-collection.com.
+      // GA4's own /proxy/ga/* rewrites were removed — GTM already loads and
+      // configures GA4 itself (via its own GA4 Configuration tag), so the
+      // separate direct gtag.js path in ConsentBanner.tsx was a redundant,
+      // unproxied-by-GTM second initialization of the same property.
 
-      // GA4: script (gtag.js served from our domain)
-      { source: '/proxy/ga/gtag.js', destination: 'https://www.googletagmanager.com/gtag/js' },
-      // GA4: event collection — transport_url set to origin + '/proxy/ga'
-      { source: '/proxy/ga/g/collect', destination: 'https://www.google-analytics.com/g/collect' },
-      { source: '/proxy/ga/j/collect', destination: 'https://www.google-analytics.com/j/collect' },
       // Klaviyo: API calls (/proxy/kl-a/*) and static JS bundles (/proxy/kl-s/*)
       // are handled by Route Handlers so their content can be rewritten.
       // This rewrite is a fallback for any paths the handlers don't cover.
