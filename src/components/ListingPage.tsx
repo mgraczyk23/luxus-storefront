@@ -406,6 +406,73 @@ type BodyProps = Props & {
   initialPage?: number
 }
 
+// ── Page shell (header) ──────────────────────────────────────────────────────
+// Renders the breadcrumb/H1/description banner exactly once, outside the
+// Suspense boundary below — previously this markup lived inside ListingBody,
+// which is itself both the Suspense fallback AND (via ListingBodyFromParams)
+// the resolved content. React's streaming SSR writes the fallback into the
+// visible HTML and the resolved content into a `hidden` template for a
+// client-side swap — so on statically generated routes (/brand/*, /shop/model/*,
+// /category/*, /collection/*, /shop/modern-firearms) that identical H1 (and the
+// whole banner) was ending up in the raw server HTML twice. Hoisting the
+// banner up here means it's rendered once, unconditionally — no duplicate H1,
+// and no visible change (itemCount uses the unfiltered total, which is
+// identical to the filtered count in the default, no-query-string view that
+// every crawler and the vast majority of visitors land on).
+function ListingHeader({ title, description, breadcrumbs, itemCount }: {
+  title: string
+  description?: string
+  breadcrumbs: Breadcrumb[]
+  itemCount: number
+}) {
+  const { t } = useTheme()
+  return (
+    <div style={{
+      background: "linear-gradient(to bottom, #f3f3f5, #ffffff)",
+      borderBottom: `1px solid ${t.border}`,
+      padding: "36px 40px 28px",
+    }}>
+      <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
+        {/* Breadcrumb */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
+          {breadcrumbs.map((crumb, i) => (
+            <span key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {i > 0 && <span style={{ fontSize: "9px", color: t.textDim }}>›</span>}
+              {crumb.href ? (
+                <Link href={crumb.href}
+                  style={{ fontSize: "10px", color: t.textDim, fontWeight: 300, letterSpacing: "0.04em", transition: "color 0.18s" }}
+                  onMouseEnter={e => (e.currentTarget.style.color = t.gold)}
+                  onMouseLeave={e => (e.currentTarget.style.color = t.textDim)}>
+                  {crumb.label}
+                </Link>
+              ) : (
+                <span style={{ fontSize: "10px", color: t.textMuted, fontWeight: 400, letterSpacing: "0.04em" }}>{crumb.label}</span>
+              )}
+            </span>
+          ))}
+        </div>
+
+        {/* Title row */}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "20px" }}>
+          <div>
+            <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em", margin: 0 }}>
+              {title}
+            </h1>
+            {description && (
+              <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.75, marginTop: "10px", maxWidth: "680px", letterSpacing: "0.01em" }}>
+                {description}
+              </p>
+            )}
+          </div>
+          <div style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.03em", paddingBottom: "6px", flexShrink: 0 }}>
+            <span style={{ color: t.text, fontWeight: 400 }}>{itemCount}</span> items
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ListingBody({
   products,
   title,
@@ -664,54 +731,12 @@ function ListingBody({
   )
 
   // ── Render ──────────────────────────────────────────────────────────────────
+  // No outer page-background div and no banner here — both live in
+  // ListingHeader now, rendered once by the default export below, outside
+  // this component's Suspense boundary. ListingBody supplies only the
+  // filter/grid/pagination markup.
   return (
-    <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "'Inter',sans-serif" }}>
-
-      {/* Page banner */}
-      <div style={{
-        background: "linear-gradient(to bottom, #f3f3f5, #ffffff)",
-        borderBottom: `1px solid ${t.border}`,
-        padding: "36px 40px 28px",
-      }}>
-        <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
-          {/* Breadcrumb */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px", flexWrap: "wrap" }}>
-            {breadcrumbs.map((crumb, i) => (
-              <span key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {i > 0 && <span style={{ fontSize: "9px", color: t.textDim }}>›</span>}
-                {crumb.href ? (
-                  <Link href={crumb.href}
-                    style={{ fontSize: "10px", color: t.textDim, fontWeight: 300, letterSpacing: "0.04em", transition: "color 0.18s" }}
-                    onMouseEnter={e => (e.currentTarget.style.color = t.gold)}
-                    onMouseLeave={e => (e.currentTarget.style.color = t.textDim)}>
-                    {crumb.label}
-                  </Link>
-                ) : (
-                  <span style={{ fontSize: "10px", color: t.textMuted, fontWeight: 400, letterSpacing: "0.04em" }}>{crumb.label}</span>
-                )}
-              </span>
-            ))}
-          </div>
-
-          {/* Title row */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "20px" }}>
-            <div>
-              <h1 style={{ fontFamily: PLAYFAIR, fontSize: "clamp(28px,3vw,44px)", fontWeight: 300, color: t.text, lineHeight: 1.1, letterSpacing: "0.01em", margin: 0 }}>
-                {title}
-              </h1>
-              {description && (
-                <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.75, marginTop: "10px", maxWidth: "680px", letterSpacing: "0.01em" }}>
-                  {description}
-                </p>
-              )}
-            </div>
-            <div style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.03em", paddingBottom: "6px", flexShrink: 0 }}>
-              <span style={{ color: t.text, fontWeight: 400 }}>{filtered.length}</span> items
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <>
       {/* Main layout */}
       <div className="lxs-listing-layout" style={{ maxWidth: "1440px", margin: "0 auto", padding: "0 40px", display: "grid", gridTemplateColumns: "260px 1fr", gap: "48px", alignItems: "start", paddingTop: "40px", paddingBottom: "80px" }}>
 
@@ -869,7 +894,7 @@ function ListingBody({
           </div>
         </>
       )}
-    </div>
+    </>
   )
 }
 
@@ -909,16 +934,24 @@ function ListingBodyFromParams(props: Props) {
 // ── Default export ───────────────────────────────────────────────────────────
 // ListingBody itself never calls useSearchParams(), so it prerenders fully as
 // the Suspense fallback below — the static HTML shell for /brand/*, /category/*,
-// /collection/*, and /shop/modern-firearms now contains the real H1, product
-// grid, filters, and pagination for the default (no query-string) view, not a
-// loading spinner. On hydration, ListingBodyFromParams reads the actual URL
-// params and re-renders with them applied — a no-op swap for the common case
-// (no filters in the URL), and a brief refinement for a bookmarked/shared
-// filtered URL.
+// /collection/*, /shop/model/*, and /shop/modern-firearms now contains the real
+// product grid, filters, and pagination for the default (no query-string) view,
+// not a loading spinner. On hydration, ListingBodyFromParams reads the actual
+// URL params and re-renders with them applied — a no-op swap for the common
+// case (no filters in the URL), and a brief refinement for a bookmarked/shared
+// filtered URL. ListingHeader (the H1/breadcrumb banner) sits outside the
+// Suspense boundary entirely, so it's part of neither the fallback nor the
+// resolved content — rendered exactly once, avoiding the duplicate-H1-in-
+// raw-HTML issue that came from it previously being duplicated between the
+// two Suspense states.
 export default function ListingPage(props: Props) {
+  const { t } = useTheme()
   return (
-    <Suspense fallback={<ListingBody {...props} />}>
-      <ListingBodyFromParams {...props} />
-    </Suspense>
+    <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "'Inter',sans-serif" }}>
+      <ListingHeader title={props.title} description={props.description} breadcrumbs={props.breadcrumbs} itemCount={props.products.length} />
+      <Suspense fallback={<ListingBody {...props} />}>
+        <ListingBodyFromParams {...props} />
+      </Suspense>
+    </div>
   )
 }
