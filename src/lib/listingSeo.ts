@@ -68,7 +68,12 @@ export function buildListingMeta(heading: string, opts?: { bareNoun?: boolean })
   const lead = `Shop ${subject} for sale at Luxus Collection.`
 
   const title = buildTitle(heading)
+  const description = buildDescription(lead)
 
+  return { title, description }
+}
+
+function buildDescription(lead: string): string {
   let description = `${lead} ${TAIL_FULL}`
   if (description.length > MAX_DESCRIPTION) description = `${lead} ${TAIL_SHORT}`
   if (description.length > MAX_DESCRIPTION) description = truncateTail(lead, TAIL_SHORT)
@@ -76,6 +81,38 @@ export function buildListingMeta(heading: string, opts?: { bareNoun?: boolean })
   // once a tail is attached — this only matters for a pathological
   // (near-160-char) name where truncateTail has nothing left to add.
   if (description.length < MIN_DESCRIPTION) description = `${lead} ${TAIL_SHORT}`.slice(0, MAX_DESCRIPTION)
+  return description
+}
 
+// Collection pages get their own title template — a collection's name (e.g.
+// "Model 48-4") can coincide with a model page's heading, and both
+// previously ran through the same generic "{heading} for Sale | ... |
+// Luxus Collection" template, producing duplicate <title> tags across two
+// different pages. "Shop the {X} Collection" is structurally distinct from
+// every other listing page's title while still hitting the same 50–70
+// character SEO window (suffix tiers spaced for full coverage, same
+// approach as buildTitle above).
+const COLLECTION_TITLE_SUFFIXES = [
+  ' | Rare & Collectible Firearms | Luxus Collection',
+  ' For Sale | Luxus Collection',
+  ' | Luxus Collection',
+]
+
+function buildCollectionTitle(heading: string): string {
+  const lead = `Shop the ${heading} Collection`
+  for (const suffix of COLLECTION_TITLE_SUFFIXES) {
+    const candidate = `${lead}${suffix}`
+    if (candidate.length <= TITLE_MAX) return candidate
+  }
+  const suffix = COLLECTION_TITLE_SUFFIXES[COLLECTION_TITLE_SUFFIXES.length - 1]
+  const budget = TITLE_MAX - suffix.length - 1
+  const truncated = lead.slice(0, Math.max(0, budget)).replace(/[.,;:\s]+$/, '')
+  return `${truncated}…${suffix}`
+}
+
+export function buildCollectionMeta(heading: string) {
+  const title = buildCollectionTitle(heading)
+  const lead = `Shop ${heading} for sale at Luxus Collection.`
+  const description = buildDescription(lead)
   return { title, description }
 }

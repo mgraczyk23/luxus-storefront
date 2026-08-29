@@ -4,7 +4,7 @@ import { mapMedusaProduct, sortForDefaultListing, SCHEMA_ITEM_LIST_SIZE } from "
 import ListingPage from "@/components/ListingPage"
 import type { Metadata } from "next"
 import { ogMeta } from "@/lib/og"
-import { buildListingMeta } from "@/lib/listingSeo"
+import { buildCollectionMeta } from "@/lib/listingSeo"
 
 const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
 const PAGE_SIZE = 100
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     const res = await getCollection(slug)
     name = res.collections?.[0]?.title ?? slug
   } catch {}
-  const { title, description } = buildListingMeta(name, { bareNoun: true })
+  const { title, description } = buildCollectionMeta(name)
   return {
     title,
     description,
@@ -76,7 +76,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     : allProducts
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
-  const { description: collectionDescription } = buildListingMeta(collectionTitle, { bareNoun: true })
+  const { description: collectionDescription } = buildCollectionMeta(collectionTitle)
   const collectionPageJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
