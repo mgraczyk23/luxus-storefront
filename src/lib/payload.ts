@@ -73,18 +73,22 @@ export async function getPosts(opts: {
 }
 
 export async function getPost(slug: string): Promise<PayloadPost | null> {
-  const params = new URLSearchParams()
-  params.set("where[slug][equals]", slug)
-  params.set("where[status][equals]", "published")
-  params.set("depth", "1")
-  params.set("limit", "1")
+  try {
+    const params = new URLSearchParams()
+    params.set("where[slug][equals]", slug)
+    params.set("where[status][equals]", "published")
+    params.set("depth", "1")
+    params.set("limit", "1")
 
-  const res = await fetch(`${PAYLOAD_URL}/api/posts?${params}`, {
-    cache: "force-cache", next: { tags: ["posts"] },
-  })
-  if (!res.ok) return null
-  const data: PayloadListResponse<PayloadPost> = await res.json()
-  return data.docs[0] ?? null
+    const res = await fetch(`${PAYLOAD_URL}/api/posts?${params}`, {
+      cache: "force-cache", next: { tags: ["posts"] },
+    })
+    if (!res.ok) return null
+    const data: PayloadListResponse<PayloadPost> = await res.json()
+    return data.docs[0] ?? null
+  } catch {
+    return null
+  }
 }
 
 export type PayloadComment = {
