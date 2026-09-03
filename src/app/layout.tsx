@@ -103,6 +103,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             in next.config.ts. */}
         <link rel="preconnect" href="https://o4511547309817856.ingest.us.sentry.io" />
 
+        {/* GTM's own script host — loaded via <Script src> below on every
+            page, unconditionally, shortly after hydration. */}
+        {gtmId && <link rel="preconnect" href="https://www.googletagmanager.com" />}
+
+        {/* Klaviyo's onsite JS host — loaded via <Script src> in
+            KlaviyoLoader once age verification completes. PSI's synthetic
+            run never dismisses the age gate, so this won't show up as a
+            measured PSI win, but it's free and helps real repeat visitors
+            (age-verified cookie already set) who hit it immediately. */}
+        {klaviyoId && <link rel="preconnect" href="https://static.klaviyo.com" />}
+
         {/* Google Tag Manager — loaded unconditionally like Klaviyo above.
             GTM itself is just a script loader and sets no cookies; any tag
             configured inside it that needs consent (e.g. Google Ads) should
