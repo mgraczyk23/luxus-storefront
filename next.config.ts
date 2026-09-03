@@ -126,6 +126,23 @@ const nextConfig: NextConfig = {
     // update. 7 days is a meaningful improvement over 4 hours while keeping
     // that risk small.
     minimumCacheTTL: 604800,
+    // Next's defaults are 8 deviceSizes + 8 imageSizes (16 total buckets).
+    // Every distinct (source image, width, quality) combination is
+    // transformed lazily on first request and cached after that — confirmed
+    // live: an uncached size took ~400ms+ for a bare HEAD request (real GETs
+    // under real network conditions add much more), a cached one ~70ms. With
+    // 500+ products × several photos each × every one of those buckets, most
+    // exact-width requests are cache misses far more often than they should
+    // be. Trimmed to the widths this codebase's own `sizes` props actually
+    // use (audited via grep across every next/image usage) — collapses
+    // near-duplicate buckets (750/828, 2048/1920) so more real requests
+    // converge on the same cached variant, at the cost of occasionally
+    // serving a slightly larger image than the exact viewport needs.
+    deviceSizes: [640, 828, 1080, 1200, 1920, 3840],
+    // 32 is required — the CMS favicon URL in layout.tsx hardcodes `w=32`
+    // directly (not through <Image>), and the optimizer 400s any width not
+    // in this list.
+    imageSizes: [32, 64, 96, 128, 256, 384],
     remotePatterns: [
       {
         protocol: "https",
