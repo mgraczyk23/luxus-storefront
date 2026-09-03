@@ -96,6 +96,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             wasted connection. */}
         <link rel="preconnect" href="https://assets.gunbroker.com" />
 
+        {/* Sentry's error/performance ingest — the SDK initializes this early
+            via src/instrumentation-client.ts, ahead of most other requests,
+            so PSI flags it as a real preconnect candidate (~290ms est. LCP
+            savings). Same host already allow-listed in the CSP connect-src
+            in next.config.ts. */}
+        <link rel="preconnect" href="https://o4511547309817856.ingest.us.sentry.io" />
+
         {/* Google Tag Manager — loaded unconditionally like Klaviyo above.
             GTM itself is just a script loader and sets no cookies; any tag
             configured inside it that needs consent (e.g. Google Ads) should
