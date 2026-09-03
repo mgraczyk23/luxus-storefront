@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { LIGHT as t } from '@/context/ThemeContext'
-import { isAgeVerified as getVerified, setAgeVerified as setVerified } from '@/lib/age-gate'
+import { isAgeVerified as getVerified, setAgeVerified as setVerified, isBotUserAgent } from '@/lib/age-gate'
 
 export default function AgeGate() {
   const [visible, setVisible] = useState(false)
@@ -11,6 +11,7 @@ export default function AgeGate() {
   const enterBtnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
+    if (isBotUserAgent(navigator.userAgent)) return
     if (!getVerified()) setVisible(true)
   }, [])
 

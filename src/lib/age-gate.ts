@@ -6,6 +6,17 @@
 export const AGE_VERIFIED_COOKIE = 'lxs_age_verified'
 export const AGE_VERIFIED_EVENT = 'lxs:age-verified'
 
+// Search engine crawlers and AI agents (ChatGPT/Claude/Perplexity browsing
+// on a user's behalf, etc.) shouldn't be blocked by the age-verification
+// dialog — it's a real-user-facing gate, not content worth hiding from
+// indexing/agents. Real browser UAs never contain these substrings, so this
+// is safe as a plain substring match with no false positives.
+const BOT_UA_PATTERN = /bot|crawler|spider|facebookexternalhit|ia_archiver|chatgpt-user|anthropic-ai|perplexity-user|claude-web|meta-externalagent|cohere-ai/i
+
+export function isBotUserAgent(ua: string): boolean {
+  return BOT_UA_PATTERN.test(ua)
+}
+
 export function isAgeVerified(): boolean {
   try {
     const hasCookie = document.cookie.split('; ').some(r => r.startsWith(AGE_VERIFIED_COOKIE + '=1'))
