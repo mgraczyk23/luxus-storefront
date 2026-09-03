@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useTheme } from '@/context/ThemeContext'
 import type { HeroSlidesData } from '@/lib/payload'
 
@@ -74,12 +75,30 @@ export default function HeroSection({
                 position: "absolute", inset: 0,
                 opacity: active ? 1 : 0,
                 transition: "opacity 1.1s ease",
-                background: slide.imageUrl
-                  ? `url("${slide.imageUrl}") center/contain no-repeat`
-                  : `linear-gradient(135deg, #2a2a30 0%, #1a1a1e 100%)`,
+                background: slide.imageUrl ? undefined : `linear-gradient(135deg, #2a2a30 0%, #1a1a1e 100%)`,
                 backgroundColor: "#1a1a1e",
               }}
             >
+              {/* A real <Image> instead of a CSS background-image — the
+                  first slide is this page's LCP element, and a CSS
+                  background-image can't take loading/fetchPriority hints or
+                  be discovered by the browser's preload scanner from the
+                  raw HTML the way an <img> can. Only slide 0 gets eager/high
+                  priority (it's the only one visible on first paint); the
+                  rest stay default-lazy since forcing every slide to load
+                  eagerly would defeat the point. */}
+              {slide.imageUrl && (
+                <Image
+                  src={slide.imageUrl}
+                  alt={slide.caption || slide.kicker || wordmark}
+                  fill
+                  sizes="100vw"
+                  style={{ objectFit: "contain" }}
+                  loading={i === 0 ? "eager" : "lazy"}
+                  fetchPriority={i === 0 ? "high" : "auto"}
+                />
+              )}
+
               {/* Text overlay for kicker/caption */}
               {(slide.kicker || slide.caption) && (
                 <div style={{

@@ -3,6 +3,19 @@ import { withSentryConfig } from "@sentry/nextjs"
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    // Inlines page CSS into <style> tags in <head> instead of a
+    // render-blocking <link> — PageSpeed flagged our CSS chunk as
+    // render-blocking (~110ms). This codebase styles almost everything via
+    // inline style={{}} objects (see the CSP comment below), so the actual
+    // compiled CSS file is small (~10KB) — squarely the case Next's own docs
+    // recommend this for. Trade-off: returning visitors re-download that
+    // ~10KB with every page instead of hitting a cached stylesheet, but
+    // pages here are already cached as full static HTML (generateStaticParams
+    // + revalidate: false), so there's no separate CSS request being saved
+    // for them today anyway. Production-build-only; has no effect in `next dev`.
+    inlineCss: true,
+  },
   async redirects() {
     return [
       { source: '/consignment', destination: '/sell-your-gun', permanent: true },
