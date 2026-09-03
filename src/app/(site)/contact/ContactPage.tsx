@@ -261,10 +261,15 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
                   <textarea id="contact-message" name="message" rows={5} placeholder="Tell us what's on your mind…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inputStyle, lineHeight:1.75 }} className="lxs-form-field"/>
                 </div>
                 <label style={{ display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"24px",cursor:"pointer" }}>
-                  <div onClick={() => set("newsletter",!form.newsletter)}
+                  <span
+                    role="checkbox"
+                    aria-checked={form.newsletter}
+                    tabIndex={0}
+                    onClick={() => set("newsletter",!form.newsletter)}
+                    onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set("newsletter",!form.newsletter) } }}
                     style={{ width:"14px",height:"14px",flexShrink:0,marginTop:"1px",border:`1px solid ${form.newsletter?t.gold:t.border}`,background:form.newsletter?t.gold:"transparent",transition:"all 0.18s",display:"flex",alignItems:"center",justifyContent:"center",borderRadius:"1px" }}>
                     {form.newsletter&&<svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                  </div>
+                  </span>
                   <span style={{ fontSize:"11px",color:t.textMuted,fontWeight:300,lineHeight:1.65,letterSpacing:"0.01em" }}>
                     Sign me up for The Collector&apos;s Circle — new acquisitions, editorial features, and exclusive access.
                   </span>
