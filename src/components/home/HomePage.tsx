@@ -758,6 +758,9 @@ export default function HomePage({
               <div style={{ display: "flex" }}>
                 <input
                   type="email"
+                  id="home-newsletter-email"
+                  name="email"
+                  autoComplete="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   placeholder="Your email address"

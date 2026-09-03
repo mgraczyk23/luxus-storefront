@@ -76,14 +76,16 @@ export default function ArticleNewsletter({ source }: { source?: string }) {
             <form onSubmit={handleSubmit} onFocusCapture={() => trackOnce(formStartedRef, 'form_start', { form: 'newsletter' })}>
               <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                 <input
-                  type="text" placeholder="Your name (optional)"
+                  type="text" id="article-newsletter-name" name="name" autoComplete="name"
+                  placeholder="Your name (optional)"
                   value={name} onChange={e => setName(e.target.value)}
                   style={inputStyle}
                 />
               </div>
               <div style={{ display: 'flex', gap: '0' }}>
                 <input
-                  required type="email" placeholder="Your email address"
+                  required type="email" id="article-newsletter-email" name="email" autoComplete="email"
+                  placeholder="Your email address"
                   value={email} onChange={e => setEmail(e.target.value)}
                   style={{ ...inputStyle, borderRight: 'none' }}
                 />

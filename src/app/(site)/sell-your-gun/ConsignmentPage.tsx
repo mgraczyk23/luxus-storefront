@@ -205,19 +205,19 @@ export default function ConsignmentPage({
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}
                 onFocusCapture={() => trackOnce(formStartedRef, 'form_start', { form: 'sell_your_gun' })}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
-                  <div><label style={lbl}>First Name *</label><input type="text" placeholder="James" value={form.firstName} onChange={e=>set("firstName",e.target.value)} style={inp} className="lxs-form-field"/></div>
-                  <div><label style={lbl}>Last Name</label><input type="text" placeholder="Whitfield" value={form.lastName} onChange={e=>set("lastName",e.target.value)} style={inp} className="lxs-form-field"/></div>
+                  <div><label style={lbl} htmlFor="consign-firstName">First Name *</label><input type="text" id="consign-firstName" name="firstName" autoComplete="given-name" placeholder="James" value={form.firstName} onChange={e=>set("firstName",e.target.value)} style={inp} className="lxs-form-field"/></div>
+                  <div><label style={lbl} htmlFor="consign-lastName">Last Name</label><input type="text" id="consign-lastName" name="lastName" autoComplete="family-name" placeholder="Whitfield" value={form.lastName} onChange={e=>set("lastName",e.target.value)} style={inp} className="lxs-form-field"/></div>
                 </div>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
-                  <div><label style={lbl}>Email Address *</label><input type="email" placeholder="you@example.com" value={form.email} onChange={e=>set("email",e.target.value)} style={inp} className="lxs-form-field"/></div>
+                  <div><label style={lbl} htmlFor="consign-email">Email Address *</label><input type="email" id="consign-email" name="email" autoComplete="email" placeholder="you@example.com" value={form.email} onChange={e=>set("email",e.target.value)} style={inp} className="lxs-form-field"/></div>
                   <div>
-                    <label style={lbl}>Phone <span style={{ fontWeight:300,textTransform:"none",letterSpacing:"0.04em",opacity:0.65 }}>(optional)</span></label>
-                    <input type="tel" placeholder="(555) 000-0000" value={form.phone} onChange={e=>set("phone",e.target.value)} style={inp} className="lxs-form-field"/>
+                    <label style={lbl} htmlFor="consign-phone">Phone <span style={{ fontWeight:300,textTransform:"none",letterSpacing:"0.04em",opacity:0.65 }}>(optional)</span></label>
+                    <input type="tel" id="consign-phone" name="phone" autoComplete="tel" placeholder="(555) 000-0000" value={form.phone} onChange={e=>set("phone",e.target.value)} style={inp} className="lxs-form-field"/>
                   </div>
                 </div>
                 <div style={{ marginBottom:"14px" }}>
-                  <label style={lbl}>I&apos;m Interested In… *</label>
-                  <select value={form.inquiryType} onChange={e=>set("inquiryType",e.target.value)} className="lxs-form-field"
+                  <label style={lbl} htmlFor="consign-inquiryType">I&apos;m Interested In… *</label>
+                  <select id="consign-inquiryType" name="inquiryType" value={form.inquiryType} onChange={e=>set("inquiryType",e.target.value)} className="lxs-form-field"
                     style={{ ...inp,appearance:"none" as const,backgroundImage:`url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 0.5L5 5L9.5 0.5' stroke='%235e5448' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E")`,backgroundRepeat:"no-repeat",backgroundPosition:"right 14px center",paddingRight:"36px",cursor:"pointer" }}>
                     {INQUIRY_TYPES.map(opt => <option key={opt} value={opt} disabled={opt===INQUIRY_TYPES[0]}>{opt}</option>)}
                   </select>
@@ -228,18 +228,18 @@ export default function ConsignmentPage({
                   </label>
                   <div className="lxs-consign-firearm-row">
                     <div>
-                      <label style={{ ...lbl,fontSize:"7.5px",opacity:0.75 }}>Make / Brand</label>
-                      <input type="text" placeholder="Nighthawk Custom" value={form.make} onChange={e=>set("make",e.target.value)} style={inp} className="lxs-form-field"/>
+                      <label style={{ ...lbl,fontSize:"7.5px",opacity:0.75 }} htmlFor="consign-make">Make / Brand</label>
+                      <input type="text" id="consign-make" name="make" placeholder="Nighthawk Custom" value={form.make} onChange={e=>set("make",e.target.value)} style={inp} className="lxs-form-field"/>
                     </div>
                     <div>
-                      <label style={{ ...lbl,fontSize:"7.5px",opacity:0.75 }}>Model</label>
-                      <input type="text" placeholder="Agent" value={form.model} onChange={e=>set("model",e.target.value)} style={inp} className="lxs-form-field"/>
+                      <label style={{ ...lbl,fontSize:"7.5px",opacity:0.75 }} htmlFor="consign-model">Model</label>
+                      <input type="text" id="consign-model" name="model" placeholder="Agent" value={form.model} onChange={e=>set("model",e.target.value)} style={inp} className="lxs-form-field"/>
                     </div>
                   </div>
                 </div>
                 <div style={{ marginBottom:"24px" }}>
-                  <label style={lbl}>Message <span style={{ fontWeight:300,textTransform:"none",letterSpacing:"0.04em",opacity:0.65 }}>(optional)</span></label>
-                  <textarea rows={5} placeholder="Tell us more — condition, provenance, what you're looking to get out of it, your timeline, any questions you have…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inp,lineHeight:1.75 }} className="lxs-form-field"/>
+                  <label style={lbl} htmlFor="consign-message">Message <span style={{ fontWeight:300,textTransform:"none",letterSpacing:"0.04em",opacity:0.65 }}>(optional)</span></label>
+                  <textarea id="consign-message" name="message" rows={5} placeholder="Tell us more — condition, provenance, what you're looking to get out of it, your timeline, any questions you have…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inp,lineHeight:1.75 }} className="lxs-form-field"/>
                 </div>
                 <button onClick={handleSubmit} disabled={!canSubmit || formStatus==="submitting"}
                   style={{ width:"100%",padding:"14px",background:canSubmit?t.gold:t.gold+"55",border:"none",color:"#fff",fontSize:"9.5px",letterSpacing:"0.18em",textTransform:"uppercase",fontFamily:"var(--font-inter)",fontWeight:600,cursor:canSubmit?"pointer":"not-allowed",borderRadius:"1px",transition:"all 0.22s" }}

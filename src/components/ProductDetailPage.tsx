@@ -1039,28 +1039,28 @@ export default function ProductDetailPage({
                   </div>
 
                   <div className="lxs-pdp-form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
-                    {[["firstName", "First Name", "John"], ["lastName", "Last Name", "Doe"]].map(([field, label, ph]) => (
+                    {[["firstName", "First Name", "John", "given-name"], ["lastName", "Last Name", "Doe", "family-name"]].map(([field, label, ph, ac]) => (
                       <div key={field}>
-                        <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }}>{label}</label>
-                        <input className="lxs-form-input" type="text" placeholder={ph} value={form[field as keyof typeof form] as string}
+                        <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }} htmlFor={`pdp-${field}`}>{label}</label>
+                        <input className="lxs-form-input" type="text" id={`pdp-${field}`} name={field} autoComplete={ac} placeholder={ph} value={form[field as keyof typeof form] as string}
                           onChange={e => handleFormChange(field, e.target.value)} style={inputStyle} />
                       </div>
                     ))}
                   </div>
 
                   <div className="lxs-pdp-form-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "14px" }}>
-                    {[["email", "Email Address", "john@example.com", "email"], ["phone", "Phone Number", "(555) 000-0000", "tel"]].map(([field, label, ph, type]) => (
+                    {[["email", "Email Address", "john@example.com", "email", "email"], ["phone", "Phone Number", "(555) 000-0000", "tel", "tel"]].map(([field, label, ph, type, ac]) => (
                       <div key={field}>
-                        <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }}>{label}</label>
-                        <input className="lxs-form-input" type={type} placeholder={ph} value={form[field as keyof typeof form] as string}
+                        <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }} htmlFor={`pdp-${field}`}>{label}</label>
+                        <input className="lxs-form-input" type={type} id={`pdp-${field}`} name={field} autoComplete={ac} placeholder={ph} value={form[field as keyof typeof form] as string}
                           onChange={e => handleFormChange(field, e.target.value)} style={inputStyle} />
                       </div>
                     ))}
                   </div>
 
                   <div style={{ marginBottom: "18px" }}>
-                    <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }}>Message</label>
-                    <textarea className="lxs-form-input" rows={4} value={form.message}
+                    <label style={{ display: "block", fontSize: "8px", letterSpacing: "0.2em", textTransform: "uppercase", color: t.textDim, fontWeight: 500, marginBottom: "6px" }} htmlFor="pdp-message">Message</label>
+                    <textarea className="lxs-form-input" id="pdp-message" name="message" rows={4} value={form.message}
                       onChange={e => handleFormChange("message", e.target.value)}
                       style={{ ...inputStyle, lineHeight: 1.7 }} />
                   </div>
@@ -1221,15 +1221,15 @@ export default function ProductDetailPage({
 
                 <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
                   {[
-                    { key: "firstName", label: "Name",         type: "text",  required: true,  ph: "Your full name" },
-                    { key: "email",     label: "Email",        type: "email", required: true,  ph: "you@example.com" },
-                    { key: "phone",     label: "Phone Number", type: "tel",   required: false, ph: "(555) 123-4567" },
+                    { key: "firstName", label: "Name",         type: "text",  required: true,  ph: "Your full name", ac: "name" },
+                    { key: "email",     label: "Email",        type: "email", required: true,  ph: "you@example.com", ac: "email" },
+                    { key: "phone",     label: "Phone Number", type: "tel",   required: false, ph: "(555) 123-4567", ac: "tel" },
                   ].map(f => (
                     <div key={f.key}>
-                      <label style={{ display: "block", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textMuted, fontWeight: 500, marginBottom: "6px" }}>
+                      <label style={{ display: "block", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textMuted, fontWeight: 500, marginBottom: "6px" }} htmlFor={`pdp-cfp-${f.key}`}>
                         {f.label} {f.required && <span style={{ color: t.gold }}>*</span>}
                       </label>
-                      <input type={f.type} value={form[f.key as keyof typeof form] as string}
+                      <input type={f.type} id={`pdp-cfp-${f.key}`} name={f.key} autoComplete={f.ac} value={form[f.key as keyof typeof form] as string}
                         onChange={e => handleFormChange(f.key, e.target.value)}
                         placeholder={f.ph}
                         style={{ ...inputStyle, padding: "11px 14px", fontSize: "13px" }}
@@ -1239,8 +1239,8 @@ export default function ProductDetailPage({
                   ))}
 
                   <div>
-                    <label style={{ display: "block", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textMuted, fontWeight: 500, marginBottom: "6px" }}>Message</label>
-                    <textarea value={form.message} onChange={e => handleFormChange("message", e.target.value)} rows={4}
+                    <label style={{ display: "block", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", color: t.textMuted, fontWeight: 500, marginBottom: "6px" }} htmlFor="pdp-cfp-message">Message</label>
+                    <textarea id="pdp-cfp-message" name="message" value={form.message} onChange={e => handleFormChange("message", e.target.value)} rows={4}
                       placeholder="Anything specific you'd like to know?"
                       style={{ ...inputStyle, padding: "11px 14px", fontSize: "13px", lineHeight: 1.6, resize: "vertical" }}
                       onFocus={e => (e.currentTarget.style.borderColor = t.gold + "70")}

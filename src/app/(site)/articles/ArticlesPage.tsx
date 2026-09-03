@@ -394,7 +394,7 @@ export default function ArticlesPage({ posts }: { posts: PayloadPost[] | null })
             New articles, acquisitions, and exclusive access, delivered to the discerning few.
           </p>
           <div style={{ display: "flex", maxWidth: "400px", margin: "0 auto" }}>
-            <input type="email" placeholder="Your email address"
+            <input type="email" id="articles-newsletter-email" name="email" autoComplete="email" placeholder="Your email address"
               style={{ flex: 1, padding: "12px 16px", background: t.bg, border: `1px solid ${t.border}`, borderRight: "none", color: t.text, fontSize: "12px", outline: "none", fontFamily: "var(--font-inter)" }}/>
             <button
               style={{ padding: "12px 20px", background: t.gold, color: "#fff", border: "none", fontSize: "8.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "var(--font-inter)", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>

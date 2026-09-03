@@ -230,35 +230,35 @@ export default function ContactPage({ settings, text = {} }: { settings: SiteSet
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}
                 onFocusCapture={() => trackOnce(formStartedRef, 'form_start', { form: 'contact' })}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
-                  {[["firstName","First Name *","James"],["lastName","Last Name","Whitfield"]].map(([k,l,p]) => (
+                  {[["firstName","First Name *","James","given-name"],["lastName","Last Name","Whitfield","family-name"]].map(([k,l,p,ac]) => (
                     <div key={k}>
-                      <label style={labelStyle}>{l}</label>
-                      <input type="text" placeholder={p} value={form[k as keyof typeof form] as string} onChange={e=>set(k,e.target.value)} style={inputStyle} className="lxs-form-field"/>
+                      <label style={labelStyle} htmlFor={`contact-${k}`}>{l}</label>
+                      <input type="text" id={`contact-${k}`} name={k} autoComplete={ac} placeholder={p} value={form[k as keyof typeof form] as string} onChange={e=>set(k,e.target.value)} style={inputStyle} className="lxs-form-field"/>
                     </div>
                   ))}
                 </div>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
-                  {[["email","Email Address *","you@example.com","email"],["phone","Phone Number","(555) 000-0000","tel"]].map(([k,l,p,type]) => (
+                  {[["email","Email Address *","you@example.com","email","email"],["phone","Phone Number","(555) 000-0000","tel","tel"]].map(([k,l,p,type,ac]) => (
                     <div key={k}>
-                      <label style={labelStyle}>{l}</label>
-                      <input type={type} placeholder={p} value={form[k as keyof typeof form] as string} onChange={e=>set(k,e.target.value)} style={inputStyle} className="lxs-form-field"/>
+                      <label style={labelStyle} htmlFor={`contact-${k}`}>{l}</label>
+                      <input type={type} id={`contact-${k}`} name={k} autoComplete={ac} placeholder={p} value={form[k as keyof typeof form] as string} onChange={e=>set(k,e.target.value)} style={inputStyle} className="lxs-form-field"/>
                     </div>
                   ))}
                 </div>
                 <div style={{ marginBottom:"14px" }}>
-                  <label style={labelStyle}>Company / Publication <span style={{ color:t.textDim,fontWeight:300,textTransform:"none",letterSpacing:"0.04em" }}>(optional)</span></label>
-                  <input type="text" placeholder="e.g. Guns & Ammo, Independent Collector" value={form.company} onChange={e=>set("company",e.target.value)} style={inputStyle} className="lxs-form-field"/>
+                  <label style={labelStyle} htmlFor="contact-company">Company / Publication <span style={{ color:t.textDim,fontWeight:300,textTransform:"none",letterSpacing:"0.04em" }}>(optional)</span></label>
+                  <input type="text" id="contact-company" name="company" autoComplete="organization" placeholder="e.g. Guns & Ammo, Independent Collector" value={form.company} onChange={e=>set("company",e.target.value)} style={inputStyle} className="lxs-form-field"/>
                 </div>
                 <div style={{ marginBottom:"14px" }}>
-                  <label style={labelStyle}>Topic <span style={{ color:t.gold }}>*</span></label>
-                  <select value={form.topic} onChange={e=>set("topic",e.target.value)} className="lxs-form-field"
+                  <label style={labelStyle} htmlFor="contact-topic">Topic <span style={{ color:t.gold }}>*</span></label>
+                  <select id="contact-topic" name="topic" value={form.topic} onChange={e=>set("topic",e.target.value)} className="lxs-form-field"
                     style={{ ...inputStyle, appearance:"none" as const, backgroundImage:`url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 0.5L5 5L9.5 0.5' stroke='%235e5448' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E")`, backgroundRepeat:"no-repeat", backgroundPosition:"right 14px center", paddingRight:"36px", cursor:"pointer" }}>
                     {c.topics.map(tp => <option key={tp} value={tp} disabled={tp===TOPIC_PLACEHOLDER}>{tp}</option>)}
                   </select>
                 </div>
                 <div style={{ marginBottom:"18px" }}>
-                  <label style={labelStyle}>Message</label>
-                  <textarea rows={5} placeholder="Tell us what's on your mind…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inputStyle, lineHeight:1.75 }} className="lxs-form-field"/>
+                  <label style={labelStyle} htmlFor="contact-message">Message</label>
+                  <textarea id="contact-message" name="message" rows={5} placeholder="Tell us what's on your mind…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inputStyle, lineHeight:1.75 }} className="lxs-form-field"/>
                 </div>
                 <label style={{ display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"24px",cursor:"pointer" }}>
                   <div onClick={() => set("newsletter",!form.newsletter)}

@@ -180,15 +180,15 @@ export default function ContactAvailabilityModal({ productTitle, productHandle, 
             <div style={{ display: "flex", flexDirection: "column", gap: "14px", marginBottom: "14px" }}>
               <div style={{ display: "flex", gap: "12px" }}>
                 <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>First Name <span style={{ color: t.gold }}>*</span></label>
-                  <input type="text" value={form.firstName} onChange={e => set("firstName", e.target.value)}
+                  <label style={labelStyle} htmlFor="avail-firstName">First Name <span style={{ color: t.gold }}>*</span></label>
+                  <input type="text" id="avail-firstName" name="firstName" autoComplete="given-name" value={form.firstName} onChange={e => set("firstName", e.target.value)}
                     placeholder="First" style={inputStyle}
                     onFocus={e => (e.currentTarget.style.borderColor = t.gold + "70")}
                     onBlur={e => (e.currentTarget.style.borderColor = t.border)} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>Last Name</label>
-                  <input type="text" value={form.lastName} onChange={e => set("lastName", e.target.value)}
+                  <label style={labelStyle} htmlFor="avail-lastName">Last Name</label>
+                  <input type="text" id="avail-lastName" name="lastName" autoComplete="family-name" value={form.lastName} onChange={e => set("lastName", e.target.value)}
                     placeholder="Last" style={inputStyle}
                     onFocus={e => (e.currentTarget.style.borderColor = t.gold + "70")}
                     onBlur={e => (e.currentTarget.style.borderColor = t.border)} />
@@ -196,24 +196,24 @@ export default function ContactAvailabilityModal({ productTitle, productHandle, 
               </div>
 
               <div>
-                <label style={labelStyle}>Email <span style={{ color: t.gold }}>*</span></label>
-                <input type="email" value={form.email} onChange={e => set("email", e.target.value)}
+                <label style={labelStyle} htmlFor="avail-email">Email <span style={{ color: t.gold }}>*</span></label>
+                <input type="email" id="avail-email" name="email" autoComplete="email" value={form.email} onChange={e => set("email", e.target.value)}
                   placeholder="you@example.com" style={inputStyle}
                   onFocus={e => (e.currentTarget.style.borderColor = t.gold + "70")}
                   onBlur={e => (e.currentTarget.style.borderColor = t.border)} />
               </div>
 
               <div>
-                <label style={labelStyle}>Phone Number</label>
-                <input type="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
+                <label style={labelStyle} htmlFor="avail-phone">Phone Number</label>
+                <input type="tel" id="avail-phone" name="phone" autoComplete="tel" value={form.phone} onChange={e => set("phone", e.target.value)}
                   placeholder="(555) 123-4567" style={inputStyle}
                   onFocus={e => (e.currentTarget.style.borderColor = t.gold + "70")}
                   onBlur={e => (e.currentTarget.style.borderColor = t.border)} />
               </div>
 
               <div>
-                <label style={labelStyle}>Message <span style={{ color: t.textDim, fontWeight: 400 }}>(optional)</span></label>
-                <textarea value={form.message} onChange={e => set("message", e.target.value)}
+                <label style={labelStyle} htmlFor="avail-message">Message <span style={{ color: t.textDim, fontWeight: 400 }}>(optional)</span></label>
+                <textarea id="avail-message" name="message" value={form.message} onChange={e => set("message", e.target.value)}
                   rows={3}
                   placeholder="Let us know your interest — the price you'd consider, your timeline, or any other details…"
                   style={{ ...inputStyle, lineHeight: 1.6, resize: "vertical" }}

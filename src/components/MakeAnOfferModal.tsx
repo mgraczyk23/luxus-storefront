@@ -235,7 +235,7 @@ export default function MakeAnOfferModal({
               padding: "20px 22px",
               marginBottom: "22px",
             }}>
-              <label style={{ ...labelStyle, marginBottom: "10px" }}>
+              <label style={{ ...labelStyle, marginBottom: "10px" }} htmlFor="offer-amount">
                 Your Offer <span style={{ color: t.gold }}>*</span>
               </label>
               <div style={{ display: "flex", alignItems: "center", gap: "0" }}>
@@ -252,6 +252,8 @@ export default function MakeAnOfferModal({
                 </div>
                 <input
                   type="text"
+                  id="offer-amount"
+                  name="offerAmount"
                   inputMode="decimal"
                   value={form.offerAmount}
                   onChange={e => handleAmountChange(e.target.value)}
@@ -286,11 +288,14 @@ export default function MakeAnOfferModal({
               {/* Name row */}
               <div style={{ display: "flex", gap: "12px" }}>
                 <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>
+                  <label style={labelStyle} htmlFor="offer-firstName">
                     First Name <span style={{ color: t.gold }}>*</span>
                   </label>
                   <input
                     type="text"
+                    id="offer-firstName"
+                    name="firstName"
+                    autoComplete="given-name"
                     value={form.firstName}
                     onChange={e => set("firstName", e.target.value)}
                     placeholder="First"
@@ -300,9 +305,12 @@ export default function MakeAnOfferModal({
                   />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>Last Name</label>
+                  <label style={labelStyle} htmlFor="offer-lastName">Last Name</label>
                   <input
                     type="text"
+                    id="offer-lastName"
+                    name="lastName"
+                    autoComplete="family-name"
                     value={form.lastName}
                     onChange={e => set("lastName", e.target.value)}
                     placeholder="Last"
@@ -314,11 +322,14 @@ export default function MakeAnOfferModal({
               </div>
 
               <div>
-                <label style={labelStyle}>
+                <label style={labelStyle} htmlFor="offer-email">
                   Email <span style={{ color: t.gold }}>*</span>
                 </label>
                 <input
                   type="email"
+                  id="offer-email"
+                  name="email"
+                  autoComplete="email"
                   value={form.email}
                   onChange={e => set("email", e.target.value)}
                   placeholder="you@example.com"
@@ -329,9 +340,12 @@ export default function MakeAnOfferModal({
               </div>
 
               <div>
-                <label style={labelStyle}>Phone Number</label>
+                <label style={labelStyle} htmlFor="offer-phone">Phone Number</label>
                 <input
                   type="tel"
+                  id="offer-phone"
+                  name="phone"
+                  autoComplete="tel"
                   value={form.phone}
                   onChange={e => set("phone", e.target.value)}
                   placeholder="(555) 123-4567"
@@ -342,8 +356,10 @@ export default function MakeAnOfferModal({
               </div>
 
               <div>
-                <label style={labelStyle}>Message <span style={{ color: t.textDim, fontWeight: 400 }}>(optional)</span></label>
+                <label style={labelStyle} htmlFor="offer-message">Message <span style={{ color: t.textDim, fontWeight: 400 }}>(optional)</span></label>
                 <textarea
+                  id="offer-message"
+                  name="message"
                   value={form.message}
                   onChange={e => set("message", e.target.value)}
                   rows={3}

@@ -191,37 +191,37 @@ export default function SupportPage({ settings, text = {} }: { settings: SiteSet
             ) : (
               <div style={{ background:"#fff",border:`1px solid ${t.border}`,padding:"36px" }}>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
-                  {[["firstName","First Name","James"],["lastName","Last Name","Whitfield"]].map(([field,label,ph]) => (
+                  {[["firstName","First Name","James","given-name"],["lastName","Last Name","Whitfield","family-name"]].map(([field,label,ph,ac]) => (
                     <div key={field}>
-                      <label style={labelStyle}>{label} <span style={{ color:t.gold }}>*</span></label>
-                      <input type="text" placeholder={ph} value={form[field as keyof typeof form] as string} onChange={e=>set(field,e.target.value)} style={inputStyle} className="lxs-form-field"/>
+                      <label style={labelStyle} htmlFor={`support-${field}`}>{label} <span style={{ color:t.gold }}>*</span></label>
+                      <input type="text" id={`support-${field}`} name={field} autoComplete={ac} placeholder={ph} value={form[field as keyof typeof form] as string} onChange={e=>set(field,e.target.value)} style={inputStyle} className="lxs-form-field"/>
                     </div>
                   ))}
                 </div>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
-                  {[["email","Email Address *","you@example.com","email"],["phone","Phone Number","(555) 000-0000","tel"]].map(([field,label,ph,type]) => (
+                  {[["email","Email Address *","you@example.com","email","email"],["phone","Phone Number","(555) 000-0000","tel","tel"]].map(([field,label,ph,type,ac]) => (
                     <div key={field}>
-                      <label style={labelStyle}>{label}</label>
-                      <input type={type} placeholder={ph} value={form[field as keyof typeof form] as string} onChange={e=>set(field,e.target.value)} style={inputStyle} className="lxs-form-field"/>
+                      <label style={labelStyle} htmlFor={`support-${field}`}>{label}</label>
+                      <input type={type} id={`support-${field}`} name={field} autoComplete={ac} placeholder={ph} value={form[field as keyof typeof form] as string} onChange={e=>set(field,e.target.value)} style={inputStyle} className="lxs-form-field"/>
                     </div>
                   ))}
                 </div>
                 <div className="lxs-form-row" style={{ marginBottom:"14px" }}>
                   <div>
-                    <label style={labelStyle}>Topic <span style={{ color:t.gold }}>*</span></label>
-                    <select value={form.topic} onChange={e=>set("topic",e.target.value)} className="lxs-form-field"
+                    <label style={labelStyle} htmlFor="support-topic">Topic <span style={{ color:t.gold }}>*</span></label>
+                    <select id="support-topic" name="topic" value={form.topic} onChange={e=>set("topic",e.target.value)} className="lxs-form-field"
                       style={{ ...inputStyle,appearance:"none" as const,backgroundImage:`url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0.5 0.5L5 5L9.5 0.5' stroke='%235e5448' stroke-width='1.2' stroke-linecap='round' fill='none'/%3E%3C/svg%3E")`,backgroundRepeat:"no-repeat",backgroundPosition:"right 14px center",paddingRight:"36px",cursor:"pointer" }}>
                       {c.topics.map(tp => <option key={tp} value={tp} disabled={tp===TOPIC_PLACEHOLDER}>{tp}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={labelStyle}>Order Number <span style={{ color:t.textDim,fontWeight:300,letterSpacing:"0.04em",textTransform:"none" }}>(if applicable)</span></label>
-                    <input type="text" placeholder="LXC-00000" value={form.orderNumber} onChange={e=>set("orderNumber",e.target.value)} style={inputStyle} className="lxs-form-field"/>
+                    <label style={labelStyle} htmlFor="support-orderNumber">Order Number <span style={{ color:t.textDim,fontWeight:300,letterSpacing:"0.04em",textTransform:"none" }}>(if applicable)</span></label>
+                    <input type="text" id="support-orderNumber" name="orderNumber" placeholder="LXC-00000" value={form.orderNumber} onChange={e=>set("orderNumber",e.target.value)} style={inputStyle} className="lxs-form-field"/>
                   </div>
                 </div>
                 <div style={{ marginBottom:"18px" }}>
-                  <label style={labelStyle}>Message</label>
-                  <textarea rows={5} placeholder="Describe your question or issue in as much detail as you can…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inputStyle,lineHeight:1.75 }} className="lxs-form-field"/>
+                  <label style={labelStyle} htmlFor="support-message">Message</label>
+                  <textarea id="support-message" name="message" rows={5} placeholder="Describe your question or issue in as much detail as you can…" value={form.message} onChange={e=>set("message",e.target.value)} style={{ ...inputStyle,lineHeight:1.75 }} className="lxs-form-field"/>
                 </div>
                 <label style={{ display:"flex",alignItems:"flex-start",gap:"10px",marginBottom:"24px",cursor:"pointer" }}>
                   <div onClick={()=>set("fflConsent",!form.fflConsent)}
