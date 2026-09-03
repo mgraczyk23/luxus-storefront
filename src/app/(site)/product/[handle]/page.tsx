@@ -147,7 +147,6 @@ export default async function ProductPage(
     material: serverSpecs?.frame_material || undefined,
     weight: weightSpec,
     category: primaryCat?.name || undefined,
-    itemCondition: 'https://schema.org/NewCondition',
     additionalProperty: additionalProps.length > 0 ? additionalProps : undefined,
     // Contact-for-pricing products omit the offers block entirely.
     // Google Product Snippet (organic search) only requires name + image — offers
