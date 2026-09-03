@@ -511,7 +511,15 @@ export default function ProductDetailPage({
                     alt={imgAlt(product, activeImg)}
                     fill style={{ objectFit: "contain" }}
                     sizes="(max-width: 640px) 100vw, 50vw"
-                    priority
+                    // `priority` was deprecated in Next 16 in favor of `preload`
+                    // — confirmed via a real build that `priority` alone no
+                    // longer sets fetchPriority/loading on the rendered <img>
+                    // here, so every product page's main gallery photo (this
+                    // site's biggest content set) was silently missing the LCP
+                    // hint. Only preload the initial (activeImg === 0) photo —
+                    // switching thumbnails afterward is user-driven, not the
+                    // LCP measurement window.
+                    preload={activeImg === 0}
                   />
                 ) : (
                   <ImgBox index={activeImg} />

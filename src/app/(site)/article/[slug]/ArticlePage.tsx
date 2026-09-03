@@ -254,7 +254,10 @@ export default function ArticlePage({ post, related = [], comments = [], body: b
       {/* ── Hero image — full bleed from top, header floats above ── */}
       <div id="article-hero" style={{ position: "relative", height: "55vh", minHeight: "380px", maxHeight: "600px", overflow: "hidden" }}>
           {heroUrl ? (
-            <Image src={heroUrl} alt={post.featuredImage?.alt ?? post.title} fill style={{ objectFit: "cover" }} priority />
+            // `priority` is deprecated as of Next 16 (see the same fix on
+            // ProductDetailPage.tsx) — `preload` is the current replacement
+            // for a single above-the-fold hero image like this one.
+            <Image src={heroUrl} alt={post.featuredImage?.alt ?? post.title} fill style={{ objectFit: "cover" }} preload />
           ) : (
             <ImgBox style={{ width: "100%", height: "100%" }} index={0} />
           )}
