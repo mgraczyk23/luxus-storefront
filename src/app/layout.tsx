@@ -19,7 +19,17 @@ const inter = Inter({
 const playfair = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair",
-  display: "swap",
+  // "optional" instead of "swap" — confirmed via a real Lighthouse trace
+  // that this font swapping in late was causing real, scored CLS: it's used
+  // for long product titles (H1) whose letterforms differ enough from the
+  // fallback that a late swap can change how many lines the heading wraps
+  // to, reflowing everything below it (including the footer) on a live
+  // product page. "optional" either has the real font ready almost
+  // immediately or commits to the fallback for that pageview and never
+  // swaps later — trading a rare fallback-serif render on slow connections
+  // for eliminating that shift outright. Inter (body/UI text, not
+  // implicated in any captured shift) is intentionally left on "swap".
+  display: "optional",
   style: ["normal", "italic"],
   weight: ["400", "500", "600", "700"],
 })
