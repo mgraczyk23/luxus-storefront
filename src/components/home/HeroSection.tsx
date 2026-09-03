@@ -269,10 +269,25 @@ export default function HeroSection({
                           position: "absolute", inset: 0,
                           opacity: i === featuredSlide ? 1 : 0,
                           transition: "opacity 1s ease",
-                          background: `url("${img.imageUrl}") center/contain no-repeat`,
                           backgroundColor: t.bg,
                         }}
-                      />
+                      >
+                        {/* next/image instead of a CSS background-image — gets
+                            these resized/compressed to their actual display
+                            size (~460px) instead of shipping the full-size CMS
+                            original, plus real Cache-Control headers via the
+                            image optimizer (raw S3 URLs serve with none). This
+                            section is below the fold, so every slide — even
+                            the first — stays default-lazy; it's not an LCP
+                            candidate. */}
+                        <Image
+                          src={img.imageUrl}
+                          alt={img.caption || wordmark}
+                          fill
+                          sizes="(max-width: 460px) 100vw, 460px"
+                          style={{ objectFit: "contain" }}
+                        />
+                      </div>
                     ))}
 
                     {/* Caption */}
