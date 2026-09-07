@@ -130,12 +130,22 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             use GTM's own Consent Mode rather than being gated here. */}
         {gtmId && (
           <>
-            {/* External script tag rather than GTM's default inline bootstrap
-                snippet — avoids an inline <script> execution under CSP
-                (script-src-elem). gtm.js creates window.dataLayer itself on
-                load; trackEvent() (src/lib/gtm.ts) already no-ops safely for
-                any push that happens before that. */}
-            <Script src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`} strategy="afterInteractive" />
+            {/* Standard GTM bootstrap snippet — restored after a 2026-09-03
+                change to a bare <script src> (to dodge a CSP-Report-Only
+                script-src-elem warning) silently broke all analytics: GTM's
+                built-in "All Pages" trigger — and every other trigger in the
+                container, GA4 included — fires off the dataLayer `gtm.js`
+                event that only this bootstrap push creates. Without it, gtm.js
+                still loads and initializes, but no tag ever fires (confirmed
+                live: zero hits to google-analytics.com/g/collect for 4+ days).
+                CSP is Report-Only, so this inline script isn't actually
+                blocked — only logged — making that tradeoff not worth
+                repeating. Do not swap this back to a bare <script src>. */}
+            <Script id="gtm-init" strategy="afterInteractive">{`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','${gtmId}');`}</Script>
             <noscript>
               <iframe src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`} height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} />
             </noscript>

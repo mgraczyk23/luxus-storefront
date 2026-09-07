@@ -1,8 +1,12 @@
 // Google Tag Manager dataLayer helper — client-side only.
-// The dataLayer array itself is created by GTM's own container script
-// (loaded via an external <Script src> tag in layout.tsx, which loads
-// unconditionally — GTM is just a script loader; it sets no cookies itself).
-// If that script hasn't finished loading yet, pushes are silently dropped
+// The dataLayer array is created by GTM's own bootstrap snippet in
+// layout.tsx (loaded unconditionally — GTM is just a script loader; it sets
+// no cookies itself). That snippet must stay the standard inline
+// dataLayer.push({'gtm.start':...,event:'gtm.js'}) form, not a bare
+// <script src> — GTM's "All Pages" trigger (and everything else in the
+// container) fires off that 'gtm.js' dataLayer event, so without it no tag
+// ever runs even though gtm.js itself loads fine. See layout.tsx's comment.
+// If the bootstrap snippet hasn't run yet, pushes here are silently dropped
 // rather than creating a stray global.
 
 export function trackEvent(event: string, params: Record<string, unknown> = {}) {
