@@ -271,6 +271,23 @@ const nextConfig: NextConfig = {
       // closer/primary manufacturer match.
       { source: '/brand/10-8-performance-springfield-armory', destination: '/brand/springfield-armory', permanent: true },
 
+      // ── Soft-404s from Search Console (2026-09-08 GSC export) ──
+      // Old WP brand-slug typo — real brand is "nighthawk-custom" (singular).
+      { source: '/brand/nighthawk-customs', destination: '/brand/nighthawk-custom', permanent: true },
+      { source: '/Brand/nighthawk-customs/:path*', destination: '/brand/nighthawk-custom', permanent: true },
+      // Phantom combined-brand-slug URLs from a bug fixed in the 2026-08-20
+      // session (08949fe): a multi-brand product's breadcrumb used to
+      // slugify the joined "BrandA / BrandB" display string into one bogus
+      // URL instead of linking each real brand separately. That bug already
+      // renders these as 404s today (the fix added notFound() for any slug
+      // matching neither a product's brand nor a CMS brand doc) — these are
+      // stale links/crawls from before the fix. Redirect to the first-named
+      // brand's own real page rather than leave them as dead links.
+      { source: '/brand/10-8-performance-hilton-yam', destination: '/brand/10-8-performance', permanent: true },
+      { source: '/brand/walther-john-martz', destination: '/brand/walther', permanent: true },
+      { source: '/brand/lwrc-sig-sauer', destination: '/brand/lwrc', permanent: true },
+      { source: '/brand/taran-tactical-staccato', destination: '/brand/taran-tactical', permanent: true },
+
       // ── WP product-category archives → current /category pages (exact renames) ──
       { source: '/product-category/consecutive-serial-numbers/:path*', destination: '/category/consecutive-serial-numbers', permanent: true },
       { source: '/product-category/derringers/:path*', destination: '/category/derringers', permanent: true },

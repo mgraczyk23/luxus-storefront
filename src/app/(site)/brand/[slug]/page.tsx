@@ -34,16 +34,23 @@ function getBrandName(slug: string, products: ReturnType<typeof mapMedusaProduct
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const normalized = toSlug(slug)
-  let name = normalized
+  let brandName: string | undefined
   try {
     const products = await getAllProducts()
-    name = getBrandName(normalized, products) ?? normalized
+    brandName = getBrandName(normalized, products)
   } catch {}
   let image: string | undefined
+  let cmsName: string | undefined
   try {
     const brandDoc = await getBrand(normalized)
     image = brandDoc?.heroImage?.url ?? brandDoc?.logo?.url ?? undefined
+    cmsName = brandDoc?.name ?? undefined
   } catch {}
+  // Prefer the name derived from live product data (real display casing from
+  // the attributes module) but fall back to the CMS brand doc's name before
+  // ever falling back to the raw URL slug — a brand with a CMS page but zero
+  // current inventory has no product data to pull a name from at all.
+  const name = brandName ?? cmsName ?? normalized
   const { title, description } = buildListingMeta(name)
   return {
     title,
@@ -74,7 +81,10 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   // real brand slug (e.g. a stray link that concatenated two brand names
   // together). Render a real 404 instead of an empty "0 results" page.
   if (!brandName && !brandDoc) notFound()
-  const name = brandName ?? slug
+  // Same fallback order as generateMetadata above — a brand with a real CMS
+  // page but no current inventory (e.g. daniel-defense, armalite) previously
+  // fell straight through to the raw un-humanized slug as its H1/title.
+  const name = brandName ?? brandDoc?.name ?? slug
   const products = brandName
     ? allProductsArr.filter(p => p.attribute_lists.brand.includes(brandName))
     : []
