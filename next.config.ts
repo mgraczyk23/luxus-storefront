@@ -263,18 +263,30 @@ const nextConfig: NextConfig = {
       { source: '/articles/category/:path*', destination: '/articles', permanent: true },
       { source: '/articles/page/:path*', destination: '/articles', permanent: true },
 
-      // ── WP brand-archive URLs: capitalized "/Brand/" path + pagination ──
-      { source: '/Brand/sig-sauer/:path*', destination: '/brand/sig-sauer', permanent: true },
-      { source: '/Brand/smith-wesson/:path*', destination: '/brand/smith-wesson', permanent: true },
+      // ── WP brand-archive URLs: old compound/typo'd brand slugs ──
+      // Note: capitalized "/Brand/*" case is NOT handled here — Vercel's own
+      // routing already matches dynamic-segment routes case-insensitively
+      // (see proxy.ts's normalizePrefixCase, which covers "brand" generically
+      // for every real slug). An explicit case-fix rule here for an
+      // already-correct lowercase slug (e.g. '/Brand/sig-sauer/:path*' ->
+      // '/brand/sig-sauer') redirected sig-sauer and smith-wesson to
+      // themselves in production for days — this redirects() config matches
+      // sources case-insensitively too, so "Brand" silently matched "brand"
+      // and the rule fired on requests that were already correct, looping
+      // forever. Only add a rule here when the slug itself is also changing.
+      //
       // Old WP compound brand slug — split brand pages don't exist for "10-8
       // Performance" builds on a Springfield base; Springfield Armory is the
       // closer/primary manufacturer match.
       { source: '/brand/10-8-performance-springfield-armory', destination: '/brand/springfield-armory', permanent: true },
+      // WP brand-archive pagination (any brand) — brand pages here have no
+      // path-based pagination, so send to the brand's own page. Uses named
+      // params only (no literal brand names) to stay safely loop-proof.
+      { source: '/brand/:slug/page/:num*', destination: '/brand/:slug', permanent: true },
 
       // ── Soft-404s from Search Console (2026-09-08 GSC export) ──
       // Old WP brand-slug typo — real brand is "nighthawk-custom" (singular).
       { source: '/brand/nighthawk-customs', destination: '/brand/nighthawk-custom', permanent: true },
-      { source: '/Brand/nighthawk-customs/:path*', destination: '/brand/nighthawk-custom', permanent: true },
       // Phantom combined-brand-slug URLs from a bug fixed in the 2026-08-20
       // session (08949fe): a multi-brand product's breadcrumb used to
       // slugify the joined "BrandA / BrandB" display string into one bogus
