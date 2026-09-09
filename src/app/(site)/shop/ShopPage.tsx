@@ -565,7 +565,12 @@ function ShopBody({ products, initialFilters, initialSort, initialPage, initialQ
     if (sort === 'price_asc')  return (a.price ?? Infinity) - (b.price ?? Infinity)
     if (sort === 'price_desc') return (b.price ?? 0) - (a.price ?? 0)
     if (sort === 'brand_az')   return (a.attributes.brand ?? '').localeCompare(b.attributes.brand ?? '')
-    return 0 // newest — server already returned in created_at desc order
+    // newest (default): Medusa created_at, newest first — the server fetch
+    // has no `order` param, so it comes back oldest-first (Medusa's default);
+    // this can't assume any particular incoming order.
+    const aDate = a.published_at ? new Date(a.published_at).getTime() : 0
+    const bDate = b.published_at ? new Date(b.published_at).getTime() : 0
+    return bDate - aDate
   }), [filtered, sort])
 
   // ── Pagination ──────────────────────────────────────────────────────────────
