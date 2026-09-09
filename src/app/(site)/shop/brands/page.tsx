@@ -23,7 +23,7 @@ export const revalidate = false
 
 export default async function BrandsDirectory() {
   const [rawRes, payloadBrandsRes] = await Promise.allSettled([
-    getProducts({ limit: "500", fields: "id,*attribute_values,*attribute_values.attribute_type" }),
+    getProducts({ limit: "500", fields: "id,*attribute_values,*attribute_values.attribute_type,+metadata" }),
     getBrands(),
   ])
 
@@ -33,6 +33,7 @@ export default async function BrandsDirectory() {
   if (rawRes.status === 'fulfilled') {
     for (const p of (rawRes.value.products ?? [])) {
       const mapped = mapMedusaProduct(p)
+      if (mapped.is_backroom_hidden) continue
       for (const brand of mapped.attribute_lists.brand) {
         const slug = toSlug(brand)
         if (!brandNames.has(slug)) brandNames.set(slug, brand)

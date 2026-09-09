@@ -23,7 +23,7 @@ export default async function CategoriesDirectory() {
   const [categoriesRes, tileImagesRes, countRes] = await Promise.allSettled([
     getCategories(),
     getShopTileImages(),
-    getProducts({ limit: "500", fields: "id,*categories" }),
+    getProducts({ limit: "500", fields: "id,*categories,+metadata" }),
   ])
 
   const tileImages = tileImagesRes.status === 'fulfilled'
@@ -33,6 +33,8 @@ export default async function CategoriesDirectory() {
   const countMap: Record<string, number> = {}
   if (countRes.status === 'fulfilled') {
     for (const p of (countRes.value.products ?? [])) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((p as any).metadata?.master_backroom === "true" || (p as any).metadata?.backroom_hidden === "true") continue
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       for (const cat of ((p as any).categories ?? [])) {
         const catId = (cat as { id?: string }).id

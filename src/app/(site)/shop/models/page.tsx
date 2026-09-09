@@ -23,7 +23,7 @@ export const revalidate = false
 
 export default async function ModelsDirectory() {
   const [rawRes, tileImagesRes] = await Promise.allSettled([
-    getProducts({ limit: "500", fields: "id,*attribute_values,*attribute_values.attribute_type" }),
+    getProducts({ limit: "500", fields: "id,*attribute_values,*attribute_values.attribute_type,+metadata" }),
     getShopTileImages(),
   ])
 
@@ -33,6 +33,7 @@ export default async function ModelsDirectory() {
   if (rawRes.status === 'fulfilled') {
     for (const p of (rawRes.value.products ?? [])) {
       const mapped = mapMedusaProduct(p)
+      if (mapped.is_backroom_hidden) continue
       for (const model of mapped.attribute_lists.model) {
         const slug = toSlug(model)
         if (!modelNames.has(slug)) modelNames.set(slug, model)
