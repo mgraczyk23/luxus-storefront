@@ -145,6 +145,12 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         ]}
         hideBrandFilter
         basePath={`/brand/${slug}`}
+        // Only link to the Resources on Guns hub entry once its editorial
+        // content is actually built out — showInHub is the CMS flag for
+        // that, checked once history/model series/etc. have been added
+        // (see Brands.ts). Mirrors that page's own reverse "Shop {brand} →"
+        // link back to here.
+        resourceLink={brandDoc?.showInHub ? { href: `/resources-on-guns/${slug}`, label: `Read the ${name} Brand Guide →` } : undefined}
       />
     </>
   )

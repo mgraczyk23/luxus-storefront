@@ -42,6 +42,11 @@ type Props = {
   hideBrandFilter?: boolean
   hideCategoryFilter?: boolean
   basePath: string
+  // Contextual link to a related editorial page (currently just brand pages
+  // linking to their /resources-on-guns/[slug] hub entry) — rendered under
+  // the description, not part of the standard listing-page shape, so every
+  // other caller simply omits it.
+  resourceLink?: { href: string; label: string }
 }
 
 const fmt = (n: number) =>
@@ -419,11 +424,12 @@ type BodyProps = Props & {
 // and no visible change (itemCount uses the unfiltered total, which is
 // identical to the filtered count in the default, no-query-string view that
 // every crawler and the vast majority of visitors land on).
-function ListingHeader({ title, description, breadcrumbs, itemCount }: {
+function ListingHeader({ title, description, breadcrumbs, itemCount, resourceLink }: {
   title: string
   description?: string
   breadcrumbs: Breadcrumb[]
   itemCount: number
+  resourceLink?: { href: string; label: string }
 }) {
   const { t } = useTheme()
   return (
@@ -462,6 +468,11 @@ function ListingHeader({ title, description, breadcrumbs, itemCount }: {
               <p style={{ fontSize: "13px", fontWeight: 300, color: t.textMuted, lineHeight: 1.75, marginTop: "10px", maxWidth: "680px", letterSpacing: "0.01em" }}>
                 {description}
               </p>
+            )}
+            {resourceLink && (
+              <Link href={resourceLink.href} style={{ display: "inline-block", marginTop: "10px", fontSize: "9px", letterSpacing: "0.14em", textTransform: "uppercase", color: t.gold, textDecoration: "none", fontFamily: "var(--font-inter)", fontWeight: 500 }}>
+                {resourceLink.label}
+              </Link>
             )}
           </div>
           <div style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, letterSpacing: "0.03em", paddingBottom: "6px", flexShrink: 0 }}>
@@ -948,7 +959,7 @@ export default function ListingPage(props: Props) {
   const { t } = useTheme()
   return (
     <div style={{ background: t.bg, color: t.text, minHeight: "100vh", fontFamily: "'Inter',sans-serif" }}>
-      <ListingHeader title={props.title} description={props.description} breadcrumbs={props.breadcrumbs} itemCount={props.products.length} />
+      <ListingHeader title={props.title} description={props.description} breadcrumbs={props.breadcrumbs} itemCount={props.products.length} resourceLink={props.resourceLink} />
       <Suspense fallback={<ListingBody {...props} />}>
         <ListingBodyFromParams {...props} />
       </Suspense>
