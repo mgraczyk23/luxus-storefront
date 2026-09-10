@@ -74,7 +74,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   ])
   const allProductsArr = allProducts.status === 'fulfilled' ? allProducts.value : []
   const brandDoc = brandPayload.status === 'fulfilled' ? brandPayload.value : null
-  const tagline = brandDoc?.tagline ?? null
+  // Short Description (Payload's `description` field, 2-4 sentences) instead
+  // of the shorter Tagline (5-15 words) — more real body text under the H1
+  // for on-page SEO. Falls back to tagline for any brand that only has that
+  // field filled in so far.
+  const pageSubtitle = brandDoc?.description ?? brandDoc?.tagline ?? null
 
   const brandName = getBrandName(slug, allProductsArr)
   // No product carries this brand and no CMS brand doc exists for it — not a
@@ -133,7 +137,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         products={products}
         title={name}
         eyebrow="Brand"
-        description={tagline ?? undefined}
+        description={pageSubtitle ?? undefined}
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Shop", href: "/shop" },
