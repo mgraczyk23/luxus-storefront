@@ -1152,7 +1152,13 @@ export default function ProductDetailPage({
         <div onClick={() => setLightboxOpen(false)}
           style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(8,7,6,0.95)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", padding: "40px 20px" }}>
           <button onClick={() => setLightboxOpen(false)}
-            style={{ position: "absolute", top: "24px", right: "28px", background: "none", border: "1px solid #3a3a3a", padding: "8px 14px", cursor: "pointer", color: "#9a9a9a", display: "flex", alignItems: "center", gap: "8px", fontFamily: "'Inter',sans-serif", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 500 }}>
+            // Neither this nor the image box below declares a stacking order,
+            // so without this they paint in DOM order — the image box comes
+            // after this button in markup, so on a shrunk window (where the
+            // centered box's top-right corner can reach into this button's
+            // spot) it was painting over the button instead of under it.
+            // Explicit z-index keeps the button on top regardless of size.
+            style={{ position: "absolute", top: "24px", right: "28px", zIndex: 1, background: "rgba(22,22,22,0.6)", backdropFilter: "blur(4px)", border: "1px solid #3a3a3a", padding: "8px 14px", cursor: "pointer", color: "#9a9a9a", display: "flex", alignItems: "center", gap: "8px", fontFamily: "'Inter',sans-serif", fontSize: "9px", letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 500 }}>
             <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" /></svg>
             Close
           </button>
