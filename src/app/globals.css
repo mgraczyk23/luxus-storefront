@@ -325,6 +325,22 @@ a {
   .lxs-pdp-related { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
   .lxs-pdp-highlights { grid-template-columns: 1fr !important; }
   .lxs-related-price-row { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+
+  /* Lightbox prev/next arrows: on desktop they float in the empty dark
+     space outside the centered image (left/right: -52px), which has no
+     equivalent margin on a narrow phone screen — they were rendering
+     clipped off the edge of the viewport. Pull them onto the image itself
+     instead, small and inset like the main gallery's own arrows, with a
+     translucent dark chip so they stay readable over any photo. */
+  .lxs-lightbox-arrow-prev { left: 10px !important; }
+  .lxs-lightbox-arrow-next { right: 10px !important; }
+  .lxs-lightbox-arrow {
+    width: 34px !important;
+    height: 34px !important;
+    background: rgba(22,22,22,0.6) !important;
+    backdrop-filter: blur(4px);
+    border-color: rgba(255,255,255,0.25) !important;
+  }
 }
 
 /* ── GunBroker auction grid ──────────────────────────────────────────── */

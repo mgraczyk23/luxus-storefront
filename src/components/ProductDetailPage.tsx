@@ -1166,11 +1166,11 @@ export default function ProductDetailPage({
             )}
             {images.length > 1 && (
               <>
-                <button onClick={() => setActiveImg(i => (i - 1 + images.length) % images.length)}
+                <button className="lxs-lightbox-arrow lxs-lightbox-arrow-prev" onClick={() => setActiveImg(i => (i - 1 + images.length) % images.length)}
                   style={{ position: "absolute", left: "-52px", top: "50%", transform: "translateY(-50%)", background: "none", border: "1px solid #2a2a2a", width: "40px", height: "40px", cursor: "pointer", color: "#9a9a9a", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M6 1L1 6L6 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </button>
-                <button onClick={() => setActiveImg(i => (i + 1) % images.length)}
+                <button className="lxs-lightbox-arrow lxs-lightbox-arrow-next" onClick={() => setActiveImg(i => (i + 1) % images.length)}
                   style={{ position: "absolute", right: "-52px", top: "50%", transform: "translateY(-50%)", background: "none", border: "1px solid #2a2a2a", width: "40px", height: "40px", cursor: "pointer", color: "#9a9a9a", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <svg width="7" height="12" viewBox="0 0 7 12" fill="none"><path d="M1 1L6 6L1 11" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </button>
