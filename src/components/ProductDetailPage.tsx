@@ -1158,9 +1158,18 @@ export default function ProductDetailPage({
           </button>
 
           <div onClick={e => e.stopPropagation()} {...gallerySwipe}
-            style={{ maxWidth: "min(90vw,1000px)", width: "100%", aspectRatio: "4/3", maxHeight: "80vh", border: "1px solid #2a2a2a", position: "relative", background: "#161616" }}>
+            style={{
+              maxWidth: "min(92vw,1600px)", width: "100%", aspectRatio: "4/3",
+              // Reserve room for the outer 40px top/bottom padding and the
+              // thumbnail row below (52px + 20px margin) so a wider box on a
+              // big monitor can't push content off-screen — was a flat 80vh,
+              // which only stayed safe because the old 1000px width cap kept
+              // the resulting 4:3 height well under it regardless.
+              maxHeight: "calc(100vh - 160px)",
+              border: "1px solid #2a2a2a", position: "relative", background: "#161616",
+            }}>
             {images[activeImg] ? (
-              <Image src={images[activeImg]} alt={imgAlt(product)} fill style={{ objectFit: "contain" }} sizes="80vw" />
+              <Image src={images[activeImg]} alt={imgAlt(product)} fill style={{ objectFit: "contain" }} sizes="92vw" />
             ) : (
               <ImgBox index={activeImg} />
             )}
