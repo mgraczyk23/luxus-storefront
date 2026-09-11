@@ -13,6 +13,7 @@ import { isWishlisted, toggleWishlist } from '@/lib/auth'
 import { fetchRestrictions, checkState, type StateRestriction, type RestrictionCheckResult } from '@/lib/state-restrictions'
 import MakeAnOfferModal from '@/components/MakeAnOfferModal'
 import ContactAvailabilityModal from '@/components/ContactAvailabilityModal'
+import { useSwipe } from '@/hooks/useSwipe'
 import { trackEvent } from '@/lib/gtm'
 import { toSlug } from '@/lib/slug'
 
@@ -310,6 +311,13 @@ export default function ProductDetailPage({
   const images = product.images.filter(url => url !== product.thumbnail)
   const hasImages = images.length > 0
 
+  // Swipe left/right on the main gallery photo or the lightbox to switch
+  // images — same next/prev logic the arrow buttons already use.
+  const gallerySwipe = useSwipe(
+    () => setActiveImg(i => (i + 1) % images.length),
+    () => setActiveImg(i => (i - 1 + images.length) % images.length)
+  )
+
   // Build spec table: prefer server-fetched specs (from /specs endpoint — includes product_spec
   // table fields: Overall Length, Weight, Frame Material, Grips, Sights, Finish, Optics Ready,
   // plus all attribute-derived rows). Fall back to attribute + metadata values.
@@ -497,6 +505,7 @@ export default function ProductDetailPage({
               {/* Main image */}
               <div
                 onClick={() => hasImages && setLightboxOpen(true)}
+                {...gallerySwipe}
                 style={{
                   position: "relative", aspectRatio: "4/3",
                   border: `1px solid ${t.border}`,
@@ -1148,7 +1157,7 @@ export default function ProductDetailPage({
             Close
           </button>
 
-          <div onClick={e => e.stopPropagation()}
+          <div onClick={e => e.stopPropagation()} {...gallerySwipe}
             style={{ maxWidth: "min(90vw,1000px)", width: "100%", aspectRatio: "4/3", maxHeight: "80vh", border: "1px solid #2a2a2a", position: "relative", background: "#161616" }}>
             {images[activeImg] ? (
               <Image src={images[activeImg]} alt={imgAlt(product)} fill style={{ objectFit: "contain" }} sizes="80vw" />
