@@ -17,6 +17,7 @@ type FormState = {
   email: string
   phone: string
   message: string
+  productUpdates: boolean
 }
 
 type Status = 'idle' | 'submitting' | 'success' | 'error'
@@ -26,11 +27,12 @@ export default function ContactAvailabilityModal({ productTitle, productHandle, 
 
   const [form, setForm] = useState<FormState>({
     firstName: "", lastName: "", email: "", phone: "", message: "",
+    productUpdates: true,
   })
   const [status, setStatus] = useState<Status>('idle')
   const [errorMsg, setErrorMsg] = useState("")
 
-  const set = (field: keyof FormState, value: string) =>
+  const set = (field: keyof FormState, value: string | boolean) =>
     setForm(prev => ({ ...prev, [field]: value }))
 
   const canSubmit = form.firstName.trim() && form.email.trim() && status !== 'submitting'
@@ -49,11 +51,13 @@ export default function ContactAvailabilityModal({ productTitle, productHandle, 
           subject:    `Availability Inquiry: ${productTitle}`,
           product:    productTitle,
           productUrl: `${window.location.origin}/product/${productHandle}`,
+          productHandle,
           firstName:  form.firstName.trim(),
           lastName:   form.lastName.trim() || undefined,
           email:      form.email.trim(),
           phone:      form.phone.trim() || undefined,
           message:    form.message.trim() || undefined,
+          productUpdates: form.productUpdates ? 'Yes' : undefined,
         }),
       })
 
@@ -221,6 +225,21 @@ export default function ContactAvailabilityModal({ productTitle, productHandle, 
                   onBlur={e => (e.currentTarget.style.borderColor = t.border)} />
               </div>
             </div>
+
+            <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "14px", cursor: "pointer" }}>
+              <span
+                role="checkbox"
+                aria-checked={form.productUpdates}
+                tabIndex={0}
+                onClick={() => set("productUpdates", !form.productUpdates)}
+                onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set("productUpdates", !form.productUpdates) } }}
+                style={{ width: "14px", height: "14px", flexShrink: 0, marginTop: "1px", border: `1px solid ${form.productUpdates ? t.gold : t.border}`, background: form.productUpdates ? t.gold : "transparent", transition: "all 0.18s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px" }}>
+                {form.productUpdates && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+              </span>
+              <span style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, lineHeight: 1.6, letterSpacing: "0.01em" }}>
+                Keep me posted by email about this item&apos;s price and availability, and similar pieces as they become available.
+              </span>
+            </label>
 
             {status === 'error' && (
               <div style={{ padding: "10px 14px", marginBottom: "14px", background: "#fff8f6", border: "1px solid #e0a090", fontSize: "12px", color: "#9a3020" }}>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { EMAIL_FROM } from '@/lib/email-constants'
+import { klaviyoSubscribe, klaviyoTrackEvent } from '@/lib/klaviyo'
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY ?? ''
 
@@ -26,13 +27,14 @@ const LABELS: Record<string, string> = {
   message:       'Message',
   fflConsent:    'FFL Acknowledged',
   newsletter:    'Newsletter Opt-in',
+  productUpdates:'Notify About This Item',
 }
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ error: 'Invalid body' }, { status: 400 })
 
-  const { mailbox, subject, ...fields } = body as Record<string, string>
+  const { mailbox, subject, productHandle, ...fields } = body as Record<string, string>
 
   const to = MAILBOXES[mailbox]
   if (!to) return NextResponse.json({ error: 'Invalid mailbox' }, { status: 400 })
@@ -83,5 +85,18 @@ export async function POST(req: NextRequest) {
   })
 
   if (!res.ok) return NextResponse.json({ error: 'Send failed' }, { status: 502 })
+
+  // Opted in on the product inquiry form — add to the marketing list and tag which
+  // product they asked about so a back-in-stock / similar-item flow can target them later.
+  if (fields.productUpdates === 'Yes') {
+    klaviyoSubscribe(fields.email, fields.firstName)
+    klaviyoTrackEvent(fields.email, 'Requested Pricing/Availability', {
+      product: fields.product,
+      product_handle: productHandle,
+      product_url: fields.productUrl,
+      inquiry_type: subject,
+    })
+  }
+
   return NextResponse.json({ ok: true })
 }

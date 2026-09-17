@@ -240,6 +240,7 @@ export default function ProductDetailPage({
     firstName: "", lastName: "", email: "", phone: "",
     message: `I'm interested in the ${product.title} and would like more information.`,
     fflConsent: false,
+    productUpdates: true,
   })
   const [formStatus, setFormStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
   const [contactModalContext, setContactModalContext] = useState<'question' | 'pricing'>('question')
@@ -290,8 +291,10 @@ export default function ProductDetailPage({
             : `Product Question: ${product.title}`,
           product: `${product.brand ? product.brand + ' — ' : ''}${product.title}`,
           productUrl: `${window.location.origin}/product/${product.handle}`,
+          productHandle: product.handle,
           ...form,
           fflConsent: form.fflConsent ? 'Yes' : undefined,
+          productUpdates: form.productUpdates ? 'Yes' : undefined,
         }),
       })
       if (!res.ok) throw new Error()
@@ -1097,6 +1100,21 @@ export default function ProductDetailPage({
                     </span>
                   </label>
 
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "24px", cursor: "pointer" }}>
+                    <span
+                      role="checkbox"
+                      aria-checked={form.productUpdates}
+                      tabIndex={0}
+                      onClick={() => handleFormChange("productUpdates", !form.productUpdates)}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleFormChange("productUpdates", !form.productUpdates) } }}
+                      style={{ width: "14px", height: "14px", flexShrink: 0, marginTop: "1px", border: `1px solid ${form.productUpdates ? t.gold : t.border}`, background: form.productUpdates ? t.gold : "transparent", transition: "all 0.18s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px" }}>
+                      {form.productUpdates && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                    </span>
+                    <span style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, lineHeight: 1.6, letterSpacing: "0.01em" }}>
+                      Keep me posted by email about this item&apos;s price and availability, and similar pieces as they become available.
+                    </span>
+                  </label>
+
                   <button onClick={() => { setContactModalContext('question'); handleSubmit() }} disabled={formStatus === 'submitting'}
                     style={{ width: "100%", padding: "14px", background: formStatus === 'submitting' ? t.gold + "80" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: formStatus === 'submitting' ? "wait" : "pointer", borderRadius: "1px", transition: "all 0.22s" }}
                     onMouseEnter={e => { if (formStatus !== 'submitting') e.currentTarget.style.background = t.goldLight }}
@@ -1278,6 +1296,21 @@ export default function ProductDetailPage({
                       onFocus={e => (e.currentTarget.style.borderColor = t.gold + "70")}
                       onBlur={e => (e.currentTarget.style.borderColor = t.border)} />
                   </div>
+
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginTop: "4px", cursor: "pointer" }}>
+                    <span
+                      role="checkbox"
+                      aria-checked={form.productUpdates}
+                      tabIndex={0}
+                      onClick={() => handleFormChange("productUpdates", !form.productUpdates)}
+                      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleFormChange("productUpdates", !form.productUpdates) } }}
+                      style={{ width: "14px", height: "14px", flexShrink: 0, marginTop: "1px", border: `1px solid ${form.productUpdates ? t.gold : t.border}`, background: form.productUpdates ? t.gold : "transparent", transition: "all 0.18s", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "1px" }}>
+                      {form.productUpdates && <svg width="8" height="6" viewBox="0 0 8 6" fill="none"><path d="M1 3L3 5L7 1" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                    </span>
+                    <span style={{ fontSize: "11px", color: t.textMuted, fontWeight: 300, lineHeight: 1.6, letterSpacing: "0.01em" }}>
+                      Keep me posted by email about this item&apos;s price and availability, and similar pieces as they become available.
+                    </span>
+                  </label>
 
                   <button onClick={handleSubmit} disabled={formStatus === 'submitting' || !form.firstName || !form.email}
                     style={{ marginTop: "8px", padding: "13px 32px", background: (!form.firstName || !form.email) ? t.gold + "55" : t.gold, border: "none", color: "#fff", fontSize: "9.5px", letterSpacing: "0.18em", textTransform: "uppercase", fontFamily: "'Inter',sans-serif", fontWeight: 600, cursor: (!form.firstName || !form.email || formStatus === 'submitting') ? "not-allowed" : "pointer", transition: "background 0.2s" }}
