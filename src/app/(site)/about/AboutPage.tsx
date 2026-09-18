@@ -225,7 +225,7 @@ export default function AboutPage({
       [text.stat2Number ?? '', text.stat2Label ?? ''],
       [text.stat3Number ?? '', text.stat3Label ?? ''],
     ] as [string, string][],
-    fflLicense: settings?.fflLicense ?? text.fflLicenseNumber ?? '',
+    fflLicense: text.fflLicenseNumber || settings?.fflLicense || '',
 
     excellenceHeading: text.excellenceHeading ?? '',
     excellenceBody:    text.excellenceBody    ?? '',

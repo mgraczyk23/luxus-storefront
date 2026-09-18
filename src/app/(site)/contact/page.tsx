@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { getSiteSettings, getContactPageText, getPageSeo, imageUrl } from "@/lib/payload"
+import { getSiteSettings, getContactPageText, getAboutPageText, getPageSeo, imageUrl } from "@/lib/payload"
 import { ogMeta } from "@/lib/og"
 import ContactPage from "./ContactPage"
 
@@ -28,7 +28,7 @@ function to24h(t: string): string {
 }
 
 export default async function Page() {
-  const [settings, text] = await Promise.all([getSiteSettings(), getContactPageText()])
+  const [settings, text, aboutText] = await Promise.all([getSiteSettings(), getContactPageText(), getAboutPageText()])
 
   const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://luxus-collection.com'
   const name = settings.branding.legalName || 'Luxus Collection'
@@ -90,7 +90,7 @@ export default async function Page() {
     ...(openingHoursSpec.length > 0 ? { openingHoursSpecification: openingHoursSpec } : {}),
     ...(logoUrl ? { logo: { '@type': 'ImageObject', url: logoUrl } } : {}),
     ...(sameAs.length > 0 ? { sameAs } : {}),
-    ...(settings.fflLicense ? { identifier: { '@type': 'PropertyValue', name: 'FFL License', value: settings.fflLicense } } : {}),
+    ...((aboutText.fflLicenseNumber || settings.fflLicense) ? { identifier: { '@type': 'PropertyValue', name: 'FFL License', value: aboutText.fflLicenseNumber || settings.fflLicense } } : {}),
     contactPoint: [
       { '@type': 'ContactPoint', telephone: contact.phone,         contactType: 'sales',            areaServed: 'US', availableLanguage: 'English' },
       { '@type': 'ContactPoint', telephone: contact.phoneTollFree, contactType: 'customer service', areaServed: 'US', availableLanguage: 'English' },

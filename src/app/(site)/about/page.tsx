@@ -47,7 +47,7 @@ export default async function Page() {
         postalCode:      settings.address.zip,
         addressCountry:  'US',
       },
-      ...(settings.fflLicense ? { identifier: { '@type': 'PropertyValue', name: 'FFL License', value: settings.fflLicense } } : {}),
+      ...((text.fflLicenseNumber || settings.fflLicense) ? { identifier: { '@type': 'PropertyValue', name: 'FFL License', value: text.fflLicenseNumber || settings.fflLicense } } : {}),
       description: text.missionBody1 || text.heroDescription || undefined,
     },
   }
