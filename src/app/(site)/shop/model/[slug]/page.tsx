@@ -17,7 +17,7 @@ function singleBrand(products: ReturnType<typeof mapMedusaProduct>[]): string | 
   return brands.size === 1 ? [...brands][0] : null
 }
 
-const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata"
+const PRODUCT_FIELDS = "id,title,handle,subtitle,thumbnail,created_at,*variants,*variants.prices,*variants.inventory_quantity,categories.id,categories.name,categories.handle,collection.id,collection.handle,+metadata,*attribute_values,*attribute_values.attribute_type"
 const PAGE_SIZE = 100
 
 async function getAllProducts() {
